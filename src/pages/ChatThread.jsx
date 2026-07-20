@@ -51,23 +51,38 @@ export default function ChatThread() {
   const canSend = !isParent && (user.id === thread.teen_user_id || user.id === thread.buyer_user_id);
 
   const send = async () => {
-    if (!body.trim()) return;
-    setSending(true);
-    const { text, flagged } = maskPII(body.trim(), thread.is_confirmed);
-    const msg = await base44.entities.Message.create({
-      thread_id: thread.id,
-      sender_id: user.id,
-      sender_name: user.id === thread.teen_user_id ? thread.teen_display_name : thread.buyer_name,
-      body: text,
-      flagged,
-      pii_masked: text !== body.trim(),
-    });
-    await base44.entities.MessageThread.update(thread.id, {
-      last_message: text.slice(0, 80),
-      last_message_at: new Date().toISOString(),
-    });
-    setMessages((prev) => (prev.some((m) => m.id === msg.id) ? prev : [...prev, msg]));
+    const raw = body.trim();
+    if (!raw) return;
+    const { text, flagged } = maskPII(raw, thread.is_confirmed);
+    const senderName = user.id === thread.teen_user_id ? thread.teen_display_name : thread.buyer_name;
+
+    // Optimistic: show the message instantly, then swap in the saved record.
+    const tempId = `temp-${Date.now()}`;
+    setMessages((prev) => [...prev, { id: tempId, thread_id: thread.id, sender_id: user.id, sender_name: senderName, body: text, flagged, pending: true }]);
     setBody("");
+    setSending(true);
+    try {
+      const msg = await base44.entities.Message.create({
+        thread_id: thread.id,
+        sender_id: user.id,
+        sender_name: senderName,
+        body: text,
+        flagged,
+        pii_masked: text !== raw,
+      });
+      setMessages((prev) => {
+        const withoutTemp = prev.filter((m) => m.id !== tempId);
+        return withoutTemp.some((m) => m.id === msg.id) ? withoutTemp : [...withoutTemp, msg];
+      });
+      await base44.entities.MessageThread.update(thread.id, {
+        last_message: text.slice(0, 80),
+        last_message_at: new Date().toISOString(),
+      });
+    } catch {
+      // Roll back and restore the draft so nothing is lost
+      setMessages((prev) => prev.filter((m) => m.id !== tempId));
+      setBody(raw);
+    }
     setSending(false);
   };
 
@@ -96,7 +111,7 @@ export default function ChatThread() {
           const mine = m.sender_id === user.id;
           return (
             <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
-              <div className={`max-w-[75%] rounded-2xl px-4 py-2.5 text-sm ${mine ? "bg-blue-600 text-white rounded-br-md" : "bg-white border border-slate-100 text-slate-800 rounded-bl-md shadow-sm"}`}>
+              <div className={`max-w-[75%] rounded-2xl px-4 py-2.5 text-sm ${m.pending ? "opacity-60" : ""} ${mine ? "bg-blue-600 text-white rounded-br-md" : "bg-white border border-slate-100 text-slate-800 rounded-bl-md shadow-sm"}`}>
                 {!mine && <p className={`text-[10px] font-bold mb-0.5 ${mine ? "text-blue-100" : "text-blue-600"}`}>{m.sender_name}</p>}
                 <p className="whitespace-pre-wrap">{m.body}</p>
                 {m.flagged && (

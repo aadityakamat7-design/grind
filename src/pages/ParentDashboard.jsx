@@ -8,6 +8,7 @@ import StudentIncomeCard from "@/components/grind/parent/StudentIncomeCard";
 import ApprovalQueue from "@/components/grind/parent/ApprovalQueue";
 import SafetyPanel from "@/components/grind/parent/SafetyPanel";
 import ActivityFeed from "@/components/grind/parent/ActivityFeed";
+import PullToRefresh from "@/components/PullToRefresh";
 
 export default function ParentDashboard() {
   const { user } = useOutletContext();
@@ -43,10 +44,12 @@ export default function ParentDashboard() {
 
   if (links.length === 0)
     return (
-      <div className="space-y-6">
-        <h1 className="text-2xl font-extrabold text-slate-900">Parent dashboard</h1>
-        <EmptyState icon={Users} title="No linked students yet" subtitle="Ask your teen for their parent code and link their account to see their jobs, income, and safety status here." />
-      </div>
+      <PullToRefresh onRefresh={load}>
+        <div className="space-y-6">
+          <h1 className="text-2xl font-extrabold text-slate-900">Parent dashboard</h1>
+          <EmptyState icon={Users} title="No linked students yet" subtitle="Ask your teen for their parent code and link their account to see their jobs, income, and safety status here." />
+        </div>
+      </PullToRefresh>
     );
 
   const shownLinks = selected === "all" ? links : links.filter((l) => l.teen_user_id === selected);
@@ -62,6 +65,7 @@ export default function ParentDashboard() {
   const alerts = notifications.filter((n) => n.type === "safety").slice(0, 1);
 
   return (
+    <PullToRefresh onRefresh={load}>
     <div className="space-y-7">
       <div>
         <h1 className="text-2xl font-extrabold text-slate-900">Parent dashboard</h1>
@@ -124,5 +128,6 @@ export default function ParentDashboard() {
 
       <ActivityFeed notifications={notifications} />
     </div>
+    </PullToRefresh>
   );
 }

@@ -12,6 +12,7 @@ import ProfileStatsWidget from "@/components/grind/teen/ProfileStatsWidget";
 import MessagesWidget from "@/components/grind/teen/MessagesWidget";
 import CashOutDialog from "@/components/grind/wallet/CashOutDialog";
 import { getOrCreateWallet } from "@/lib/wallet";
+import PullToRefresh from "@/components/PullToRefresh";
 
 export default function TeenHome() {
   const { user } = useOutletContext();
@@ -60,6 +61,7 @@ export default function TeenHome() {
   };
 
   return (
+    <PullToRefresh onRefresh={load}>
     <div className="space-y-6">
       <div className="flex items-start justify-between gap-3">
         <div>
@@ -151,5 +153,6 @@ export default function TeenHome() {
         <CashOutDialog open={cashOutOpen} onOpenChange={setCashOutOpen} wallet={wallet} onDone={load} />
       )}
     </div>
+    </PullToRefresh>
   );
 }

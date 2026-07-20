@@ -7,6 +7,7 @@ import ListingCard from "@/components/grind/ListingCard";
 import EmptyState from "@/components/grind/EmptyState";
 import SavedTeensRow from "@/components/grind/SavedTeensRow";
 import { CATEGORIES } from "@/lib/grind";
+import PullToRefresh from "@/components/PullToRefresh";
 
 export default function Browse() {
   const { user } = useOutletContext();
@@ -48,6 +49,7 @@ export default function Browse() {
     .sort((a, b) => (b.teen_zip === myZip ? 1 : 0) - (a.teen_zip === myZip ? 1 : 0));
 
   return (
+    <PullToRefresh onRefresh={load}>
     <div className="space-y-5">
       <div>
         <h1 className="text-2xl font-extrabold text-slate-900">Find local help</h1>
@@ -102,5 +104,6 @@ export default function Browse() {
         </div>
       )}
     </div>
+    </PullToRefresh>
   );
 }

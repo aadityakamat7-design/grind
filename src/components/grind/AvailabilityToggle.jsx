@@ -3,14 +3,17 @@ import { base44 } from "@/api/base44Client";
 import { Switch } from "@/components/ui/switch";
 
 export default function AvailabilityToggle({ profile, onChanged }) {
-  const available = profile.is_available !== false;
-  const [saving, setSaving] = useState(false);
+  // Optimistic: flip instantly, roll back if the save fails.
+  const [available, setAvailable] = useState(profile.is_available !== false);
 
   const toggle = async (v) => {
-    setSaving(true);
-    await base44.entities.TeenProfile.update(profile.id, { is_available: v });
-    setSaving(false);
-    onChanged?.();
+    setAvailable(v);
+    try {
+      await base44.entities.TeenProfile.update(profile.id, { is_available: v });
+      onChanged?.();
+    } catch {
+      setAvailable(!v);
+    }
   };
 
   return (
@@ -24,7 +27,7 @@ export default function AvailabilityToggle({ profile, onChanged }) {
           </p>
         </div>
       </div>
-      <Switch checked={available} disabled={saving} onCheckedChange={toggle} />
+      <Switch checked={available} onCheckedChange={toggle} />
     </div>
   );
 }

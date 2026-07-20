@@ -8,6 +8,7 @@ import RecommendedTeens from "@/components/grind/buyer/RecommendedTeens";
 import BookingCard from "@/components/grind/BookingCard";
 import ReferralCard from "@/components/grind/ReferralCard";
 import ReviewNudge from "@/components/grind/ReviewNudge";
+import PullToRefresh from "@/components/PullToRefresh";
 
 export default function BuyerHome() {
   const { user } = useOutletContext();
@@ -40,6 +41,7 @@ export default function BuyerHome() {
   const past = bookings.filter((b) => ["completed", "cancelled", "denied"].includes(b.status)).slice(0, 5);
 
   return (
+    <PullToRefresh onRefresh={load}>
     <div className="space-y-7">
       <div>
         <h1 className="text-2xl font-extrabold text-slate-900">Hi, {(user.full_name || "neighbor").split(" ")[0]} 👋</h1>
@@ -110,5 +112,6 @@ export default function BuyerHome() {
         )}
       </div>
     </div>
+    </PullToRefresh>
   );
 }

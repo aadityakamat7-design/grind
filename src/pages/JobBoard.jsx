@@ -7,6 +7,7 @@ import JobPostCard from "@/components/grind/jobs/JobPostCard";
 import JobPostForm from "@/components/grind/jobs/JobPostForm";
 import AcceptJobButton from "@/components/grind/jobs/AcceptJobButton";
 import EmptyState from "@/components/grind/EmptyState";
+import PullToRefresh from "@/components/PullToRefresh";
 
 export default function JobBoard() {
   const { user } = useOutletContext();
@@ -41,6 +42,7 @@ export default function JobBoard() {
     return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin" /></div>;
 
   return (
+    <PullToRefresh onRefresh={load}>
     <div className="space-y-5">
       <div className="flex items-start justify-between gap-3">
         <div>
@@ -106,5 +108,6 @@ export default function JobBoard() {
         />
       )}
     </div>
+    </PullToRefresh>
   );
 }
