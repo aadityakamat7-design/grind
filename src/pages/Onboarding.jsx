@@ -6,7 +6,7 @@ import TeenOnboarding from "@/components/grind/onboarding/TeenOnboarding";
 import ParentOnboarding from "@/components/grind/onboarding/ParentOnboarding";
 import BuyerOnboarding from "@/components/grind/onboarding/BuyerOnboarding";
 
-const ROLE_HOME = { TEEN: "/teen", PARENT: "/parent", BUYER: "/browse" };
+const ROLE_HOME = { TEEN: "/teen", PARENT: "/parent", BUYER: "/buyer" };
 
 export default function Onboarding() {
   const { user, loading } = useAppUser();

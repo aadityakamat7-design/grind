@@ -20,6 +20,7 @@ import ParentDashboard from '@/pages/ParentDashboard';
 import ParentApprovals from '@/pages/ParentApprovals';
 import ParentPayouts from '@/pages/ParentPayouts';
 import Browse from '@/pages/Browse';
+import BuyerHome from '@/pages/BuyerHome';
 import TeenPublicProfile from '@/pages/TeenPublicProfile';
 import BuyerBookings from '@/pages/BuyerBookings';
 import BookingDetail from '@/pages/BookingDetail';
@@ -67,6 +68,7 @@ const AuthenticatedApp = () => {
         <Route path="/parent" element={<ParentDashboard />} />
         <Route path="/parent/approvals" element={<ParentApprovals />} />
         <Route path="/parent/payouts" element={<ParentPayouts />} />
+        <Route path="/buyer" element={<BuyerHome />} />
         <Route path="/browse" element={<Browse />} />
         <Route path="/teens/:teenUserId" element={<TeenPublicProfile />} />
         <Route path="/buyer/bookings" element={<BuyerBookings />} />

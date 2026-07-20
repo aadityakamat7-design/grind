@@ -1,11 +1,10 @@
 import React from "react";
-import { ArrowDownLeft, ArrowUpRight, PiggyBank } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight } from "lucide-react";
 import { format } from "date-fns";
 import { money } from "@/lib/grind";
 
 const CONFIG = {
   earning: { icon: ArrowDownLeft, style: "bg-emerald-50 text-emerald-600", sign: "+" },
-  save: { icon: PiggyBank, style: "bg-blue-50 text-blue-600", sign: "" },
   cashout: { icon: ArrowUpRight, style: "bg-slate-100 text-slate-500", sign: "−" },
 };
 

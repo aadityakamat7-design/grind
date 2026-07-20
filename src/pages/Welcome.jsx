@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Zap, ShieldCheck, BadgeCheck, Wallet, MapPin } from "lucide-react";
 import { useAppUser } from "@/lib/useAppUser";
 
-const ROLE_HOME = { TEEN: "/teen", PARENT: "/parent", BUYER: "/browse" };
+const ROLE_HOME = { TEEN: "/teen", PARENT: "/parent", BUYER: "/buyer" };
 
 export default function Welcome() {
   const { user, loading } = useAppUser();

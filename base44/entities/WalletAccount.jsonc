@@ -8,15 +8,6 @@
     "balance": {
       "type": "number",
       "default": 0
-    },
-    "auto_save_pct": {
-      "type": "number",
-      "default": 0,
-      "description": "Percent of each job auto-saved to the active savings goal"
-    },
-    "card_last4": {
-      "type": "string",
-      "description": "Mock debit card last 4 digits"
     }
   },
   "required": [

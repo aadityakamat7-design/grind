@@ -19,6 +19,7 @@ const TABS = {
     { to: "/parent/payouts", label: "Payouts", icon: Wallet },
   ],
   BUYER: [
+    { to: "/buyer", label: "Home", icon: Home, end: true },
     { to: "/browse", label: "Browse", icon: Search },
     { to: "/buyer/bookings", label: "Bookings", icon: CalendarDays },
     { to: "/messages", label: "Messages", icon: MessageCircle },

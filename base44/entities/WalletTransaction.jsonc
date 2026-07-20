@@ -9,7 +9,6 @@
       "type": "string",
       "enum": [
         "earning",
-        "save",
         "cashout"
       ]
     },

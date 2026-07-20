@@ -1,31 +1,43 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Link, useOutletContext } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { Wallet, CalendarDays, ShieldAlert, Copy, Check, Sparkles } from "lucide-react";
+import { ShieldAlert, Copy, Check, Plus } from "lucide-react";
 import BookingCard from "@/components/grind/BookingCard";
-import EmptyState from "@/components/grind/EmptyState";
 import TeenChecklist from "@/components/grind/TeenChecklist";
 import AvailabilityToggle from "@/components/grind/AvailabilityToggle";
 import UpcomingCalendar from "@/components/grind/UpcomingCalendar";
-import { money } from "@/lib/grind";
+import AlertParentButton from "@/components/grind/AlertParentButton";
+import EarningsSummary from "@/components/grind/teen/EarningsSummary";
+import ProfileStatsWidget from "@/components/grind/teen/ProfileStatsWidget";
+import MessagesWidget from "@/components/grind/teen/MessagesWidget";
+import CashOutDialog from "@/components/grind/wallet/CashOutDialog";
+import { getOrCreateWallet } from "@/lib/wallet";
 
 export default function TeenHome() {
   const { user } = useOutletContext();
   const [profile, setProfile] = useState(null);
   const [bookings, setBookings] = useState([]);
-  const [earnings, setEarnings] = useState(0);
+  const [wallet, setWallet] = useState(null);
+  const [weekEarned, setWeekEarned] = useState(0);
+  const [threads, setThreads] = useState([]);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+  const [cashOutOpen, setCashOutOpen] = useState(false);
 
   const load = useCallback(async () => {
-    const [profiles, myBookings, records] = await Promise.all([
+    const [profiles, myBookings, w, txns, myThreads] = await Promise.all([
       base44.entities.TeenProfile.filter({ user_id: user.id }),
-      base44.entities.Booking.filter({ teen_user_id: user.id }, "-created_date", 20),
-      base44.entities.EarningsRecord.filter({ teen_user_id: user.id }),
+      base44.entities.Booking.filter({ teen_user_id: user.id }, "-created_date", 50),
+      getOrCreateWallet(user.id),
+      base44.entities.WalletTransaction.filter({ teen_user_id: user.id, type: "earning" }, "-occurred_at", 50),
+      base44.entities.MessageThread.filter({ teen_user_id: user.id }, "-last_message_at", 5),
     ]);
+    const weekAgo = Date.now() - 7 * 86400000;
     setProfile(profiles[0] || null);
     setBookings(myBookings);
-    setEarnings(records.reduce((s, r) => s + (r.net_amount || 0), 0));
+    setWallet(w);
+    setWeekEarned(txns.filter((t) => t.occurred_at && new Date(t.occurred_at) > weekAgo).reduce((s, t) => s + t.amount, 0));
+    setThreads(myThreads);
     setLoading(false);
   }, [user.id]);
 
@@ -34,8 +46,12 @@ export default function TeenHome() {
   if (loading)
     return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin" /></div>;
 
+  const activeJobs = bookings.filter((b) => b.status === "in_progress");
   const upcoming = bookings.filter((b) => ["confirmed", "in_progress"].includes(b.status));
   const pendingApproval = bookings.filter((b) => b.status === "pending_parent_approval");
+  const pendingEscrow = bookings
+    .filter((b) => b.payment_status === "held" && ["confirmed", "in_progress", "completed"].includes(b.status))
+    .reduce((s, b) => s + (b.net_amount || 0), 0);
 
   const copyCode = () => {
     navigator.clipboard.writeText(profile?.invite_code || "");
@@ -45,14 +61,15 @@ export default function TeenHome() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-extrabold text-slate-900">Hey, {profile?.display_name?.split(" ")[0]} 👋</h1>
-        <p className="text-sm text-slate-500 mt-1">Here's what's happening with your hustle.</p>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-extrabold text-slate-900">Hey, {profile?.display_name?.split(" ")[0]} 👋</h1>
+          <p className="text-sm text-slate-500 mt-1">Here's what's happening with your hustle.</p>
+        </div>
+        <Link to="/teen/listings" className="flex items-center gap-1 shrink-0 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl px-3 py-2 transition-colors">
+          <Plus className="w-3.5 h-3.5" /> Create listing
+        </Link>
       </div>
-
-      <TeenChecklist profile={profile} bookings={bookings} />
-
-      {profile && <AvailabilityToggle profile={profile} onChanged={load} />}
 
       {profile?.status === "pending_parent" && (
         <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5">
@@ -76,18 +93,35 @@ export default function TeenHome() {
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-3">
-        <div className="bg-gradient-to-br from-blue-600 to-sky-500 rounded-2xl p-5 text-white shadow-lg shadow-blue-100">
-          <Wallet className="w-5 h-5 opacity-80" />
-          <p className="text-2xl font-extrabold mt-2">{money(earnings)}</p>
-          <p className="text-xs opacity-80 mt-0.5">Total earned</p>
+      <EarningsSummary
+        balance={wallet?.balance || 0}
+        week={weekEarned}
+        pending={pendingEscrow}
+        onCashOut={() => setCashOutOpen(true)}
+      />
+
+      {profile && <AvailabilityToggle profile={profile} onChanged={load} />}
+
+      {activeJobs.length > 0 && (
+        <div>
+          <h2 className="font-bold text-slate-900 mb-3 flex items-center gap-2">
+            Job in progress
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          </h2>
+          <div className="space-y-3">
+            {activeJobs.map((b) => (
+              <div key={b.id} className="space-y-3">
+                <BookingCard booking={b} perspective="teen" />
+                <AlertParentButton booking={b} />
+              </div>
+            ))}
+          </div>
         </div>
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
-          <CalendarDays className="w-5 h-5 text-blue-500" />
-          <p className="text-2xl font-extrabold text-slate-900 mt-2">{upcoming.length}</p>
-          <p className="text-xs text-slate-500 mt-0.5">Upcoming jobs</p>
-        </div>
-      </div>
+      )}
+
+      <TeenChecklist profile={profile} bookings={bookings} />
+
+      {profile && <ProfileStatsWidget profile={profile} />}
 
       {pendingApproval.length > 0 && (
         <div>
@@ -101,20 +135,21 @@ export default function TeenHome() {
       <div>
         <h2 className="font-bold text-slate-900 mb-3">Upcoming jobs</h2>
         {upcoming.length === 0 ? (
-          <EmptyState
-            icon={Sparkles}
-            title="No jobs yet"
-            subtitle={profile?.status === "active" ? "Publish a service so neighbors can find you." : "Once your parent approves your account, you can start taking jobs."}
-            action={profile?.status === "active" && (
-              <Link to="/teen/listings" className="text-sm font-bold text-blue-600 hover:text-blue-700">
-                Create a service →
-              </Link>
-            )}
-          />
+          <p className="text-sm text-slate-400">
+            {profile?.status === "active"
+              ? "No jobs booked yet — publish a service so neighbors can find you."
+              : "Once your parent approves your account, you can start taking jobs."}
+          </p>
         ) : (
           <UpcomingCalendar bookings={upcoming} />
         )}
       </div>
+
+      <MessagesWidget threads={threads} />
+
+      {cashOutOpen && wallet && (
+        <CashOutDialog open={cashOutOpen} onOpenChange={setCashOutOpen} wallet={wallet} onDone={load} />
+      )}
     </div>
   );
 }
