@@ -15,6 +15,7 @@ import TeenHome from '@/pages/TeenHome';
 import TeenListings from '@/pages/TeenListings';
 import TeenBookings from '@/pages/TeenBookings';
 import TeenEarnings from '@/pages/TeenEarnings';
+import TeenWallet from '@/pages/TeenWallet';
 import ParentDashboard from '@/pages/ParentDashboard';
 import ParentApprovals from '@/pages/ParentApprovals';
 import ParentPayouts from '@/pages/ParentPayouts';
@@ -62,6 +63,7 @@ const AuthenticatedApp = () => {
         <Route path="/teen/listings" element={<TeenListings />} />
         <Route path="/teen/bookings" element={<TeenBookings />} />
         <Route path="/teen/earnings" element={<TeenEarnings />} />
+        <Route path="/teen/wallet" element={<TeenWallet />} />
         <Route path="/parent" element={<ParentDashboard />} />
         <Route path="/parent/approvals" element={<ParentApprovals />} />
         <Route path="/parent/payouts" element={<ParentPayouts />} />

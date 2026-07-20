@@ -1,0 +1,19 @@
+{
+  "name": "SavedTeen",
+  "type": "object",
+  "properties": {
+    "buyer_user_id": {
+      "type": "string"
+    },
+    "teen_user_id": {
+      "type": "string"
+    },
+    "teen_display_name": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "buyer_user_id",
+    "teen_user_id"
+  ]
+}

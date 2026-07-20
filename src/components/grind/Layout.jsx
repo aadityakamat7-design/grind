@@ -10,7 +10,7 @@ const TABS = {
     { to: "/teen/listings", label: "Listings", icon: List },
     { to: "/teen/bookings", label: "Bookings", icon: CalendarDays },
     { to: "/messages", label: "Messages", icon: MessageCircle },
-    { to: "/teen/earnings", label: "Earnings", icon: Wallet },
+    { to: "/teen/wallet", label: "Wallet", icon: Wallet },
   ],
   PARENT: [
     { to: "/parent", label: "Dashboard", icon: LayoutDashboard, end: true },

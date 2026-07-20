@@ -7,6 +7,7 @@ import RatingStars from "@/components/grind/RatingStars";
 import TrustBadge from "@/components/grind/TrustBadge";
 import BookDialog from "@/components/grind/BookDialog";
 import ReportButton from "@/components/grind/ReportButton";
+import SaveTeenButton from "@/components/grind/SaveTeenButton";
 import { CATEGORY_LABELS, money } from "@/lib/grind";
 import { format } from "date-fns";
 
@@ -62,7 +63,8 @@ export default function TeenPublicProfile() {
         <p className="text-[11px] text-slate-400 mt-3 flex items-center justify-center gap-1">
           <Lock className="w-3 h-3" /> Contact info and exact addresses stay hidden until a booking is confirmed.
         </p>
-        <div className="mt-3">
+        <div className="mt-3 flex items-center justify-center gap-4">
+          <SaveTeenButton buyer={user} teenUserId={profile.user_id} teenName={profile.display_name} />
           <ReportButton reporter={user} subjectId={profile.user_id} subjectName={profile.display_name} />
         </div>
       </div>

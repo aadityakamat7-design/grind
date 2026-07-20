@@ -2,13 +2,14 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useOutletContext, Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { CalendarDays, MapPin, Lock, MessageCircle, FileText, Play, CheckCircle2 } from "lucide-react";
+import { CalendarDays, MapPin, Lock, MessageCircle, FileText, Play, CheckCircle2, Repeat } from "lucide-react";
 import { format } from "date-fns";
 import StatusBadge from "@/components/grind/StatusBadge";
 import TrustBadge from "@/components/grind/TrustBadge";
 import ReviewDialog from "@/components/grind/ReviewDialog";
 import { money } from "@/lib/grind";
 import { notify } from "@/lib/notify";
+import { creditWallet } from "@/lib/wallet";
 
 export default function BookingDetail() {
   const { bookingId } = useParams();
@@ -64,7 +65,8 @@ export default function BookingDetail() {
       occurred_at: new Date().toISOString(),
       tax_year: new Date().getFullYear(),
     });
-    await notify(booking.teen_user_id, { type: "payment", title: "You got paid!", body: `${money(booking.net_amount)} released for "${booking.listing_title}".`, link: `/teen/earnings` });
+    await creditWallet(booking.teen_user_id, booking.net_amount, `"${booking.listing_title}" — ${booking.buyer_name}`);
+    await notify(booking.teen_user_id, { type: "payment", title: "You got paid!", body: `${money(booking.net_amount)} landed in your Grind Wallet for "${booking.listing_title}".`, link: `/teen/wallet` });
     await notify(booking.parent_user_id, { type: "payment", title: "Payout released", body: `${money(booking.net_amount)} from "${booking.listing_title}" is on its way to your account.`, link: `/parent/payouts` });
     setActing(false);
     setReviewOpen(true);
@@ -88,6 +90,11 @@ export default function BookingDetail() {
         <div className="flex items-center gap-2 mt-3 flex-wrap">
           <StatusBadge status={booking.status} />
           <StatusBadge status={booking.payment_status} />
+          {booking.is_recurring && (
+            <span className="inline-flex items-center gap-1 rounded-full border border-blue-200 bg-blue-50 text-blue-700 px-2.5 py-0.5 text-xs font-semibold capitalize">
+              <Repeat className="w-3 h-3" /> {booking.recurrence || "recurring"}
+            </span>
+          )}
           {booking.status === "in_progress" && <TrustBadge type="location_shared" />}
         </div>
 
@@ -152,6 +159,13 @@ export default function BookingDetail() {
           >
             Cancel & refund
           </Button>
+        )}
+        {isBuyer && booking.status === "completed" && (
+          <Link to={`/teens/${booking.teen_user_id}`}>
+            <Button variant="outline" className="w-full rounded-xl">
+              <Repeat className="w-4 h-4 mr-2" /> Book {booking.teen_display_name} again
+            </Button>
+          </Link>
         )}
         {canReview && booking.payment_status === "released" && (
           <Button variant="outline" className="w-full rounded-xl" onClick={() => setReviewOpen(true)}>

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ShieldCheck, Lock } from "lucide-react";
 import { computeFees, money } from "@/lib/grind";
 import { notify } from "@/lib/notify";
@@ -16,6 +17,7 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
   const [hours, setHours] = useState(1);
   const [address, setAddress] = useState(buyerProfile?.address || "");
   const [notes, setNotes] = useState("");
+  const [recurrence, setRecurrence] = useState("none");
   const [saving, setSaving] = useState(false);
 
   const total = listing.price_model === "HOURLY" ? Number(listing.price) * Number(hours || 1) : Number(listing.price);
@@ -36,6 +38,8 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
       scheduled_start: when ? new Date(when).toISOString() : null,
       address,
       notes,
+      is_recurring: recurrence !== "none",
+      recurrence: recurrence !== "none" ? recurrence : undefined,
       status: "pending_parent_approval",
       price_total: total,
       platform_fee,
@@ -70,6 +74,18 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
           <div>
             <Label>Date & time</Label>
             <Input type="datetime-local" className="rounded-xl mt-1" value={when} onChange={(e) => setWhen(e.target.value)} />
+          </div>
+          <div>
+            <Label>How often?</Label>
+            <Select value={recurrence} onValueChange={setRecurrence}>
+              <SelectTrigger className="rounded-xl mt-1"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">One-time job</SelectItem>
+                <SelectItem value="weekly">Weekly (recurring)</SelectItem>
+                <SelectItem value="biweekly">Every 2 weeks (recurring)</SelectItem>
+                <SelectItem value="monthly">Monthly (recurring)</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           {listing.price_model === "HOURLY" && (
             <div>

@@ -23,8 +23,13 @@ export default function BookingCard({ booking, perspective }) {
           {otherParty}
           {booking.scheduled_start && ` · ${format(new Date(booking.scheduled_start), "MMM d, h:mm a")}`}
         </p>
-        <div className="mt-1.5">
+        <div className="mt-1.5 flex items-center gap-1.5 flex-wrap">
           <StatusBadge status={booking.status} />
+          {booking.is_recurring && (
+            <span className="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 text-blue-700 px-2 py-0.5 text-[11px] font-semibold capitalize">
+              {booking.recurrence || "recurring"}
+            </span>
+          )}
         </div>
       </div>
       <div className="text-right shrink-0">

@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Search, MapPin } from "lucide-react";
 import ListingCard from "@/components/grind/ListingCard";
 import EmptyState from "@/components/grind/EmptyState";
+import SavedTeensRow from "@/components/grind/SavedTeensRow";
 import { CATEGORIES } from "@/lib/grind";
 
 export default function Browse() {
@@ -51,6 +52,8 @@ export default function Browse() {
           </p>
         )}
       </div>
+
+      <SavedTeensRow userId={user.id} />
 
       <div className="relative">
         <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />

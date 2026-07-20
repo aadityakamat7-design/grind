@@ -34,6 +34,18 @@
     "notes": {
       "type": "string"
     },
+    "is_recurring": {
+      "type": "boolean",
+      "default": false
+    },
+    "recurrence": {
+      "type": "string",
+      "enum": [
+        "weekly",
+        "biweekly",
+        "monthly"
+      ]
+    },
     "status": {
       "type": "string",
       "enum": [

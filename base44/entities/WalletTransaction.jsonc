@@ -1,0 +1,32 @@
+{
+  "name": "WalletTransaction",
+  "type": "object",
+  "properties": {
+    "teen_user_id": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "earning",
+        "save",
+        "cashout"
+      ]
+    },
+    "amount": {
+      "type": "number"
+    },
+    "description": {
+      "type": "string"
+    },
+    "occurred_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "teen_user_id",
+    "type",
+    "amount"
+  ]
+}
