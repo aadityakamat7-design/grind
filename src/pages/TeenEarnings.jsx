@@ -21,7 +21,7 @@ export default function TeenEarnings() {
   useEffect(() => { load(); }, [load]);
 
   if (loading)
-    return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-violet-100 border-t-violet-600 rounded-full animate-spin" /></div>;
+    return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin" /></div>;
 
   const total = records.reduce((s, r) => s + (r.net_amount || 0), 0);
   const thisYear = new Date().getFullYear();
@@ -57,7 +57,7 @@ export default function TeenEarnings() {
         )}
       </div>
 
-      <div className="bg-gradient-to-br from-violet-600 to-indigo-500 rounded-2xl p-6 text-white shadow-lg shadow-violet-100">
+      <div className="bg-gradient-to-br from-blue-600 to-sky-500 rounded-2xl p-6 text-white shadow-lg shadow-blue-100">
         <p className="text-sm opacity-80">Total earned</p>
         <p className="text-4xl font-extrabold mt-1">{money(total)}</p>
         <p className="text-xs opacity-70 mt-2">{money(yearTotal)} earned in {thisYear}</p>

@@ -120,8 +120,8 @@ export default function TeenOnboarding({ user }) {
                 onClick={() => toggleSkill(s)}
                 className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
                   skills.includes(s)
-                    ? "bg-violet-600 text-white border-violet-600"
-                    : "bg-white text-slate-600 border-slate-200 hover:border-violet-300"
+                    ? "bg-blue-600 text-white border-blue-600"
+                    : "bg-white text-slate-600 border-slate-200 hover:border-blue-300"
                 }`}
               >
                 {s}
@@ -146,7 +146,7 @@ export default function TeenOnboarding({ user }) {
       </p>
       <div className="bg-slate-50 rounded-2xl p-5">
         <p className="text-xs text-slate-400 font-semibold uppercase tracking-wide">Your parent code</p>
-        <p className="text-3xl font-extrabold tracking-[0.3em] text-violet-600 mt-1">{inviteCode}</p>
+        <p className="text-3xl font-extrabold tracking-[0.3em] text-blue-600 mt-1">{inviteCode}</p>
       </div>
       <Button variant="outline" className="w-full rounded-xl" onClick={copyCode}>
         {copied ? <Check className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}

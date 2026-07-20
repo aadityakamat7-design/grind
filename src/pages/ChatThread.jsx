@@ -44,7 +44,7 @@ export default function ChatThread() {
   }, [messages]);
 
   if (loading)
-    return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-violet-100 border-t-violet-600 rounded-full animate-spin" /></div>;
+    return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin" /></div>;
   if (!thread) return <p className="text-center text-slate-500 py-20">Conversation not found.</p>;
 
   const isParent = user.app_role === "PARENT";
@@ -84,7 +84,7 @@ export default function ChatThread() {
           </p>
         )}
         {isParent && (
-          <p className="text-[11px] text-violet-600 mt-1 flex items-center gap-1">
+          <p className="text-[11px] text-blue-600 mt-1 flex items-center gap-1">
             <Eye className="w-3 h-3" /> Read-only parent view
           </p>
         )}
@@ -96,11 +96,11 @@ export default function ChatThread() {
           const mine = m.sender_id === user.id;
           return (
             <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
-              <div className={`max-w-[75%] rounded-2xl px-4 py-2.5 text-sm ${mine ? "bg-violet-600 text-white rounded-br-md" : "bg-white border border-slate-100 text-slate-800 rounded-bl-md shadow-sm"}`}>
-                {!mine && <p className={`text-[10px] font-bold mb-0.5 ${mine ? "text-violet-100" : "text-violet-600"}`}>{m.sender_name}</p>}
+              <div className={`max-w-[75%] rounded-2xl px-4 py-2.5 text-sm ${mine ? "bg-blue-600 text-white rounded-br-md" : "bg-white border border-slate-100 text-slate-800 rounded-bl-md shadow-sm"}`}>
+                {!mine && <p className={`text-[10px] font-bold mb-0.5 ${mine ? "text-blue-100" : "text-blue-600"}`}>{m.sender_name}</p>}
                 <p className="whitespace-pre-wrap">{m.body}</p>
                 {m.flagged && (
-                  <p className={`text-[10px] mt-1 flex items-center gap-1 ${mine ? "text-violet-200" : "text-amber-600"}`}>
+                  <p className={`text-[10px] mt-1 flex items-center gap-1 ${mine ? "text-blue-200" : "text-amber-600"}`}>
                     <AlertTriangle className="w-3 h-3" /> Flagged: possible contact info or off-platform request
                   </p>
                 )}

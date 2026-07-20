@@ -4,7 +4,7 @@ import { ShieldCheck, BadgeCheck, MapPin } from "lucide-react";
 const TYPES = {
   parent_approved: { icon: ShieldCheck, label: "Parent-approved", cls: "bg-emerald-50 text-emerald-700" },
   id_verified: { icon: BadgeCheck, label: "ID-verified neighbor", cls: "bg-blue-50 text-blue-700" },
-  location_shared: { icon: MapPin, label: "Location shared with parent", cls: "bg-violet-50 text-violet-700" },
+  location_shared: { icon: MapPin, label: "Location shared with parent", cls: "bg-blue-50 text-blue-700" },
 };
 
 export default function TrustBadge({ type, className = "" }) {

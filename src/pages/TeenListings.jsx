@@ -39,7 +39,7 @@ export default function TeenListings() {
   };
 
   if (loading)
-    return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-violet-100 border-t-violet-600 rounded-full animate-spin" /></div>;
+    return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin" /></div>;
 
   const canPublish = profile?.status === "active";
 
@@ -66,7 +66,7 @@ export default function TeenListings() {
             <div key={l.id} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
               <div className="flex items-start justify-between gap-2">
                 <div>
-                  <p className="text-xs font-semibold text-violet-600 uppercase tracking-wide">{CATEGORY_LABELS[l.category]}</p>
+                  <p className="text-xs font-semibold text-blue-600 uppercase tracking-wide">{CATEGORY_LABELS[l.category]}</p>
                   <h3 className="font-bold text-slate-900 mt-0.5">{l.title}</h3>
                 </div>
                 <p className="font-extrabold text-slate-900 shrink-0">

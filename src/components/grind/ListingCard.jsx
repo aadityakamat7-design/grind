@@ -18,7 +18,7 @@ export default function ListingCard({ listing, to }) {
       <div className="p-4">
         <div className="flex items-start justify-between gap-2">
           <div>
-            <p className="text-xs font-semibold text-violet-600 uppercase tracking-wide">
+            <p className="text-xs font-semibold text-blue-600 uppercase tracking-wide">
               {CATEGORY_LABELS[listing.category] || listing.category}
             </p>
             <h3 className="font-bold text-slate-900 mt-0.5 leading-snug">{listing.title}</h3>

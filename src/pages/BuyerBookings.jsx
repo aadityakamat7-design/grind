@@ -19,7 +19,7 @@ export default function BuyerBookings() {
   useEffect(() => { load(); }, [load]);
 
   if (loading)
-    return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-violet-100 border-t-violet-600 rounded-full animate-spin" /></div>;
+    return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin" /></div>;
 
   const active = bookings.filter((b) => !["completed", "cancelled", "denied"].includes(b.status));
   const past = bookings.filter((b) => ["completed", "cancelled", "denied"].includes(b.status));
@@ -32,7 +32,7 @@ export default function BuyerBookings() {
           icon={CalendarDays}
           title="No bookings yet"
           subtitle="Browse teens in your neighborhood and book your first job."
-          action={<Link to="/browse" className="text-sm font-bold text-violet-600 hover:text-violet-700">Browse services →</Link>}
+          action={<Link to="/browse" className="text-sm font-bold text-blue-600 hover:text-blue-700">Browse services →</Link>}
         />
       ) : (
         <>

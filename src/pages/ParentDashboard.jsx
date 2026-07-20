@@ -36,7 +36,7 @@ export default function ParentDashboard() {
   useEffect(() => { load(); }, [load]);
 
   if (loading)
-    return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-violet-100 border-t-violet-600 rounded-full animate-spin" /></div>;
+    return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin" /></div>;
 
   const pending = bookings.filter((b) => b.status === "pending_parent_approval");
   const active = bookings.filter((b) => ["confirmed", "in_progress"].includes(b.status));
@@ -68,7 +68,7 @@ export default function ParentDashboard() {
           <p className="text-xs text-slate-500 mt-0.5">Total teen earnings</p>
         </div>
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
-          <Users className="w-5 h-5 text-violet-500" />
+          <Users className="w-5 h-5 text-blue-500" />
           <p className="text-2xl font-extrabold text-slate-900 mt-2">{links.length}</p>
           <p className="text-xs text-slate-500 mt-0.5">Linked teen{links.length !== 1 ? "s" : ""}</p>
         </div>
@@ -82,14 +82,14 @@ export default function ParentDashboard() {
           <div className="space-y-3">
             {links.map((l) => (
               <div key={l.id} className="flex items-center gap-3 bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
-                <div className="w-10 h-10 rounded-xl bg-violet-50 flex items-center justify-center font-extrabold text-violet-600">
+                <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center font-extrabold text-blue-600">
                   {l.teen_display_name?.charAt(0)}
                 </div>
                 <div className="flex-1">
                   <p className="font-bold text-slate-900">{l.teen_display_name}</p>
                   <StatusBadge status="active" className="mt-1" />
                 </div>
-                <Link to="/messages" className="text-slate-400 hover:text-violet-600" title="Read messages">
+                <Link to="/messages" className="text-slate-400 hover:text-blue-600" title="Read messages">
                   <MessageCircle className="w-5 h-5" />
                 </Link>
               </div>

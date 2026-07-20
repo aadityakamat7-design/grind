@@ -6,6 +6,7 @@ import { Lock, MapPin } from "lucide-react";
 import RatingStars from "@/components/grind/RatingStars";
 import TrustBadge from "@/components/grind/TrustBadge";
 import BookDialog from "@/components/grind/BookDialog";
+import ReportButton from "@/components/grind/ReportButton";
 import { CATEGORY_LABELS, money } from "@/lib/grind";
 import { format } from "date-fns";
 
@@ -36,7 +37,7 @@ export default function TeenPublicProfile() {
   useEffect(() => { load(); }, [load]);
 
   if (loading)
-    return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-violet-100 border-t-violet-600 rounded-full animate-spin" /></div>;
+    return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin" /></div>;
 
   if (!profile)
     return <p className="text-center text-slate-500 py-20">This teen's profile isn't available.</p>;
@@ -44,7 +45,7 @@ export default function TeenPublicProfile() {
   return (
     <div className="space-y-6">
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 text-center">
-        <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-violet-600 to-indigo-500 flex items-center justify-center mx-auto text-white text-3xl font-extrabold">
+        <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-blue-600 to-sky-500 flex items-center justify-center mx-auto text-white text-3xl font-extrabold">
           {profile.display_name?.charAt(0)}
         </div>
         <h1 className="text-xl font-extrabold text-slate-900 mt-3">{profile.display_name}</h1>
@@ -61,12 +62,15 @@ export default function TeenPublicProfile() {
         <p className="text-[11px] text-slate-400 mt-3 flex items-center justify-center gap-1">
           <Lock className="w-3 h-3" /> Contact info and exact addresses stay hidden until a booking is confirmed.
         </p>
+        <div className="mt-3">
+          <ReportButton reporter={user} subjectId={profile.user_id} subjectName={profile.display_name} />
+        </div>
       </div>
 
       {profile.skills?.length > 0 && (
         <div className="flex flex-wrap gap-2 justify-center">
           {profile.skills.map((s) => (
-            <span key={s} className="px-3 py-1 rounded-full bg-violet-50 text-violet-700 text-xs font-semibold">{s}</span>
+            <span key={s} className="px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold">{s}</span>
           ))}
         </div>
       )}
@@ -78,7 +82,7 @@ export default function TeenPublicProfile() {
             <div key={l.id} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
               <div className="flex items-start justify-between gap-2">
                 <div>
-                  <p className="text-xs font-semibold text-violet-600 uppercase tracking-wide">{CATEGORY_LABELS[l.category]}</p>
+                  <p className="text-xs font-semibold text-blue-600 uppercase tracking-wide">{CATEGORY_LABELS[l.category]}</p>
                   <h3 className="font-bold text-slate-900 mt-0.5">{l.title}</h3>
                   <p className="text-sm text-slate-500 mt-1">{l.description}</p>
                 </div>

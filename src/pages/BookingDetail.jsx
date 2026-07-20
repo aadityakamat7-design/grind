@@ -8,6 +8,7 @@ import StatusBadge from "@/components/grind/StatusBadge";
 import TrustBadge from "@/components/grind/TrustBadge";
 import ReviewDialog from "@/components/grind/ReviewDialog";
 import { money } from "@/lib/grind";
+import { notify } from "@/lib/notify";
 
 export default function BookingDetail() {
   const { bookingId } = useParams();
@@ -34,7 +35,7 @@ export default function BookingDetail() {
   useEffect(() => { load(); }, [load]);
 
   if (loading)
-    return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-violet-100 border-t-violet-600 rounded-full animate-spin" /></div>;
+    return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin" /></div>;
   if (!booking) return <p className="text-center text-slate-500 py-20">Booking not found.</p>;
 
   const isTeen = user.id === booking.teen_user_id;
@@ -63,6 +64,8 @@ export default function BookingDetail() {
       occurred_at: new Date().toISOString(),
       tax_year: new Date().getFullYear(),
     });
+    await notify(booking.teen_user_id, { type: "payment", title: "You got paid!", body: `${money(booking.net_amount)} released for "${booking.listing_title}".`, link: `/teen/earnings` });
+    await notify(booking.parent_user_id, { type: "payment", title: "Payout released", body: `${money(booking.net_amount)} from "${booking.listing_title}" is on its way to your account.`, link: `/parent/payouts` });
     setActing(false);
     setReviewOpen(true);
     load();
@@ -110,7 +113,7 @@ export default function BookingDetail() {
         </div>
 
         {booking.status === "in_progress" && isParent && (
-          <div className="mt-4 bg-violet-50 rounded-xl p-3 text-xs text-violet-700 font-semibold">
+          <div className="mt-4 bg-blue-50 rounded-xl p-3 text-xs text-blue-700 font-semibold">
             📍 {booking.teen_display_name}'s live location is being shared with you while this job is active.
           </div>
         )}

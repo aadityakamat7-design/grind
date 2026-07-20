@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { ShieldCheck, Lock } from "lucide-react";
 import { computeFees, money } from "@/lib/grind";
+import { notify } from "@/lib/notify";
 
 export default function BookDialog({ open, onOpenChange, listing, buyer, buyerProfile }) {
   const navigate = useNavigate();
@@ -52,6 +53,8 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
       participant_ids: [buyer.id, listing.teen_user_id, parentUserId].filter(Boolean),
       is_confirmed: false,
     });
+    await notify(parentUserId, { type: "approval", title: "Booking needs your approval", body: `${buyer.full_name?.split(" ")[0] || "A neighbor"} booked "${listing.title}" with ${listing.teen_display_name}.`, link: `/bookings/${booking.id}` });
+    await notify(listing.teen_user_id, { type: "booking", title: "New booking request", body: `"${listing.title}" — waiting on parent approval.`, link: `/bookings/${booking.id}` });
     setSaving(false);
     onOpenChange(false);
     navigate(`/bookings/${booking.id}`);

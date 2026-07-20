@@ -6,6 +6,7 @@ import { ShieldCheck, MapPin, CalendarDays, FileText } from "lucide-react";
 import { format } from "date-fns";
 import EmptyState from "@/components/grind/EmptyState";
 import { money } from "@/lib/grind";
+import { notify } from "@/lib/notify";
 
 export default function ParentApprovals() {
   const { user } = useOutletContext();
@@ -34,12 +35,15 @@ export default function ParentApprovals() {
     if (threads[0] && approve) {
       await base44.entities.MessageThread.update(threads[0].id, { is_confirmed: true });
     }
+    const verb = approve ? "approved" : "denied";
+    await notify(booking.buyer_user_id, { type: "approval", title: `Booking ${verb}`, body: `"${booking.listing_title}" with ${booking.teen_display_name} was ${verb} by their parent.`, link: `/bookings/${booking.id}` });
+    await notify(booking.teen_user_id, { type: "approval", title: `Booking ${verb}`, body: `Your parent ${verb} "${booking.listing_title}".`, link: `/bookings/${booking.id}` });
     setActing(null);
     load();
   };
 
   if (loading)
-    return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-violet-100 border-t-violet-600 rounded-full animate-spin" /></div>;
+    return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin" /></div>;
 
   return (
     <div className="space-y-5">

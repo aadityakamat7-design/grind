@@ -13,8 +13,8 @@ export default function BookingCard({ booking, perspective }) {
       to={`/bookings/${booking.id}`}
       className="flex items-center gap-3 bg-white rounded-2xl border border-slate-100 shadow-sm p-4 hover:shadow-md transition-shadow"
     >
-      <div className="w-10 h-10 rounded-xl bg-violet-50 flex items-center justify-center shrink-0">
-        <CalendarDays className="w-5 h-5 text-violet-600" />
+      <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
+        <CalendarDays className="w-5 h-5 text-blue-600" />
       </div>
       <div className="flex-1 min-w-0">
         <p className="font-bold text-slate-900 truncate">{booking.listing_title}</p>

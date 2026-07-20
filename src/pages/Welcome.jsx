@@ -13,7 +13,7 @@ export default function Welcome() {
   if (loading)
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-white">
-        <div className="w-8 h-8 border-4 border-violet-100 border-t-violet-600 rounded-full animate-spin" />
+        <div className="w-8 h-8 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin" />
       </div>
     );
 
@@ -22,10 +22,10 @@ export default function Welcome() {
   if (user) return <Navigate to="/onboarding" replace />;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-violet-50 via-white to-white">
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-white">
       <div className="max-w-md mx-auto px-6 pt-16 pb-12 flex flex-col min-h-screen">
         <div className="flex items-center gap-2.5">
-          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-violet-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-violet-200">
+          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-blue-600 to-sky-500 flex items-center justify-center shadow-lg shadow-blue-200">
             <Zap className="w-6 h-6 text-white" />
           </div>
           <span className="font-extrabold text-2xl tracking-tight text-slate-900">Grind</span>
@@ -35,7 +35,7 @@ export default function Welcome() {
           <h1 className="text-4xl font-extrabold text-slate-900 leading-[1.15] tracking-tight">
             Local jobs for teens.
             <br />
-            <span className="text-violet-600">Parent-approved.</span>
+            <span className="text-blue-600">Parent-approved.</span>
           </h1>
           <p className="text-slate-500 mt-4 text-lg leading-relaxed">
             Teens earn doing what they're good at. Neighbors get trusted help. Parents see everything.
@@ -46,7 +46,7 @@ export default function Welcome() {
           {[
             { icon: ShieldCheck, text: "Every booking approved by a parent", cls: "bg-emerald-50 text-emerald-600" },
             { icon: BadgeCheck, text: "Every neighbor is ID-verified", cls: "bg-blue-50 text-blue-600" },
-            { icon: Wallet, text: "Payments held safely until the job is done", cls: "bg-violet-50 text-violet-600" },
+            { icon: Wallet, text: "Payments held safely until the job is done", cls: "bg-blue-50 text-blue-600" },
             { icon: MapPin, text: "Hyperlocal — your neighborhood only", cls: "bg-amber-50 text-amber-600" },
           ].map((f, i) => (
             <div key={i} className="flex items-center gap-3 bg-white rounded-2xl border border-slate-100 shadow-sm p-4">

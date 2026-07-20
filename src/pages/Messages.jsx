@@ -23,7 +23,7 @@ export default function Messages() {
   useEffect(() => { load(); }, [load]);
 
   if (loading)
-    return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-violet-100 border-t-violet-600 rounded-full animate-spin" /></div>;
+    return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin" /></div>;
 
   const isParent = user.app_role === "PARENT";
 
@@ -50,7 +50,7 @@ export default function Messages() {
                 to={`/messages/${t.id}`}
                 className="flex items-center gap-3 bg-white rounded-2xl border border-slate-100 shadow-sm p-4 hover:shadow-md transition-shadow"
               >
-                <div className="w-11 h-11 rounded-xl bg-violet-50 flex items-center justify-center font-extrabold text-violet-600">
+                <div className="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center font-extrabold text-blue-600">
                   {otherName?.charAt(0) || "?"}
                 </div>
                 <div className="flex-1 min-w-0">

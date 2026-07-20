@@ -24,6 +24,8 @@ import BuyerBookings from '@/pages/BuyerBookings';
 import BookingDetail from '@/pages/BookingDetail';
 import Messages from '@/pages/Messages';
 import ChatThread from '@/pages/ChatThread';
+import Notifications from '@/pages/Notifications';
+import Admin from '@/pages/Admin';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -69,6 +71,8 @@ const AuthenticatedApp = () => {
         <Route path="/bookings/:bookingId" element={<BookingDetail />} />
         <Route path="/messages" element={<Messages />} />
         <Route path="/messages/:threadId" element={<ChatThread />} />
+        <Route path="/notifications" element={<Notifications />} />
+        <Route path="/admin" element={<Admin />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>

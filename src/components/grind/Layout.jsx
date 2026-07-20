@@ -1,7 +1,8 @@
 import React from "react";
 import { Outlet, NavLink, Navigate, Link } from "react-router-dom";
-import { Home, List, CalendarDays, MessageCircle, Wallet, LayoutDashboard, ShieldCheck, Search, Zap, UserCircle } from "lucide-react";
+import { Home, List, CalendarDays, MessageCircle, Wallet, LayoutDashboard, ShieldCheck, Search, Zap, UserCircle, Flag } from "lucide-react";
 import { useAppUser } from "@/lib/useAppUser";
+import NotificationBell from "@/components/grind/NotificationBell";
 
 const TABS = {
   TEEN: [
@@ -22,6 +23,11 @@ const TABS = {
     { to: "/buyer/bookings", label: "Bookings", icon: CalendarDays },
     { to: "/messages", label: "Messages", icon: MessageCircle },
   ],
+  ADMIN: [
+    { to: "/admin", label: "Admin", icon: LayoutDashboard, end: true },
+    { to: "/browse", label: "Browse", icon: Search },
+    { to: "/messages", label: "Messages", icon: MessageCircle },
+  ],
 };
 
 export default function Layout() {
@@ -30,7 +36,7 @@ export default function Layout() {
   if (loading) {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-white">
-        <div className="w-8 h-8 border-4 border-violet-100 border-t-violet-600 rounded-full animate-spin" />
+        <div className="w-8 h-8 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin" />
       </div>
     );
   }
@@ -41,17 +47,20 @@ export default function Layout() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-lg border-b border-slate-100">
+      <header className="sticky top-0 z-40 bg-slate-900 border-b border-slate-800">
         <div className="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-500 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 to-sky-400 flex items-center justify-center">
               <Zap className="w-5 h-5 text-white" />
             </div>
-            <span className="font-extrabold text-lg tracking-tight text-slate-900">Grind</span>
+            <span className="font-extrabold text-lg tracking-tight text-white">Grind</span>
           </Link>
-          <Link to="/account" className="flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-slate-900">
-            <UserCircle className="w-6 h-6" />
-          </Link>
+          <div className="flex items-center gap-4">
+            <NotificationBell userId={user.id} />
+            <Link to="/account" className="text-slate-300 hover:text-white transition-colors">
+              <UserCircle className="w-6 h-6" />
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -70,7 +79,7 @@ export default function Layout() {
                 end={tab.end}
                 className={({ isActive }) =>
                   `flex flex-col items-center gap-0.5 py-2.5 px-3 text-[11px] font-semibold transition-colors ${
-                    isActive ? "text-violet-600" : "text-slate-400 hover:text-slate-600"
+                    isActive ? "text-blue-600" : "text-slate-400 hover:text-slate-600"
                   }`
                 }
               >
