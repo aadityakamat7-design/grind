@@ -7,10 +7,12 @@ import { Label } from "@/components/ui/label";
 import { LogIn, Mail, Lock, Loader2 } from "lucide-react";
 import AuthLayout from "@/components/AuthLayout";
 import GoogleIcon from "@/components/GoogleIcon";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export default function Login() {
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(() => localStorage.getItem("grind_remembered_email") || "");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(() => !!localStorage.getItem("grind_remembered_email"));
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -20,9 +22,17 @@ export default function Login() {
     setLoading(true);
     try {
       await base44.auth.loginViaEmailPassword(email, password);
+      if (rememberMe) {
+        localStorage.setItem("grind_remembered_email", email);
+      } else {
+        localStorage.removeItem("grind_remembered_email");
+      }
       window.location.href = "/";
     } catch (err) {
-      setError(err.message || "Invalid email or password");
+      setError(
+        err.message ||
+          "We couldn't log you in. Double-check your email and password — or create an account if you don't have one yet."
+      );
     } finally {
       setLoading(false);
     }
@@ -108,6 +118,16 @@ export default function Login() {
               required
             />
           </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <Checkbox
+            id="remember"
+            checked={rememberMe}
+            onCheckedChange={(v) => setRememberMe(!!v)}
+          />
+          <Label htmlFor="remember" className="text-sm font-normal text-muted-foreground cursor-pointer">
+            Remember me on this device
+          </Label>
         </div>
         <Button type="submit" className="w-full h-12 font-medium" disabled={loading}>
           {loading ? (
