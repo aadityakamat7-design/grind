@@ -8,8 +8,10 @@ import TrustBadge from "@/components/grind/TrustBadge";
 import BookDialog from "@/components/grind/BookDialog";
 import ReportButton from "@/components/grind/ReportButton";
 import SaveTeenButton from "@/components/grind/SaveTeenButton";
+import ReviewCard from "@/components/grind/ReviewCard";
 import { CATEGORY_LABELS, money } from "@/lib/grind";
-import { format } from "date-fns";
+import { categoryAverages } from "@/lib/ratings";
+import { Star } from "lucide-react";
 
 export default function TeenPublicProfile() {
   const { teenUserId } = useParams();
@@ -51,7 +53,13 @@ export default function TeenPublicProfile() {
         </div>
         <h1 className="text-xl font-extrabold text-slate-900 mt-3">{profile.display_name}</h1>
         <div className="flex justify-center mt-1.5">
-          <RatingStars rating={profile.avg_rating} count={profile.review_count} />
+          {profile.review_count > 0 ? (
+            <RatingStars rating={profile.avg_rating} count={profile.review_count} />
+          ) : (
+            <span className="inline-flex items-center gap-1 rounded-full bg-violet-50 text-violet-700 border border-violet-200 px-2.5 py-0.5 text-xs font-bold">
+              ✨ New to Grind
+            </span>
+          )}
         </div>
         <p className="text-sm text-slate-500 mt-2 max-w-sm mx-auto">{profile.bio}</p>
         <p className="text-xs text-slate-400 mt-2 flex items-center justify-center gap-1">
@@ -110,19 +118,24 @@ export default function TeenPublicProfile() {
 
       <div>
         <h2 className="font-bold text-slate-900 mb-3">Reviews</h2>
+        {categoryAverages(reviews).length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-3">
+            {categoryAverages(reviews).map((c) => (
+              <span key={c.category} className="inline-flex items-center gap-1 rounded-full bg-white border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-700">
+                {CATEGORY_LABELS[c.category] || c.category}
+                <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                {c.avg.toFixed(1)}
+                <span className="text-slate-400 font-normal">({c.count})</span>
+              </span>
+            ))}
+          </div>
+        )}
         {reviews.length === 0 ? (
-          <p className="text-sm text-slate-400">No reviews yet.</p>
+          <p className="text-sm text-slate-400">No reviews yet — be the first to book and review {profile.display_name?.split(" ")[0]}.</p>
         ) : (
           <div className="space-y-3">
             {reviews.map((r) => (
-              <div key={r.id} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
-                <div className="flex items-center justify-between">
-                  <p className="font-bold text-slate-900 text-sm">{r.author_name || "Neighbor"}</p>
-                  <RatingStars rating={r.rating} />
-                </div>
-                {r.text && <p className="text-sm text-slate-600 mt-1.5">{r.text}</p>}
-                <p className="text-[11px] text-slate-400 mt-2">{r.created_date ? format(new Date(r.created_date), "MMM d, yyyy") : ""}</p>
-              </div>
+              <ReviewCard key={r.id} review={r} viewer={user} onChanged={load} />
             ))}
           </div>
         )}

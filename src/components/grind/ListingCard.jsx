@@ -4,8 +4,9 @@ import { MapPin } from "lucide-react";
 import { Image } from "@/components/ui/image";
 import { CATEGORY_LABELS, money } from "@/lib/grind";
 import TrustBadge from "@/components/grind/TrustBadge";
+import RatingStars from "@/components/grind/RatingStars";
 
-export default function ListingCard({ listing, to }) {
+export default function ListingCard({ listing, teen, to }) {
   const photo = listing.photos?.[0];
   return (
     <Link
@@ -36,7 +37,16 @@ export default function ListingCard({ listing, to }) {
           <TrustBadge type="parent_approved" />
         </div>
         <p className="text-sm text-slate-500 mt-2 line-clamp-2">{listing.description}</p>
-        <p className="text-xs font-semibold text-slate-700 mt-3">by {listing.teen_display_name}</p>
+        <div className="flex items-center justify-between gap-2 mt-3">
+          <p className="text-xs font-semibold text-slate-700">by {listing.teen_display_name}</p>
+          {teen && (teen.review_count > 0 ? (
+            <RatingStars rating={teen.avg_rating} count={teen.review_count} />
+          ) : (
+            <span className="inline-flex items-center rounded-full bg-violet-50 text-violet-700 border border-violet-200 px-2 py-0.5 text-[10px] font-bold">
+              ✨ New to Grind
+            </span>
+          ))}
+        </div>
       </div>
     </Link>
   );

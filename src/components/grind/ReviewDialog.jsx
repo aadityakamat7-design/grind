@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import RatingStars from "@/components/grind/RatingStars";
+import { recomputeTeenRating } from "@/lib/ratings";
 
 export default function ReviewDialog({ open, onOpenChange, booking, author, direction, onDone }) {
   const [rating, setRating] = useState(0);
@@ -15,6 +16,11 @@ export default function ReviewDialog({ open, onOpenChange, booking, author, dire
 
   const submit = async () => {
     setSaving(true);
+    let category;
+    if (direction === "buyer_to_teen" && booking.listing_id) {
+      const listings = await base44.entities.Listing.filter({ id: booking.listing_id });
+      category = listings[0]?.category;
+    }
     await base44.entities.Review.create({
       booking_id: booking.id,
       author_id: author.id,
@@ -23,18 +29,10 @@ export default function ReviewDialog({ open, onOpenChange, booking, author, dire
       direction,
       rating,
       text,
+      category,
     });
     if (direction === "buyer_to_teen") {
-      const profiles = await base44.entities.TeenProfile.filter({ user_id: booking.teen_user_id });
-      const profile = profiles[0];
-      if (profile) {
-        const count = (profile.review_count || 0) + 1;
-        const avg = ((profile.avg_rating || 0) * (profile.review_count || 0) + rating) / count;
-        await base44.entities.TeenProfile.update(profile.id, {
-          avg_rating: Math.round(avg * 10) / 10,
-          review_count: count,
-        });
-      }
+      await recomputeTeenRating(booking.teen_user_id);
     }
     setSaving(false);
     onOpenChange(false);

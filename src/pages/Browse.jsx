@@ -11,19 +11,22 @@ import { CATEGORIES } from "@/lib/grind";
 export default function Browse() {
   const { user } = useOutletContext();
   const [listings, setListings] = useState([]);
+  const [teensById, setTeensById] = useState({});
   const [buyerProfile, setBuyerProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
 
   const load = useCallback(async () => {
-    const [all, profiles, busyTeens] = await Promise.all([
+    const [all, profiles, teens] = await Promise.all([
       base44.entities.Listing.filter({ status: "published" }, "-created_date", 100),
       base44.entities.BuyerProfile.filter({ user_id: user.id }),
-      base44.entities.TeenProfile.filter({ is_available: false }),
+      base44.entities.TeenProfile.list(undefined, 200),
     ]);
-    const busy = new Set(busyTeens.map((t) => t.user_id));
-    setListings(all.filter((l) => !busy.has(l.teen_user_id)));
+    const byId = {};
+    teens.forEach((t) => { byId[t.user_id] = t; });
+    setTeensById(byId);
+    setListings(all.filter((l) => byId[l.teen_user_id]?.is_available !== false));
     setBuyerProfile(profiles[0] || null);
     setLoading(false);
   }, [user.id]);
@@ -94,7 +97,7 @@ export default function Browse() {
       ) : (
         <div className="grid sm:grid-cols-2 gap-4">
           {filtered.map((l) => (
-            <ListingCard key={l.id} listing={l} to={`/teens/${l.teen_user_id}?listing=${l.id}`} />
+            <ListingCard key={l.id} listing={l} teen={teensById[l.teen_user_id]} to={`/teens/${l.teen_user_id}?listing=${l.id}`} />
           ))}
         </div>
       )}

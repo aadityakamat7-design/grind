@@ -7,6 +7,7 @@ import SavedWorkers from "@/components/grind/buyer/SavedWorkers";
 import RecommendedTeens from "@/components/grind/buyer/RecommendedTeens";
 import BookingCard from "@/components/grind/BookingCard";
 import ReferralCard from "@/components/grind/ReferralCard";
+import ReviewNudge from "@/components/grind/ReviewNudge";
 
 export default function BuyerHome() {
   const { user } = useOutletContext();
@@ -80,6 +81,8 @@ export default function BuyerHome() {
           </div>
         )}
       </div>
+
+      <ReviewNudge user={user} bookings={bookings} />
 
       <ReferralCard profile={profile} />
 

@@ -27,6 +27,18 @@
     },
     "text": {
       "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "description": "Service category of the booked listing"
+    },
+    "reply_text": {
+      "type": "string",
+      "description": "Teen's public reply to the review"
+    },
+    "reply_at": {
+      "type": "string",
+      "format": "date-time"
     }
   },
   "required": [
