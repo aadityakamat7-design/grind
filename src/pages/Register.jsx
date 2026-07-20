@@ -8,9 +8,13 @@ import { UserPlus, Mail, Lock, Loader2 } from "lucide-react";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import AuthLayout from "@/components/AuthLayout";
 import GoogleIcon from "@/components/GoogleIcon";
+import RolePicker from "@/components/grind/onboarding/RolePicker";
 import { toast } from "@/components/ui/use-toast";
 
+const ROLE_TITLES = { TEEN: "teen", PARENT: "parent", BUYER: "neighbor" };
+
 export default function Register() {
+  const [role, setRole] = useState(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -70,6 +74,31 @@ export default function Register() {
     base44.auth.loginWithProvider("google", "/");
   };
 
+  const pickRole = (r) => {
+    localStorage.setItem("grind_signup_role", r);
+    setRole(r);
+  };
+
+  if (!role) {
+    return (
+      <AuthLayout
+        icon={UserPlus}
+        title="Join Grind"
+        subtitle="First, tell us who you are"
+        footer={
+          <>
+            Already have an account?{" "}
+            <Link to="/login" className="text-primary font-medium hover:underline">
+              Log in
+            </Link>
+          </>
+        }
+      >
+        <RolePicker onSelect={pickRole} />
+      </AuthLayout>
+    );
+  }
+
   if (showOtp) {
     return (
       <AuthLayout
@@ -128,7 +157,7 @@ export default function Register() {
     <AuthLayout
       icon={UserPlus}
       title="Create your account"
-      subtitle="Sign up to get started"
+      subtitle={`Signing up as a ${ROLE_TITLES[role]}`}
       footer={
         <>
           Already have an account?{" "}
@@ -138,6 +167,12 @@ export default function Register() {
         </>
       }
     >
+      <button
+        onClick={() => setRole(null)}
+        className="text-xs font-semibold text-muted-foreground mb-4 hover:text-foreground"
+      >
+        ← Change role
+      </button>
       <Button
         variant="outline"
         className="w-full h-12 text-sm font-medium mb-6"
