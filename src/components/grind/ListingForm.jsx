@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import ResponsiveSelect from "@/components/grind/ResponsiveSelect";
 import { AlertTriangle } from "lucide-react";
 import { CATEGORIES, checkHazard } from "@/lib/grind";
 
@@ -59,14 +59,14 @@ export default function ListingForm({ open, onOpenChange, listing, profile, onSa
         <div className="space-y-4">
           <div>
             <Label>Category</Label>
-            <Select value={form.category} onValueChange={(v) => set("category", v)}>
-              <SelectTrigger className="rounded-xl mt-1"><SelectValue placeholder="Pick a category" /></SelectTrigger>
-              <SelectContent>
-                {CATEGORIES.map((c) => (
-                  <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <ResponsiveSelect
+              value={form.category}
+              onValueChange={(v) => set("category", v)}
+              options={CATEGORIES}
+              placeholder="Pick a category"
+              title="Category"
+              className="rounded-xl mt-1"
+            />
           </div>
           <div>
             <Label>Title</Label>
@@ -79,13 +79,13 @@ export default function ListingForm({ open, onOpenChange, listing, profile, onSa
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label>Pricing</Label>
-              <Select value={form.price_model} onValueChange={(v) => set("price_model", v)}>
-                <SelectTrigger className="rounded-xl mt-1"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="FIXED">Fixed price</SelectItem>
-                  <SelectItem value="HOURLY">Per hour</SelectItem>
-                </SelectContent>
-              </Select>
+              <ResponsiveSelect
+                value={form.price_model}
+                onValueChange={(v) => set("price_model", v)}
+                options={[{ value: "FIXED", label: "Fixed price" }, { value: "HOURLY", label: "Per hour" }]}
+                title="Pricing"
+                className="rounded-xl mt-1"
+              />
             </div>
             <div>
               <Label>Price ($)</Label>

@@ -4,6 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { LogOut, UserCircle, ShieldCheck } from "lucide-react";
 import RoleSwitcher from "@/components/grind/RoleSwitcher";
+import DeleteAccountButton from "@/components/grind/DeleteAccountButton";
 
 const ROLE_LABELS = { TEEN: "Teen", PARENT: "Parent / Guardian", BUYER: "Neighbor", ADMIN: "Admin" };
 
@@ -36,6 +37,8 @@ export default function Account() {
       >
         <LogOut className="w-4 h-4 mr-2" /> Log out
       </Button>
+
+      <DeleteAccountButton user={user} />
     </div>
   );
 }

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import ResponsiveSelect from "@/components/grind/ResponsiveSelect";
 import { ShieldCheck, ShieldX, Sparkles } from "lucide-react";
 import { CATEGORIES } from "@/lib/grind";
 import { screenJob, US_STATES } from "@/lib/jobScreen";
@@ -131,21 +131,24 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label>Category</Label>
-                <Select value={form.category} onValueChange={(v) => set("category", v)}>
-                  <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {CATEGORIES.map((c) => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
-                  </SelectContent>
-                </Select>
+                <ResponsiveSelect
+                  value={form.category}
+                  onValueChange={(v) => set("category", v)}
+                  options={CATEGORIES}
+                  title="Category"
+                  className="rounded-xl"
+                />
               </div>
               <div className="space-y-1.5">
                 <Label>State</Label>
-                <Select value={form.state} onValueChange={(v) => set("state", v)}>
-                  <SelectTrigger className="rounded-xl"><SelectValue placeholder="Your state" /></SelectTrigger>
-                  <SelectContent>
-                    {US_STATES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
-                  </SelectContent>
-                </Select>
+                <ResponsiveSelect
+                  value={form.state}
+                  onValueChange={(v) => set("state", v)}
+                  options={US_STATES.map((s) => ({ value: s, label: s }))}
+                  placeholder="Your state"
+                  title="State"
+                  className="rounded-xl"
+                />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
@@ -155,13 +158,13 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
               </div>
               <div className="space-y-1.5">
                 <Label>Pay type</Label>
-                <Select value={form.price_model} onValueChange={(v) => set("price_model", v)}>
-                  <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="FIXED">Fixed</SelectItem>
-                    <SelectItem value="HOURLY">Per hour</SelectItem>
-                  </SelectContent>
-                </Select>
+                <ResponsiveSelect
+                  value={form.price_model}
+                  onValueChange={(v) => set("price_model", v)}
+                  options={[{ value: "FIXED", label: "Fixed" }, { value: "HOURLY", label: "Per hour" }]}
+                  title="Pay type"
+                  className="rounded-xl"
+                />
               </div>
             </div>
             <div className="space-y-1.5">

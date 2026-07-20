@@ -95,3 +95,24 @@
 /* Hide scrollbars on horizontal scroll rows */
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* iOS WebView polish */
+body {
+  overscroll-behavior: none;
+}
+
+button,
+[role="tab"],
+[role="button"],
+header,
+nav,
+svg {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+button,
+a,
+[role="button"] {
+  -webkit-tap-highlight-color: transparent;
+}

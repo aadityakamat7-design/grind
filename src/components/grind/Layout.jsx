@@ -1,6 +1,6 @@
 import React from "react";
-import { Outlet, NavLink, Navigate, Link } from "react-router-dom";
-import { Home, List, CalendarDays, MessageCircle, Wallet, LayoutDashboard, ShieldCheck, Search, Zap, UserCircle, Flag, Briefcase } from "lucide-react";
+import { Outlet, NavLink, Navigate, Link, useLocation, useNavigate } from "react-router-dom";
+import { Home, List, CalendarDays, MessageCircle, Wallet, LayoutDashboard, ShieldCheck, Search, Zap, UserCircle, Flag, Briefcase, ArrowLeft } from "lucide-react";
 import { useAppUser } from "@/lib/useAppUser";
 import NotificationBell from "@/components/grind/NotificationBell";
 
@@ -35,6 +35,9 @@ const TABS = {
 
 export default function Layout() {
   const { user, loading, reload } = useAppUser();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const isChildPage = /^\/(bookings|messages|teens)\/.+/.test(location.pathname);
 
   if (loading) {
     return (
@@ -50,14 +53,24 @@ export default function Layout() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <header className="sticky top-0 z-40 bg-slate-900 border-b border-slate-800">
+      <header className="sticky top-0 z-40 bg-slate-900 border-b border-slate-800 pt-[env(safe-area-inset-top)]">
         <div className="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 to-sky-400 flex items-center justify-center">
-              <Zap className="w-5 h-5 text-white" />
-            </div>
-            <span className="font-extrabold text-lg tracking-tight text-white">Grind</span>
-          </Link>
+          {isChildPage ? (
+            <button
+              onClick={() => navigate(-1)}
+              className="flex items-center gap-1.5 text-slate-300 hover:text-white transition-colors font-semibold text-sm"
+            >
+              <ArrowLeft className="w-5 h-5" />
+              Back
+            </button>
+          ) : (
+            <Link to="/" className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 to-sky-400 flex items-center justify-center">
+                <Zap className="w-5 h-5 text-white" />
+              </div>
+              <span className="font-extrabold text-lg tracking-tight text-white">Grind</span>
+            </Link>
+          )}
           <div className="flex items-center gap-4">
             <NotificationBell userId={user.id} />
             <Link to="/account" className="text-slate-300 hover:text-white transition-colors">
@@ -71,7 +84,7 @@ export default function Layout() {
         <Outlet context={{ user, reload }} />
       </main>
 
-      <nav className="fixed bottom-0 inset-x-0 z-40 bg-white/90 backdrop-blur-lg border-t border-slate-100">
+      <nav className="fixed bottom-0 inset-x-0 z-40 bg-white/90 backdrop-blur-lg border-t border-slate-100 pb-[env(safe-area-inset-bottom)]">
         <div className="max-w-3xl mx-auto flex items-stretch justify-around">
           {tabs.map((tab) => {
             const Icon = tab.icon;
