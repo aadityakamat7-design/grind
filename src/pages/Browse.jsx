@@ -17,11 +17,13 @@ export default function Browse() {
   const [category, setCategory] = useState("all");
 
   const load = useCallback(async () => {
-    const [all, profiles] = await Promise.all([
+    const [all, profiles, busyTeens] = await Promise.all([
       base44.entities.Listing.filter({ status: "published" }, "-created_date", 100),
       base44.entities.BuyerProfile.filter({ user_id: user.id }),
+      base44.entities.TeenProfile.filter({ is_available: false }),
     ]);
-    setListings(all);
+    const busy = new Set(busyTeens.map((t) => t.user_id));
+    setListings(all.filter((l) => !busy.has(l.teen_user_id)));
     setBuyerProfile(profiles[0] || null);
     setLoading(false);
   }, [user.id]);

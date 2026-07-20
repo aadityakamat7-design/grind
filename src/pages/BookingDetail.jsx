@@ -9,7 +9,9 @@ import TrustBadge from "@/components/grind/TrustBadge";
 import ReviewDialog from "@/components/grind/ReviewDialog";
 import { money } from "@/lib/grind";
 import { notify } from "@/lib/notify";
-import { creditWallet } from "@/lib/wallet";
+import TipReleaseDialog from "@/components/grind/TipReleaseDialog";
+import RescheduleDialog from "@/components/grind/RescheduleDialog";
+import AlertParentButton from "@/components/grind/AlertParentButton";
 
 export default function BookingDetail() {
   const { bookingId } = useParams();
@@ -20,6 +22,8 @@ export default function BookingDetail() {
   const [loading, setLoading] = useState(true);
   const [acting, setActing] = useState(false);
   const [reviewOpen, setReviewOpen] = useState(false);
+  const [tipOpen, setTipOpen] = useState(false);
+  const [reschedOpen, setReschedOpen] = useState(false);
 
   const load = useCallback(async () => {
     const [b, threads, reviews] = await Promise.all([
@@ -52,24 +56,12 @@ export default function BookingDetail() {
     load();
   };
 
-  const releasePayment = async () => {
+  const cancelBooking = async () => {
     setActing(true);
-    await base44.entities.Booking.update(booking.id, { payment_status: "released" });
-    await base44.entities.EarningsRecord.create({
-      teen_user_id: booking.teen_user_id,
-      booking_id: booking.id,
-      listing_title: booking.listing_title,
-      buyer_name: booking.buyer_name,
-      amount: booking.price_total,
-      net_amount: booking.net_amount,
-      occurred_at: new Date().toISOString(),
-      tax_year: new Date().getFullYear(),
-    });
-    await creditWallet(booking.teen_user_id, booking.net_amount, `"${booking.listing_title}" — ${booking.buyer_name}`);
-    await notify(booking.teen_user_id, { type: "payment", title: "You got paid!", body: `${money(booking.net_amount)} landed in your Grind Wallet for "${booking.listing_title}".`, link: `/teen/wallet` });
-    await notify(booking.parent_user_id, { type: "payment", title: "Payout released", body: `${money(booking.net_amount)} from "${booking.listing_title}" is on its way to your account.`, link: `/parent/payouts` });
+    await base44.entities.Booking.update(booking.id, { status: "cancelled", payment_status: "refunded" });
+    const otherId = isBuyer ? booking.teen_user_id : booking.buyer_user_id;
+    await notify(otherId, { type: "booking", title: "Booking cancelled", body: `"${booking.listing_title}" was cancelled and the held payment was refunded.`, link: `/bookings/${booking.id}` });
     setActing(false);
-    setReviewOpen(true);
     load();
   };
 
@@ -117,6 +109,11 @@ export default function BookingDetail() {
               <FileText className="w-4 h-4 text-slate-400 mt-0.5" /> {booking.notes}
             </p>
           )}
+          {booking.tip_amount > 0 && (
+            <p className="flex items-center gap-2 font-semibold text-emerald-600">
+              💚 {money(booking.tip_amount)} tip from {booking.buyer_name}
+            </p>
+          )}
         </div>
 
         {booking.status === "in_progress" && isParent && (
@@ -145,20 +142,26 @@ export default function BookingDetail() {
             <CheckCircle2 className="w-4 h-4 mr-2" /> Mark job complete
           </Button>
         )}
+        {isTeen && booking.status === "in_progress" && <AlertParentButton booking={booking} />}
         {isBuyer && booking.status === "completed" && booking.payment_status === "held" && (
-          <Button className="w-full rounded-xl" disabled={acting} onClick={releasePayment}>
-            <CheckCircle2 className="w-4 h-4 mr-2" /> Confirm & release {money(booking.net_amount)} payment
+          <Button className="w-full rounded-xl" disabled={acting} onClick={() => setTipOpen(true)}>
+            <CheckCircle2 className="w-4 h-4 mr-2" /> Confirm completion & release payment
           </Button>
         )}
-        {isBuyer && booking.status === "pending_parent_approval" && (
-          <Button
-            variant="outline"
-            className="w-full rounded-xl text-rose-600 border-rose-200 hover:bg-rose-50 hover:text-rose-700"
-            disabled={acting}
-            onClick={() => update({ status: "cancelled", payment_status: "refunded" })}
-          >
-            Cancel & refund
-          </Button>
+        {(isTeen || isBuyer) && ["pending_parent_approval", "confirmed"].includes(booking.status) && (
+          <div className="grid grid-cols-2 gap-3">
+            <Button variant="outline" className="rounded-xl" disabled={acting} onClick={() => setReschedOpen(true)}>
+              Reschedule
+            </Button>
+            <Button
+              variant="outline"
+              className="rounded-xl text-rose-600 border-rose-200 hover:bg-rose-50 hover:text-rose-700"
+              disabled={acting}
+              onClick={cancelBooking}
+            >
+              Cancel & refund
+            </Button>
+          </div>
         )}
         {isBuyer && booking.status === "completed" && (
           <Link to={`/teens/${booking.teen_user_id}`}>
@@ -174,6 +177,23 @@ export default function BookingDetail() {
         )}
       </div>
 
+      {tipOpen && (
+        <TipReleaseDialog
+          open={tipOpen}
+          onOpenChange={setTipOpen}
+          booking={booking}
+          onReleased={() => { setReviewOpen(true); load(); }}
+        />
+      )}
+      {reschedOpen && (
+        <RescheduleDialog
+          open={reschedOpen}
+          onOpenChange={setReschedOpen}
+          booking={booking}
+          actorIsBuyer={isBuyer}
+          onDone={load}
+        />
+      )}
       {reviewOpen && (
         <ReviewDialog
           open={reviewOpen}

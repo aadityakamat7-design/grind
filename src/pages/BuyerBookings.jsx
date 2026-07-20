@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useOutletContext, Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { CalendarDays } from "lucide-react";
+import { CalendarDays, Repeat } from "lucide-react";
 import BookingCard from "@/components/grind/BookingCard";
 import EmptyState from "@/components/grind/EmptyState";
 
@@ -45,7 +45,19 @@ export default function BuyerBookings() {
           {past.length > 0 && (
             <div className="space-y-3">
               <h2 className="font-bold text-slate-900">Past</h2>
-              {past.map((b) => <BookingCard key={b.id} booking={b} perspective="buyer" />)}
+              {past.map((b) => (
+                <div key={b.id} className="space-y-1.5">
+                  <BookingCard booking={b} perspective="buyer" />
+                  {b.status === "completed" && (
+                    <Link
+                      to={`/teens/${b.teen_user_id}`}
+                      className="inline-flex items-center gap-1 text-xs font-bold text-blue-600 hover:text-blue-700 ml-1"
+                    >
+                      <Repeat className="w-3 h-3" /> Book {b.teen_display_name} again
+                    </Link>
+                  )}
+                </div>
+              ))}
             </div>
           )}
         </>

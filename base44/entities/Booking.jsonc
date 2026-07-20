@@ -46,6 +46,10 @@
         "monthly"
       ]
     },
+    "tip_amount": {
+      "type": "number",
+      "default": 0
+    },
     "status": {
       "type": "string",
       "enum": [

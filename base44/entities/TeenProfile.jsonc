@@ -48,6 +48,11 @@
       "type": "string",
       "description": "Code a parent uses to link"
     },
+    "is_available": {
+      "type": "boolean",
+      "default": true,
+      "description": "Available now toggle \u2014 controls visibility in neighbor search"
+    },
     "status": {
       "type": "string",
       "enum": [

@@ -5,6 +5,8 @@ import { Wallet, CalendarDays, ShieldAlert, Copy, Check, Sparkles } from "lucide
 import BookingCard from "@/components/grind/BookingCard";
 import EmptyState from "@/components/grind/EmptyState";
 import TeenChecklist from "@/components/grind/TeenChecklist";
+import AvailabilityToggle from "@/components/grind/AvailabilityToggle";
+import UpcomingCalendar from "@/components/grind/UpcomingCalendar";
 import { money } from "@/lib/grind";
 
 export default function TeenHome() {
@@ -49,6 +51,8 @@ export default function TeenHome() {
       </div>
 
       <TeenChecklist profile={profile} bookings={bookings} />
+
+      {profile && <AvailabilityToggle profile={profile} onChanged={load} />}
 
       {profile?.status === "pending_parent" && (
         <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5">
@@ -108,9 +112,7 @@ export default function TeenHome() {
             )}
           />
         ) : (
-          <div className="space-y-3">
-            {upcoming.map((b) => <BookingCard key={b.id} booking={b} perspective="teen" />)}
-          </div>
+          <UpcomingCalendar bookings={upcoming} />
         )}
       </div>
     </div>

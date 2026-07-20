@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useOutletContext, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { Bell, ShieldCheck, CalendarDays, Wallet, MessageCircle, Star } from "lucide-react";
+import { Bell, ShieldCheck, ShieldAlert, CalendarDays, Wallet, MessageCircle, Star } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import EmptyState from "@/components/grind/EmptyState";
 
@@ -12,6 +12,7 @@ const TYPE_ICONS = {
   payment: Wallet,
   message: MessageCircle,
   review: Star,
+  safety: ShieldAlert,
 };
 
 export default function Notifications() {
