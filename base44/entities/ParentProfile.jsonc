@@ -1,0 +1,27 @@
+{
+  "name": "ParentProfile",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "full_name": {
+      "type": "string"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "connect_status": {
+      "type": "string",
+      "enum": [
+        "not_setup",
+        "active"
+      ],
+      "default": "not_setup",
+      "description": "Payout account (Stripe Connect) status"
+    }
+  },
+  "required": [
+    "user_id"
+  ]
+}

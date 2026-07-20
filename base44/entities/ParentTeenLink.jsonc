@@ -1,0 +1,34 @@
+{
+  "name": "ParentTeenLink",
+  "type": "object",
+  "properties": {
+    "parent_user_id": {
+      "type": "string"
+    },
+    "teen_user_id": {
+      "type": "string"
+    },
+    "teen_profile_id": {
+      "type": "string"
+    },
+    "teen_display_name": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "confirmed"
+      ],
+      "default": "confirmed"
+    },
+    "confirmed_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "parent_user_id",
+    "teen_user_id"
+  ]
+}

@@ -7,6 +7,19 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ScrollToTop from './components/ScrollToTop';
 // Add page imports here
+import AppLayout from '@/components/grind/AppLayout';
+import Onboarding from '@/pages/Onboarding';
+import Home from '@/pages/Home';
+import Listings from '@/pages/Listings';
+import Bookings from '@/pages/Bookings';
+import BookingDetail from '@/pages/BookingDetail';
+import Messages from '@/pages/Messages';
+import Chat from '@/pages/Chat';
+import Earnings from '@/pages/Earnings';
+import Approvals from '@/pages/Approvals';
+import Payouts from '@/pages/Payouts';
+import Profile from '@/pages/Profile';
+import TeenPublic from '@/pages/TeenPublic';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -35,6 +48,20 @@ const AuthenticatedApp = () => {
   return (
     <Routes>
       {/* Add your page Route elements here */}
+      <Route path="/onboarding" element={<Onboarding />} />
+      <Route element={<AppLayout />}>
+        <Route path="/" element={<Home />} />
+        <Route path="/listings" element={<Listings />} />
+        <Route path="/bookings" element={<Bookings />} />
+        <Route path="/bookings/:bookingId" element={<BookingDetail />} />
+        <Route path="/messages" element={<Messages />} />
+        <Route path="/messages/:threadId" element={<Chat />} />
+        <Route path="/earnings" element={<Earnings />} />
+        <Route path="/approvals" element={<Approvals />} />
+        <Route path="/payouts" element={<Payouts />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/teen/:teenUserId" element={<TeenPublic />} />
+      </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

@@ -1,0 +1,38 @@
+{
+  "name": "Review",
+  "type": "object",
+  "properties": {
+    "booking_id": {
+      "type": "string"
+    },
+    "author_id": {
+      "type": "string"
+    },
+    "author_name": {
+      "type": "string"
+    },
+    "subject_id": {
+      "type": "string",
+      "description": "User being reviewed"
+    },
+    "direction": {
+      "type": "string",
+      "enum": [
+        "buyer_to_teen",
+        "teen_to_buyer"
+      ]
+    },
+    "rating": {
+      "type": "number"
+    },
+    "text": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "booking_id",
+    "author_id",
+    "subject_id",
+    "rating"
+  ]
+}

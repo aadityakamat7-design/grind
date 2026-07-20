@@ -1,0 +1,20 @@
+{
+  "name": "User",
+  "type": "object",
+  "properties": {
+    "app_role": {
+      "type": "string",
+      "enum": [
+        "teen",
+        "parent",
+        "buyer",
+        "admin"
+      ],
+      "description": "The Grind role selected during onboarding"
+    },
+    "onboarding_complete": {
+      "type": "boolean",
+      "default": false
+    }
+  }
+}

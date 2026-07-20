@@ -1,0 +1,49 @@
+{
+  "name": "MessageThread",
+  "type": "object",
+  "properties": {
+    "booking_id": {
+      "type": "string"
+    },
+    "listing_title": {
+      "type": "string"
+    },
+    "buyer_user_id": {
+      "type": "string"
+    },
+    "buyer_name": {
+      "type": "string"
+    },
+    "teen_user_id": {
+      "type": "string"
+    },
+    "teen_display_name": {
+      "type": "string"
+    },
+    "parent_user_id": {
+      "type": "string"
+    },
+    "participant_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "is_confirmed": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether booking is confirmed (controls PII masking)"
+    },
+    "last_message": {
+      "type": "string"
+    },
+    "last_message_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "buyer_user_id",
+    "teen_user_id"
+  ]
+}

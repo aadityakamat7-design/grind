@@ -1,0 +1,79 @@
+{
+  "name": "Listing",
+  "type": "object",
+  "properties": {
+    "teen_user_id": {
+      "type": "string"
+    },
+    "teen_profile_id": {
+      "type": "string"
+    },
+    "teen_display_name": {
+      "type": "string"
+    },
+    "teen_zip": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "tutoring",
+        "lawn_care",
+        "pet_sitting",
+        "tech_help",
+        "babysitting",
+        "car_washing",
+        "odd_jobs"
+      ]
+    },
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "price_model": {
+      "type": "string",
+      "enum": [
+        "FIXED",
+        "HOURLY"
+      ],
+      "default": "FIXED"
+    },
+    "price": {
+      "type": "number"
+    },
+    "photos": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "service_area": {
+      "type": "string",
+      "description": "ZIP served"
+    },
+    "is_hazard_flagged": {
+      "type": "boolean",
+      "default": false
+    },
+    "hazard_reason": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "published",
+        "paused"
+      ],
+      "default": "published"
+    }
+  },
+  "required": [
+    "teen_user_id",
+    "category",
+    "title",
+    "price"
+  ]
+}

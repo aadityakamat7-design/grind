@@ -1,0 +1,37 @@
+{
+  "name": "EarningsRecord",
+  "type": "object",
+  "properties": {
+    "teen_user_id": {
+      "type": "string"
+    },
+    "booking_id": {
+      "type": "string"
+    },
+    "listing_title": {
+      "type": "string"
+    },
+    "buyer_name": {
+      "type": "string"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Gross"
+    },
+    "net_amount": {
+      "type": "number",
+      "description": "After platform fee"
+    },
+    "occurred_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "tax_year": {
+      "type": "number"
+    }
+  },
+  "required": [
+    "teen_user_id",
+    "amount"
+  ]
+}

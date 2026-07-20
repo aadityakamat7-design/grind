@@ -1,0 +1,66 @@
+{
+  "name": "TeenProfile",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "Owning teen user id"
+    },
+    "display_name": {
+      "type": "string",
+      "description": "First name + last initial only"
+    },
+    "bio": {
+      "type": "string"
+    },
+    "photo_url": {
+      "type": "string"
+    },
+    "date_of_birth": {
+      "type": "string",
+      "format": "date"
+    },
+    "age": {
+      "type": "number"
+    },
+    "zip": {
+      "type": "string"
+    },
+    "service_radius_miles": {
+      "type": "number",
+      "default": 3
+    },
+    "skills": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "avg_rating": {
+      "type": "number",
+      "default": 0
+    },
+    "review_count": {
+      "type": "number",
+      "default": 0
+    },
+    "invite_code": {
+      "type": "string",
+      "description": "Code a parent uses to link"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending_parent",
+        "active",
+        "suspended"
+      ],
+      "default": "pending_parent"
+    }
+  },
+  "required": [
+    "user_id",
+    "display_name",
+    "date_of_birth"
+  ]
+}
