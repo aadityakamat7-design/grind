@@ -51,9 +51,13 @@ const AuthenticatedApp = () => {
     if (authError.type === 'user_not_registered') {
       return <UserNotRegisteredError />;
     } else if (authError.type === 'auth_required') {
-      // Redirect to login automatically
-      navigateToLogin();
-      return null;
+      // Auth pages and the public landing must always render, otherwise
+      // unauthenticated users get a blank screen instead of a login form.
+      const publicPaths = ['/', '/login', '/register', '/forgot-password', '/reset-password'];
+      if (!publicPaths.includes(window.location.pathname)) {
+        navigateToLogin();
+        return null;
+      }
     }
   }
 

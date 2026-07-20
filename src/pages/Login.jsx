@@ -8,6 +8,7 @@ import { LogIn, Mail, Lock, Loader2 } from "lucide-react";
 import AuthLayout from "@/components/AuthLayout";
 import GoogleIcon from "@/components/GoogleIcon";
 import { Checkbox } from "@/components/ui/checkbox";
+import VerifyEmailForm from "@/components/VerifyEmailForm";
 
 export default function Login() {
   const [email, setEmail] = useState(() => localStorage.getItem("grind_remembered_email") || "");
@@ -15,6 +16,7 @@ export default function Login() {
   const [rememberMe, setRememberMe] = useState(() => !!localStorage.getItem("grind_remembered_email"));
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [needsVerification, setNeedsVerification] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -29,10 +31,17 @@ export default function Login() {
       }
       window.location.href = "/";
     } catch (err) {
-      setError(
-        err.message ||
-          "We couldn't log you in. Double-check your email and password — or create an account if you don't have one yet."
-      );
+      const msg = err?.data?.detail || err?.response?.data?.detail || err?.message || "";
+      if (/verif/i.test(msg)) {
+        // Account exists but the email was never verified — send a code and finish verification here.
+        try { await base44.auth.resendOtp(email); } catch { /* code entry still shown */ }
+        setNeedsVerification(true);
+      } else {
+        setError(
+          msg ||
+            "We couldn't log you in. Double-check your email and password — or create an account if you don't have one yet."
+        );
+      }
     } finally {
       setLoading(false);
     }
@@ -41,6 +50,18 @@ export default function Login() {
   const handleGoogle = () => {
     base44.auth.loginWithProvider("google", "/");
   };
+
+  if (needsVerification) {
+    return (
+      <AuthLayout
+        icon={Mail}
+        title="Verify your email"
+        subtitle={`Your account isn't verified yet. We sent a code to ${email}`}
+      >
+        <VerifyEmailForm email={email} />
+      </AuthLayout>
+    );
+  }
 
   return (
     <AuthLayout
