@@ -1,6 +1,5 @@
 import React from "react";
-import { Navigate } from "react-router-dom";
-import { base44 } from "@/api/base44Client";
+import { Navigate, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Zap, ShieldCheck, BadgeCheck, Wallet, MapPin } from "lucide-react";
 import { useAppUser } from "@/lib/useAppUser";
@@ -9,6 +8,7 @@ const ROLE_HOME = { TEEN: "/teen", PARENT: "/parent", BUYER: "/buyer" };
 
 export default function Welcome() {
   const { user, loading } = useAppUser();
+  const navigate = useNavigate();
 
   if (loading)
     return (
@@ -61,9 +61,16 @@ export default function Welcome() {
         <div className="mt-auto pt-10">
           <Button
             className="w-full rounded-xl h-12 text-base font-bold"
-            onClick={() => base44.auth.redirectToLogin("/onboarding")}
+            onClick={() => navigate("/register")}
           >
             Get started
+          </Button>
+          <Button
+            variant="outline"
+            className="w-full rounded-xl h-12 text-base font-bold mt-3"
+            onClick={() => navigate("/login")}
+          >
+            Log in
           </Button>
           <p className="text-center text-xs text-slate-400 mt-3">
             Teens 13–17 need a parent to activate their account.
