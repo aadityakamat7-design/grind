@@ -22,6 +22,8 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
 
   const total = listing.price_model === "HOURLY" ? Number(listing.price) * Number(hours || 1) : Number(listing.price);
   const { platform_fee, net_amount } = computeFees(total);
+  const creditApplied = Math.min(Number(buyerProfile?.referral_credit || 0), total);
+  const buyerPays = Math.round((total - creditApplied) * 100) / 100;
 
   const book = async () => {
     setSaving(true);
@@ -46,6 +48,11 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
       net_amount,
       payment_status: "held",
     });
+    if (creditApplied > 0) {
+      await base44.entities.BuyerProfile.update(buyerProfile.id, {
+        referral_credit: Math.round(((buyerProfile.referral_credit || 0) - creditApplied) * 100) / 100,
+      });
+    }
     await base44.entities.MessageThread.create({
       booking_id: booking.id,
       listing_title: listing.title,
@@ -106,6 +113,12 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
           </div>
           <div className="bg-slate-50 rounded-xl p-4 text-sm space-y-1.5">
             <div className="flex justify-between"><span className="text-slate-500">Total (held in escrow)</span><span className="font-bold">{money(total)}</span></div>
+            {creditApplied > 0 && (
+              <div className="flex justify-between text-xs text-emerald-600 font-semibold"><span>Referral credit</span><span>−{money(creditApplied)}</span></div>
+            )}
+            {creditApplied > 0 && (
+              <div className="flex justify-between text-xs font-bold text-slate-900"><span>You pay</span><span>{money(buyerPays)}</span></div>
+            )}
             <div className="flex justify-between text-xs text-slate-400"><span>Platform fee</span><span>{money(platform_fee)}</span></div>
             <div className="flex justify-between text-xs text-slate-400"><span>Teen earns</span><span>{money(net_amount)}</span></div>
           </div>
@@ -114,7 +127,7 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
             Your payment is held until the job is done. The teen's parent must approve this booking before it's confirmed.
           </div>
           <Button className="w-full rounded-xl" disabled={!when || !address || saving} onClick={book}>
-            {saving ? "Booking..." : `Pay ${money(total)} & request booking`}
+            {saving ? "Booking..." : `Pay ${money(buyerPays)} & request booking`}
           </Button>
         </div>
       </DialogContent>

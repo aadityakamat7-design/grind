@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { money } from "@/lib/grind";
 import { notify } from "@/lib/notify";
 import { creditWallet } from "@/lib/wallet";
+import { completeReferralIfEligible } from "@/lib/referrals";
 
 const PRESETS = [0, 2, 5, 10];
 
@@ -32,6 +33,7 @@ export default function TipReleaseDialog({ open, onOpenChange, booking, onReleas
     await creditWallet(booking.teen_user_id, teenGets, `"${booking.listing_title}" — ${booking.buyer_name}${tipAmt > 0 ? ` (incl. ${money(tipAmt)} tip)` : ""}`);
     await notify(booking.teen_user_id, { type: "payment", title: tipAmt > 0 ? `You got paid — plus a ${money(tipAmt)} tip! 🎉` : "You got paid!", body: `${money(teenGets)} landed in your Grind Wallet for "${booking.listing_title}".`, link: `/teen/wallet` });
     await notify(booking.parent_user_id, { type: "payment", title: "Payout released", body: `${money(teenGets)} from "${booking.listing_title}" is on its way to your account.`, link: `/parent/payouts` });
+    await completeReferralIfEligible(booking.buyer_user_id, booking.id);
     setSaving(false);
     onOpenChange(false);
     onReleased?.();

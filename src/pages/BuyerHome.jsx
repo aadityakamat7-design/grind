@@ -6,12 +6,13 @@ import AppointmentCard from "@/components/grind/buyer/AppointmentCard";
 import SavedWorkers from "@/components/grind/buyer/SavedWorkers";
 import RecommendedTeens from "@/components/grind/buyer/RecommendedTeens";
 import BookingCard from "@/components/grind/BookingCard";
+import ReferralCard from "@/components/grind/ReferralCard";
 
 export default function BuyerHome() {
   const { user } = useOutletContext();
   const [bookings, setBookings] = useState([]);
   const [saved, setSaved] = useState([]);
-  const [zip, setZip] = useState("");
+  const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
@@ -22,7 +23,7 @@ export default function BuyerHome() {
     ]);
     setBookings(b);
     setSaved(s);
-    setZip(profiles[0]?.zip || "");
+    setProfile(profiles[0] || null);
     setLoading(false);
   }, [user.id]);
 
@@ -80,9 +81,11 @@ export default function BuyerHome() {
         )}
       </div>
 
+      <ReferralCard profile={profile} />
+
       <SavedWorkers saved={saved} />
 
-      <RecommendedTeens zip={zip} />
+      <RecommendedTeens zip={profile?.zip || ""} />
 
       <div>
         <h2 className="font-bold text-slate-900 mb-3">Past appointments</h2>

@@ -5,12 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { BadgeCheck } from "lucide-react";
+import { genInviteCode } from "@/lib/grind";
+import { redeemReferralCode } from "@/lib/referrals";
 
 export default function BuyerOnboarding({ user }) {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [address, setAddress] = useState("");
   const [zip, setZip] = useState("");
+  const [refCode, setRefCode] = useState("");
   const [saving, setSaving] = useState(false);
 
   const verify = async () => {
@@ -21,7 +24,9 @@ export default function BuyerOnboarding({ user }) {
       address,
       zip,
       id_verification_status: "verified",
+      referral_code: genInviteCode(),
     });
+    if (refCode.trim()) await redeemReferralCode(refCode, user);
     await base44.auth.updateMe({ app_role: "BUYER", onboarded: true });
     setSaving(false);
     navigate("/browse");
@@ -39,6 +44,11 @@ export default function BuyerOnboarding({ user }) {
         <div>
           <Label>ZIP code</Label>
           <Input className="rounded-xl mt-1" placeholder="e.g. 94110" value={zip} onChange={(e) => setZip(e.target.value)} />
+        </div>
+        <div>
+          <Label>Referral code (optional)</Label>
+          <Input className="rounded-xl mt-1" placeholder="Got a code from a friend?" value={refCode} onChange={(e) => setRefCode(e.target.value)} />
+          <p className="text-xs text-slate-400 mt-1">You'll both get $10 booking credit after your first completed booking.</p>
         </div>
         <Button className="w-full rounded-xl" disabled={!address || !zip} onClick={() => setStep(2)}>Continue</Button>
       </div>
