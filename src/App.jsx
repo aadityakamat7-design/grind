@@ -7,19 +7,23 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ScrollToTop from './components/ScrollToTop';
 // Add page imports here
-import AppLayout from '@/components/grind/AppLayout';
+import Layout from '@/components/grind/Layout';
+import Welcome from '@/pages/Welcome';
 import Onboarding from '@/pages/Onboarding';
-import Home from '@/pages/Home';
-import Listings from '@/pages/Listings';
-import Bookings from '@/pages/Bookings';
+import Account from '@/pages/Account';
+import TeenHome from '@/pages/TeenHome';
+import TeenListings from '@/pages/TeenListings';
+import TeenBookings from '@/pages/TeenBookings';
+import TeenEarnings from '@/pages/TeenEarnings';
+import ParentDashboard from '@/pages/ParentDashboard';
+import ParentApprovals from '@/pages/ParentApprovals';
+import ParentPayouts from '@/pages/ParentPayouts';
+import Browse from '@/pages/Browse';
+import TeenPublicProfile from '@/pages/TeenPublicProfile';
+import BuyerBookings from '@/pages/BuyerBookings';
 import BookingDetail from '@/pages/BookingDetail';
 import Messages from '@/pages/Messages';
-import Chat from '@/pages/Chat';
-import Earnings from '@/pages/Earnings';
-import Approvals from '@/pages/Approvals';
-import Payouts from '@/pages/Payouts';
-import Profile from '@/pages/Profile';
-import TeenPublic from '@/pages/TeenPublic';
+import ChatThread from '@/pages/ChatThread';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -48,19 +52,23 @@ const AuthenticatedApp = () => {
   return (
     <Routes>
       {/* Add your page Route elements here */}
+      <Route path="/" element={<Welcome />} />
       <Route path="/onboarding" element={<Onboarding />} />
-      <Route element={<AppLayout />}>
-        <Route path="/" element={<Home />} />
-        <Route path="/listings" element={<Listings />} />
-        <Route path="/bookings" element={<Bookings />} />
+      <Route element={<Layout />}>
+        <Route path="/account" element={<Account />} />
+        <Route path="/teen" element={<TeenHome />} />
+        <Route path="/teen/listings" element={<TeenListings />} />
+        <Route path="/teen/bookings" element={<TeenBookings />} />
+        <Route path="/teen/earnings" element={<TeenEarnings />} />
+        <Route path="/parent" element={<ParentDashboard />} />
+        <Route path="/parent/approvals" element={<ParentApprovals />} />
+        <Route path="/parent/payouts" element={<ParentPayouts />} />
+        <Route path="/browse" element={<Browse />} />
+        <Route path="/teens/:teenUserId" element={<TeenPublicProfile />} />
+        <Route path="/buyer/bookings" element={<BuyerBookings />} />
         <Route path="/bookings/:bookingId" element={<BookingDetail />} />
         <Route path="/messages" element={<Messages />} />
-        <Route path="/messages/:threadId" element={<Chat />} />
-        <Route path="/earnings" element={<Earnings />} />
-        <Route path="/approvals" element={<Approvals />} />
-        <Route path="/payouts" element={<Payouts />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/teen/:teenUserId" element={<TeenPublic />} />
+        <Route path="/messages/:threadId" element={<ChatThread />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>
