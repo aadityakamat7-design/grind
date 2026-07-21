@@ -28,7 +28,7 @@ export default function Welcome() {
           <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-blue-600 to-sky-500 flex items-center justify-center shadow-lg shadow-blue-200">
             <Zap className="w-6 h-6 text-white" />
           </div>
-          <span className="font-extrabold text-2xl tracking-tight text-slate-900">Grind</span>
+          <span className="font-extrabold text-2xl tracking-tight text-slate-900">Kickstart</span>
         </div>
 
         <div className="mt-12">

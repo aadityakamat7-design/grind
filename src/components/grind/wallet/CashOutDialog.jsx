@@ -29,7 +29,7 @@ export default function CashOutDialog({ open, onOpenChange, wallet, onDone }) {
     await notify(links[0]?.parent_user_id, {
       type: "payment",
       title: "Teen cash-out",
-      body: `${money(amt)} was cashed out from the Grind Wallet to your account.`,
+      body: `${money(amt)} was cashed out from the Kickstart Wallet to your account.`,
       link: "/parent/payouts",
     });
     setSaving(false);

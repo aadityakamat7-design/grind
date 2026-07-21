@@ -24,11 +24,11 @@ export default function TeenOnboarding({ user }) {
     const age = calcAge(dob);
     if (age === null) return;
     if (age < 13) {
-      setAgeError("Sorry — you must be at least 13 to use Grind.");
+      setAgeError("Sorry — you must be at least 13 to use Kickstart.");
       return;
     }
     if (age > 17) {
-      setAgeError("Grind teen accounts are for ages 13–17. If you're 18+, sign up as a neighbor instead.");
+      setAgeError("Kickstart teen accounts are for ages 13–17. If you're 18+, sign up as a neighbor instead.");
       return;
     }
     setAgeError("");
@@ -60,7 +60,7 @@ export default function TeenOnboarding({ user }) {
 
   const copyCode = () => {
     navigator.clipboard.writeText(
-      `Hey! I'm joining Grind to earn money doing local jobs. I need you to approve my account — download the app, sign up as a Parent, and enter my code: ${inviteCode}`
+      `Hey! I'm joining Kickstart to earn money doing local jobs. I need you to approve my account — download the app, sign up as a Parent, and enter my code: ${inviteCode}`
     );
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -70,7 +70,7 @@ export default function TeenOnboarding({ user }) {
     return (
       <div className="space-y-4">
         <h2 className="text-xl font-extrabold text-slate-900">First, how old are you?</h2>
-        <p className="text-sm text-slate-500">Grind is for teens 13–17. We need your date of birth to check.</p>
+        <p className="text-sm text-slate-500">Kickstart is for teens 13–17. We need your date of birth to check.</p>
         <div>
           <Label>Date of birth</Label>
           <Input type="date" className="rounded-xl mt-1" value={dob} onChange={(e) => setDob(e.target.value)} />

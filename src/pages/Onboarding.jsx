@@ -42,7 +42,7 @@ export default function Onboarding() {
           <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-600 to-sky-500 flex items-center justify-center">
             <Zap className="w-4 h-4 text-white" />
           </div>
-          <span className="font-extrabold text-lg text-slate-900">Grind</span>
+          <span className="font-extrabold text-lg text-slate-900">Kickstart</span>
         </div>
 
         {!role ? (

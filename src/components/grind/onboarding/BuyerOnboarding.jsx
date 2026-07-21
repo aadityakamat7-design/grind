@@ -35,7 +35,7 @@ export default function BuyerOnboarding({ user }) {
     return (
       <div className="space-y-4">
         <h2 className="text-xl font-extrabold text-slate-900">Where are you?</h2>
-        <p className="text-sm text-slate-500">Grind is hyperlocal — we'll show you teens in your neighborhood.</p>
+        <p className="text-sm text-slate-500">Kickstart is hyperlocal — we'll show you teens in your neighborhood.</p>
         <div>
           <Label>Home address</Label>
           <Input className="rounded-xl mt-1" placeholder="123 Maple St" value={address} onChange={(e) => setAddress(e.target.value)} />

@@ -42,7 +42,7 @@ export default function TeenEarnings() {
     const blob = new Blob([csv], { type: "text/csv" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = `grind-earnings-${thisYear}.csv`;
+    a.download = `kickstart-earnings-${thisYear}.csv`;
     a.click();
   };
 

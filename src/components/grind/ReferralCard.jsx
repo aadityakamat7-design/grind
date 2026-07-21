@@ -23,7 +23,7 @@ export default function ReferralCard({ profile }) {
   const earned = referrals.filter((r) => r.status === "completed").reduce((s, r) => s + (r.reward_amount || REFERRAL_REWARD), 0);
 
   const copy = () => {
-    navigator.clipboard.writeText(`Join me on Grind — trusted teen help in our neighborhood! Use my code ${code} when you sign up and we both get ${money(REFERRAL_REWARD)} credit: ${window.location.origin}`);
+    navigator.clipboard.writeText(`Join me on Kickstart — trusted teen help in our neighborhood! Use my code ${code} when you sign up and we both get ${money(REFERRAL_REWARD)} credit: ${window.location.origin}`);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };

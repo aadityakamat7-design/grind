@@ -68,7 +68,7 @@ export default function Layout() {
               <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 to-sky-400 flex items-center justify-center">
                 <Zap className="w-5 h-5 text-white" />
               </div>
-              <span className="font-extrabold text-lg tracking-tight text-white">Grind</span>
+              <span className="font-extrabold text-lg tracking-tight text-white">Kickstart</span>
             </Link>
           )}
           <div className="flex items-center gap-4">
