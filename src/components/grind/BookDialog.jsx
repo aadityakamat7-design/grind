@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ShieldCheck, Lock } from "lucide-react";
 import { computeFees, money } from "@/lib/grind";
 import { notify } from "@/lib/notify";
+import { startCheckout } from "@/lib/stripeCheckout";
 
 export default function BookDialog({ open, onOpenChange, listing, buyer, buyerProfile }) {
   const navigate = useNavigate();
@@ -44,9 +45,10 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
       recurrence: recurrence !== "none" ? recurrence : undefined,
       status: "pending_parent_approval",
       price_total: total,
+      charge_amount: buyerPays,
       platform_fee,
       net_amount,
-      payment_status: "held",
+      payment_status: "unpaid",
     });
     if (creditApplied > 0) {
       await base44.entities.BuyerProfile.update(buyerProfile.id, {
@@ -66,9 +68,10 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
     });
     await notify(parentUserId, { type: "approval", title: "Booking needs your approval", body: `${buyer.full_name?.split(" ")[0] || "A neighbor"} booked "${listing.title}" with ${listing.teen_display_name}.`, link: `/bookings/${booking.id}` });
     await notify(listing.teen_user_id, { type: "booking", title: "New booking request", body: `"${listing.title}" — waiting on parent approval.`, link: `/bookings/${booking.id}` });
+    const result = await startCheckout(booking.id);
     setSaving(false);
     onOpenChange(false);
-    navigate(`/bookings/${booking.id}`);
+    if (result.paid || result.blocked) navigate(`/bookings/${booking.id}`);
   };
 
   return (

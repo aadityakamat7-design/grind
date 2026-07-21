@@ -65,6 +65,10 @@
     "price_total": {
       "type": "number"
     },
+    "charge_amount": {
+      "type": "number",
+      "description": "Amount the buyer actually pays after referral credit"
+    },
     "platform_fee": {
       "type": "number"
     },
@@ -74,11 +78,18 @@
     "payment_status": {
       "type": "string",
       "enum": [
+        "unpaid",
         "held",
         "released",
         "refunded"
       ],
-      "default": "held"
+      "default": "unpaid"
+    },
+    "stripe_session_id": {
+      "type": "string"
+    },
+    "stripe_payment_intent_id": {
+      "type": "string"
     }
   },
   "required": [

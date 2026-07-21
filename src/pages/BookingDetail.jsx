@@ -9,6 +9,7 @@ import TrustBadge from "@/components/grind/TrustBadge";
 import ReviewDialog from "@/components/grind/ReviewDialog";
 import { money } from "@/lib/grind";
 import { notify } from "@/lib/notify";
+import { startCheckout } from "@/lib/stripeCheckout";
 import TipReleaseDialog from "@/components/grind/TipReleaseDialog";
 import RescheduleDialog from "@/components/grind/RescheduleDialog";
 import AlertParentButton from "@/components/grind/AlertParentButton";
@@ -58,11 +59,18 @@ export default function BookingDetail() {
 
   const cancelBooking = async () => {
     setActing(true);
-    await base44.entities.Booking.update(booking.id, { status: "cancelled", payment_status: "refunded" });
+    await base44.functions.invoke("refundPayment", { bookingId: booking.id });
     const otherId = isBuyer ? booking.teen_user_id : booking.buyer_user_id;
-    await notify(otherId, { type: "booking", title: "Booking cancelled", body: `"${booking.listing_title}" was cancelled and the held payment was refunded.`, link: `/bookings/${booking.id}` });
+    await notify(otherId, { type: "booking", title: "Booking cancelled", body: `"${booking.listing_title}" was cancelled and any held payment was refunded.`, link: `/bookings/${booking.id}` });
     setActing(false);
     load();
+  };
+
+  const payNow = async () => {
+    setActing(true);
+    const result = await startCheckout(booking.id);
+    setActing(false);
+    if (result.paid) load();
   };
 
   const canReview = booking.status === "completed" && !myReview && (isTeen || isBuyer);
@@ -132,6 +140,11 @@ export default function BookingDetail() {
           </Link>
         )}
 
+        {isBuyer && booking.payment_status === "unpaid" && booking.status !== "cancelled" && (
+          <Button className="w-full rounded-xl" disabled={acting} onClick={payNow}>
+            <Lock className="w-4 h-4 mr-2" /> Complete payment — {money(booking.charge_amount ?? booking.price_total)}
+          </Button>
+        )}
         {isTeen && booking.status === "confirmed" && (
           <Button className="w-full rounded-xl" disabled={acting} onClick={() => update({ status: "in_progress" })}>
             <Play className="w-4 h-4 mr-2" /> Start job — share location with parent

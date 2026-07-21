@@ -13,6 +13,7 @@ const STYLES = {
   held: "bg-slate-100 text-slate-600 border-slate-200",
   paused: "bg-slate-100 text-slate-600 border-slate-200",
   draft: "bg-slate-100 text-slate-600 border-slate-200",
+  unpaid: "bg-amber-50 text-amber-700 border-amber-200",
   cancelled: "bg-rose-50 text-rose-600 border-rose-200",
   denied: "bg-rose-50 text-rose-600 border-rose-200",
   refunded: "bg-rose-50 text-rose-600 border-rose-200",
@@ -24,6 +25,7 @@ const LABELS = {
   pending_parent: "Waiting for parent",
   in_progress: "In progress",
   held: "Payment held",
+  unpaid: "Payment pending",
   released: "Paid out",
 };
 
