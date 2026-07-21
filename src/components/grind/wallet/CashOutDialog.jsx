@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ShieldCheck } from "lucide-react";
 import { money } from "@/lib/grind";
-import { notify } from "@/lib/notify";
 
 export default function CashOutDialog({ open, onOpenChange, wallet, onDone }) {
   const [amount, setAmount] = useState(String(wallet.balance || 0));
@@ -15,23 +14,8 @@ export default function CashOutDialog({ open, onOpenChange, wallet, onDone }) {
 
   const cashOut = async () => {
     setSaving(true);
-    await base44.entities.WalletTransaction.create({
-      teen_user_id: wallet.teen_user_id,
-      type: "cashout",
-      amount: amt,
-      description: "Instant cash-out to parent account",
-      occurred_at: new Date().toISOString(),
-    });
-    await base44.entities.WalletAccount.update(wallet.id, {
-      balance: Math.round(((wallet.balance || 0) - amt) * 100) / 100,
-    });
-    const links = await base44.entities.ParentTeenLink.filter({ teen_user_id: wallet.teen_user_id, status: "confirmed" });
-    await notify(links[0]?.parent_user_id, {
-      type: "payment",
-      title: "Teen cash-out",
-      body: `${money(amt)} was cashed out from the Kickstart Wallet to your account.`,
-      link: "/parent/payouts",
-    });
+    // Cash-outs are validated and executed server-side
+    await base44.functions.invoke("walletCashOut", { amount: amt });
     setSaving(false);
     onOpenChange(false);
     onDone?.();

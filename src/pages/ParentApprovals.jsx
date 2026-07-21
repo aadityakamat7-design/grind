@@ -33,14 +33,8 @@ export default function ParentApprovals() {
 
   const decide = async (booking, approve) => {
     setActing(booking.id);
-    await base44.entities.Booking.update(booking.id, {
-      status: approve ? "confirmed" : "denied",
-      payment_status: approve ? "held" : "refunded",
-    });
-    const threads = await base44.entities.MessageThread.filter({ booking_id: booking.id });
-    if (threads[0] && approve) {
-      await base44.entities.MessageThread.update(threads[0].id, { is_confirmed: true });
-    }
+    // Approval/denial (including the actual Stripe escrow refund) runs server-side
+    await base44.functions.invoke("decideBooking", { bookingId: booking.id, approve });
     const verb = approve ? "approved" : "denied";
     await notify(booking.buyer_user_id, { type: "approval", title: `Booking ${verb}`, body: `"${booking.listing_title}" with ${booking.teen_display_name} was ${verb} by their parent.`, link: `/bookings/${booking.id}` });
     await notify(booking.teen_user_id, { type: "approval", title: `Booking ${verb}`, body: `Your parent ${verb} "${booking.listing_title}".`, link: `/bookings/${booking.id}` });

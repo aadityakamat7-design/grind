@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
-import Stripe from 'npm:stripe@17.5.0';
+import { refundHeldPayment } from '../../shared/stripeRefund.ts';
 
 Deno.serve(async (req) => {
   try {
@@ -19,10 +19,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Booking can no longer be cancelled' }, { status: 400 });
     }
 
-    if (booking.payment_status === 'held' && booking.stripe_payment_intent_id) {
-      const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY'));
-      await stripe.refunds.create({ payment_intent: booking.stripe_payment_intent_id });
-    }
+    await refundHeldPayment(booking);
 
     await base44.asServiceRole.entities.Booking.update(booking.id, {
       status: 'cancelled',

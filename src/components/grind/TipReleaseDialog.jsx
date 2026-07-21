@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { money } from "@/lib/grind";
 import { notify } from "@/lib/notify";
-import { creditWallet } from "@/lib/wallet";
 import { completeReferralIfEligible } from "@/lib/referrals";
 
 const PRESETS = [0, 2, 5, 10];
@@ -19,18 +18,8 @@ export default function TipReleaseDialog({ open, onOpenChange, booking, onReleas
 
   const release = async () => {
     setSaving(true);
-    await base44.entities.Booking.update(booking.id, { payment_status: "released", tip_amount: tipAmt });
-    await base44.entities.EarningsRecord.create({
-      teen_user_id: booking.teen_user_id,
-      booking_id: booking.id,
-      listing_title: booking.listing_title,
-      buyer_name: booking.buyer_name,
-      amount: booking.price_total + tipAmt,
-      net_amount: teenGets,
-      occurred_at: new Date().toISOString(),
-      tax_year: new Date().getFullYear(),
-    });
-    await creditWallet(booking.teen_user_id, teenGets, `"${booking.listing_title}" — ${booking.buyer_name}${tipAmt > 0 ? ` (incl. ${money(tipAmt)} tip)` : ""}`);
+    // Booking update, earnings record, and wallet credit all run server-side
+    await base44.functions.invoke("releasePayment", { bookingId: booking.id, tipAmount: tipAmt });
     await notify(booking.teen_user_id, { type: "payment", title: tipAmt > 0 ? `You got paid — plus a ${money(tipAmt)} tip! 🎉` : "You got paid!", body: `${money(teenGets)} landed in your Grind Wallet for "${booking.listing_title}".`, link: `/teen/wallet` });
     await notify(booking.parent_user_id, { type: "payment", title: "Payout released", body: `${money(teenGets)} from "${booking.listing_title}" is on its way to your account.`, link: `/parent/payouts` });
     await completeReferralIfEligible(booking.buyer_user_id, booking.id);
