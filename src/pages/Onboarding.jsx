@@ -13,8 +13,9 @@ export default function Onboarding() {
   const { user, loading } = useAppUser();
   const urlParams = new URLSearchParams(window.location.search);
   const inviteCode = urlParams.get("code") || "";
+  const identityReturn = urlParams.get("identity_return") === "1";
   const [role, setRole] = useState(() => {
-    if (inviteCode) return "PARENT";
+    if (inviteCode || identityReturn) return "PARENT";
     const stored = localStorage.getItem("grind_signup_role");
     return ["TEEN", "PARENT", "BUYER"].includes(stored) ? stored : null;
   });

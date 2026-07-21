@@ -2,9 +2,10 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useOutletContext } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { Wallet, CheckCircle2, Landmark } from "lucide-react";
+import { Wallet, CheckCircle2, Landmark, ShieldCheck } from "lucide-react";
 import { format } from "date-fns";
 import EmptyState from "@/components/grind/EmptyState";
+import IdentityVerifyCard from "@/components/grind/parent/IdentityVerifyCard";
 import { money } from "@/lib/grind";
 
 export default function ParentPayouts() {
@@ -49,6 +50,17 @@ export default function ParentPayouts() {
         <p className="text-sm text-slate-500 mt-1">All teen earnings pay out to your account.</p>
       </div>
 
+      {!profile?.is_identity_verified && (
+        <IdentityVerifyCard onVerified={() => { window.history.replaceState({}, "", window.location.pathname); load(); }} />
+      )}
+
+      {profile?.is_identity_verified && (
+        <div className="flex items-center gap-3 bg-blue-50 border border-blue-200 rounded-2xl p-4">
+          <ShieldCheck className="w-5 h-5 text-blue-600" />
+          <p className="text-sm font-semibold text-blue-900">Parent identity verified</p>
+        </div>
+      )}
+
       {profile?.connect_status !== "active" ? (
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 text-center">
           <div className="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center mx-auto mb-4">
@@ -58,9 +70,12 @@ export default function ParentPayouts() {
           <p className="text-sm text-slate-500 mt-1 max-w-xs mx-auto">
             As the financial account holder, released job payments are transferred to you — never directly to your teen.
           </p>
-          <Button className="rounded-xl mt-4" disabled={saving || !profile} onClick={setupPayouts}>
+          <Button className="rounded-xl mt-4" disabled={saving || !profile?.is_identity_verified} onClick={setupPayouts}>
             {saving ? "Setting up..." : "Set up payouts"}
           </Button>
+          {!profile?.is_identity_verified && (
+            <p className="text-xs text-amber-600 font-semibold mt-2">Identity verification is required before payouts can be enabled.</p>
+          )}
         </div>
       ) : (
         <div className="flex items-center gap-3 bg-emerald-50 border border-emerald-200 rounded-2xl p-4">

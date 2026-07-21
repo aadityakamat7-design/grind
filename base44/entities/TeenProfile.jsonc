@@ -61,6 +61,11 @@
       "default": true,
       "description": "Available now toggle \u2014 controls visibility in neighbor search"
     },
+    "parent_identity_verified": {
+      "type": "boolean",
+      "default": false,
+      "description": "Linked parent passed Stripe Identity ID + liveness verification"
+    },
     "status": {
       "type": "string",
       "enum": [

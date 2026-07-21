@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useOutletContext } from "react-router-dom";
+import { useOutletContext, Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { ShieldCheck, MapPin, CalendarDays, FileText } from "lucide-react";
@@ -14,12 +14,18 @@ export default function ParentApprovals() {
   const [loading, setLoading] = useState(true);
   const [acting, setActing] = useState(null);
 
+  const [profile, setProfile] = useState(null);
+
   const load = useCallback(async () => {
-    const data = await base44.entities.Booking.filter(
-      { parent_user_id: user.id, status: "pending_parent_approval" },
-      "-created_date"
-    );
+    const [data, profiles] = await Promise.all([
+      base44.entities.Booking.filter(
+        { parent_user_id: user.id, status: "pending_parent_approval" },
+        "-created_date"
+      ),
+      base44.entities.ParentProfile.filter({ user_id: user.id }),
+    ]);
     setPending(data);
+    setProfile(profiles[0] || null);
     setLoading(false);
   }, [user.id]);
 
@@ -51,6 +57,19 @@ export default function ParentApprovals() {
         <h1 className="text-2xl font-extrabold text-slate-900">Approvals</h1>
         <p className="text-sm text-slate-500 mt-1">Every booking needs your OK before it's confirmed.</p>
       </div>
+
+      {!profile?.is_identity_verified && (
+        <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-2xl p-4">
+          <ShieldCheck className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm font-bold text-amber-900">Identity verification required</p>
+            <p className="text-xs text-amber-800 mt-0.5">
+              You need to verify your identity before you can approve bookings.{" "}
+              <Link to="/parent/payouts" className="font-bold underline">Verify now</Link>
+            </p>
+          </div>
+        </div>
+      )}
 
       {pending.length === 0 ? (
         <EmptyState icon={ShieldCheck} title="All clear" subtitle="No bookings are waiting for your approval." />
@@ -94,12 +113,12 @@ export default function ParentApprovals() {
                 <Button
                   variant="outline"
                   className="rounded-xl text-rose-600 border-rose-200 hover:bg-rose-50 hover:text-rose-700"
-                  disabled={acting === b.id}
+                  disabled={acting === b.id || !profile?.is_identity_verified}
                   onClick={() => decide(b, false)}
                 >
                   Deny & refund
                 </Button>
-                <Button className="rounded-xl" disabled={acting === b.id} onClick={() => decide(b, true)}>
+                <Button className="rounded-xl" disabled={acting === b.id || !profile?.is_identity_verified} onClick={() => decide(b, true)}>
                   Approve
                 </Button>
               </div>

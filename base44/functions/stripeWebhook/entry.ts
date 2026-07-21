@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 import Stripe from 'npm:stripe@17.5.0';
+import { applyVerifiedIdentity } from '../../shared/identityVerification.ts';
 
 Deno.serve(async (req) => {
   try {
@@ -24,6 +25,12 @@ Deno.serve(async (req) => {
         });
         console.log(`Booking ${bookingId} marked as held (payment ${session.payment_intent})`);
       }
+    }
+
+    if (event.type === 'identity.verification_session.verified') {
+      const session = event.data.object;
+      const result = await applyVerifiedIdentity(base44, stripe, session.id);
+      console.log(`Identity session ${session.id} processed:`, JSON.stringify(result));
     }
 
     return Response.json({ received: true });

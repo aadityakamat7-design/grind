@@ -19,6 +19,43 @@
       ],
       "default": "not_setup",
       "description": "Payout account (Stripe Connect) status"
+    },
+    "identity_status": {
+      "type": "string",
+      "enum": [
+        "unverified",
+        "processing",
+        "verified",
+        "failed"
+      ],
+      "default": "unverified",
+      "description": "Stripe Identity verification status"
+    },
+    "is_identity_verified": {
+      "type": "boolean",
+      "default": false,
+      "description": "Publicly visible flag that the parent passed ID + liveness verification"
+    },
+    "identity_session_id": {
+      "type": "string",
+      "description": "Stripe Identity verification session id"
+    },
+    "id_type": {
+      "type": "string",
+      "description": "Type of government ID verified, e.g. driving_license"
+    },
+    "id_number": {
+      "type": "string",
+      "description": "ID number from the verified document (no raw images stored)"
+    },
+    "dob": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of birth from the verified ID"
+    },
+    "verified_at": {
+      "type": "string",
+      "format": "date-time"
     }
   },
   "required": [

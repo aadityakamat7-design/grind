@@ -1,26 +1,57 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ShieldCheck, AlertCircle, Landmark, Lock } from "lucide-react";
+import { ShieldCheck, AlertCircle, Landmark, Lock, BadgeCheck } from "lucide-react";
+import IdentityVerifyCard from "@/components/grind/parent/IdentityVerifyCard";
 
 export default function ParentOnboarding({ user, initialCode = "" }) {
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(null); // 1 identity, 2 payouts, 3 link teen
+  const [profile, setProfile] = useState(null);
   const [code, setCode] = useState(initialCode);
   const [error, setError] = useState("");
   const [tosAccepted, setTosAccepted] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [profileId, setProfileId] = useState(null);
-  const [teenName, setTeenName] = useState("");
   const [legalName, setLegalName] = useState(user.full_name || "");
   const [routing, setRouting] = useState("");
   const [account, setAccount] = useState("");
 
+  const loadProfile = useCallback(async () => {
+    const profiles = await base44.entities.ParentProfile.filter({ user_id: user.id });
+    const p = profiles[0] || null;
+    setProfile(p);
+    if (!p || !p.is_identity_verified) setStep(1);
+    else if (p.connect_status !== "active") setStep(2);
+    else setStep(3);
+    return p;
+  }, [user.id]);
+
+  useEffect(() => { loadProfile(); }, [loadProfile]);
+
+  const onVerified = useCallback(async () => {
+    // Strip the identity_return param so a refresh doesn't re-check
+    window.history.replaceState({}, "", window.location.pathname);
+    const p = await loadProfile();
+    if (p?.is_identity_verified) setStep(2);
+  }, [loadProfile]);
+
+  const activatePayouts = async () => {
+    setSaving(true);
+    await base44.entities.ParentProfile.update(profile.id, { connect_status: "active" });
+    setSaving(false);
+    setStep(3);
+  };
+
   const link = async () => {
     setSaving(true);
     setError("");
+    if (!profile?.is_identity_verified) {
+      setError("Your identity must be verified before you can be linked to a teen.");
+      setSaving(false);
+      return;
+    }
     const profiles = await base44.entities.TeenProfile.filter({ invite_code: code.trim().toUpperCase() });
     const teen = profiles[0];
     if (!teen) {
@@ -28,11 +59,6 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
       setSaving(false);
       return;
     }
-    const pp = await base44.entities.ParentProfile.create({
-      user_id: user.id,
-      full_name: user.full_name || "",
-      connect_status: "not_setup",
-    });
     await base44.entities.ParentTeenLink.create({
       parent_user_id: user.id,
       teen_user_id: teen.user_id,
@@ -41,34 +67,36 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
       status: "confirmed",
       confirmed_at: new Date().toISOString(),
     });
-    await base44.entities.TeenProfile.update(teen.id, { status: "active" });
+    await base44.entities.TeenProfile.update(teen.id, { status: "active", parent_identity_verified: true });
     await base44.auth.updateMe({ app_role: "PARENT", onboarded: true });
-    setProfileId(pp.id);
-    setTeenName(teen.display_name);
-    setSaving(false);
-    setStep(2);
-  };
-
-  const activatePayouts = async () => {
-    setSaving(true);
-    await base44.entities.ParentProfile.update(profileId, { connect_status: "active" });
     setSaving(false);
     // Hard redirect so the freshly-set role is picked up
     window.location.href = "/parent";
   };
 
+  if (step === null)
+    return <div className="flex justify-center py-16"><div className="w-8 h-8 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin" /></div>;
+
+  if (step === 1)
+    return (
+      <div className="space-y-4">
+        <h2 className="text-xl font-extrabold text-slate-900">First, verify your identity</h2>
+        <IdentityVerifyCard onVerified={onVerified} />
+      </div>
+    );
+
   if (step === 2)
     return (
       <div className="space-y-4">
         <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-sm text-emerald-800">
-          <ShieldCheck className="w-4 h-4 shrink-0" /> {teenName} is linked and approved!
+          <BadgeCheck className="w-4 h-4 shrink-0" /> Identity verified — you're all set as the account holder.
         </div>
         <div className="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center">
           <Landmark className="w-7 h-7 text-blue-500" />
         </div>
         <h2 className="text-xl font-extrabold text-slate-900">Set up payouts</h2>
         <p className="text-sm text-slate-500">
-          As the account holder, all of your teen's earnings pay out to your bank account — never directly to them. We use Stripe to verify your identity and transfer funds.
+          As the account holder, all of your teen's earnings pay out to your bank account — never directly to them. We use Stripe to transfer funds.
         </p>
         <div>
           <Label>Legal name</Label>
@@ -88,9 +116,9 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
           <Lock className="w-3 h-3" /> Bank details are encrypted and handled by our payments partner.
         </p>
         <Button className="w-full rounded-xl" disabled={!legalName || !routing || !account || saving} onClick={activatePayouts}>
-          {saving ? "Verifying..." : "Verify & activate payouts"}
+          {saving ? "Verifying..." : "Activate payouts"}
         </Button>
-        <button onClick={() => { window.location.href = "/parent"; }} className="w-full text-xs font-semibold text-slate-400 hover:text-slate-600">
+        <button onClick={() => setStep(3)} className="w-full text-xs font-semibold text-slate-400 hover:text-slate-600">
           Skip for now — set up later in Payouts
         </button>
       </div>
