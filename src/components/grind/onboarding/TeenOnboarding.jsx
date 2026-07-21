@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,7 +8,6 @@ import { Copy, Check, ShieldAlert } from "lucide-react";
 import { calcAge, genInviteCode, SKILL_SUGGESTIONS } from "@/lib/grind";
 
 export default function TeenOnboarding({ user }) {
-  const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [dob, setDob] = useState("");
   const [ageError, setAgeError] = useState("");
@@ -152,7 +150,8 @@ export default function TeenOnboarding({ user }) {
         {copied ? <Check className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
         {copied ? "Copied!" : "Copy invite message"}
       </Button>
-      <Button className="w-full rounded-xl" onClick={() => navigate("/teen")}>Go to my dashboard</Button>
+      {/* Hard redirect so the freshly-set role is picked up */}
+      <Button className="w-full rounded-xl" onClick={() => { window.location.href = "/teen"; }}>Go to my dashboard</Button>
     </div>
   );
 }

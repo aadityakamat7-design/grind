@@ -35,7 +35,12 @@ export default function Register() {
       await base44.auth.register({ email, password });
       setShowOtp(true);
     } catch (err) {
-      setError(err.message || "Registration failed");
+      const msg = err?.data?.detail || err?.response?.data?.detail || err?.message || "";
+      if (/exist|already|taken|registered/i.test(msg)) {
+        setError("An account with this email already exists — try logging in instead.");
+      } else {
+        setError(msg || "Registration failed");
+      }
     } finally {
       setLoading(false);
     }
@@ -48,6 +53,9 @@ export default function Register() {
       const result = await base44.auth.verifyOtp({ email, otpCode });
       if (result?.access_token) {
         base44.auth.setToken(result.access_token);
+      } else {
+        // Verification succeeded but no session returned — log in with the credentials we have
+        await base44.auth.loginViaEmailPassword(email, password);
       }
       window.location.href = "/";
     } catch (err) {
@@ -71,6 +79,11 @@ export default function Register() {
   };
 
   const handleGoogle = () => {
+    // Google OAuth can't run inside an embedded preview frame — open a real tab instead
+    if (window.self !== window.top) {
+      window.open(`${window.location.origin}/login?google=1`, "_blank");
+      return;
+    }
     base44.auth.loginWithProvider("google", "/");
   };
 

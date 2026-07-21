@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,7 +7,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ShieldCheck, AlertCircle, Landmark, Lock } from "lucide-react";
 
 export default function ParentOnboarding({ user, initialCode = "" }) {
-  const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [code, setCode] = useState(initialCode);
   const [error, setError] = useState("");
@@ -55,7 +53,8 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
     setSaving(true);
     await base44.entities.ParentProfile.update(profileId, { connect_status: "active" });
     setSaving(false);
-    navigate("/parent");
+    // Hard redirect so the freshly-set role is picked up
+    window.location.href = "/parent";
   };
 
   if (step === 2)
@@ -91,7 +90,7 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
         <Button className="w-full rounded-xl" disabled={!legalName || !routing || !account || saving} onClick={activatePayouts}>
           {saving ? "Verifying..." : "Verify & activate payouts"}
         </Button>
-        <button onClick={() => navigate("/parent")} className="w-full text-xs font-semibold text-slate-400 hover:text-slate-600">
+        <button onClick={() => { window.location.href = "/parent"; }} className="w-full text-xs font-semibold text-slate-400 hover:text-slate-600">
           Skip for now — set up later in Payouts
         </button>
       </div>

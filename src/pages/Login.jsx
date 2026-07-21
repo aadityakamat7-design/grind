@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
@@ -32,10 +32,13 @@ export default function Login() {
       window.location.href = "/";
     } catch (err) {
       const msg = err?.data?.detail || err?.response?.data?.detail || err?.message || "";
+      const status = err?.status || err?.response?.status;
       if (/verif/i.test(msg)) {
         // Account exists but the email was never verified — send a code and finish verification here.
         try { await base44.auth.resendOtp(email); } catch { /* code entry still shown */ }
         setNeedsVerification(true);
+      } else if (status === 400 || status === 401 || /invalid|incorrect|credential|not found/i.test(msg)) {
+        setError("Incorrect email or password. If you don't have an account yet, tap \"Create one\" below.");
       } else {
         setError(
           msg ||
@@ -47,7 +50,20 @@ export default function Login() {
     }
   };
 
+  // Google OAuth can't run inside an embedded preview frame — open the app in
+  // a real tab and auto-start Google sign-in there via ?google=1.
+  useEffect(() => {
+    const wantsGoogle = new URLSearchParams(window.location.search).get("google") === "1";
+    if (wantsGoogle && window.self === window.top) {
+      base44.auth.loginWithProvider("google", "/");
+    }
+  }, []);
+
   const handleGoogle = () => {
+    if (window.self !== window.top) {
+      window.open(`${window.location.origin}/login?google=1`, "_blank");
+      return;
+    }
     base44.auth.loginWithProvider("google", "/");
   };
 
@@ -58,7 +74,7 @@ export default function Login() {
         title="Verify your email"
         subtitle={`Your account isn't verified yet. We sent a code to ${email}`}
       >
-        <VerifyEmailForm email={email} />
+        <VerifyEmailForm email={email} password={password} />
       </AuthLayout>
     );
   }

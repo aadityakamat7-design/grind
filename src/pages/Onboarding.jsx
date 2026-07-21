@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Navigate } from "react-router-dom";
 import { Zap } from "lucide-react";
 import { useAppUser } from "@/lib/useAppUser";
@@ -7,7 +7,7 @@ import TeenOnboarding from "@/components/grind/onboarding/TeenOnboarding";
 import ParentOnboarding from "@/components/grind/onboarding/ParentOnboarding";
 import BuyerOnboarding from "@/components/grind/onboarding/BuyerOnboarding";
 
-const ROLE_HOME = { TEEN: "/teen", PARENT: "/parent", BUYER: "/buyer" };
+const ROLE_HOME = { TEEN: "/teen", PARENT: "/parent", BUYER: "/buyer", ADMIN: "/admin" };
 
 export default function Onboarding() {
   const { user, loading } = useAppUser();
@@ -16,9 +16,14 @@ export default function Onboarding() {
   const [role, setRole] = useState(() => {
     if (inviteCode) return "PARENT";
     const stored = localStorage.getItem("grind_signup_role");
-    localStorage.removeItem("grind_signup_role");
     return ["TEEN", "PARENT", "BUYER"].includes(stored) ? stored : null;
   });
+
+  // Clear the stored signup role after mount (not inside the state initializer,
+  // which can run twice and lose the role)
+  useEffect(() => {
+    localStorage.removeItem("grind_signup_role");
+  }, []);
 
   if (loading)
     return (

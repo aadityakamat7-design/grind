@@ -5,7 +5,7 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp
 import { Loader2 } from "lucide-react";
 
 // Verify an email with an OTP code, then log the user in and redirect home.
-export default function VerifyEmailForm({ email }) {
+export default function VerifyEmailForm({ email, password }) {
   const [otpCode, setOtpCode] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -18,6 +18,9 @@ export default function VerifyEmailForm({ email }) {
       const result = await base44.auth.verifyOtp({ email, otpCode });
       if (result?.access_token) {
         base44.auth.setToken(result.access_token);
+      } else if (password) {
+        // Verification succeeded but no session returned — log in with the credentials we have
+        await base44.auth.loginViaEmailPassword(email, password);
       }
       window.location.href = "/";
     } catch (err) {

@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,7 +8,6 @@ import { genInviteCode } from "@/lib/grind";
 import { redeemReferralCode } from "@/lib/referrals";
 
 export default function BuyerOnboarding({ user }) {
-  const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [address, setAddress] = useState("");
   const [zip, setZip] = useState("");
@@ -29,7 +27,8 @@ export default function BuyerOnboarding({ user }) {
     if (refCode.trim()) await redeemReferralCode(refCode, user);
     await base44.auth.updateMe({ app_role: "BUYER", onboarded: true });
     setSaving(false);
-    navigate("/browse");
+    // Hard redirect so the freshly-set role is picked up
+    window.location.href = "/buyer";
   };
 
   if (step === 1)
