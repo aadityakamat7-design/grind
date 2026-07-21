@@ -12,5 +12,37 @@
   },
   "required": [
     "teen_user_id"
-  ]
+  ],
+  "rls": {
+    "create": {
+      "data.teen_user_id": "{{user.id}}"
+    },
+    "read": {
+      "$or": [
+        {
+          "data.teen_user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "data.app_role": "PARENT"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
 }
