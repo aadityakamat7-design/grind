@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Outlet, NavLink, Navigate, Link, useLocation, useNavigate } from "react-router-dom";
 import { Home, List, CalendarDays, MessageCircle, Wallet, LayoutDashboard, ShieldCheck, Search, Zap, UserCircle, Flag, Briefcase, ArrowLeft } from "lucide-react";
 import { useAppUser } from "@/lib/useAppUser";
@@ -39,10 +39,16 @@ export default function Layout() {
   const navigate = useNavigate();
   const isChildPage = /^\/(bookings|messages|teens)\/.+/.test(location.pathname);
 
+  // The logged-in app uses the landing page's dark theme
+  useEffect(() => {
+    document.documentElement.classList.add("dark");
+    return () => document.documentElement.classList.remove("dark");
+  }, []);
+
   if (loading) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-white">
-        <div className="w-8 h-8 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin" />
+      <div className="fixed inset-0 flex items-center justify-center bg-slate-950">
+        <div className="w-8 h-8 border-4 border-blue-900 border-t-sky-400 rounded-full animate-spin" />
       </div>
     );
   }
@@ -53,7 +59,7 @@ export default function Layout() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-40 bg-blue-950 border-b border-blue-900 pt-[env(safe-area-inset-top)]">
+      <header className="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-md border-b border-white/5 pt-[env(safe-area-inset-top)]">
         <div className="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
           {isChildPage ? (
             <button
@@ -65,10 +71,10 @@ export default function Layout() {
             </button>
           ) : (
             <Link to="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 to-sky-400 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-600 to-sky-500 flex items-center justify-center shadow-lg shadow-blue-500/30">
                 <Zap className="w-5 h-5 text-white" />
               </div>
-              <span className="font-extrabold text-lg tracking-tight text-white">Kickstart</span>
+              <span className="font-extrabold text-lg tracking-tight text-white">KickStart</span>
             </Link>
           )}
           <div className="flex items-center gap-4">
@@ -84,7 +90,7 @@ export default function Layout() {
         <Outlet context={{ user, reload }} />
       </main>
 
-      <nav className="fixed bottom-0 inset-x-0 z-40 bg-white/90 backdrop-blur-lg border-t border-slate-100 pb-[env(safe-area-inset-bottom)]">
+      <nav className="fixed bottom-0 inset-x-0 z-40 bg-slate-950/90 backdrop-blur-lg border-t border-white/10 pb-[env(safe-area-inset-bottom)]">
         <div className="max-w-3xl mx-auto flex items-stretch justify-around">
           {tabs.map((tab) => {
             const Icon = tab.icon;
@@ -99,7 +105,7 @@ export default function Layout() {
                 }}
                 className={({ isActive }) =>
                   `flex flex-col items-center gap-0.5 py-2.5 px-3 text-[11px] font-semibold transition-colors ${
-                    isActive ? "text-blue-600" : "text-slate-400 hover:text-slate-600"
+                    isActive ? "text-sky-400" : "text-slate-500 hover:text-slate-300"
                   }`
                 }
               >

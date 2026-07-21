@@ -92,6 +92,30 @@
   }
 }
 
+/* In-app dark theme: remap hardcoded light utility colors to the landing's dark palette.
+   The `dark` class is applied on <html> only while inside the logged-in app shell. */
+.dark .bg-white { background-color: hsl(224 44% 10%); }
+.dark .bg-slate-50, .dark .bg-slate-100, .dark .bg-blue-50, .dark .bg-sky-50, .dark .bg-blue-100 { background-color: hsl(223 30% 14%); }
+.dark .text-slate-900, .dark .text-slate-800, .dark .text-blue-900, .dark .text-blue-950 { color: hsl(210 40% 98%); }
+.dark .text-slate-700, .dark .text-slate-600 { color: hsl(215 20% 75%); }
+.dark .text-slate-500 { color: hsl(215 16% 62%); }
+.dark .text-blue-700, .dark .text-blue-800 { color: hsl(213 94% 78%); }
+.dark .text-blue-600 { color: hsl(213 94% 68%); }
+.dark .border-slate-100, .dark .border-slate-200, .dark .border-blue-100, .dark .border-blue-200 { border-color: hsl(0 0% 100% / 0.08); }
+.dark .hover\:bg-slate-50:hover, .dark .hover\:bg-slate-100:hover, .dark .hover\:bg-blue-50:hover { background-color: hsl(223 30% 18%); }
+.dark .divide-slate-100 > * + *, .dark .divide-slate-200 > * + * { border-color: hsl(0 0% 100% / 0.08); }
+.dark .shadow-sm, .dark .shadow, .dark .shadow-md { --tw-shadow-color: rgb(0 0 0 / 0.4); }
+.dark .bg-amber-50 { background-color: hsl(36 80% 10%); }
+.dark .border-amber-200 { border-color: hsl(36 60% 25%); }
+.dark .text-amber-800, .dark .text-amber-900 { color: hsl(43 96% 72%); }
+.dark .text-amber-700 { color: hsl(43 90% 62%); }
+.dark .bg-emerald-50 { background-color: hsl(152 60% 10%); }
+.dark .border-emerald-200 { border-color: hsl(152 45% 22%); }
+.dark .text-emerald-800, .dark .text-emerald-700 { color: hsl(152 60% 62%); }
+.dark .bg-red-50, .dark .bg-rose-50 { background-color: hsl(0 60% 12%); }
+.dark .border-red-200 { border-color: hsl(0 50% 25%); }
+.dark .text-red-700, .dark .text-red-800 { color: hsl(0 90% 76%); }
+
 /* Hide scrollbars on horizontal scroll rows */
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
