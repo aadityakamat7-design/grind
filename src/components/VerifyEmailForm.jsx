@@ -22,7 +22,7 @@ export default function VerifyEmailForm({ email, password }) {
         // Verification succeeded but no session returned — log in with the credentials we have
         await base44.auth.loginViaEmailPassword(email, password);
       }
-      window.location.href = "/";
+      window.location.href = "/onboarding";
     } catch (err) {
       setError(err.message || "Invalid verification code");
       setLoading(false);

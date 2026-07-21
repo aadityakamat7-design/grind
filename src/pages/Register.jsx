@@ -59,7 +59,7 @@ export default function Register() {
         // Verification succeeded but no session returned — log in with the credentials we have
         await base44.auth.loginViaEmailPassword(email, password);
       }
-      window.location.href = "/";
+      window.location.href = "/onboarding";
     } catch (err) {
       setError(err.message || "Invalid verification code");
     } finally {
@@ -86,7 +86,7 @@ export default function Register() {
       setError("Google sign-up isn't available inside the preview. Use email and password here, or open the published app to use Google.");
       return;
     }
-    base44.auth.loginWithProvider("google", "/");
+    base44.auth.loginWithProvider("google", "/onboarding");
   };
 
   const pickRole = (r) => {

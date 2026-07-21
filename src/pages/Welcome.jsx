@@ -1,5 +1,5 @@
 import React from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Zap, ShieldCheck } from "lucide-react";
@@ -50,11 +50,18 @@ export default function Welcome() {
       </div>
     );
 
-  if (user && user.app_role && user.onboarded)
-    return <Navigate to={ROLE_HOME[user.app_role] || "/browse"} replace />;
-  if (user) return <Navigate to="/onboarding" replace />;
+  // Logged-in users still land here first — they continue into the app themselves.
+  const appHome = user
+    ? user.app_role && user.onboarded
+      ? ROLE_HOME[user.app_role] || "/browse"
+      : "/onboarding"
+    : null;
 
   const startSignup = (role) => {
+    if (appHome) {
+      navigate(appHome);
+      return;
+    }
     localStorage.setItem("grind_signup_role", role);
     navigate("/register");
   };
@@ -73,12 +80,20 @@ export default function Welcome() {
             <span className="font-extrabold text-xl tracking-tight">KickStart</span>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" className="text-slate-300 hover:text-white hover:bg-white/10 rounded-xl font-bold" onClick={() => navigate("/login")}>
-              Log in
-            </Button>
-            <Button className="rounded-xl font-bold bg-gradient-to-r from-blue-600 to-sky-500 hover:from-blue-500 hover:to-sky-400 hidden sm:inline-flex" onClick={() => navigate("/register")}>
-              Get Started
-            </Button>
+            {appHome ? (
+              <Button className="rounded-xl font-bold bg-gradient-to-r from-blue-600 to-sky-500 hover:from-blue-500 hover:to-sky-400" onClick={() => navigate(appHome)}>
+                Open App
+              </Button>
+            ) : (
+              <>
+                <Button variant="ghost" className="text-slate-300 hover:text-white hover:bg-white/10 rounded-xl font-bold" onClick={() => navigate("/login")}>
+                  Log in
+                </Button>
+                <Button className="rounded-xl font-bold bg-gradient-to-r from-blue-600 to-sky-500 hover:from-blue-500 hover:to-sky-400 hidden sm:inline-flex" onClick={() => navigate("/register")}>
+                  Get Started
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </header>
