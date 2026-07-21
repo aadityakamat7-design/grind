@@ -73,7 +73,7 @@ export default function TeenEarnings() {
         )}
       </div>
 
-      <div className="bg-gradient-to-br from-blue-600 to-sky-500 rounded-2xl p-6 text-white shadow-lg shadow-blue-100">
+      <div className="bg-gradient-to-br from-blue-950 via-blue-800 to-blue-600 rounded-2xl p-6 text-white shadow-lg shadow-blue-200">
         <p className="text-sm opacity-80">Total earned</p>
         <p className="text-4xl font-extrabold mt-1">{money(total)}</p>
         <p className="text-xs opacity-70 mt-2">{money(yearTotal)} earned in {thisYear}</p>

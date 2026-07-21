@@ -4,10 +4,10 @@ import { money } from "@/lib/grind";
 
 export default function EarningsSummary({ balance, week, pending, onCashOut }) {
   return (
-    <div className="bg-gradient-to-br from-blue-600 to-sky-500 rounded-2xl p-5 text-white shadow-lg shadow-blue-100">
+    <div className="bg-gradient-to-br from-blue-950 via-blue-800 to-blue-600 rounded-2xl p-5 text-white shadow-lg shadow-blue-200">
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-xs opacity-80 flex items-center gap-1.5"><Wallet className="w-3.5 h-3.5" /> Grind Wallet balance</p>
+          <p className="text-xs opacity-80 flex items-center gap-1.5"><Wallet className="w-3.5 h-3.5" /> Kickstart Wallet balance</p>
           <p className="text-3xl font-extrabold mt-1">{money(balance)}</p>
         </div>
         <button

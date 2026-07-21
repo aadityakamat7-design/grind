@@ -32,7 +32,7 @@ export default function TeenWallet() {
     <div className="space-y-6">
       <h1 className="text-2xl font-extrabold text-slate-900">Kickstart Wallet</h1>
 
-      <div className="bg-gradient-to-br from-blue-600 to-sky-500 rounded-2xl p-6 text-white shadow-lg shadow-blue-100">
+      <div className="bg-gradient-to-br from-blue-950 via-blue-800 to-blue-600 rounded-2xl p-6 text-white shadow-lg shadow-blue-200">
         <p className="text-xs opacity-80 flex items-center gap-1.5"><Wallet className="w-3.5 h-3.5" /> Current balance</p>
         <p className="text-4xl font-extrabold mt-1">{money(wallet.balance || 0)}</p>
         <p className="text-[11px] opacity-70 mt-2">Job payouts land here the moment a neighbor releases payment.</p>

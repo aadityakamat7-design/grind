@@ -5,7 +5,7 @@ export default function AuthLayout({ icon: Icon, title, subtitle, footer, childr
     <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4 py-10">
       <div className="w-full max-w-md">
         <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-blue-600 mb-4">
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-950 to-blue-700 mb-4 shadow-lg shadow-blue-200">
             <Icon className="w-7 h-7 text-white" aria-hidden="true" />
           </div>
           <h1 className="text-3xl font-bold tracking-tight text-slate-900">{title}</h1>

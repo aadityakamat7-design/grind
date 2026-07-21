@@ -52,8 +52,8 @@ export default function Layout() {
   const tabs = TABS[user.app_role] || TABS.BUYER;
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <header className="sticky top-0 z-40 bg-slate-900 border-b border-slate-800 pt-[env(safe-area-inset-top)]">
+    <div className="min-h-screen bg-background">
+      <header className="sticky top-0 z-40 bg-blue-950 border-b border-blue-900 pt-[env(safe-area-inset-top)]">
         <div className="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
           {isChildPage ? (
             <button

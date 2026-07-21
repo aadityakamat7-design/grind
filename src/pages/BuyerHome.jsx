@@ -48,7 +48,7 @@ export default function BuyerHome() {
         <p className="text-sm text-slate-500 mt-1">Trusted teen help, right in your neighborhood.</p>
       </div>
 
-      <Link to="/browse" className="flex items-center gap-3 bg-gradient-to-br from-blue-600 to-sky-500 rounded-2xl p-4 text-white shadow-lg shadow-blue-100 hover:opacity-95 transition-opacity">
+      <Link to="/browse" className="flex items-center gap-3 bg-gradient-to-br from-blue-950 via-blue-800 to-blue-600 rounded-2xl p-4 text-white shadow-lg shadow-blue-200 hover:opacity-95 transition-opacity">
         <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
           <Search className="w-5 h-5" />
         </div>
