@@ -16,7 +16,20 @@ export default function AppointmentCard({ booking, onChanged }) {
 
   const cancel = async () => {
     setActing(true);
-    await base44.entities.Booking.update(booking.id, { status: "cancelled", payment_status: "refunded" });
+    // Cancellation + Stripe refund run server-side so escrowed funds are actually returned
+    let res;
+    try {
+      res = await base44.functions.invoke("refundPayment", { bookingId: booking.id });
+    } catch (err) {
+      alert(err.response?.data?.error || "This booking could not be cancelled.");
+      setActing(false);
+      return;
+    }
+    if (!res.data?.success) {
+      alert(res.data?.error || "This booking could not be cancelled.");
+      setActing(false);
+      return;
+    }
     await notify(booking.teen_user_id, { type: "booking", title: "Booking cancelled", body: `"${booking.listing_title}" was cancelled and the held payment was refunded.`, link: `/bookings/${booking.id}` });
     setActing(false);
     onChanged?.();
