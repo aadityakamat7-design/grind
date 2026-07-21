@@ -8,7 +8,7 @@ const FAQS = [
   },
   {
     q: "How do payments work?",
-    a: "Neighbors pay through KickStart when they book. The money is held securely in escrow and released to the parent's payout account once the job is completed — no cash, no chasing payments.",
+    a: "Neighbors pay KickStart up front when they book — never the teen directly. We hold the money securely, and once the job is completed, KickStart pays it out to the parent's account. No cash, no chasing payments.",
   },
   {
     q: "Is it safe?",

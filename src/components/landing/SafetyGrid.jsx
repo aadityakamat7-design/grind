@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Lock, HeartHandshake, Star, BadgeCheck, MessageSquare, ClipboardCheck } from "lucide-react";
 
 const ITEMS = [
-  { icon: Lock, title: "Secure Payments", desc: "Money is held in escrow and released only when the job is done." },
+  { icon: Lock, title: "Secure Payments", desc: "Neighbors pay KickStart up front — we pay the teen once the job is done." },
   { icon: HeartHandshake, title: "Parent-Friendly", desc: "Parents verify their identity and approve every single booking." },
   { icon: Star, title: "Community Ratings", desc: "Two-way ratings keep every job honest, on both sides." },
   { icon: BadgeCheck, title: "Verified Profiles", desc: "Adults pass ID + selfie verification before hiring anyone." },

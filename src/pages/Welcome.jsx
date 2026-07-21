@@ -15,6 +15,7 @@ import EarningsCalculator from "@/components/landing/EarningsCalculator";
 import SafetyGrid from "@/components/landing/SafetyGrid";
 import Testimonials from "@/components/landing/Testimonials";
 import FaqSection from "@/components/landing/FaqSection";
+import CommunityStats from "@/components/landing/CommunityStats";
 import LandingFooter from "@/components/landing/LandingFooter";
 
 const ROLE_HOME = { TEEN: "/teen", PARENT: "/parent", BUYER: "/buyer", ADMIN: "/admin" };
@@ -52,6 +53,11 @@ export default function Welcome() {
   if (user && user.app_role && user.onboarded)
     return <Navigate to={ROLE_HOME[user.app_role] || "/browse"} replace />;
   if (user) return <Navigate to="/onboarding" replace />;
+
+  const startSignup = (role) => {
+    localStorage.setItem("grind_signup_role", role);
+    navigate("/register");
+  };
 
   return (
     <div className="min-h-screen bg-slate-950 text-white overflow-x-hidden scroll-smooth">
@@ -96,9 +102,9 @@ export default function Welcome() {
               transition={{ duration: 0.7, delay: 0.1 }}
               className="text-5xl sm:text-6xl font-extrabold tracking-tight leading-[1.04]"
             >
-              Turn Skills
+              Earn or Hire Help
               <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-blue-500">Into Cash.</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-blue-500">in Your Neighborhood.</span>
             </motion.h1>
             <motion.p
               initial={{ opacity: 0, y: 24 }}
@@ -106,7 +112,7 @@ export default function Welcome() {
               transition={{ duration: 0.7, delay: 0.2 }}
               className="text-slate-400 text-lg mt-6 leading-relaxed max-w-md mx-auto md:mx-0"
             >
-              KickStart helps teens earn money by offering services to neighbors — from lawn mowing and tutoring to dog walking, tech help, babysitting, and more.
+              Teens earn real money offering services — lawn mowing, tutoring, dog walking, tech help, and more. Neighbors hire trusted, verified help right down the street.
             </motion.p>
             <motion.div
               initial={{ opacity: 0, y: 24 }}
@@ -116,18 +122,29 @@ export default function Welcome() {
             >
               <Button
                 className="h-12 px-8 rounded-xl text-base font-bold bg-gradient-to-r from-blue-600 to-sky-500 hover:from-blue-500 hover:to-sky-400 shadow-lg shadow-blue-500/30"
-                onClick={() => navigate("/register")}
+                onClick={() => startSignup("TEEN")}
               >
-                Get Started
+                Start Earning
               </Button>
               <Button
                 variant="outline"
                 className="h-12 px-8 rounded-xl text-base font-bold bg-transparent border-white/20 text-white hover:bg-white/10 hover:text-white"
-                onClick={() => document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" })}
+                onClick={() => startSignup("BUYER")}
               >
-                See How It Works
+                Hire a Teen
               </Button>
             </motion.div>
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.7, delay: 0.45 }}
+              className="text-xs text-slate-500 mt-4"
+            >
+              Free to join · Takes less than 2 minutes ·{" "}
+              <button onClick={() => document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" })} className="text-sky-400 font-semibold hover:text-sky-300">
+                See how it works
+              </button>
+            </motion.p>
           </div>
           <motion.div
             initial={{ opacity: 0, y: 40 }}
@@ -146,7 +163,7 @@ export default function Welcome() {
         <TrustBar />
       </section>
 
-      <Section id="how-it-works" eyebrow="How it works" title="Three steps to your first paycheck" subtitle="From profile to payout — everything happens safely inside KickStart.">
+      <Section id="how-it-works" eyebrow="How it works" title="Simple for teens. Simple for neighbors." subtitle="Whichever side you're on, everything happens safely inside KickStart.">
         <HowItWorks />
       </Section>
 
@@ -162,7 +179,7 @@ export default function Welcome() {
         <WhyKickstart />
       </Section>
 
-      <Section eyebrow="Earnings" title="See what you could make" subtitle="Pick a service, set your pace, watch it add up.">
+      <Section eyebrow="Earnings" title="See what you could make" subtitle="Teens earn real money at fair rates — neighbors pay a fraction of what pro services charge. Everyone wins.">
         <EarningsCalculator />
       </Section>
 
@@ -171,6 +188,7 @@ export default function Welcome() {
       </Section>
 
       <Section eyebrow="Testimonials" title="Loved by teens, parents & neighbors">
+        <CommunityStats />
         <Testimonials />
       </Section>
 
@@ -188,14 +206,23 @@ export default function Welcome() {
           className="relative overflow-hidden bg-gradient-to-br from-blue-700 via-blue-600 to-sky-500 rounded-3xl p-10 sm:p-14 text-center shadow-2xl shadow-blue-500/25"
         >
           <div className="absolute -top-20 -right-20 w-64 h-64 bg-white/10 rounded-full blur-3xl pointer-events-none" />
-          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">Ready to Start Earning?</h2>
-          <p className="text-blue-100 mt-3 max-w-md mx-auto">Join thousands of teens helping their communities while making money.</p>
-          <Button
-            className="mt-7 h-12 px-10 rounded-xl text-base font-bold bg-white text-blue-700 hover:bg-blue-50 shadow-lg"
-            onClick={() => navigate("/register")}
-          >
-            Get Started
-          </Button>
+          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">Ready to Get Started?</h2>
+          <p className="text-blue-100 mt-3 max-w-md mx-auto">Join your local community now — thousands of teens and neighbors are already helping each other.</p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center mt-7">
+            <Button
+              className="h-12 px-10 rounded-xl text-base font-bold bg-white text-blue-700 hover:bg-blue-50 shadow-lg"
+              onClick={() => startSignup("TEEN")}
+            >
+              Start Earning Today
+            </Button>
+            <Button
+              className="h-12 px-10 rounded-xl text-base font-bold bg-blue-900/40 border border-white/30 text-white hover:bg-blue-900/60"
+              onClick={() => startSignup("BUYER")}
+            >
+              Find Help Near You
+            </Button>
+          </div>
+          <p className="text-xs text-blue-200/80 mt-4">Free to join · Takes less than 2 minutes</p>
         </motion.div>
       </section>
 
