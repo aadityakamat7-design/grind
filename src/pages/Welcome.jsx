@@ -13,9 +13,7 @@ import MarketplacePreview from "@/components/landing/MarketplacePreview";
 import WhyKickstart from "@/components/landing/WhyKickstart";
 import EarningsCalculator from "@/components/landing/EarningsCalculator";
 import SafetyGrid from "@/components/landing/SafetyGrid";
-import Testimonials from "@/components/landing/Testimonials";
 import FaqSection from "@/components/landing/FaqSection";
-import CommunityStats from "@/components/landing/CommunityStats";
 import LandingFooter from "@/components/landing/LandingFooter";
 
 const ROLE_HOME = { TEEN: "/teen", PARENT: "/parent", BUYER: "/buyer", ADMIN: "/admin" };
@@ -185,11 +183,6 @@ export default function Welcome() {
 
       <Section eyebrow="Safety" title="Safety isn't a feature. It's the foundation." subtitle="Every layer of KickStart is built to protect teens and reassure parents.">
         <SafetyGrid />
-      </Section>
-
-      <Section eyebrow="Testimonials" title="Loved by teens, parents & neighbors">
-        <CommunityStats />
-        <Testimonials />
       </Section>
 
       <Section eyebrow="FAQ" title="Questions, answered">
