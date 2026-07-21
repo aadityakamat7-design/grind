@@ -21,7 +21,14 @@
         "verified",
         "failed"
       ],
-      "default": "pending"
+      "default": "pending",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     },
     "referral_code": {
       "type": "string",

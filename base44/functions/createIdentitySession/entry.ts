@@ -14,7 +14,7 @@ Deno.serve(async (req) => {
     const profiles = await base44.entities.ParentProfile.filter({ user_id: user.id });
     let profile = profiles[0];
     if (!profile) {
-      profile = await base44.entities.ParentProfile.create({
+      profile = await base44.asServiceRole.entities.ParentProfile.create({
         user_id: user.id,
         full_name: user.full_name || '',
         connect_status: 'not_setup',
@@ -41,7 +41,7 @@ Deno.serve(async (req) => {
       return_url: returnUrl,
     });
 
-    await base44.entities.ParentProfile.update(profile.id, {
+    await base44.asServiceRole.entities.ParentProfile.update(profile.id, {
       identity_session_id: session.id,
       identity_status: 'processing',
     });

@@ -23,11 +23,11 @@ Deno.serve(async (req) => {
 
     // Session finished but did not pass
     if (result.status === 'requires_input' && result.lastError) {
-      await base44.entities.ParentProfile.update(profile.id, { identity_status: 'failed' });
+      await base44.asServiceRole.entities.ParentProfile.update(profile.id, { identity_status: 'failed' });
       return Response.json({ status: 'failed', reason: result.lastError });
     }
     if (result.status === 'failed') {
-      await base44.entities.ParentProfile.update(profile.id, { identity_status: 'failed' });
+      await base44.asServiceRole.entities.ParentProfile.update(profile.id, { identity_status: 'failed' });
       return Response.json({ status: 'failed', reason: result.lastError });
     }
 

@@ -29,33 +29,82 @@
         "failed"
       ],
       "default": "unverified",
-      "description": "Stripe Identity verification status"
+      "description": "Identity verification status",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     },
     "is_identity_verified": {
       "type": "boolean",
       "default": false,
-      "description": "Publicly visible flag that the parent passed ID + liveness verification"
+      "description": "Publicly visible flag that the parent passed ID + liveness verification",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     },
     "identity_session_id": {
       "type": "string",
-      "description": "Stripe Identity verification session id"
+      "description": "Stripe Identity verification session id",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     },
     "id_type": {
       "type": "string",
-      "description": "Type of government ID verified, e.g. driving_license"
+      "description": "Type of government ID verified, e.g. driving_license",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     },
     "id_number": {
       "type": "string",
-      "description": "ID number from the verified document (no raw images stored)"
+      "description": "ID number from the verified document (no raw images stored)",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     },
     "dob": {
       "type": "string",
       "format": "date",
-      "description": "Date of birth from the verified ID"
+      "description": "Date of birth from the verified ID",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     },
     "verified_at": {
       "type": "string",
-      "format": "date-time"
+      "format": "date-time",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     }
   },
   "required": [

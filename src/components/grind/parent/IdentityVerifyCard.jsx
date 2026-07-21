@@ -3,9 +3,9 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { ShieldCheck, AlertCircle, Camera, Loader2, IdCard } from "lucide-react";
 
-// Photo-based ID verification: the parent takes a photo of their government-issued
-// ID, AI analyzes it, and if it looks like a real ID the account is verified.
-export default function IdentityVerifyCard({ onVerified }) {
+// Photo-based ID verification: the user takes a photo of their government-issued
+// ID; the AI analysis and profile update run server-side (verifyIdPhoto function).
+export default function IdentityVerifyCard({ onVerified, role = "PARENT" }) {
   const fileRef = useRef(null);
   const [status, setStatus] = useState("idle"); // idle | analyzing | failed
   const [error, setError] = useState("");
@@ -18,43 +18,13 @@ export default function IdentityVerifyCard({ onVerified }) {
     setError("");
 
     const { file_url } = await base44.integrations.Core.UploadFile({ file });
-    const result = await base44.integrations.Core.InvokeLLM({
-      prompt:
-        "You are an identity document verifier. Analyze the attached photo and determine whether it shows a real, physical government-issued photo ID (driver's license, state ID card, or passport). " +
-        "Check that: it is actually an ID document (not a random photo, screenshot, or drawing), it contains a portrait photo, printed name, and document details, and it does not show obvious signs of tampering or being a fake/toy ID. " +
-        "Be reasonably strict: blurry photos where details can't be read should be rejected with reason 'photo too blurry'. " +
-        "Return JSON with: is_valid_id (true only if this looks like a real government-issued photo ID), id_type (e.g. driving_license, state_id, passport, or unknown), full_name (name printed on the ID, or empty), reason (short human-readable explanation if rejected).",
-      file_urls: [file_url],
-      response_json_schema: {
-        type: "object",
-        properties: {
-          is_valid_id: { type: "boolean" },
-          id_type: { type: "string" },
-          full_name: { type: "string" },
-          reason: { type: "string" },
-        },
-      },
-    });
+    // AI analysis + verified-status update both run server-side
+    const res = await base44.functions.invoke("verifyIdPhoto", { fileUrl: file_url, role });
 
-    if (!result?.is_valid_id) {
-      setError(result?.reason || "The photo doesn't appear to show a valid government-issued ID.");
+    if (!res.data?.verified) {
+      setError(res.data?.reason || "The photo doesn't appear to show a valid government-issued ID.");
       setStatus("failed");
       return;
-    }
-
-    // Mark the parent as verified (create the profile if it doesn't exist yet)
-    const me = await base44.auth.me();
-    const profiles = await base44.entities.ParentProfile.filter({ user_id: me.id });
-    const data = {
-      identity_status: "verified",
-      is_identity_verified: true,
-      id_type: result.id_type || "unknown",
-      verified_at: new Date().toISOString(),
-    };
-    if (profiles[0]) {
-      await base44.entities.ParentProfile.update(profiles[0].id, data);
-    } else {
-      await base44.entities.ParentProfile.create({ user_id: me.id, full_name: me.full_name || "", ...data });
     }
     onVerified?.();
   };
@@ -78,7 +48,10 @@ export default function IdentityVerifyCard({ onVerified }) {
       <div>
         <h3 className="font-bold text-slate-900">Verify your identity</h3>
         <p className="text-sm text-slate-500 mt-1">
-          To protect teens on KickStart, every parent verifies who they are. Take a clear photo of your government-issued
+          {role === "BUYER"
+            ? "Because you'll be working with teens, every neighbor verifies who they are."
+            : "To protect teens on KickStart, every parent verifies who they are."}{" "}
+          Take a clear photo of your government-issued
           photo ID (driver's license, state ID, or passport) and our AI will verify it's real.
         </p>
       </div>

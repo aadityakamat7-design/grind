@@ -163,17 +163,24 @@ export default function BookingDetail() {
         )}
         {(isTeen || isBuyer) && ["pending_parent_approval", "confirmed"].includes(booking.status) && (
           <div className="grid grid-cols-2 gap-3">
-            <Button variant="outline" className="rounded-xl" disabled={acting} onClick={() => setReschedOpen(true)}>
-              Reschedule
-            </Button>
             <Button
               variant="outline"
-              className="rounded-xl text-rose-600 border-rose-200 hover:bg-rose-50 hover:text-rose-700"
+              className={`rounded-xl ${isTeen || booking.status === "pending_parent_approval" ? "" : "col-span-2"}`}
               disabled={acting}
-              onClick={cancelBooking}
+              onClick={() => setReschedOpen(true)}
             >
-              Cancel & refund
+              Reschedule
             </Button>
+            {(isTeen || booking.status === "pending_parent_approval") && (
+              <Button
+                variant="outline"
+                className="rounded-xl text-rose-600 border-rose-200 hover:bg-rose-50 hover:text-rose-700"
+                disabled={acting}
+                onClick={cancelBooking}
+              >
+                Cancel & refund
+              </Button>
+            )}
           </div>
         )}
         {isBuyer && booking.status === "completed" && (

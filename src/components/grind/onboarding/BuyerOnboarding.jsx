@@ -3,9 +3,9 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { BadgeCheck } from "lucide-react";
 import { genInviteCode } from "@/lib/grind";
 import { redeemReferralCode } from "@/lib/referrals";
+import IdentityVerifyCard from "@/components/grind/parent/IdentityVerifyCard";
 
 export default function BuyerOnboarding({ user }) {
   const [step, setStep] = useState(1);
@@ -14,19 +14,26 @@ export default function BuyerOnboarding({ user }) {
   const [refCode, setRefCode] = useState("");
   const [saving, setSaving] = useState(false);
 
-  const verify = async () => {
+  const continueToVerify = async () => {
     setSaving(true);
-    await base44.entities.BuyerProfile.create({
-      user_id: user.id,
-      full_name: user.full_name || "",
-      address,
-      zip,
-      id_verification_status: "verified",
-      referral_code: genInviteCode(),
-    });
-    if (refCode.trim()) await redeemReferralCode(refCode, user);
-    await base44.auth.updateMe({ app_role: "BUYER", onboarded: true });
+    const existing = await base44.entities.BuyerProfile.filter({ user_id: user.id });
+    if (!existing[0]) {
+      // id_verification_status stays at its "pending" default — only the backend can mark it verified
+      await base44.entities.BuyerProfile.create({
+        user_id: user.id,
+        full_name: user.full_name || "",
+        address,
+        zip,
+        referral_code: genInviteCode(),
+      });
+      if (refCode.trim()) await redeemReferralCode(refCode, user);
+    }
     setSaving(false);
+    setStep(2);
+  };
+
+  const finish = async () => {
+    await base44.auth.updateMe({ app_role: "BUYER", onboarded: true });
     // Hard redirect so the freshly-set role is picked up
     window.location.href = "/buyer";
   };
@@ -49,28 +56,19 @@ export default function BuyerOnboarding({ user }) {
           <Input className="rounded-xl mt-1" placeholder="Got a code from a friend?" value={refCode} onChange={(e) => setRefCode(e.target.value)} />
           <p className="text-xs text-slate-400 mt-1">You'll both get $10 booking credit after your first completed booking.</p>
         </div>
-        <Button className="w-full rounded-xl" disabled={!address || !zip} onClick={() => setStep(2)}>Continue</Button>
+        <Button className="w-full rounded-xl" disabled={!address || !zip || saving} onClick={continueToVerify}>
+          {saving ? "Saving..." : "Continue"}
+        </Button>
       </div>
     );
 
   return (
-    <div className="space-y-4 text-center">
-      <div className="w-16 h-16 rounded-2xl bg-blue-50 flex items-center justify-center mx-auto">
-        <BadgeCheck className="w-8 h-8 text-blue-500" />
-      </div>
+    <div className="space-y-4">
       <h2 className="text-xl font-extrabold text-slate-900">Verify you're an adult</h2>
       <p className="text-sm text-slate-500">
         Because you'll be working with teens, every neighbor must verify their identity before booking or messaging. This keeps kids safe and builds trust with parents.
       </p>
-      <div className="bg-slate-50 rounded-2xl p-5 text-left text-sm text-slate-600 space-y-2">
-        <p className="font-semibold text-slate-900">What we check:</p>
-        <p>· Government-issued photo ID</p>
-        <p>· You are 18 or older</p>
-        <p>· Selfie match</p>
-      </div>
-      <Button className="w-full rounded-xl" disabled={saving} onClick={verify}>
-        {saving ? "Verifying..." : "Verify my ID"}
-      </Button>
+      <IdentityVerifyCard role="BUYER" onVerified={finish} />
     </div>
   );
 }
