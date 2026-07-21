@@ -48,7 +48,14 @@
     },
     "tip_amount": {
       "type": "number",
-      "default": 0
+      "default": 0,
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     },
     "status": {
       "type": "string",
@@ -83,13 +90,34 @@
         "released",
         "refunded"
       ],
-      "default": "unpaid"
+      "default": "unpaid",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     },
     "stripe_session_id": {
-      "type": "string"
+      "type": "string",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     },
     "stripe_payment_intent_id": {
-      "type": "string"
+      "type": "string",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     }
   },
   "required": [

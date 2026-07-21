@@ -37,7 +37,6 @@ export default function AcceptJobButton({ job, teen, onAccepted }) {
       platform_fee,
       net_amount,
       status: "pending_parent_approval",
-      payment_status: "held",
     });
     await base44.entities.JobPost.update(job.id, {
       status: "assigned",

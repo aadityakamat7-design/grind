@@ -11,13 +11,19 @@ export default function ApprovalQueue({ pending, onDecided }) {
 
   const decide = async (booking, approve) => {
     setActing(booking.id);
-    await base44.entities.Booking.update(booking.id, {
-      status: approve ? "confirmed" : "denied",
-      payment_status: approve ? "held" : "refunded",
-    });
-    const threads = await base44.entities.MessageThread.filter({ booking_id: booking.id });
-    if (threads[0] && approve) {
-      await base44.entities.MessageThread.update(threads[0].id, { is_confirmed: true });
+    // Approval/denial runs server-side: verifies the parent, refunds via Stripe on deny
+    let res;
+    try {
+      res = await base44.functions.invoke("decideBooking", { bookingId: booking.id, approve });
+    } catch (err) {
+      alert(err.response?.data?.error || "This booking could not be updated.");
+      setActing(null);
+      return;
+    }
+    if (!res.data?.success) {
+      alert(res.data?.error || "This booking could not be updated.");
+      setActing(null);
+      return;
     }
     const verb = approve ? "approved" : "denied";
     await notify(booking.buyer_user_id, { type: "approval", title: `Booking ${verb}`, body: `"${booking.listing_title}" with ${booking.teen_display_name} was ${verb} by their parent.`, link: `/bookings/${booking.id}` });

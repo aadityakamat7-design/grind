@@ -48,7 +48,6 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
       charge_amount: buyerPays,
       platform_fee,
       net_amount,
-      payment_status: "unpaid",
     });
     if (creditApplied > 0) {
       await base44.entities.BuyerProfile.update(buyerProfile.id, {
