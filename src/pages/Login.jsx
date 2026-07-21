@@ -61,7 +61,7 @@ export default function Login() {
 
   const handleGoogle = () => {
     if (window.self !== window.top) {
-      window.open(`${window.location.origin}/login?google=1`, "_blank");
+      setError("Google sign-in isn't available inside the preview. Use email and password here, or open the published app to use Google.");
       return;
     }
     base44.auth.loginWithProvider("google", "/");

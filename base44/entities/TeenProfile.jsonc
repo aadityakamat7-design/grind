@@ -23,6 +23,14 @@
     "age": {
       "type": "number"
     },
+    "state": {
+      "type": "string",
+      "description": "US state code used for the legal work-age eligibility check"
+    },
+    "eligibility_min_age": {
+      "type": "number",
+      "description": "Minimum working age in the teen's state per the rules table"
+    },
     "zip": {
       "type": "string"
     },

@@ -9,12 +9,14 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp
 import AuthLayout from "@/components/AuthLayout";
 import GoogleIcon from "@/components/GoogleIcon";
 import RolePicker from "@/components/grind/onboarding/RolePicker";
+import TeenEligibilityStep from "@/components/grind/onboarding/TeenEligibilityStep";
 import { toast } from "@/components/ui/use-toast";
 
 const ROLE_TITLES = { TEEN: "teen", PARENT: "parent", BUYER: "neighbor" };
 
 export default function Register() {
   const [role, setRole] = useState(null);
+  const [teenInfo, setTeenInfo] = useState(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -79,9 +81,9 @@ export default function Register() {
   };
 
   const handleGoogle = () => {
-    // Google OAuth can't run inside an embedded preview frame — open a real tab instead
+    // Google OAuth can't run inside an embedded preview frame — no new tabs, just explain
     if (window.self !== window.top) {
-      window.open(`${window.location.origin}/login?google=1`, "_blank");
+      setError("Google sign-up isn't available inside the preview. Use email and password here, or open the published app to use Google.");
       return;
     }
     base44.auth.loginWithProvider("google", "/");
@@ -108,6 +110,40 @@ export default function Register() {
         }
       >
         <RolePicker onSelect={pickRole} />
+      </AuthLayout>
+    );
+  }
+
+  // Teens must pass the state + age legal eligibility check before creating an account
+  if (role === "TEEN" && !teenInfo) {
+    return (
+      <AuthLayout
+        icon={UserPlus}
+        title="Quick eligibility check"
+        subtitle="Teen work rules vary by state — let's make sure you can join"
+        footer={
+          <>
+            Already have an account?{" "}
+            <Link to="/login" className="text-primary font-medium hover:underline">
+              Log in
+            </Link>
+          </>
+        }
+      >
+        <button
+          onClick={() => setRole(null)}
+          className="text-xs font-semibold text-slate-500 mb-4 hover:text-slate-900"
+        >
+          ← Change role
+        </button>
+        <TeenEligibilityStep
+          onEligible={({ dob, state, result }) => {
+            localStorage.setItem("kickstart_teen_dob", dob);
+            localStorage.setItem("kickstart_teen_state", state);
+            localStorage.setItem("kickstart_teen_min_age", String(result.minAge));
+            setTeenInfo({ dob, state });
+          }}
+        />
       </AuthLayout>
     );
   }
