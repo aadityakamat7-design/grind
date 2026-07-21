@@ -5,8 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { money } from "@/lib/grind";
-import { notify } from "@/lib/notify";
-import { completeReferralIfEligible } from "@/lib/referrals";
 
 const PRESETS = [0, 2, 5, 10];
 
@@ -18,11 +16,18 @@ export default function TipReleaseDialog({ open, onOpenChange, booking, onReleas
 
   const release = async () => {
     setSaving(true);
-    // Booking update, earnings record, and wallet credit all run server-side
-    await base44.functions.invoke("releasePayment", { bookingId: booking.id, tipAmount: tipAmt });
-    await notify(booking.teen_user_id, { type: "payment", title: tipAmt > 0 ? `You got paid — plus a ${money(tipAmt)} tip! 🎉` : "You got paid!", body: `${money(teenGets)} landed in your Grind Wallet for "${booking.listing_title}".`, link: `/teen/wallet` });
-    await notify(booking.parent_user_id, { type: "payment", title: "Payout released", body: `${money(teenGets)} from "${booking.listing_title}" is on its way to your account.`, link: `/parent/payouts` });
-    await completeReferralIfEligible(booking.buyer_user_id, booking.id);
+    // Release, earnings, wallet credit, notifications & referral all run server-side.
+    // A tip must be paid through Stripe checkout before anything is credited.
+    const res = await base44.functions.invoke("releasePayment", { bookingId: booking.id, tipAmount: tipAmt });
+    if (res.data?.url) {
+      if (window.self !== window.top) {
+        alert("Checkout only works from the published app. Open your app in a new tab to pay the tip.");
+        setSaving(false);
+        return;
+      }
+      window.location.href = res.data.url;
+      return;
+    }
     setSaving(false);
     onOpenChange(false);
     onReleased?.();

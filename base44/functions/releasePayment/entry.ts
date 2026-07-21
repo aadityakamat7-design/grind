@@ -1,4 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
+import Stripe from 'npm:stripe@17.5.0';
+import { releaseBookingPayment } from '../../shared/releaseBooking.ts';
 
 Deno.serve(async (req) => {
   try {
@@ -17,38 +19,39 @@ Deno.serve(async (req) => {
     }
 
     const tip = Math.max(0, Math.round((Number(tipAmount) || 0) * 100) / 100);
-    const teenGets = Math.round(((booking.net_amount || 0) + tip) * 100) / 100;
 
-    await base44.asServiceRole.entities.Booking.update(booking.id, {
-      payment_status: 'released',
-      tip_amount: tip,
-    });
+    // Tips must be charged through Stripe before any wallet credit — the release
+    // itself happens in the webhook once the tip payment succeeds.
+    if (tip > 0) {
+      const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY'));
+      const origin = req.headers.get('origin') || 'https://grind-local-link.base44.app';
+      const session = await stripe.checkout.sessions.create({
+        mode: 'payment',
+        line_items: [
+          {
+            price_data: {
+              currency: 'usd',
+              product_data: {
+                name: `Tip for ${booking.teen_display_name || 'your local teen'}`,
+                description: `Tip for "${booking.listing_title}" — 100% goes to the teen.`,
+              },
+              unit_amount: Math.round(tip * 100),
+            },
+            quantity: 1,
+          },
+        ],
+        success_url: `${origin}/bookings/${booking.id}?paid=1`,
+        cancel_url: `${origin}/bookings/${booking.id}`,
+        metadata: {
+          base44_app_id: Deno.env.get('BASE44_APP_ID'),
+          tip_booking_id: booking.id,
+          tip_amount: String(tip),
+        },
+      });
+      return Response.json({ url: session.url });
+    }
 
-    await base44.asServiceRole.entities.EarningsRecord.create({
-      teen_user_id: booking.teen_user_id,
-      booking_id: booking.id,
-      listing_title: booking.listing_title,
-      buyer_name: booking.buyer_name,
-      amount: Math.round(((booking.price_total || 0) + tip) * 100) / 100,
-      net_amount: teenGets,
-      occurred_at: new Date().toISOString(),
-      tax_year: new Date().getFullYear(),
-    });
-
-    // Credit the teen's wallet (created server-side if missing)
-    const wallets = await base44.asServiceRole.entities.WalletAccount.filter({ teen_user_id: booking.teen_user_id });
-    const wallet = wallets[0] || await base44.asServiceRole.entities.WalletAccount.create({ teen_user_id: booking.teen_user_id, balance: 0 });
-    await base44.asServiceRole.entities.WalletTransaction.create({
-      teen_user_id: booking.teen_user_id,
-      type: 'earning',
-      amount: teenGets,
-      description: `"${booking.listing_title}" — ${booking.buyer_name}${tip > 0 ? ` (incl. $${tip.toFixed(2)} tip)` : ''}`,
-      occurred_at: new Date().toISOString(),
-    });
-    await base44.asServiceRole.entities.WalletAccount.update(wallet.id, {
-      balance: Math.round(((wallet.balance || 0) + teenGets) * 100) / 100,
-    });
-
+    const teenGets = await releaseBookingPayment(base44, booking, 0);
     return Response.json({ success: true, teenGets });
   } catch (error) {
     console.error('releasePayment error:', error.message);
