@@ -14,6 +14,7 @@ import TipReleaseDialog from "@/components/grind/TipReleaseDialog";
 import RescheduleDialog from "@/components/grind/RescheduleDialog";
 import AlertParentButton from "@/components/grind/AlertParentButton";
 import PaymentStatusTracker from "@/components/grind/PaymentStatusTracker";
+import EarningsBreakdown from "@/components/grind/teen/EarningsBreakdown";
 
 export default function BookingDetail() {
   const { bookingId } = useParams();
@@ -51,13 +52,6 @@ export default function BookingDetail() {
   const confirmedPlus = ["confirmed", "in_progress", "completed"].includes(booking.status);
   const addressVisible = isBuyer || isParent || (isTeen && confirmedPlus);
 
-  const update = async (data) => {
-    setActing(true);
-    await base44.entities.Booking.update(booking.id, data);
-    setActing(false);
-    load();
-  };
-
   const cancelBooking = async () => {
     setActing(true);
     await base44.functions.invoke("refundPayment", { bookingId: booking.id });
@@ -75,6 +69,48 @@ export default function BookingDetail() {
   };
 
   const canReview = booking.status === "completed" && !myReview && (isTeen || isBuyer);
+
+  const startJob = async () => {
+    setActing(true);
+    await base44.entities.Booking.update(booking.id, { status: "in_progress" });
+    await notify(booking.buyer_user_id, {
+      type: "booking",
+      title: `${booking.teen_display_name} started the job`,
+      body: `"${booking.listing_title}" is now in progress.`,
+      link: `/bookings/${booking.id}`,
+    });
+    if (booking.parent_user_id) {
+      await notify(booking.parent_user_id, {
+        type: "booking",
+        title: "Booking is starting",
+        body: `"${booking.listing_title}" just started — live location is being shared with you.`,
+        link: `/bookings/${booking.id}`,
+      });
+    }
+    setActing(false);
+    load();
+  };
+
+  const completeJob = async () => {
+    setActing(true);
+    await base44.entities.Booking.update(booking.id, { status: "completed" });
+    await notify(booking.buyer_user_id, {
+      type: "booking",
+      title: "Job marked complete",
+      body: `"${booking.listing_title}" is done — confirm completion to release payment.`,
+      link: `/bookings/${booking.id}`,
+    });
+    if (booking.parent_user_id) {
+      await notify(booking.parent_user_id, {
+        type: "booking",
+        title: "Booking completed",
+        body: `"${booking.listing_title}" was marked complete by ${booking.teen_display_name}.`,
+        link: `/bookings/${booking.id}`,
+      });
+    }
+    setActing(false);
+    load();
+  };
 
   return (
     <div className="space-y-5">
@@ -125,6 +161,8 @@ export default function BookingDetail() {
           )}
         </div>
 
+        {isTeen && <div className="mt-4"><EarningsBreakdown booking={booking} /></div>}
+
         <PaymentStatusTracker booking={booking} />
 
         {booking.status === "in_progress" && isParent && (
@@ -149,12 +187,12 @@ export default function BookingDetail() {
           </Button>
         )}
         {isTeen && booking.status === "confirmed" && (
-          <Button className="w-full rounded-xl" disabled={acting} onClick={() => update({ status: "in_progress" })}>
+          <Button className="w-full rounded-xl" disabled={acting} onClick={startJob}>
             <Play className="w-4 h-4 mr-2" /> Start job — share location with parent
           </Button>
         )}
         {isTeen && booking.status === "in_progress" && (
-          <Button className="w-full rounded-xl" disabled={acting} onClick={() => update({ status: "completed" })}>
+          <Button className="w-full rounded-xl" disabled={acting} onClick={completeJob}>
             <CheckCircle2 className="w-4 h-4 mr-2" /> Mark job complete
           </Button>
         )}

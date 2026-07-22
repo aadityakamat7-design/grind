@@ -179,6 +179,11 @@
           }
         }
       }
+    },
+    "reminder_sent": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the 'starting soon' reminder notification has been sent"
     }
   },
   "required": [

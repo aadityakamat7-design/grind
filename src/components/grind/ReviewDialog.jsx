@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import RatingStars from "@/components/grind/RatingStars";
 import { recomputeTeenRating } from "@/lib/ratings";
+import { notify } from "@/lib/notify";
 
 export default function ReviewDialog({ open, onOpenChange, booking, author, direction, onDone }) {
   const [rating, setRating] = useState(0);
@@ -34,6 +35,12 @@ export default function ReviewDialog({ open, onOpenChange, booking, author, dire
     if (direction === "buyer_to_teen") {
       await recomputeTeenRating(booking.teen_user_id);
     }
+    await notify(subjectId, {
+      type: "review",
+      title: `New review from ${direction === "buyer_to_teen" ? booking.buyer_name : booking.teen_display_name}`,
+      body: text ? text.slice(0, 100) : `You received a ${rating}-star review.`,
+      link: direction === "buyer_to_teen" ? `/teens/${booking.teen_user_id}` : `/bookings/${booking.id}`,
+    });
     setSaving(false);
     onOpenChange(false);
     onDone?.();

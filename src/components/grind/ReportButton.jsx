@@ -23,7 +23,7 @@ export default function ReportButton({ reporter, subjectId, subjectName, booking
 
   const submit = async () => {
     setSaving(true);
-    await base44.entities.Report.create({
+    const report = await base44.entities.Report.create({
       reporter_id: reporter.id,
       reporter_name: reporter.full_name?.split(" ")[0] || "User",
       subject_id: subjectId,
@@ -33,6 +33,11 @@ export default function ReportButton({ reporter, subjectId, subjectName, booking
       details,
       status: "open",
     });
+    try {
+      await base44.functions.invoke("notifyReport", { reportId: report.id, subjectId, subjectName, reason });
+    } catch {
+      // Report was saved either way; admin notification is best-effort.
+    }
     setSaving(false);
     setDone(true);
   };

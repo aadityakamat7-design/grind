@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Send, Lock, Eye, AlertTriangle } from "lucide-react";
 import { maskPII } from "@/lib/grind";
+import { notify } from "@/lib/notify";
 
 export default function ChatThread() {
   const { threadId } = useParams();
@@ -78,6 +79,17 @@ export default function ChatThread() {
         last_message: text.slice(0, 80),
         last_message_at: new Date().toISOString(),
       });
+      const recipients = (thread.participant_ids || []).filter((id) => id && id !== user.id);
+      await Promise.all(
+        recipients.map((id) =>
+          notify(id, {
+            type: "message",
+            title: `New message from ${senderName}`,
+            body: text.slice(0, 100),
+            link: `/messages/${thread.id}`,
+          })
+        )
+      );
     } catch {
       // Roll back and restore the draft so nothing is lost
       setMessages((prev) => prev.filter((m) => m.id !== tempId));

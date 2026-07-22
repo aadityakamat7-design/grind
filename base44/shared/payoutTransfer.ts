@@ -1,4 +1,5 @@
 import { getStripe } from './stripeEnv.ts';
+import { notifyAdmins } from './notifyAdmins.ts';
 
 const REVIEW_THRESHOLD = 100; // USD — payouts at/above this go to manual review
 const money = (n) => `$${Number(n || 0).toFixed(2)}`;
@@ -47,6 +48,12 @@ export async function attemptBookingPayout(base44, booking, { skipReview = false
         title: 'Payout in a short safety review',
         body: `Your ${money(amount)} payout for "${booking.listing_title}" is in a brief review (${reason.toLowerCase()}). It's usually released within 1 business day.`,
         link: '/parent/payouts',
+      });
+      await notifyAdmins(base44, {
+        type: 'payment',
+        title: 'Payout needs manual review',
+        body: `${money(amount)} payout for "${booking.listing_title}" is pending review (${reason.toLowerCase()}).`,
+        link: '/admin',
       });
       return { status: 'pending_review', reason };
     }
