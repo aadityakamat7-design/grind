@@ -54,7 +54,7 @@ export async function releaseBookingPayment(base44, booking, tip) {
     user_id: booking.teen_user_id,
     type: 'payment',
     title: tipAmt > 0 ? `You got paid — plus a ${money(tipAmt)} tip! 🎉` : 'You got paid!',
-    body: `${money(teenGets)} landed in your Grind Wallet for "${booking.listing_title}".`,
+    body: `${money(teenGets)} landed in your Kickstart Wallet for "${booking.listing_title}".`,
     link: '/teen/wallet',
   });
   // Transfer the net payout (after platform fee) to the parent's Stripe Connect

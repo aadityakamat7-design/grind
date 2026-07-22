@@ -56,7 +56,7 @@ export default function TipReleaseDialog({ open, onOpenChange, booking, onReleas
               ))}
             </div>
             <Input type="number" min="0" className="rounded-xl mt-2" placeholder="Custom amount" value={tip} onChange={(e) => setTip(e.target.value)} />
-            <p className="text-xs text-slate-400 mt-1.5">100% of the tip goes straight into the teen's Grind Wallet.</p>
+            <p className="text-xs text-slate-400 mt-1.5">100% of the tip goes straight into the teen's Kickstart Wallet.</p>
           </div>
           <div className="bg-slate-50 rounded-xl p-4 text-sm space-y-1.5">
             <div className="flex justify-between text-xs text-slate-400"><span>Job payment (escrow)</span><span>{money(booking.net_amount)}</span></div>

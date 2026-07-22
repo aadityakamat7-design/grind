@@ -33,7 +33,7 @@ export default function EarningsBreakdown({ booking }) {
       {released ? (
         <p className="flex items-center gap-1.5 text-xs font-semibold text-emerald-600 pt-1">
           <CheckCircle2 className="w-3.5 h-3.5" />
-          Added to your Grind Wallet{booking.released_at ? ` on ${format(new Date(booking.released_at), "MMM d")}` : ""}
+          Added to your Kickstart Wallet{booking.released_at ? ` on ${format(new Date(booking.released_at), "MMM d")}` : ""}
         </p>
       ) : (
         <p className="text-xs text-slate-400 pt-1 capitalize">Payment status: {booking.payment_status}</p>
