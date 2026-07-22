@@ -68,6 +68,10 @@
       "type": "string",
       "description": "Code a parent uses to link"
     },
+    "referral_code": {
+      "type": "string",
+      "description": "This teen's shareable referral code \u2014 rewards land in their Grind Wallet"
+    },
     "is_available": {
       "type": "boolean",
       "default": true,

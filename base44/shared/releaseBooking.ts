@@ -61,45 +61,67 @@ export async function releaseBookingPayment(base44, booking, tip) {
   // account — never the teen's. Sends its own parent notification per outcome.
   await attemptBookingPayout(base44, { ...booking, platform_fee: platformFee, net_amount: netBase, tip_amount: tipAmt });
 
-  // Two-sided referral reward on the buyer's first completed booking
-  const refs = await svc.Referral.filter({ referred_user_id: booking.buyer_user_id, status: 'pending' });
-  const ref = refs[0];
-  if (ref) {
-    await svc.Referral.update(ref.id, {
-      status: 'completed',
-      booking_id: booking.id,
-      completed_at: new Date().toISOString(),
-    });
-    const reward = ref.reward_amount || 10;
-    const [referrerProfiles, referredProfiles] = await Promise.all([
-      svc.BuyerProfile.filter({ user_id: ref.referrer_user_id }),
-      svc.BuyerProfile.filter({ user_id: ref.referred_user_id }),
-    ]);
-    if (referrerProfiles[0]) {
-      await svc.BuyerProfile.update(referrerProfiles[0].id, {
-        referral_credit: (referrerProfiles[0].referral_credit || 0) + reward,
-      });
-    }
-    if (referredProfiles[0]) {
-      await svc.BuyerProfile.update(referredProfiles[0].id, {
-        referral_credit: (referredProfiles[0].referral_credit || 0) + reward,
-      });
-    }
-    await svc.Notification.create({
-      user_id: ref.referrer_user_id,
-      type: 'referral',
-      title: `You earned ${money(reward)} in credit! 🎉`,
-      body: `${ref.referred_name} completed their first booking. Your credit applies automatically to your next booking.`,
-      link: '/buyer',
-    });
-    await svc.Notification.create({
-      user_id: ref.referred_user_id,
-      type: 'referral',
-      title: `${money(reward)} credit unlocked! 🎉`,
-      body: `Thanks for joining through ${ref.referrer_name}'s invite — your credit applies automatically to your next booking.`,
-      link: '/buyer',
-    });
+  // Two-sided referral reward — triggers on either side's first completed booking:
+  // the buyer paying for it, or the teen working it.
+  await completeReferralFor(svc, booking.buyer_user_id, booking.id);
+  if (booking.teen_user_id !== booking.buyer_user_id) {
+    await completeReferralFor(svc, booking.teen_user_id, booking.id);
   }
 
   return teenGets;
+}
+
+// Credits a referral reward to a user: teens get cash added to their Grind
+// Wallet, neighbors get credit applied to their next booking.
+async function creditReferralReward(svc, userId, reward) {
+  const teenProfiles = await svc.TeenProfile.filter({ user_id: userId });
+  if (teenProfiles[0]) {
+    const wallets = await svc.WalletAccount.filter({ teen_user_id: userId });
+    const wallet = wallets[0] || await svc.WalletAccount.create({ teen_user_id: userId, balance: 0 });
+    await svc.WalletTransaction.create({
+      teen_user_id: userId,
+      type: 'earning',
+      amount: reward,
+      description: 'Referral reward',
+      occurred_at: new Date().toISOString(),
+    });
+    await svc.WalletAccount.update(wallet.id, {
+      balance: Math.round(((wallet.balance || 0) + reward) * 100) / 100,
+    });
+    return;
+  }
+  const buyerProfiles = await svc.BuyerProfile.filter({ user_id: userId });
+  if (buyerProfiles[0]) {
+    await svc.BuyerProfile.update(buyerProfiles[0].id, {
+      referral_credit: (buyerProfiles[0].referral_credit || 0) + reward,
+    });
+  }
+}
+
+async function completeReferralFor(svc, userId, bookingId) {
+  const refs = await svc.Referral.filter({ referred_user_id: userId, status: 'pending' });
+  const ref = refs[0];
+  if (!ref) return;
+  await svc.Referral.update(ref.id, {
+    status: 'completed',
+    booking_id: bookingId,
+    completed_at: new Date().toISOString(),
+  });
+  const reward = ref.reward_amount || 10;
+  await creditReferralReward(svc, ref.referrer_user_id, reward);
+  await creditReferralReward(svc, ref.referred_user_id, reward);
+  await svc.Notification.create({
+    user_id: ref.referrer_user_id,
+    type: 'referral',
+    title: `You earned ${money(reward)}! 🎉`,
+    body: `${ref.referred_name} completed their first job or booking.`,
+    link: '/account',
+  });
+  await svc.Notification.create({
+    user_id: ref.referred_user_id,
+    type: 'referral',
+    title: `${money(reward)} unlocked! 🎉`,
+    body: `Thanks for joining through ${ref.referrer_name}'s invite!`,
+    link: '/account',
+  });
 }

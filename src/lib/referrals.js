@@ -6,26 +6,30 @@ import { notify } from "@/lib/notify";
 
 export const REFERRAL_REWARD = 10;
 
-// Ensure a buyer profile has a referral code (handles profiles created before this feature)
-export async function ensureReferralCode(profile) {
+// Ensure a profile (buyer or teen) has a referral code (handles profiles created before this feature)
+export async function ensureReferralCode(profile, entityName = "BuyerProfile") {
   if (profile.referral_code) return profile;
   const code = genInviteCode();
-  await base44.entities.BuyerProfile.update(profile.id, { referral_code: code });
+  await base44.entities[entityName].update(profile.id, { referral_code: code });
   return { ...profile, referral_code: code };
 }
 
-// Redeem a friend's code during onboarding. Returns true if a referral was recorded.
+// Redeem a friend's code during onboarding. Checks both buyer and teen referral
+// codes, since either can invite a new neighbor. Returns true if a referral was recorded.
 export async function redeemReferralCode(code, newUser) {
   const cleaned = (code || "").trim().toUpperCase();
   if (!cleaned) return false;
-  const referrers = await base44.entities.BuyerProfile.filter({ referral_code: cleaned });
-  const referrer = referrers[0];
+  const [buyerMatches, teenMatches] = await Promise.all([
+    base44.entities.BuyerProfile.filter({ referral_code: cleaned }),
+    base44.entities.TeenProfile.filter({ referral_code: cleaned }),
+  ]);
+  const referrer = buyerMatches[0] || teenMatches[0];
   if (!referrer || referrer.user_id === newUser.id) return false;
   const existing = await base44.entities.Referral.filter({ referred_user_id: newUser.id });
   if (existing.length > 0) return false;
   await base44.entities.Referral.create({
     referrer_user_id: referrer.user_id,
-    referrer_name: referrer.full_name?.split(" ")[0] || "A neighbor",
+    referrer_name: (referrer.full_name || referrer.display_name)?.split(" ")[0] || "A neighbor",
     code: cleaned,
     referred_user_id: newUser.id,
     referred_name: newUser.full_name?.split(" ")[0] || "Your friend",
