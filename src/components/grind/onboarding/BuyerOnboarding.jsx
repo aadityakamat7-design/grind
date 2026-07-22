@@ -13,17 +13,32 @@ export default function BuyerOnboarding({ user }) {
   const [zip, setZip] = useState("");
   const [refCode, setRefCode] = useState("");
   const [saving, setSaving] = useState(false);
+  const [geoError, setGeoError] = useState("");
 
   const continueToVerify = async () => {
     setSaving(true);
+    setGeoError("");
     const existing = await base44.entities.BuyerProfile.filter({ user_id: user.id });
     if (!existing[0]) {
+      let geo;
+      try {
+        const res = await base44.functions.invoke("geocodeAddress", { query: `${address}, ${zip}` });
+        geo = res.data;
+      } catch (err) {
+        setGeoError(err.response?.data?.error || "Couldn't verify that address. Please check it and try again.");
+        setSaving(false);
+        return;
+      }
       // id_verification_status stays at its "pending" default — only the backend can mark it verified
       await base44.entities.BuyerProfile.create({
         user_id: user.id,
         full_name: user.full_name || "",
         address,
         zip,
+        latitude: geo.lat,
+        longitude: geo.lng,
+        resolved_city: geo.city,
+        state: geo.state,
         referral_code: genInviteCode(),
       });
       if (refCode.trim()) await redeemReferralCode(refCode, user);
@@ -56,6 +71,7 @@ export default function BuyerOnboarding({ user }) {
           <Input className="rounded-xl mt-1" placeholder="Got a code from a friend?" value={refCode} onChange={(e) => setRefCode(e.target.value)} />
           <p className="text-xs text-slate-400 mt-1">You'll both get $10 booking credit after your first completed booking.</p>
         </div>
+        {geoError && <p className="text-xs text-rose-600 font-semibold">{geoError}</p>}
         <Button className="w-full rounded-xl" disabled={!address || !zip || saving} onClick={continueToVerify}>
           {saving ? "Saving..." : "Continue"}
         </Button>

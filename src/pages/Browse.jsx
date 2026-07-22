@@ -6,7 +6,9 @@ import { Search, MapPin } from "lucide-react";
 import ListingCard from "@/components/grind/ListingCard";
 import EmptyState from "@/components/grind/EmptyState";
 import SavedTeensRow from "@/components/grind/SavedTeensRow";
+import TeensMap from "@/components/grind/browse/TeensMap";
 import { CATEGORIES } from "@/lib/grind";
+import { haversineMiles } from "@/lib/geo";
 import PullToRefresh from "@/components/PullToRefresh";
 
 export default function Browse() {
@@ -38,15 +40,52 @@ export default function Browse() {
     return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin" /></div>;
 
   const myZip = buyerProfile?.zip;
-  const filtered = listings
+  const hasBuyerLocation = buyerProfile?.latitude != null && buyerProfile?.longitude != null;
+
+  const withDistance = listings.map((l) => {
+    const teen = teensById[l.teen_user_id];
+    let distance = null;
+    let inArea = true;
+    if (hasBuyerLocation && teen?.latitude != null && teen?.longitude != null) {
+      distance = haversineMiles(buyerProfile.latitude, buyerProfile.longitude, teen.latitude, teen.longitude);
+      const sameState = teen.state && buyerProfile.state && teen.state === buyerProfile.state;
+      inArea = sameState && distance <= (teen.service_radius_miles || 3);
+    }
+    return { ...l, _distance: distance, _inArea: inArea };
+  });
+
+  const filtered = withDistance
     .filter((l) => category === "all" || l.category === category)
     .filter(
       (l) =>
         !search ||
         `${l.title} ${l.description} ${l.teen_display_name}`.toLowerCase().includes(search.toLowerCase())
     )
-    // Hyperlocal: same-ZIP listings first
-    .sort((a, b) => (b.teen_zip === myZip ? 1 : 0) - (a.teen_zip === myZip ? 1 : 0));
+    // In-service-area teens first, then by distance, then hyperlocal ZIP fallback
+    .sort((a, b) => {
+      if (a._inArea !== b._inArea) return a._inArea ? -1 : 1;
+      if (a._distance != null && b._distance != null) return a._distance - b._distance;
+      return (b.teen_zip === myZip ? 1 : 0) - (a.teen_zip === myZip ? 1 : 0);
+    });
+
+  const mapTeens = hasBuyerLocation
+    ? Object.values(
+        filtered.reduce((acc, l) => {
+          const teen = teensById[l.teen_user_id];
+          if (teen?.latitude != null && teen?.longitude != null && !acc[l.teen_user_id]) {
+            acc[l.teen_user_id] = {
+              id: l.teen_user_id,
+              lat: teen.latitude,
+              lng: teen.longitude,
+              display_name: l.teen_display_name,
+              inArea: l._inArea,
+              to: `/teens/${l.teen_user_id}?listing=${l.id}`,
+            };
+          }
+          return acc;
+        }, {})
+      )
+    : [];
 
   return (
     <PullToRefresh onRefresh={load}>
@@ -59,6 +98,10 @@ export default function Browse() {
           </p>
         )}
       </div>
+
+      {hasBuyerLocation && mapTeens.length > 0 && (
+        <TeensMap center={{ lat: buyerProfile.latitude, lng: buyerProfile.longitude }} teens={mapTeens} />
+      )}
 
       <SavedTeensRow userId={user.id} />
 
@@ -99,7 +142,14 @@ export default function Browse() {
       ) : (
         <div className="grid sm:grid-cols-2 gap-4">
           {filtered.map((l) => (
-            <ListingCard key={l.id} listing={l} teen={teensById[l.teen_user_id]} to={`/teens/${l.teen_user_id}?listing=${l.id}`} />
+            <div key={l.id} className={`relative ${l._inArea ? "" : "opacity-50"}`}>
+              <ListingCard listing={l} teen={teensById[l.teen_user_id]} to={`/teens/${l.teen_user_id}?listing=${l.id}`} />
+              {!l._inArea && (
+                <span className="absolute top-2 right-2 bg-slate-900 text-white text-[10px] font-bold px-2 py-1 rounded-full">
+                  Outside service area
+                </span>
+              )}
+            </div>
           ))}
         </div>
       )}

@@ -9,7 +9,6 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ShieldCheck, Lock } from "lucide-react";
 import { computeFees, money } from "@/lib/grind";
-import { notify } from "@/lib/notify";
 import { startCheckout } from "@/lib/stripeCheckout";
 
 export default function BookDialog({ open, onOpenChange, listing, buyer, buyerProfile }) {
@@ -20,6 +19,7 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
   const [notes, setNotes] = useState("");
   const [recurrence, setRecurrence] = useState("none");
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
 
   const total = listing.price_model === "HOURLY" ? Number(listing.price) * Number(hours || 1) : Number(listing.price);
   const { platform_fee, net_amount } = computeFees(total);
@@ -28,49 +28,25 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
 
   const book = async () => {
     setSaving(true);
-    const links = await base44.entities.ParentTeenLink.filter({ teen_user_id: listing.teen_user_id, status: "confirmed" });
-    const parentUserId = links[0]?.parent_user_id || "";
-    const booking = await base44.entities.Booking.create({
-      listing_id: listing.id,
-      listing_title: listing.title,
-      teen_user_id: listing.teen_user_id,
-      teen_display_name: listing.teen_display_name,
-      parent_user_id: parentUserId,
-      buyer_user_id: buyer.id,
-      buyer_name: buyer.full_name?.split(" ")[0] || "Neighbor",
-      scheduled_start: when ? new Date(when).toISOString() : null,
-      address,
-      notes,
-      is_recurring: recurrence !== "none",
-      recurrence: recurrence !== "none" ? recurrence : undefined,
-      status: "pending_parent_approval",
-      price_total: total,
-      charge_amount: buyerPays,
-      platform_fee,
-      net_amount,
-    });
-    if (creditApplied > 0) {
-      await base44.entities.BuyerProfile.update(buyerProfile.id, {
-        referral_credit: Math.round(((buyerProfile.referral_credit || 0) - creditApplied) * 100) / 100,
+    setError("");
+    try {
+      const res = await base44.functions.invoke("createBooking", {
+        listingId: listing.id,
+        scheduledStart: when ? new Date(when).toISOString() : null,
+        address,
+        notes,
+        recurrence,
+        hours,
       });
+      const { bookingId } = res.data;
+      const result = await startCheckout(bookingId);
+      onOpenChange(false);
+      if (result.paid || result.blocked) navigate(`/bookings/${bookingId}`);
+    } catch (err) {
+      setError(err.response?.data?.error || "Couldn't create this booking. Please try again.");
+    } finally {
+      setSaving(false);
     }
-    await base44.entities.MessageThread.create({
-      booking_id: booking.id,
-      listing_title: listing.title,
-      buyer_user_id: buyer.id,
-      buyer_name: buyer.full_name?.split(" ")[0] || "Neighbor",
-      teen_user_id: listing.teen_user_id,
-      teen_display_name: listing.teen_display_name,
-      parent_user_id: parentUserId,
-      participant_ids: [buyer.id, listing.teen_user_id, parentUserId].filter(Boolean),
-      is_confirmed: false,
-    });
-    await notify(parentUserId, { type: "approval", title: "Booking needs your approval", body: `${buyer.full_name?.split(" ")[0] || "A neighbor"} booked "${listing.title}" with ${listing.teen_display_name}.`, link: `/bookings/${booking.id}` });
-    await notify(listing.teen_user_id, { type: "booking", title: "New booking request", body: `"${listing.title}" — waiting on parent approval.`, link: `/bookings/${booking.id}` });
-    const result = await startCheckout(booking.id);
-    setSaving(false);
-    onOpenChange(false);
-    if (result.paid || result.blocked) navigate(`/bookings/${booking.id}`);
   };
 
   return (
@@ -128,6 +104,7 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
             <ShieldCheck className="w-4 h-4 mt-0.5 shrink-0" />
             Your payment is held until the job is done. The teen's parent must approve this booking before it's confirmed.
           </div>
+          {error && <p className="text-xs text-rose-600 font-semibold text-center">{error}</p>}
           <Button className="w-full rounded-xl" disabled={!when || !address || saving} onClick={book}>
             {saving ? "Booking..." : `Pay ${money(buyerPays)} & request booking`}
           </Button>

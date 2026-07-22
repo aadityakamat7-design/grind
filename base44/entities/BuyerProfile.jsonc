@@ -14,6 +14,22 @@
     "zip": {
       "type": "string"
     },
+    "state": {
+      "type": "string",
+      "description": "US state resolved from geocoding, used for cross-state booking restrictions"
+    },
+    "latitude": {
+      "type": "number",
+      "description": "Geocoded latitude of the buyer's address"
+    },
+    "longitude": {
+      "type": "number",
+      "description": "Geocoded longitude of the buyer's address"
+    },
+    "resolved_city": {
+      "type": "string",
+      "description": "City resolved from geocoding"
+    },
     "id_verification_status": {
       "type": "string",
       "enum": [

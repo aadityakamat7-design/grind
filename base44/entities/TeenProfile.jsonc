@@ -34,6 +34,18 @@
     "zip": {
       "type": "string"
     },
+    "latitude": {
+      "type": "number",
+      "description": "Geocoded latitude of the teen's ZIP/address"
+    },
+    "longitude": {
+      "type": "number",
+      "description": "Geocoded longitude of the teen's ZIP/address"
+    },
+    "resolved_city": {
+      "type": "string",
+      "description": "City resolved from geocoding"
+    },
     "service_radius_miles": {
       "type": "number",
       "default": 3

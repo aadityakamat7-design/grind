@@ -23,12 +23,23 @@ export default function TeenOnboarding({ user }) {
   const [inviteCode, setInviteCode] = useState("");
   const [copied, setCopied] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [geoError, setGeoError] = useState("");
 
   const toggleSkill = (s) =>
     setSkills((prev) => (prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]));
 
   const createProfile = async () => {
     setSaving(true);
+    setGeoError("");
+    let geo;
+    try {
+      const res = await base44.functions.invoke("geocodeAddress", { query: `${zip}, ${usState}` });
+      geo = res.data;
+    } catch (err) {
+      setGeoError(err.response?.data?.error || "Couldn't verify that ZIP code. Please check it and try again.");
+      setSaving(false);
+      return;
+    }
     const result = checkEligibility(dob, usState);
     const code = genInviteCode();
     await base44.entities.TeenProfile.create({
@@ -40,6 +51,9 @@ export default function TeenOnboarding({ user }) {
       state: usState,
       eligibility_min_age: result.minAge,
       zip,
+      latitude: geo.lat,
+      longitude: geo.lng,
+      resolved_city: geo.city,
       skills,
       invite_code: code,
     });
@@ -130,6 +144,7 @@ export default function TeenOnboarding({ user }) {
             ))}
           </div>
         </div>
+        {geoError && <p className="text-xs text-rose-600 font-semibold">{geoError}</p>}
         <Button className="w-full rounded-xl" disabled={!firstName || !zip || saving} onClick={createProfile}>
           {saving ? "Creating..." : "Create profile"}
         </Button>
