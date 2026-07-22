@@ -11,7 +11,6 @@ import EarningsSummary from "@/components/grind/teen/EarningsSummary";
 import ProfileStatsWidget from "@/components/grind/teen/ProfileStatsWidget";
 import MessagesWidget from "@/components/grind/teen/MessagesWidget";
 import InviteCodeCard from "@/components/grind/teen/InviteCodeCard";
-import TeenReferralCard from "@/components/grind/teen/TeenReferralCard";
 import CashOutDialog from "@/components/grind/wallet/CashOutDialog";
 import { getOrCreateWallet } from "@/lib/wallet";
 import PullToRefresh from "@/components/PullToRefresh";
@@ -69,8 +68,6 @@ export default function TeenHome() {
       </div>
 
       <InviteCodeCard profile={profile} onUpdated={load} />
-
-      <TeenReferralCard profile={profile} />
 
       <EarningsSummary
         balance={wallet?.balance || 0}
