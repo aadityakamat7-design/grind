@@ -142,13 +142,15 @@ export default function BookingDetail() {
               {format(new Date(booking.scheduled_start), "EEEE, MMM d 'at' h:mm a")}
             </p>
           )}
-          <p className="flex items-center gap-2">
-            {addressVisible ? (
-              <><MapPin className="w-4 h-4 text-slate-400" /> {booking.address}</>
-            ) : (
-              <><Lock className="w-4 h-4 text-slate-400" /> Address revealed after parent approval</>
-            )}
-          </p>
+          {booking.is_physical !== false && (
+            <p className="flex items-center gap-2">
+              {addressVisible ? (
+                <><MapPin className="w-4 h-4 text-slate-400" /> {booking.address || "Address not provided"}</>
+              ) : (
+                <><Lock className="w-4 h-4 text-slate-400" /> Address revealed after parent approval</>
+              )}
+            </p>
+          )}
           {booking.notes && (
             <p className="flex items-start gap-2">
               <FileText className="w-4 h-4 text-slate-400 mt-0.5" /> {booking.notes}

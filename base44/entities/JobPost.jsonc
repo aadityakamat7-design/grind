@@ -40,6 +40,15 @@
     "zip": {
       "type": "string"
     },
+    "is_physical": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether this job requires being physically present at a location"
+    },
+    "address": {
+      "type": "string",
+      "description": "Job site address, revealed to the teen and parent only after the booking is approved"
+    },
     "state": {
       "type": "string",
       "description": "US state used for the child labor law compliance check"

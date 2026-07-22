@@ -31,6 +31,11 @@ export default function JobPostCard({ job, footer }) {
             <MapPin className="w-3.5 h-3.5" /> {job.zip ? `ZIP ${job.zip}` : job.state}
           </span>
         )}
+        {job.is_physical === false && (
+          <span className="inline-flex items-center rounded-full bg-slate-100 text-slate-600 px-2 py-0.5 text-[10px] font-bold">
+            Remote
+          </span>
+        )}
         {job.scheduled_start && (
           <span className="inline-flex items-center gap-1 text-xs text-slate-500">
             <CalendarDays className="w-3.5 h-3.5" /> {format(new Date(job.scheduled_start), "MMM d, h:mm a")}

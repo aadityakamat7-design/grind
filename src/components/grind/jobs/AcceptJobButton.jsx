@@ -43,6 +43,8 @@ export default function AcceptJobButton({ job, teen, onAccepted }) {
       buyer_name: job.buyer_name,
       scheduled_start: job.scheduled_start || undefined,
       notes: job.description,
+      address: job.is_physical ? job.address : "",
+      is_physical: job.is_physical !== false,
       price_total: job.price,
       charge_amount: job.charge_amount ?? job.price,
       platform_fee,

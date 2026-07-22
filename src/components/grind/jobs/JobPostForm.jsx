@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import ResponsiveSelect from "@/components/grind/ResponsiveSelect";
-import { ShieldCheck, ShieldX, Sparkles } from "lucide-react";
+import { ShieldCheck, ShieldX, Sparkles, Lock } from "lucide-react";
 import { CATEGORIES, computeFees, money } from "@/lib/grind";
 import { screenJob, US_STATES } from "@/lib/jobScreen";
 import { startJobCheckout } from "@/lib/stripeCheckout";
@@ -15,12 +16,13 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
   const [form, setForm] = useState({
     title: "", description: "", category: "odd_jobs", price: "",
     price_model: "FIXED", state: "", scheduled_start: "",
+    is_physical: true, address: "",
   });
   const [phase, setPhase] = useState("form"); // form | screening | blocked | approved | paying
   const [screening, setScreening] = useState(null);
 
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
-  const valid = form.title.trim() && form.category && Number(form.price) > 0 && form.state;
+  const valid = form.title.trim() && form.category && Number(form.price) > 0 && form.state && (!form.is_physical || form.address.trim());
   const { platform_fee, net_amount } = computeFees(Number(form.price) || 0);
 
   const submit = async () => {
@@ -44,6 +46,8 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
       price_model: form.price_model,
       zip: buyerProfile?.zip || "",
       state: form.state,
+      is_physical: form.is_physical,
+      address: form.is_physical ? form.address.trim() : "",
       scheduled_start: form.scheduled_start || undefined,
       ai_approved: true,
       ai_minimum_age: result.minimum_age || 13,
@@ -186,6 +190,22 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
               <Label>When (optional)</Label>
               <Input className="rounded-xl" type="datetime-local" value={form.scheduled_start} onChange={(e) => set("scheduled_start", e.target.value)} />
             </div>
+            <div className="flex items-center justify-between bg-slate-50 rounded-xl p-3">
+              <div>
+                <Label>Physical, in-person job?</Label>
+                <p className="text-xs text-slate-500 mt-0.5">Turn off for remote tasks like tutoring or tech help online.</p>
+              </div>
+              <Switch checked={form.is_physical} onCheckedChange={(v) => set("is_physical", v)} />
+            </div>
+            {form.is_physical && (
+              <div className="space-y-1.5">
+                <Label>Job address</Label>
+                <Input className="rounded-xl" placeholder="Where will the job happen?" value={form.address} onChange={(e) => set("address", e.target.value)} />
+                <p className="text-xs text-slate-400 mt-1 flex items-center gap-1">
+                  <Lock className="w-3 h-3" /> Only shared with the teen and their parent once a teen accepts and the parent approves.
+                </p>
+              </div>
+            )}
             {Number(form.price) > 0 && (
               <div className="bg-slate-50 rounded-xl p-4 text-sm space-y-1.5">
                 <div className="flex justify-between"><span className="text-slate-500">You pay now (held in escrow)</span><span className="font-bold">{money(form.price)}</span></div>

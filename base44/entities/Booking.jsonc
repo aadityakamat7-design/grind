@@ -31,6 +31,11 @@
       "type": "string",
       "description": "Buyer address, revealed only when confirmed"
     },
+    "is_physical": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether this job requires being physically present at a location"
+    },
     "notes": {
       "type": "string"
     },
