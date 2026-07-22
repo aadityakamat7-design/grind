@@ -13,6 +13,7 @@ import { startCheckout } from "@/lib/stripeCheckout";
 import TipReleaseDialog from "@/components/grind/TipReleaseDialog";
 import RescheduleDialog from "@/components/grind/RescheduleDialog";
 import AlertParentButton from "@/components/grind/AlertParentButton";
+import PaymentStatusTracker from "@/components/grind/PaymentStatusTracker";
 
 export default function BookingDetail() {
   const { bookingId } = useParams();
@@ -123,6 +124,8 @@ export default function BookingDetail() {
             </p>
           )}
         </div>
+
+        <PaymentStatusTracker booking={booking} />
 
         {booking.status === "in_progress" && isParent && (
           <div className="mt-4 bg-blue-50 rounded-xl p-3 text-xs text-blue-700 font-semibold">

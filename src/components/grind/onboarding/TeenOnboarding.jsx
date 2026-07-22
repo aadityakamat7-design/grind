@@ -42,7 +42,6 @@ export default function TeenOnboarding({ user }) {
       zip,
       skills,
       invite_code: code,
-      status: "pending_parent",
     });
     // Persist state + eligibility on the user record so it isn't re-checked incorrectly later
     await base44.auth.updateMe({

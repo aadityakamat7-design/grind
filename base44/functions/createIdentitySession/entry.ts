@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
-import Stripe from 'npm:stripe@17.5.0';
+import { getStripe } from '../../shared/stripeEnv.ts';
 
 Deno.serve(async (req) => {
   try {
@@ -7,8 +7,10 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { returnUrl } = await req.json();
-    const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY'));
+    const { returnUrl, testMode } = await req.json();
+    // Live keys by default; test mode is admin-only for development, so real
+    // users always verify against real government IDs.
+    const stripe = getStripe(testMode === true && user.role === 'admin');
 
     // Find or create the parent profile
     const profiles = await base44.entities.ParentProfile.filter({ user_id: user.id });

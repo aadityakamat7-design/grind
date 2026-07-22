@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
-import Stripe from 'npm:stripe@17.5.0';
+import { getStripe } from '../../shared/stripeEnv.ts';
 import { applyVerifiedIdentity } from '../../shared/identityVerification.ts';
 
 Deno.serve(async (req) => {
@@ -8,7 +8,9 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY'));
+    const body = await req.json().catch(() => ({}));
+    // Admin-only test mode mirrors createIdentitySession's environment separation
+    const stripe = getStripe(body.testMode === true && user.role === 'admin');
     const profiles = await base44.entities.ParentProfile.filter({ user_id: user.id });
     const profile = profiles[0];
     if (!profile) return Response.json({ status: 'unverified' });

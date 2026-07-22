@@ -3,6 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { Users, Search, CalendarDays, Wallet, Flag, BadgeCheck } from "lucide-react";
 import MetricCard from "@/components/grind/admin/MetricCard";
 import ReportRow from "@/components/grind/admin/ReportRow";
+import PayoutReviewQueue from "@/components/grind/admin/PayoutReviewQueue";
 import StatusBadge from "@/components/grind/StatusBadge";
 import { money } from "@/lib/grind";
 
@@ -58,6 +59,8 @@ export default function Admin() {
         <MetricCard icon={CalendarDays} label="Bookings" value={bookings.length} accent="text-emerald-500" />
         <MetricCard icon={Wallet} label="GMV" value={money(gmv)} accent="text-amber-500" />
       </div>
+
+      <PayoutReviewQueue bookings={bookings} onDone={load} />
 
       <div>
         <h2 className="font-bold text-slate-900 mb-3 flex items-center gap-2">

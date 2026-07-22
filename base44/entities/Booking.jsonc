@@ -99,6 +99,67 @@
         }
       }
     },
+    "payout_status": {
+      "type": "string",
+      "enum": [
+        "not_started",
+        "awaiting_bank",
+        "pending_review",
+        "transferred"
+      ],
+      "default": "not_started",
+      "description": "Stage of the Stripe Connect transfer to the parent",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "payout_review_reason": {
+      "type": "string",
+      "description": "Why the payout is held for manual review",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "stripe_transfer_id": {
+      "type": "string",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "released_at": {
+      "type": "string",
+      "format": "date-time",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "transferred_at": {
+      "type": "string",
+      "format": "date-time",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
     "stripe_session_id": {
       "type": "string",
       "rls": {

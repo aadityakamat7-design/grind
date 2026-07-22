@@ -1,12 +1,13 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
-import Stripe from 'npm:stripe@17.5.0';
+import { getStripe } from '../../shared/stripeEnv.ts';
 import { applyVerifiedIdentity } from '../../shared/identityVerification.ts';
 import { releaseBookingPayment } from '../../shared/releaseBooking.ts';
 
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY'));
+    // Live-mode Stripe + the live webhook signing secret (STRIPE_WEBHOOK_SECRET)
+    const stripe = getStripe();
     const signature = req.headers.get('stripe-signature');
     const body = await req.text();
 

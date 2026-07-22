@@ -15,10 +15,51 @@
       "type": "string",
       "enum": [
         "not_setup",
-        "active"
+        "pending",
+        "active",
+        "restricted"
       ],
       "default": "not_setup",
-      "description": "Payout account (Stripe Connect) status"
+      "description": "Payout account (Stripe Connect) status",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "stripe_connect_account_id": {
+      "type": "string",
+      "description": "Stripe Connect Express account id \u2014 no raw bank details are ever stored",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "bank_last4": {
+      "type": "string",
+      "description": "Masked last 4 of the connected bank account (from Stripe)",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "bank_name": {
+      "type": "string",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     },
     "identity_status": {
       "type": "string",

@@ -1,6 +1,9 @@
+import { attemptBookingPayout } from './payoutTransfer.ts';
+
 // Finalizes a released booking payment: booking update, earnings record, wallet
-// credit, notifications, and referral completion. The tip amount passed here must
-// already have been charged through Stripe (or be zero).
+// credit, Stripe Connect transfer to the parent, notifications, and referral
+// completion. The tip amount passed here must already have been charged through
+// Stripe (or be zero).
 const money = (n) => `$${Number(n || 0).toFixed(2)}`;
 
 export async function releaseBookingPayment(base44, booking, tip) {
@@ -11,6 +14,7 @@ export async function releaseBookingPayment(base44, booking, tip) {
   await svc.Booking.update(booking.id, {
     payment_status: 'released',
     tip_amount: tipAmt,
+    released_at: new Date().toISOString(),
   });
 
   await svc.EarningsRecord.create({
@@ -46,15 +50,9 @@ export async function releaseBookingPayment(base44, booking, tip) {
     body: `${money(teenGets)} landed in your Grind Wallet for "${booking.listing_title}".`,
     link: '/teen/wallet',
   });
-  if (booking.parent_user_id) {
-    await svc.Notification.create({
-      user_id: booking.parent_user_id,
-      type: 'payment',
-      title: 'Payout released',
-      body: `${money(teenGets)} from "${booking.listing_title}" is on its way to your account.`,
-      link: '/parent/payouts',
-    });
-  }
+  // Transfer the net payout (after platform fee) to the parent's Stripe Connect
+  // account — never the teen's. Sends its own parent notification per outcome.
+  await attemptBookingPayout(base44, { ...booking, tip_amount: tipAmt });
 
   // Two-sided referral reward on the buyer's first completed booking
   const refs = await svc.Referral.filter({ referred_user_id: booking.buyer_user_id, status: 'pending' });

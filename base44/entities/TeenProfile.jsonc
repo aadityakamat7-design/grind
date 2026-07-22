@@ -64,7 +64,14 @@
     "parent_identity_verified": {
       "type": "boolean",
       "default": false,
-      "description": "Linked parent passed Stripe Identity ID + liveness verification"
+      "description": "Linked parent passed ID + liveness verification (set server-side only)",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     },
     "status": {
       "type": "string",
@@ -73,7 +80,15 @@
         "active",
         "suspended"
       ],
-      "default": "pending_parent"
+      "default": "pending_parent",
+      "description": "Set to active server-side only, once the parent link is fully double-verified",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     }
   },
   "required": [

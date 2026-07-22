@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
-import Stripe from 'npm:stripe@17.5.0';
+import { getStripe } from '../../shared/stripeEnv.ts';
 import { getSafeOrigin } from '../../shared/safeOrigin.ts';
 
 Deno.serve(async (req) => {
@@ -25,7 +25,7 @@ Deno.serve(async (req) => {
       return Response.json({ paid: true });
     }
 
-    const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY'));
+    const stripe = getStripe();
     const origin = getSafeOrigin(req);
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',

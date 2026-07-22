@@ -14,17 +14,67 @@
     "teen_display_name": {
       "type": "string"
     },
+    "identity_verified": {
+      "type": "boolean",
+      "default": false,
+      "description": "Check 1: parent passed Stripe Identity (ID + liveness)",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "relationship_confirmed": {
+      "type": "boolean",
+      "default": false,
+      "description": "Check 2: parent entered the teen's invite code and explicitly attested the relationship",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "relationship_attested_at": {
+      "type": "string",
+      "format": "date-time",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
     "status": {
       "type": "string",
       "enum": [
         "pending",
         "confirmed"
       ],
-      "default": "confirmed"
+      "default": "pending",
+      "description": "Confirmed only when both identity_verified and relationship_confirmed are true (set server-side)",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     },
     "confirmed_at": {
       "type": "string",
-      "format": "date-time"
+      "format": "date-time",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     }
   },
   "required": [

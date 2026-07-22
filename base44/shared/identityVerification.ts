@@ -21,11 +21,19 @@ export async function markParentVerified(base44, userId, extra = {}, fullName = 
     });
   }
 
+  // Record check 1 (identity) on every link; a link only becomes confirmed —
+  // and the teen only goes live — once check 2 (relationship) has also passed.
   const links = await base44.asServiceRole.entities.ParentTeenLink.filter({ parent_user_id: userId });
   for (const link of links) {
-    if (link.teen_profile_id) {
+    const fullyVerified = !!link.relationship_confirmed;
+    await base44.asServiceRole.entities.ParentTeenLink.update(link.id, {
+      identity_verified: true,
+      ...(fullyVerified ? { status: 'confirmed', confirmed_at: new Date().toISOString() } : {}),
+    });
+    if (fullyVerified && link.teen_profile_id) {
       await base44.asServiceRole.entities.TeenProfile.update(link.teen_profile_id, {
         parent_identity_verified: true,
+        status: 'active',
       });
     }
   }

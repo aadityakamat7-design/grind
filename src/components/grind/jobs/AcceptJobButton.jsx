@@ -18,6 +18,11 @@ export default function AcceptJobButton({ job, teen, onAccepted }) {
     ]);
     const profile = profiles[0];
     const link = links[0];
+    if (profile?.status !== "active") {
+      setError("Your account isn't live yet — your parent must verify their ID and confirm your link before you can take jobs.");
+      setSaving(false);
+      return;
+    }
     if (job.ai_minimum_age && profile?.age && profile.age < job.ai_minimum_age) {
       setError(`This job requires workers age ${job.ai_minimum_age}+ under ${job.state} law.`);
       setSaving(false);

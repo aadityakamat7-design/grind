@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
-import Stripe from 'npm:stripe@17.5.0';
+import { getStripe } from '../../shared/stripeEnv.ts';
 import { releaseBookingPayment } from '../../shared/releaseBooking.ts';
 import { getSafeOrigin } from '../../shared/safeOrigin.ts';
 
@@ -24,7 +24,7 @@ Deno.serve(async (req) => {
     // Tips must be charged through Stripe before any wallet credit — the release
     // itself happens in the webhook once the tip payment succeeds.
     if (tip > 0) {
-      const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY'));
+      const stripe = getStripe();
       const origin = getSafeOrigin(req);
       const session = await stripe.checkout.sessions.create({
         mode: 'payment',
