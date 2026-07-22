@@ -45,6 +45,16 @@ Deno.serve(async (req) => {
       console.log(`Identity session ${session.id} processed:`, JSON.stringify(result));
     }
 
+    if (event.type === 'identity.verification_session.requires_input') {
+      const session = event.data.object;
+      const reason = session.last_error?.reason || 'Verification needs to be retried';
+      const profiles = await base44.asServiceRole.entities.ParentProfile.filter({ identity_session_id: session.id });
+      if (profiles[0]) {
+        await base44.asServiceRole.entities.ParentProfile.update(profiles[0].id, { identity_status: 'failed' });
+      }
+      console.log(`Identity session ${session.id} requires input: ${reason}`);
+    }
+
     return Response.json({ received: true });
   } catch (error) {
     console.error('stripeWebhook error:', error.message);

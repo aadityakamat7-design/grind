@@ -1,6 +1,6 @@
 // Shared constants, helpers, and safety logic for Grind
 
-export const PLATFORM_FEE_RATE = 0.12;
+export const PLATFORM_FEE_RATE = 0.15;
 
 export const CATEGORIES = [
   { value: "tutoring", label: "Tutoring", icon: "GraduationCap" },

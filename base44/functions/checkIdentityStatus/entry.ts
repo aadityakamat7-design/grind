@@ -17,7 +17,21 @@ Deno.serve(async (req) => {
     if (profile.is_identity_verified) return Response.json({ status: 'verified' });
     if (!profile.identity_session_id) return Response.json({ status: 'unverified' });
 
-    const result = await applyVerifiedIdentity(base44, stripe, profile.identity_session_id);
+    let result;
+    try {
+      result = await applyVerifiedIdentity(base44, stripe, profile.identity_session_id);
+    } catch (err) {
+      if (/No such VerificationSession/i.test(err.message || '')) {
+        // Stale session (e.g. created under a different key mode) — reset so the user can restart
+        console.error(`Stale identity session ${profile.identity_session_id} for user ${user.id}: ${err.message}`);
+        await base44.asServiceRole.entities.ParentProfile.update(profile.id, {
+          identity_session_id: '',
+          identity_status: 'unverified',
+        });
+        return Response.json({ status: 'unverified' });
+      }
+      throw err;
+    }
 
     if (result.verified) {
       return Response.json({ status: 'verified' });

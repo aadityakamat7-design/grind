@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Outlet, NavLink, Navigate, Link, useLocation, useNavigate } from "react-router-dom";
 import { Home, List, CalendarDays, MessageCircle, Wallet, LayoutDashboard, ShieldCheck, Search, Zap, UserCircle, Flag, Briefcase, ArrowLeft } from "lucide-react";
 import { useAppUser } from "@/lib/useAppUser";
@@ -39,16 +39,10 @@ export default function Layout() {
   const navigate = useNavigate();
   const isChildPage = /^\/(bookings|messages|teens)\/.+/.test(location.pathname);
 
-  // The logged-in app uses the landing page's dark theme
-  useEffect(() => {
-    document.documentElement.classList.add("dark");
-    return () => document.documentElement.classList.remove("dark");
-  }, []);
-
   if (loading) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-slate-950">
-        <div className="w-8 h-8 border-4 border-blue-900 border-t-sky-400 rounded-full animate-spin" />
+      <div className="fixed inset-0 flex items-center justify-center bg-white">
+        <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-900 rounded-full animate-spin" />
       </div>
     );
   }
@@ -59,27 +53,27 @@ export default function Layout() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-md border-b border-white/5 pt-[env(safe-area-inset-top)]">
+      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200 pt-[env(safe-area-inset-top)]">
         <div className="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
           {isChildPage ? (
             <button
               onClick={() => navigate(-1)}
-              className="flex items-center gap-1.5 text-slate-300 hover:text-white transition-colors font-semibold text-sm"
+              className="flex items-center gap-1.5 text-slate-600 hover:text-slate-900 transition-colors font-semibold text-sm"
             >
               <ArrowLeft className="w-5 h-5" />
               Back
             </button>
           ) : (
             <Link to="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-600 to-sky-500 flex items-center justify-center shadow-lg shadow-blue-500/30">
+              <div className="w-8 h-8 rounded-xl bg-slate-900 flex items-center justify-center shadow-lg shadow-slate-900/20">
                 <Zap className="w-5 h-5 text-white" />
               </div>
-              <span className="font-extrabold text-lg tracking-tight text-white">KickStart</span>
+              <span className="font-extrabold text-lg tracking-tight text-slate-900">KickStart</span>
             </Link>
           )}
           <div className="flex items-center gap-4">
             <NotificationBell userId={user.id} />
-            <Link to="/account" className="text-slate-300 hover:text-white transition-colors">
+            <Link to="/account" className="text-slate-600 hover:text-slate-900 transition-colors">
               <UserCircle className="w-6 h-6" />
             </Link>
           </div>
@@ -90,7 +84,7 @@ export default function Layout() {
         <Outlet context={{ user, reload }} />
       </main>
 
-      <nav className="fixed bottom-0 inset-x-0 z-40 bg-slate-950/90 backdrop-blur-lg border-t border-white/10 pb-[env(safe-area-inset-bottom)]">
+      <nav className="fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-lg border-t border-slate-200 pb-[env(safe-area-inset-bottom)]">
         <div className="max-w-3xl mx-auto flex items-stretch justify-around">
           {tabs.map((tab) => {
             const Icon = tab.icon;
@@ -105,7 +99,7 @@ export default function Layout() {
                 }}
                 className={({ isActive }) =>
                   `flex flex-col items-center gap-0.5 py-2.5 px-3 text-[11px] font-semibold transition-colors ${
-                    isActive ? "text-sky-400" : "text-slate-500 hover:text-slate-300"
+                    isActive ? "text-slate-900" : "text-slate-400 hover:text-slate-600"
                   }`
                 }
               >

@@ -51,6 +51,9 @@ Deno.serve(async (req) => {
     return Response.json({ url: session.url, sessionId: session.id });
   } catch (error) {
     console.error('createIdentitySession error:', error.message);
-    return Response.json({ error: error.message }, { status: 500 });
+    const friendly = /not set up to use Identity|identity\/use-cases|identity\/application/i.test(error.message || '')
+      ? 'ID verification is temporarily unavailable — Stripe Identity has not been activated on the platform account yet. Please try again later.'
+      : error.message;
+    return Response.json({ error: friendly }, { status: 500 });
   }
 });

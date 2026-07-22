@@ -9,11 +9,18 @@ const money = (n) => `$${Number(n || 0).toFixed(2)}`;
 export async function releaseBookingPayment(base44, booking, tip) {
   const svc = base44.asServiceRole.entities;
   const tipAmt = Math.max(0, Math.round((Number(tip) || 0) * 100) / 100);
-  const teenGets = Math.round(((booking.net_amount || 0) + tipAmt) * 100) / 100;
+  // Enforce the 85/15 split server-side: the teen nets 85% of the job price,
+  // the platform keeps 15%. Tips pass through 100% to the teen.
+  const gross = Math.round((Number(booking.price_total) || 0) * 100) / 100;
+  const platformFee = Math.round(gross * 0.15 * 100) / 100;
+  const netBase = Math.round((gross - platformFee) * 100) / 100;
+  const teenGets = Math.round((netBase + tipAmt) * 100) / 100;
 
   await svc.Booking.update(booking.id, {
     payment_status: 'released',
     tip_amount: tipAmt,
+    platform_fee: platformFee,
+    net_amount: netBase,
     released_at: new Date().toISOString(),
   });
 
@@ -52,7 +59,7 @@ export async function releaseBookingPayment(base44, booking, tip) {
   });
   // Transfer the net payout (after platform fee) to the parent's Stripe Connect
   // account — never the teen's. Sends its own parent notification per outcome.
-  await attemptBookingPayout(base44, { ...booking, tip_amount: tipAmt });
+  await attemptBookingPayout(base44, { ...booking, platform_fee: platformFee, net_amount: netBase, tip_amount: tipAmt });
 
   // Two-sided referral reward on the buyer's first completed booking
   const refs = await svc.Referral.filter({ referred_user_id: booking.buyer_user_id, status: 'pending' });

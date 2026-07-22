@@ -11,7 +11,14 @@ export default function StripeIdentityCard({ onVerified }) {
 
   const checkStatus = useCallback(async () => {
     setStatus("checking");
-    const res = await base44.functions.invoke("checkIdentityStatus", {});
+    let res;
+    try {
+      res = await base44.functions.invoke("checkIdentityStatus", {});
+    } catch (err) {
+      setError(err.response?.data?.error || "We couldn't check your verification status. Please try again.");
+      setStatus("failed");
+      return;
+    }
     const s = res.data?.status;
     if (s === "verified") { onVerified?.(); return; }
     if (s === "failed") {
@@ -33,7 +40,14 @@ export default function StripeIdentityCard({ onVerified }) {
     setStatus("starting");
     setError("");
     const returnUrl = `${window.location.origin}${window.location.pathname}?identity_return=1`;
-    const res = await base44.functions.invoke("createIdentitySession", { returnUrl });
+    let res;
+    try {
+      res = await base44.functions.invoke("createIdentitySession", { returnUrl });
+    } catch (err) {
+      setError(err.response?.data?.error || "Could not start verification. Please try again.");
+      setStatus("failed");
+      return;
+    }
     if (res.data?.alreadyVerified) { onVerified?.(); return; }
     if (!res.data?.url) {
       setError(res.data?.error || "Could not start verification. Please try again.");

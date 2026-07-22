@@ -99,8 +99,8 @@ export default function TeenEarnings() {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={chartData}>
                 <XAxis dataKey="month" tick={{ fontSize: 11, fill: "#64748b" }} axisLine={false} tickLine={false} />
-                <Tooltip formatter={(v) => money(v)} cursor={{ fill: "#eff6ff" }} />
-                <Bar dataKey="net" fill="#2563eb" radius={[6, 6, 0, 0]} />
+                <Tooltip formatter={(v) => money(v)} cursor={{ fill: "#f5f5f5" }} />
+                <Bar dataKey="net" fill="#171717" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -128,7 +128,7 @@ export default function TeenEarnings() {
               </div>
               <div className="text-right">
                 <p className="font-extrabold text-emerald-600">+{money(r.net_amount)}</p>
-                <p className="text-[11px] text-slate-400">{money(r.amount)} gross</p>
+                <p className="text-[11px] text-slate-400">{money(r.amount)} gross · −{money(Math.max(0, (r.amount || 0) - (r.net_amount || 0)))} fee</p>
               </div>
             </div>
           ))}

@@ -121,8 +121,8 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
             {creditApplied > 0 && (
               <div className="flex justify-between text-xs font-bold text-slate-900"><span>You pay</span><span>{money(buyerPays)}</span></div>
             )}
-            <div className="flex justify-between text-xs text-slate-400"><span>Platform fee</span><span>{money(platform_fee)}</span></div>
-            <div className="flex justify-between text-xs text-slate-400"><span>Teen earns</span><span>{money(net_amount)}</span></div>
+            <div className="flex justify-between text-xs text-slate-400"><span>Platform fee (15%)</span><span>{money(platform_fee)}</span></div>
+            <div className="flex justify-between text-xs text-slate-400"><span>Teen earns (85%)</span><span>{money(net_amount)}</span></div>
           </div>
           <div className="flex items-start gap-2 bg-emerald-50 rounded-xl p-3 text-xs text-emerald-700">
             <ShieldCheck className="w-4 h-4 mt-0.5 shrink-0" />
