@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Zap } from "lucide-react";
 import { useAppUser } from "@/lib/useAppUser";
 import FallingMoney from "@/components/landing/FallingMoney";
-import TrustChainHero from "@/components/landing/TrustChainHero";
+import SplitHero from "@/components/landing/SplitHero";
 import TrustBar from "@/components/landing/TrustBar";
 import HowItWorks from "@/components/landing/HowItWorks";
 import ServicesGrid from "@/components/landing/ServicesGrid";
@@ -82,7 +82,7 @@ export default function Welcome() {
       </header>
 
       {/* Hero */}
-      <TrustChainHero onGetStarted={() => navigate("/register")} onLogin={() => navigate("/login")} />
+      <SplitHero onGetStarted={() => navigate("/register")} onLogin={() => navigate("/login")} />
 
       {/* Trust bar */}
       <section className="relative z-10 max-w-5xl mx-auto px-6 pb-8">
