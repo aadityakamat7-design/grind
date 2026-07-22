@@ -14,6 +14,7 @@ export default function JobBoard() {
   const isBuyer = user.app_role === "BUYER";
   const [jobs, setJobs] = useState([]);
   const [buyerProfile, setBuyerProfile] = useState(null);
+  const [buyerRatings, setBuyerRatings] = useState({});
   const [loading, setLoading] = useState(true);
   const [postOpen, setPostOpen] = useState(false);
 
@@ -26,7 +27,13 @@ export default function JobBoard() {
       setJobs(mine);
       setBuyerProfile(profiles[0] || null);
     } else {
-      setJobs(await base44.entities.JobPost.filter({ status: "open" }, "-created_date", 50));
+      const openJobs = await base44.entities.JobPost.filter({ status: "open" }, "-created_date", 50);
+      setJobs(openJobs);
+      // Let teens see a neighbor's rating before accepting a booking.
+      const allBuyers = await base44.entities.BuyerProfile.list("-created_date", 200);
+      const ratings = {};
+      allBuyers.forEach((b) => { ratings[b.user_id] = { avg: b.avg_rating || 0, count: b.review_count || 0 }; });
+      setBuyerRatings(ratings);
     }
     setLoading(false);
   }, [user.id, isBuyer]);
@@ -81,6 +88,8 @@ export default function JobBoard() {
             <JobPostCard
               key={job.id}
               job={job}
+              buyerRating={buyerRatings[job.buyer_user_id]?.avg}
+              buyerReviewCount={buyerRatings[job.buyer_user_id]?.count}
               footer={
                 isBuyer ? (
                   job.status === "open" && (

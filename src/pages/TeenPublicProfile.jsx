@@ -32,7 +32,7 @@ export default function TeenPublicProfile() {
     ]);
     setProfile(profiles[0] || null);
     setListings(teenListings);
-    setReviews(teenReviews);
+    setReviews(teenReviews.filter((r) => !r.hidden));
     setBuyerProfile(buyers[0] || null);
     setLoading(false);
   }, [teenUserId, user.id]);
@@ -136,7 +136,7 @@ export default function TeenPublicProfile() {
           </div>
         )}
         {reviews.length === 0 ? (
-          <p className="text-sm text-slate-400">No reviews yet — be the first to book and review {profile.display_name?.split(" ")[0]}.</p>
+          <p className="text-sm text-slate-400">No reviews yet — complete your first job to start building your reputation.</p>
         ) : (
           <div className="space-y-3">
             {reviews.map((r) => (

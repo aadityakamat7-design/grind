@@ -3,8 +3,9 @@ import { MapPin, CalendarDays, ShieldCheck } from "lucide-react";
 import { format } from "date-fns";
 import { CATEGORY_LABELS, money } from "@/lib/grind";
 import StatusBadge from "@/components/grind/StatusBadge";
+import RatingStars from "@/components/grind/RatingStars";
 
-export default function JobPostCard({ job, footer }) {
+export default function JobPostCard({ job, footer, buyerRating, buyerReviewCount }) {
   return (
     <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
       <div className="flex items-start justify-between gap-2">
@@ -14,6 +15,9 @@ export default function JobPostCard({ job, footer }) {
           </p>
           <h3 className="font-bold text-slate-900 mt-0.5 leading-snug">{job.title}</h3>
           <p className="text-xs text-slate-500 mt-0.5">posted by {job.buyer_name}</p>
+          {buyerReviewCount > 0 && (
+            <div className="mt-1"><RatingStars rating={buyerRating} count={buyerReviewCount} size="w-3.5 h-3.5" /></div>
+          )}
         </div>
         <div className="text-right shrink-0">
           <p className="font-extrabold text-slate-900">{money(job.price)}</p>

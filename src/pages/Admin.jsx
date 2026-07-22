@@ -38,6 +38,14 @@ export default function Admin() {
     load();
   };
 
+  const hideReview = async (report) => {
+    setActing(true);
+    await base44.entities.Review.update(report.review_id, { hidden: true });
+    await base44.entities.Report.update(report.id, { status: "resolved" });
+    setActing(false);
+    load();
+  };
+
   if (loading)
     return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin" /></div>;
 
@@ -70,7 +78,7 @@ export default function Admin() {
           <p className="text-sm text-slate-400">No reports filed.</p>
         ) : (
           <div className="space-y-3">
-            {reports.map((r) => <ReportRow key={r.id} report={r} onResolve={resolve} acting={acting} />)}
+            {reports.map((r) => <ReportRow key={r.id} report={r} onResolve={resolve} onHideReview={hideReview} acting={acting} />)}
           </div>
         )}
       </div>

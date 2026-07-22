@@ -189,6 +189,11 @@
       "type": "boolean",
       "default": false,
       "description": "Whether the 'starting soon' reminder notification has been sent"
+    },
+    "review_reminder_sent": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the 'leave a review' reminder has been sent for this completed booking"
     }
   },
   "required": [

@@ -14,7 +14,7 @@ const REASONS = [
   { value: "other", label: "Other" },
 ];
 
-export default function ReportButton({ reporter, subjectId, subjectName, bookingId = "" }) {
+export default function ReportButton({ reporter, subjectId, subjectName, bookingId = "", reviewId = "", label = "Report" }) {
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState("");
   const [details, setDetails] = useState("");
@@ -29,6 +29,7 @@ export default function ReportButton({ reporter, subjectId, subjectName, booking
       subject_id: subjectId,
       subject_name: subjectName,
       booking_id: bookingId,
+      review_id: reviewId,
       reason,
       details,
       status: "open",
@@ -48,7 +49,7 @@ export default function ReportButton({ reporter, subjectId, subjectName, booking
         onClick={() => { setDone(false); setReason(""); setDetails(""); setOpen(true); }}
         className="inline-flex items-center gap-1 text-xs font-semibold text-slate-400 hover:text-rose-600 transition-colors"
       >
-        <Flag className="w-3.5 h-3.5" /> Report
+        <Flag className="w-3.5 h-3.5" /> {label}
       </button>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="rounded-2xl max-w-sm">
