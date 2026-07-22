@@ -2,10 +2,10 @@ import React from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Zap, ShieldCheck } from "lucide-react";
+import { Zap } from "lucide-react";
 import { useAppUser } from "@/lib/useAppUser";
 import FallingMoney from "@/components/landing/FallingMoney";
-import PhoneMockup from "@/components/landing/PhoneMockup";
+import TrustChainHero from "@/components/landing/TrustChainHero";
 import TrustBar from "@/components/landing/TrustBar";
 import HowItWorks from "@/components/landing/HowItWorks";
 import ServicesGrid from "@/components/landing/ServicesGrid";
@@ -82,79 +82,7 @@ export default function Welcome() {
       </header>
 
       {/* Hero */}
-      <section className="relative z-10 max-w-6xl mx-auto px-6 pt-16 sm:pt-24 pb-20">
-        <div className="grid md:grid-cols-2 gap-14 items-center">
-          <div className="text-center md:text-left">
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-1.5 text-xs font-bold text-sky-300 mb-6"
-            >
-              <ShieldCheck className="w-3.5 h-3.5" />
-              Parent-approved · ID-verified · Escrow-protected
-            </motion.div>
-            <motion.h1
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.1 }}
-              className="text-5xl sm:text-6xl font-extrabold tracking-tight leading-[1.04]"
-            >
-              Earn or Hire Help
-              <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-blue-500">in Your Neighborhood.</span>
-            </motion.h1>
-            <motion.p
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.2 }}
-              className="text-slate-400 text-lg mt-6 leading-relaxed max-w-md mx-auto md:mx-0"
-            >
-              Teens earn real money offering services — lawn mowing, tutoring, dog walking, tech help, and more. Neighbors hire trusted, verified help right down the street.
-            </motion.p>
-            <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.3 }}
-              className="flex flex-col sm:flex-row gap-3 justify-center md:justify-start mt-9"
-            >
-              <Button
-                className="h-12 px-8 rounded-xl text-base font-bold bg-gradient-to-r from-blue-600 to-sky-500 hover:from-blue-500 hover:to-sky-400 shadow-lg shadow-blue-500/30"
-                onClick={() => startSignup("TEEN")}
-              >
-                Start Earning
-              </Button>
-              <Button
-                variant="outline"
-                className="h-12 px-8 rounded-xl text-base font-bold bg-transparent border-white/20 text-white hover:bg-white/10 hover:text-white"
-                onClick={() => startSignup("BUYER")}
-              >
-                Hire a Teen
-              </Button>
-            </motion.div>
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.7, delay: 0.45 }}
-              className="text-xs text-slate-500 mt-4"
-            >
-              Free to join · Takes less than 2 minutes ·{" "}
-              <button onClick={() => document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" })} className="text-sky-400 font-semibold hover:text-sky-300">
-                See how it works
-              </button>
-            </motion.p>
-          </div>
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            className="relative"
-          >
-            <div className="absolute -inset-10 bg-blue-600/20 blur-[100px] rounded-full pointer-events-none" />
-            <PhoneMockup />
-          </motion.div>
-        </div>
-      </section>
+      <TrustChainHero onGetStarted={() => navigate("/register")} onLogin={() => navigate("/login")} />
 
       {/* Trust bar */}
       <section className="relative z-10 max-w-5xl mx-auto px-6 pb-8">
