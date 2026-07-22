@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useOutletContext } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { Users, CalendarDays } from "lucide-react";
+import { Users, CalendarDays, UserPlus } from "lucide-react";
 import BookingCard from "@/components/grind/BookingCard";
 import EmptyState from "@/components/grind/EmptyState";
 import StudentIncomeCard from "@/components/grind/parent/StudentIncomeCard";
 import ApprovalQueue from "@/components/grind/parent/ApprovalQueue";
 import SafetyPanel from "@/components/grind/parent/SafetyPanel";
 import ActivityFeed from "@/components/grind/parent/ActivityFeed";
+import LinkTeenCard from "@/components/grind/parent/LinkTeenCard";
+import { Button } from "@/components/ui/button";
 import PullToRefresh from "@/components/PullToRefresh";
 
 export default function ParentDashboard() {
@@ -19,6 +21,7 @@ export default function ParentDashboard() {
   const [notifications, setNotifications] = useState([]);
   const [selected, setSelected] = useState("all");
   const [loading, setLoading] = useState(true);
+  const [showLinkForm, setShowLinkForm] = useState(false);
 
   const load = useCallback(async () => {
     const myLinks = await base44.entities.ParentTeenLink.filter({ parent_user_id: user.id, status: "confirmed" });
@@ -48,6 +51,7 @@ export default function ParentDashboard() {
         <div className="space-y-6">
           <h1 className="text-2xl font-extrabold text-slate-900">Parent dashboard</h1>
           <EmptyState icon={Users} title="No linked students yet" subtitle="Ask your teen for their parent code and link their account to see their jobs, income, and safety status here." />
+          <LinkTeenCard onLinked={load} />
         </div>
       </PullToRefresh>
     );
@@ -67,10 +71,24 @@ export default function ParentDashboard() {
   return (
     <PullToRefresh onRefresh={load}>
     <div className="space-y-7">
-      <div>
-        <h1 className="text-2xl font-extrabold text-slate-900">Parent dashboard</h1>
-        <p className="text-sm text-slate-500 mt-1">Full visibility into your student's activity.</p>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-extrabold text-slate-900">Parent dashboard</h1>
+          <p className="text-sm text-slate-500 mt-1">Full visibility into your student's activity.</p>
+        </div>
+        <Button variant="outline" size="sm" className="rounded-xl shrink-0" onClick={() => setShowLinkForm((v) => !v)}>
+          <UserPlus className="w-4 h-4 mr-1.5" /> Link student
+        </Button>
       </div>
+
+      {showLinkForm && (
+        <LinkTeenCard
+          onLinked={() => {
+            setShowLinkForm(false);
+            load();
+          }}
+        />
+      )}
 
       {links.length > 1 && (
         <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-4 px-4">
