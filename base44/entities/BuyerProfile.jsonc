@@ -54,6 +54,15 @@
       "type": "number",
       "default": 0,
       "description": "Credit balance auto-applied to the next booking"
+    },
+    "avg_rating": {
+      "type": "number",
+      "default": 0,
+      "description": "Average rating from teens who worked for this neighbor"
+    },
+    "review_count": {
+      "type": "number",
+      "default": 0
     }
   },
   "required": [
@@ -63,18 +72,7 @@
     "create": {
       "data.user_id": "{{user.id}}"
     },
-    "read": {
-      "$or": [
-        {
-          "data.user_id": "{{user.id}}"
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        }
-      ]
-    },
+    "read": null,
     "update": {
       "$or": [
         {
