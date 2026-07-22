@@ -1,7 +1,11 @@
 import React, { useEffect, useRef, useState, Suspense, lazy } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import TrustChainScene2D from "./TrustChainScene2D";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const TrustChainScene3D = lazy(() => import("./TrustChainScene3D"));
 
@@ -20,12 +24,14 @@ const CAPTIONS = [
   "Payments held safely until the job is done.",
 ];
 
-// Scroll-driven "trust chain" hero: as the visitor scrolls, Teen -> Parent ->
-// Neighbor connect and a shield locks in, explaining how KickStart keeps
-// teens safe. Falls back to a lightweight 2D version on mobile/no-WebGL.
+// Scrollytelling hero: a tall (400vh) pinned section whose animation progress
+// is driven entirely by GSAP ScrollTrigger's scrub value (0-1) — never by a
+// timer or on load. Scrolling down advances it, scrolling up reverses it.
 export default function TrustChainHero({ onGetStarted, onLogin }) {
   const containerRef = useRef(null);
+  const pinRef = useRef(null);
   const progressRef = useRef(0);
+  const scene2DRef = useRef(null);
   const [stage, setStage] = useState(0);
   const [use3D, setUse3D] = useState(false);
 
@@ -35,36 +41,34 @@ export default function TrustChainHero({ onGetStarted, onLogin }) {
   }, []);
 
   useEffect(() => {
-    function onScroll() {
-      const el = containerRef.current;
-      if (!el) return;
-      const rect = el.getBoundingClientRect();
-      const scrollable = rect.height - window.innerHeight;
-      const scrolled = -rect.top;
-      const progress = scrollable > 0 ? Math.min(1, Math.max(0, scrolled / scrollable)) : 0;
-      progressRef.current = progress;
-      const nextStage = progress < 0.05 ? 0 : progress < 0.45 ? 1 : progress < 0.75 ? 2 : 3;
-      setStage((s) => (s !== nextStage ? nextStage : s));
-    }
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-    };
+    const trigger = ScrollTrigger.create({
+      trigger: containerRef.current,
+      pin: pinRef.current,
+      start: "top top",
+      end: "bottom bottom",
+      scrub: true,
+      onUpdate: (self) => {
+        const p = self.progress;
+        progressRef.current = p;
+        scene2DRef.current?.setProgress(p);
+        const nextStage = p < 0.25 ? 0 : p < 0.5 ? 1 : p < 0.75 ? 2 : 3;
+        setStage((s) => (s !== nextStage ? nextStage : s));
+      },
+    });
+
+    return () => trigger.kill();
   }, []);
 
   return (
-    <div ref={containerRef} className="relative" style={{ height: "260vh" }}>
-      <div className="sticky top-0 h-screen w-full overflow-hidden flex flex-col items-center justify-center px-6">
+    <div ref={containerRef} className="relative" style={{ height: "400vh" }}>
+      <div ref={pinRef} className="h-screen w-full overflow-hidden flex flex-col items-center justify-center px-6">
         <div className="absolute inset-0">
           {use3D ? (
-            <Suspense fallback={<TrustChainScene2D stage={stage} />}>
+            <Suspense fallback={<TrustChainScene2D ref={scene2DRef} />}>
               <TrustChainScene3D progressRef={progressRef} />
             </Suspense>
           ) : (
-            <TrustChainScene2D stage={stage} />
+            <TrustChainScene2D ref={scene2DRef} />
           )}
         </div>
         <div className="absolute inset-0 bg-gradient-to-b from-slate-950/40 via-transparent to-slate-950 pointer-events-none" />
@@ -80,7 +84,7 @@ export default function TrustChainHero({ onGetStarted, onLogin }) {
             Every neighbor, verified.
           </h1>
           <p className="text-white/70 text-lg mt-6 min-h-[1.75rem] transition-opacity duration-500">
-            {stage > 0 ? CAPTIONS[Math.min(stage - 1, CAPTIONS.length - 1)] : "Watch how trust connects every job on KickStart."}
+            {stage > 0 ? CAPTIONS[Math.min(stage - 1, CAPTIONS.length - 1)] : "Scroll to see how trust connects every job on KickStart."}
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center mt-9">
             <Button className="h-12 px-8 rounded-xl text-base font-bold bg-white text-slate-950 hover:bg-white/90" onClick={onGetStarted}>

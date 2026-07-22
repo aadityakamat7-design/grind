@@ -2,10 +2,14 @@ import React, { useEffect, useRef } from "react";
 import * as THREE from "three";
 
 const NODE_DEFS = [
-  { label: "Teen", icon: "🧑", pos: new THREE.Vector3(-2.3, 0.6, 0) },
-  { label: "Parent", icon: "👪", pos: new THREE.Vector3(0, -0.5, 0.3) },
-  { label: "Neighbor", icon: "🏠", pos: new THREE.Vector3(2.3, 0.6, 0) },
+  { label: "Teen", icon: "🧑", pos: new THREE.Vector3(-2.3, 0.6, 0), appearAt: 0 },
+  { label: "Parent", icon: "👪", pos: new THREE.Vector3(0, -0.5, 0.3), appearAt: 0.25 },
+  { label: "Neighbor", icon: "🏠", pos: new THREE.Vector3(2.3, 0.6, 0), appearAt: 0.5 },
 ];
+
+function clamp(v) {
+  return Math.min(1, Math.max(0, v));
+}
 
 function makeLabelSprite(icon, text) {
   const canvas = document.createElement("canvas");
@@ -21,7 +25,7 @@ function makeLabelSprite(icon, text) {
   ctx.fillText(text, 128, 96);
   const texture = new THREE.CanvasTexture(canvas);
   texture.needsUpdate = true;
-  const material = new THREE.SpriteMaterial({ map: texture, transparent: true, depthTest: false });
+  const material = new THREE.SpriteMaterial({ map: texture, transparent: true, depthTest: false, opacity: 0 });
   const sprite = new THREE.Sprite(material);
   sprite.scale.set(1.8, 0.9, 1);
   return sprite;
@@ -37,7 +41,7 @@ function makeLine(start, end) {
 
 function updateLine(line, segProgress) {
   const { start, end } = line.userData;
-  const p = Math.min(1, Math.max(0, segProgress));
+  const p = clamp(segProgress);
   const currentEnd = start.clone().lerp(end, p);
   const positions = line.geometry.attributes.position;
   positions.setXYZ(0, start.x, start.y, start.z);
@@ -45,9 +49,11 @@ function updateLine(line, segProgress) {
   positions.needsUpdate = true;
 }
 
-// Full 3D "trust chain" scene: three floating nodes, lines that draw between
-// them as `progressRef` (0-1, driven by page scroll) advances, and a shield
-// that scales/pulses into place once the chain is complete.
+// Full 3D "trust chain" scene: three floating nodes appear, lines draw between
+// them, and a shield scales/pulses in — entirely driven by `progressRef.current`
+// (0-1), which the parent updates from a scroll-linked GSAP ScrollTrigger.
+// This component owns its own rAF loop purely to render smoothly; it never
+// advances progress on its own — it only reads whatever the ref currently holds.
 export default function TrustChainScene3D({ progressRef }) {
   const mountRef = useRef(null);
 
@@ -77,13 +83,14 @@ export default function TrustChainScene3D({ progressRef }) {
       const mat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.35, metalness: 0.1 });
       const mesh = new THREE.Mesh(geo, mat);
       mesh.position.copy(def.pos);
+      mesh.scale.set(0.001, 0.001, 0.001);
       group.add(mesh);
 
       const sprite = makeLabelSprite(def.icon, def.label);
       sprite.position.copy(def.pos.clone().add(new THREE.Vector3(0, 1, 0)));
       group.add(sprite);
 
-      return { mesh, sprite };
+      return { mesh, sprite, appearAt: def.appearAt };
     });
 
     const line1 = makeLine(NODE_DEFS[0].pos, NODE_DEFS[1].pos);
@@ -117,12 +124,19 @@ export default function TrustChainScene3D({ progressRef }) {
       const progress = progressRef.current || 0;
       const t = clock.getElapsedTime();
 
-      const seg1 = (progress) / 0.45;
-      const seg2 = (progress - 0.45) / 0.3;
-      const lockProgress = Math.min(1, Math.max(0, (progress - 0.75) / 0.25));
+      const seg1 = clamp((progress - 0.25) / 0.25);
+      const seg2 = clamp((progress - 0.5) / 0.25);
+      const lockProgress = clamp((progress - 0.75) / 0.25);
 
       updateLine(line1, seg1);
       updateLine(line2, seg2);
+
+      nodeMeshes.forEach((n) => {
+        const s = clamp((progress - n.appearAt) / 0.15);
+        const scale = 0.001 + s * 0.999;
+        n.mesh.scale.set(scale, scale, scale);
+        n.sprite.material.opacity = s;
+      });
 
       const pulse = lockProgress >= 0.98 ? 1 + Math.sin(t * 2.5) * 0.04 : 1;
       const s = lockProgress * pulse;
