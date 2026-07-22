@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Link, useOutletContext } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { ShieldAlert, Copy, Check, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import BookingCard from "@/components/grind/BookingCard";
 import TeenChecklist from "@/components/grind/TeenChecklist";
 import AvailabilityToggle from "@/components/grind/AvailabilityToggle";
@@ -10,6 +10,7 @@ import AlertParentButton from "@/components/grind/AlertParentButton";
 import EarningsSummary from "@/components/grind/teen/EarningsSummary";
 import ProfileStatsWidget from "@/components/grind/teen/ProfileStatsWidget";
 import MessagesWidget from "@/components/grind/teen/MessagesWidget";
+import InviteCodeCard from "@/components/grind/teen/InviteCodeCard";
 import CashOutDialog from "@/components/grind/wallet/CashOutDialog";
 import { getOrCreateWallet } from "@/lib/wallet";
 import PullToRefresh from "@/components/PullToRefresh";
@@ -22,7 +23,6 @@ export default function TeenHome() {
   const [weekEarned, setWeekEarned] = useState(0);
   const [threads, setThreads] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [copied, setCopied] = useState(false);
   const [cashOutOpen, setCashOutOpen] = useState(false);
 
   const load = useCallback(async () => {
@@ -54,12 +54,6 @@ export default function TeenHome() {
     .filter((b) => b.payment_status === "held" && ["confirmed", "in_progress", "completed"].includes(b.status))
     .reduce((s, b) => s + (b.net_amount || 0), 0);
 
-  const copyCode = () => {
-    navigator.clipboard.writeText(profile?.invite_code || "");
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
   return (
     <PullToRefresh onRefresh={load}>
     <div className="space-y-6">
@@ -73,27 +67,7 @@ export default function TeenHome() {
         </Link>
       </div>
 
-      {profile?.status === "pending_parent" && (
-        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5">
-          <div className="flex items-start gap-3">
-            <ShieldAlert className="w-5 h-5 text-amber-500 mt-0.5 shrink-0" />
-            <div className="flex-1">
-              <p className="font-bold text-amber-800 text-sm">Waiting for your parent</p>
-              <p className="text-xs text-amber-700 mt-1">
-                Your services can't go live until a parent links to your account with your code:
-              </p>
-              <div className="flex items-center gap-2 mt-3">
-                <span className="font-extrabold tracking-[0.25em] text-amber-900 bg-white rounded-lg px-3 py-1.5 text-sm border border-amber-200">
-                  {profile.invite_code}
-                </span>
-                <button onClick={copyCode} className="text-amber-700 hover:text-amber-900">
-                  {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <InviteCodeCard profile={profile} onUpdated={load} />
 
       <EarningsSummary
         balance={wallet?.balance || 0}

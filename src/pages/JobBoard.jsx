@@ -8,6 +8,7 @@ import JobPostForm from "@/components/grind/jobs/JobPostForm";
 import AcceptJobButton from "@/components/grind/jobs/AcceptJobButton";
 import EmptyState from "@/components/grind/EmptyState";
 import PullToRefresh from "@/components/PullToRefresh";
+import { startJobCheckout } from "@/lib/stripeCheckout";
 
 export default function JobBoard() {
   const { user } = useOutletContext();
@@ -46,6 +47,16 @@ export default function JobBoard() {
     } catch (err) {
       alert(err.response?.data?.error || "Couldn't cancel this job post.");
     }
+    load();
+  };
+
+  const payToPublish = async (job) => {
+    await startJobCheckout(job.id);
+    load();
+  };
+
+  const discardDraft = async (job) => {
+    await base44.entities.JobPost.delete(job.id);
     load();
   };
 
@@ -92,7 +103,21 @@ export default function JobBoard() {
               buyerReviewCount={buyerRatings[job.buyer_user_id]?.count}
               footer={
                 isBuyer ? (
-                  job.status === "open" && (
+                  job.status === "draft" ? (
+                    <div className="space-y-2 w-full">
+                      <p className="text-xs font-semibold text-amber-600">
+                        Draft — won't be visible to teens until the ${Number(job.price).toFixed(2)} posting fee is paid.
+                      </p>
+                      <div className="flex gap-2">
+                        <Button size="sm" className="rounded-xl" onClick={() => payToPublish(job)}>
+                          Pay ${Number(job.price).toFixed(2)} to publish
+                        </Button>
+                        <Button size="sm" variant="outline" className="rounded-xl text-rose-600 border-rose-200 hover:bg-rose-50" onClick={() => discardDraft(job)}>
+                          Discard
+                        </Button>
+                      </div>
+                    </div>
+                  ) : job.status === "open" && (
                     <Button
                       variant="outline"
                       size="sm"

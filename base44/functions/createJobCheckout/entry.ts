@@ -30,7 +30,7 @@ Deno.serve(async (req) => {
     });
 
     if (cents <= 0) {
-      await base44.asServiceRole.entities.JobPost.update(job.id, { payment_status: 'held' });
+      await base44.asServiceRole.entities.JobPost.update(job.id, { payment_status: 'held', status: 'open' });
       return Response.json({ paid: true });
     }
 

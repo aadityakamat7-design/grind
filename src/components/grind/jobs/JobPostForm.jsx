@@ -52,7 +52,6 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
       ai_approved: true,
       ai_minimum_age: result.minimum_age || 13,
       ai_law_notes: result.state_law_notes || "",
-      status: "open",
     });
     onPosted?.();
     setPhase("paying");
@@ -108,7 +107,7 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
             <div className="w-10 h-10 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin mx-auto" />
             <p className="font-bold text-slate-900 text-sm">Redirecting to secure checkout…</p>
             <p className="text-xs text-slate-500 max-w-xs mx-auto">
-              Your posting fee is held in escrow until a teen completes the job.
+              Your job stays a draft and won't go live until the posting fee is paid and held in escrow.
             </p>
           </div>
         )}
@@ -117,7 +116,7 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
           <div className="py-4 space-y-4">
             <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4">
               <p className="font-bold text-emerald-700 text-sm flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4" /> Approved & posted!
+                <ShieldCheck className="w-4 h-4" /> Paid & posted!
               </p>
               <p className="text-sm text-emerald-700 mt-2">{screening?.reason}</p>
               {screening?.minimum_age > 13 && (

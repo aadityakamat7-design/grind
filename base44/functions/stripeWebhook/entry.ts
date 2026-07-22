@@ -41,9 +41,10 @@ Deno.serve(async (req) => {
       if (jobPostId) {
         await base44.asServiceRole.entities.JobPost.update(jobPostId, {
           payment_status: 'held',
+          status: 'open',
           stripe_payment_intent_id: session.payment_intent,
         });
-        console.log(`JobPost ${jobPostId} marked as held (payment ${session.payment_intent})`);
+        console.log(`JobPost ${jobPostId} marked as held and published (payment ${session.payment_intent})`);
       }
     }
 

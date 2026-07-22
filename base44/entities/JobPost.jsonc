@@ -73,11 +73,20 @@
     "status": {
       "type": "string",
       "enum": [
+        "draft",
         "open",
         "assigned",
         "cancelled"
       ],
-      "default": "open"
+      "default": "draft",
+      "description": "Draft until the posting fee is paid \u2014 only the server flips it to open",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     },
     "assigned_teen_user_id": {
       "type": "string"
