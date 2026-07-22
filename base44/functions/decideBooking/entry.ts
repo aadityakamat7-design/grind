@@ -17,10 +17,13 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Booking is not awaiting approval' }, { status: 400 });
     }
 
-    const profiles = await base44.asServiceRole.entities.ParentProfile.filter({ user_id: user.id });
-    if (!profiles[0]?.is_identity_verified) {
-      return Response.json({ error: 'Identity verification required' }, { status: 403 });
-    }
+    // NOTE: Identity verification requirement is temporarily disabled while
+    // Stripe Identity is being activated on the live account. Re-enable this
+    // check once verification is back online.
+    // const profiles = await base44.asServiceRole.entities.ParentProfile.filter({ user_id: user.id });
+    // if (!profiles[0]?.is_identity_verified) {
+    //   return Response.json({ error: 'Identity verification required' }, { status: 403 });
+    // }
 
     if (approve) {
       await base44.asServiceRole.entities.Booking.update(booking.id, { status: 'confirmed' });

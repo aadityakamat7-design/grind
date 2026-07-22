@@ -37,6 +37,14 @@ Deno.serve(async (req) => {
         });
         console.log(`Booking ${bookingId} marked as held (payment ${session.payment_intent})`);
       }
+      const jobPostId = session.metadata?.job_post_id;
+      if (jobPostId) {
+        await base44.asServiceRole.entities.JobPost.update(jobPostId, {
+          payment_status: 'held',
+          stripe_payment_intent_id: session.payment_intent,
+        });
+        console.log(`JobPost ${jobPostId} marked as held (payment ${session.payment_intent})`);
+      }
     }
 
     if (event.type === 'identity.verification_session.verified') {

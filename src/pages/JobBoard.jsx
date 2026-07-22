@@ -34,7 +34,7 @@ export default function JobBoard() {
   useEffect(() => { load(); }, [load]);
 
   const cancelJob = async (job) => {
-    await base44.entities.JobPost.update(job.id, { status: "cancelled" });
+    await base44.functions.invoke("cancelJobPost", { jobId: job.id });
     load();
   };
 

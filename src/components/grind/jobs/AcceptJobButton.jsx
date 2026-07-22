@@ -28,7 +28,12 @@ export default function AcceptJobButton({ job, teen, onAccepted }) {
       setSaving(false);
       return;
     }
-    const { platform_fee, net_amount } = computeFees(job.price);
+    if (job.payment_status !== "held") {
+      setError("This job's posting fee hasn't been paid yet, so it can't be taken.");
+      setSaving(false);
+      return;
+    }
+    const { platform_fee, net_amount } = job.platform_fee != null ? job : computeFees(job.price);
     const booking = await base44.entities.Booking.create({
       listing_title: job.title,
       teen_user_id: teen.id,
@@ -39,8 +44,11 @@ export default function AcceptJobButton({ job, teen, onAccepted }) {
       scheduled_start: job.scheduled_start || undefined,
       notes: job.description,
       price_total: job.price,
+      charge_amount: job.charge_amount ?? job.price,
       platform_fee,
       net_amount,
+      payment_status: "held",
+      stripe_payment_intent_id: job.stripe_payment_intent_id,
       status: "pending_parent_approval",
     });
     await base44.entities.JobPost.update(job.id, {

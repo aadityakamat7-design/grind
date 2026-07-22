@@ -7,19 +7,21 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import ResponsiveSelect from "@/components/grind/ResponsiveSelect";
 import { ShieldCheck, ShieldX, Sparkles } from "lucide-react";
-import { CATEGORIES } from "@/lib/grind";
+import { CATEGORIES, computeFees, money } from "@/lib/grind";
 import { screenJob, US_STATES } from "@/lib/jobScreen";
+import { startJobCheckout } from "@/lib/stripeCheckout";
 
 export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, onPosted }) {
   const [form, setForm] = useState({
     title: "", description: "", category: "odd_jobs", price: "",
     price_model: "FIXED", state: "", scheduled_start: "",
   });
-  const [phase, setPhase] = useState("form"); // form | screening | blocked | approved
+  const [phase, setPhase] = useState("form"); // form | screening | blocked | approved | paying
   const [screening, setScreening] = useState(null);
 
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
   const valid = form.title.trim() && form.category && Number(form.price) > 0 && form.state;
+  const { platform_fee, net_amount } = computeFees(Number(form.price) || 0);
 
   const submit = async () => {
     setPhase("screening");
@@ -32,7 +34,7 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
       setPhase("blocked");
       return;
     }
-    await base44.entities.JobPost.create({
+    const job = await base44.entities.JobPost.create({
       buyer_user_id: buyer.id,
       buyer_name: buyer.full_name || "Neighbor",
       title: form.title.trim(),
@@ -48,8 +50,11 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
       ai_law_notes: result.state_law_notes || "",
       status: "open",
     });
-    setPhase("approved");
     onPosted?.();
+    setPhase("paying");
+    const checkoutResult = await startJobCheckout(job.id);
+    if (checkoutResult.paid || checkoutResult.blocked) setPhase("approved");
+    // otherwise the browser is redirecting to Stripe checkout
   };
 
   const close = (v) => {
@@ -91,6 +96,16 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
             <Button variant="outline" className="w-full rounded-xl" onClick={() => setPhase("form")}>
               Edit and try again
             </Button>
+          </div>
+        )}
+
+        {phase === "paying" && (
+          <div className="py-10 text-center space-y-3">
+            <div className="w-10 h-10 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin mx-auto" />
+            <p className="font-bold text-slate-900 text-sm">Redirecting to secure checkout…</p>
+            <p className="text-xs text-slate-500 max-w-xs mx-auto">
+              Your posting fee is held in escrow until a teen completes the job.
+            </p>
           </div>
         )}
 
@@ -171,8 +186,15 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
               <Label>When (optional)</Label>
               <Input className="rounded-xl" type="datetime-local" value={form.scheduled_start} onChange={(e) => set("scheduled_start", e.target.value)} />
             </div>
+            {Number(form.price) > 0 && (
+              <div className="bg-slate-50 rounded-xl p-4 text-sm space-y-1.5">
+                <div className="flex justify-between"><span className="text-slate-500">You pay now (held in escrow)</span><span className="font-bold">{money(form.price)}</span></div>
+                <div className="flex justify-between text-xs text-slate-400"><span>Platform fee (15%)</span><span>{money(platform_fee)}</span></div>
+                <div className="flex justify-between text-xs text-slate-400"><span>Teen earns (85%)</span><span>{money(net_amount)}</span></div>
+              </div>
+            )}
             <Button className="w-full rounded-xl" disabled={!valid} onClick={submit}>
-              Run safety check & post
+              Run safety check, then pay {form.price ? money(form.price) : ""}
             </Button>
           </div>
         )}

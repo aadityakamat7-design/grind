@@ -78,6 +78,67 @@
     },
     "booking_id": {
       "type": "string"
+    },
+    "charge_amount": {
+      "type": "number",
+      "description": "Amount the buyer must pay to hold this job's escrow"
+    },
+    "platform_fee": {
+      "type": "number",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "net_amount": {
+      "type": "number",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "payment_status": {
+      "type": "string",
+      "enum": [
+        "unpaid",
+        "held",
+        "refunded"
+      ],
+      "default": "unpaid",
+      "description": "Escrow status for the posting fee \u2014 must be held before a teen can accept",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "stripe_session_id": {
+      "type": "string",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "stripe_payment_intent_id": {
+      "type": "string",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     }
   },
   "required": [
