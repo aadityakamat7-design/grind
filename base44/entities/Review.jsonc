@@ -28,6 +28,13 @@
     "text": {
       "type": "string"
     },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Quick-tag chips selected by the author"
+    },
     "category": {
       "type": "string",
       "description": "Service category of the booked listing"
@@ -39,6 +46,23 @@
     "reply_at": {
       "type": "string",
       "format": "date-time"
+    },
+    "edited_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Set when the author edits within the 24h edit window"
+    },
+    "hidden": {
+      "type": "boolean",
+      "default": false,
+      "description": "Hidden by an admin after a flagged report",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     }
   },
   "required": [

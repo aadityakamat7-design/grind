@@ -18,6 +18,10 @@
     "booking_id": {
       "type": "string"
     },
+    "review_id": {
+      "type": "string",
+      "description": "Set when this report flags a specific review, so admins can hide it"
+    },
     "reason": {
       "type": "string",
       "enum": [
