@@ -34,7 +34,11 @@ export default function JobBoard() {
   useEffect(() => { load(); }, [load]);
 
   const cancelJob = async (job) => {
-    await base44.functions.invoke("cancelJobPost", { jobId: job.id });
+    try {
+      await base44.functions.invoke("cancelJobPost", { jobId: job.id });
+    } catch (err) {
+      alert(err.response?.data?.error || "Couldn't cancel this job post.");
+    }
     load();
   };
 
