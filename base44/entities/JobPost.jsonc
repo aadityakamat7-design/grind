@@ -11,11 +11,25 @@
     "title": {
       "type": "string",
       "minLength": 3,
-      "maxLength": 120
+      "maxLength": 120,
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     },
     "description": {
       "type": "string",
-      "maxLength": 2000
+      "maxLength": 2000,
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     },
     "category": {
       "type": "string",
@@ -32,7 +46,14 @@
     "price": {
       "type": "number",
       "minimum": 1,
-      "maximum": 500
+      "maximum": 500,
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     },
     "price_model": {
       "type": "string",
@@ -106,7 +127,14 @@
       "type": "number",
       "minimum": 0,
       "maximum": 2000,
-      "description": "Amount the buyer must pay to hold this job's escrow"
+      "description": "Amount the buyer must pay to hold this job's escrow",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     },
     "platform_fee": {
       "type": "number",
@@ -175,16 +203,9 @@
   ],
   "rls": {
     "create": {
-      "$or": [
-        {
-          "data.buyer_user_id": "{{user.id}}"
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        }
-      ]
+      "user_condition": {
+        "role": "admin"
+      }
     },
     "read": null,
     "update": {
