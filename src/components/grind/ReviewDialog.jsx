@@ -20,6 +20,7 @@ export default function ReviewDialog({ open, onOpenChange, booking, author, dire
   const [tags, setTags] = useState([]);
   const [saving, setSaving] = useState(false);
   const [done, setDone] = useState(false);
+  const [error, setError] = useState("");
 
   const subjectId = direction === "buyer_to_teen" ? booking.teen_user_id : booking.buyer_user_id;
   const subjectName = direction === "buyer_to_teen" ? booking.teen_display_name : booking.buyer_name;
@@ -31,44 +32,21 @@ export default function ReviewDialog({ open, onOpenChange, booking, author, dire
 
   const submit = async () => {
     setSaving(true);
-    // Guard against a duplicate review for this booking/author (race-safe best effort).
-    const existing = await base44.entities.Review.filter({ booking_id: booking.id, author_id: author.id });
-    if (existing.length > 0) {
+    setError("");
+    const { text: safeText } = maskPII(text.trim(), false);
+    try {
+      await base44.functions.invoke("submitReview", {
+        bookingId: booking.id,
+        direction,
+        rating,
+        text: safeText,
+        tags,
+      });
+    } catch (err) {
       setSaving(false);
-      setDone(true);
-      onDone?.();
+      setError(err.response?.data?.error || "Couldn't submit your review. Please try again.");
       return;
     }
-    let category;
-    if (direction === "buyer_to_teen" && booking.listing_id) {
-      const listings = await base44.entities.Listing.filter({ id: booking.listing_id });
-      category = listings[0]?.category;
-    }
-    const { text: safeText } = maskPII(text.trim(), false);
-    // Defensive clamp — schema enforces 1-5 server-side, but guard here too.
-    const safeRating = Math.max(1, Math.min(5, Math.round(Number(rating) || 0)));
-    await base44.entities.Review.create({
-      booking_id: booking.id,
-      author_id: author.id,
-      author_name: direction === "buyer_to_teen" ? booking.buyer_name : booking.teen_display_name,
-      subject_id: subjectId,
-      direction,
-      rating: safeRating,
-      text: safeText,
-      tags,
-      category,
-    });
-    if (direction === "buyer_to_teen") {
-      await recomputeTeenRating(booking.teen_user_id);
-    } else {
-      await recomputeBuyerRating(booking.buyer_user_id);
-    }
-    await notify(subjectId, {
-      type: "review",
-      title: `New review from ${direction === "buyer_to_teen" ? booking.buyer_name : booking.teen_display_name}`,
-      body: safeText ? safeText.slice(0, 100) : `You received a ${rating}-star review.`,
-      link: direction === "buyer_to_teen" ? `/teens/${booking.teen_user_id}` : `/bookings/${booking.id}`,
-    });
     setSaving(false);
     setDone(true);
     onDone?.();
@@ -120,6 +98,7 @@ export default function ReviewDialog({ open, onOpenChange, booking, author, dire
               className="rounded-xl"
             />
             <p className="text-[11px] text-slate-400 text-right -mt-2">{text.length}/{MAX_LENGTH}</p>
+            {error && <p className="text-xs text-rose-600 font-semibold text-center">{error}</p>}
             <Button disabled={!rating || saving} onClick={submit} className="rounded-xl w-full">
               {saving ? "Submitting..." : "Submit review"}
             </Button>

@@ -27,25 +27,23 @@ export default function ListingForm({ open, onOpenChange, listing, profile, onSa
     }
     setHazard(null);
     setSaving(true);
-    const data = {
-      category: form.category,
-      title: form.title,
-      description: form.description,
-      price_model: form.price_model,
-      price: Number(form.price),
-      service_area: profile?.zip || "",
-      teen_zip: profile?.zip || "",
-      status: "published",
-    };
-    if (listing?.id) {
-      await base44.entities.Listing.update(listing.id, data);
-    } else {
-      await base44.entities.Listing.create({
-        ...data,
-        teen_user_id: profile.user_id,
-        teen_profile_id: profile.id,
-        teen_display_name: profile.display_name,
+    try {
+      await base44.functions.invoke("saveListing", {
+        listingId: listing?.id,
+        category: form.category,
+        title: form.title.trim(),
+        description: form.description.trim(),
+        price_model: form.price_model,
+        price: Number(form.price),
+        zip: profile?.zip || "",
+        teenUserId: profile.user_id,
+        teenProfileId: profile.id,
+        teenDisplayName: profile.display_name,
       });
+    } catch (err) {
+      setHazard(err.response?.data?.error || "Couldn't save this listing.");
+      setSaving(false);
+      return;
     }
     setSaving(false);
     onOpenChange(false);

@@ -37,23 +37,29 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
       setPhase("blocked");
       return;
     }
-    const job = await base44.entities.JobPost.create({
-      buyer_user_id: buyer.id,
-      buyer_name: buyer.full_name || "Neighbor",
-      title: form.title.trim(),
-      description: form.description.trim(),
-      category: form.category,
-      price: Number(form.price),
-      price_model: form.price_model,
-      zip: buyerProfile?.zip || "",
-      state: form.state,
-      is_physical: form.is_physical,
-      address: form.is_physical ? form.address.trim() : "",
-      scheduled_start: form.scheduled_start || undefined,
-      ai_approved: true,
-      ai_minimum_age: result.minimum_age || 13,
-      ai_law_notes: result.state_law_notes || "",
-    });
+    let job;
+    try {
+      const res = await base44.functions.invoke("createJobPost", {
+        buyerName: buyer.full_name || "Neighbor",
+        title: form.title.trim(),
+        description: form.description.trim(),
+        category: form.category,
+        price: Number(form.price),
+        price_model: form.price_model,
+        zip: buyerProfile?.zip || "",
+        state: form.state,
+        is_physical: form.is_physical,
+        address: form.is_physical ? form.address.trim() : "",
+        scheduledStart: form.scheduled_start || undefined,
+        ai_approved: true,
+        ai_minimum_age: result.minimum_age || 13,
+        ai_law_notes: result.state_law_notes || "",
+      });
+      job = res.data.job;
+    } catch (err) {
+      setPhase("form");
+      return;
+    }
     onPosted?.();
     setPhase("paying");
     const checkoutResult = await startJobCheckout(job.id);

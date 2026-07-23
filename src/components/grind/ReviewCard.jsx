@@ -25,10 +25,15 @@ export default function ReviewCard({ review, viewer, onChanged }) {
 
   const submitReply = async () => {
     setSaving(true);
-    await base44.entities.Review.update(review.id, {
-      reply_text: replyText.trim(),
-      reply_at: new Date().toISOString(),
-    });
+    try {
+      await base44.functions.invoke("replyToReview", {
+        reviewId: review.id,
+        replyText: replyText.trim(),
+      });
+    } catch (err) {
+      setSaving(false);
+      return;
+    }
     setSaving(false);
     setReplying(false);
     onChanged?.();
@@ -37,16 +42,15 @@ export default function ReviewCard({ review, viewer, onChanged }) {
   const submitEdit = async () => {
     setSaving(true);
     const { text: safeText } = maskPII(editText.trim(), false);
-    const safeRating = Math.max(1, Math.min(5, Math.round(Number(editRating) || 0)));
-    await base44.entities.Review.update(review.id, {
-      rating: safeRating,
-      text: safeText,
-      edited_at: new Date().toISOString(),
-    });
-    if (review.direction === "buyer_to_teen") {
-      await recomputeTeenRating(review.subject_id);
-    } else {
-      await recomputeBuyerRating(review.subject_id);
+    try {
+      await base44.functions.invoke("editReview", {
+        reviewId: review.id,
+        rating: editRating,
+        text: safeText,
+      });
+    } catch (err) {
+      setSaving(false);
+      return;
     }
     setSaving(false);
     setEditing(false);

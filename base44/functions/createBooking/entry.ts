@@ -54,6 +54,12 @@ Deno.serve(async (req) => {
     }
 
     const total = listing.price_model === 'HOURLY' ? Number(listing.price) * Number(hours || 1) : Number(listing.price);
+    if (total > 2000) {
+      return Response.json(
+        { error: 'Total exceeds the maximum allowed per booking ($2,000). Please reduce the hours or price.' },
+        { status: 400 }
+      );
+    }
     const platform_fee = Math.round(total * 0.15 * 100) / 100;
     const net_amount = Math.round((total - platform_fee) * 100) / 100;
     const creditApplied = Math.min(Number(buyerProfile.referral_credit || 0), total);
