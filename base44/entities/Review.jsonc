@@ -23,10 +23,15 @@
       ]
     },
     "rating": {
-      "type": "number"
+      "type": "number",
+      "minimum": 1,
+      "maximum": 5,
+      "multipleOf": 1,
+      "description": "Integer star rating from 1 to 5 inclusive"
     },
     "text": {
-      "type": "string"
+      "type": "string",
+      "maxLength": 500
     },
     "tags": {
       "type": "array",
@@ -41,7 +46,8 @@
     },
     "reply_text": {
       "type": "string",
-      "description": "Teen's public reply to the review"
+      "description": "Teen's public reply to the review",
+      "maxLength": 500
     },
     "reply_at": {
       "type": "string",

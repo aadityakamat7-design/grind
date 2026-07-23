@@ -45,13 +45,15 @@ export default function ReviewDialog({ open, onOpenChange, booking, author, dire
       category = listings[0]?.category;
     }
     const { text: safeText } = maskPII(text.trim(), false);
+    // Defensive clamp — schema enforces 1-5 server-side, but guard here too.
+    const safeRating = Math.max(1, Math.min(5, Math.round(Number(rating) || 0)));
     await base44.entities.Review.create({
       booking_id: booking.id,
       author_id: author.id,
       author_name: direction === "buyer_to_teen" ? booking.buyer_name : booking.teen_display_name,
       subject_id: subjectId,
       direction,
-      rating,
+      rating: safeRating,
       text: safeText,
       tags,
       category,

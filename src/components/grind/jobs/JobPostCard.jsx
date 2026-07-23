@@ -13,7 +13,7 @@ export default function JobPostCard({ job, footer, buyerRating, buyerReviewCount
           <p className="text-xs font-semibold text-blue-600 uppercase tracking-wide">
             {CATEGORY_LABELS[job.category] || job.category}
           </p>
-          <h3 className="font-bold text-slate-900 mt-0.5 leading-snug">{job.title}</h3>
+          <h3 className="font-bold text-slate-900 mt-0.5 leading-snug truncate">{job.title}</h3>
           <p className="text-xs text-slate-500 mt-0.5">posted by {job.buyer_name}</p>
           {buyerReviewCount > 0 && (
             <div className="mt-1"><RatingStars rating={buyerRating} count={buyerReviewCount} size="w-3.5 h-3.5" /></div>

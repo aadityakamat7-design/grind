@@ -9,7 +9,8 @@
       "type": "string"
     },
     "teen_display_name": {
-      "type": "string"
+      "type": "string",
+      "maxLength": 50
     },
     "teen_zip": {
       "type": "string"
@@ -27,10 +28,13 @@
       ]
     },
     "title": {
-      "type": "string"
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 80
     },
     "description": {
-      "type": "string"
+      "type": "string",
+      "maxLength": 1000
     },
     "price_model": {
       "type": "string",
@@ -41,7 +45,9 @@
       "default": "FIXED"
     },
     "price": {
-      "type": "number"
+      "type": "number",
+      "minimum": 1,
+      "maximum": 500
     },
     "photos": {
       "type": "array",
@@ -58,7 +64,8 @@
       "default": false
     },
     "hazard_reason": {
-      "type": "string"
+      "type": "string",
+      "maxLength": 500
     },
     "status": {
       "type": "string",

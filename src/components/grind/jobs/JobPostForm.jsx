@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import ResponsiveSelect from "@/components/grind/ResponsiveSelect";
 import { ShieldCheck, ShieldX, Sparkles, Lock } from "lucide-react";
-import { CATEGORIES, computeFees, money } from "@/lib/grind";
+import { CATEGORIES, computeFees, money, MAX_UNIT_PRICE } from "@/lib/grind";
 import { screenJob, US_STATES } from "@/lib/jobScreen";
 import { startJobCheckout } from "@/lib/stripeCheckout";
 
@@ -22,7 +22,8 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
   const [screening, setScreening] = useState(null);
 
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
-  const valid = form.title.trim() && form.category && Number(form.price) > 0 && form.state && (!form.is_physical || form.address.trim());
+  const priceError = Number(form.price) > MAX_UNIT_PRICE ? `Max ${MAX_UNIT_PRICE} per job` : "";
+  const valid = form.title.trim().length >= 3 && form.category && Number(form.price) > 0 && !priceError && form.state && (!form.is_physical || form.address.trim());
   const { platform_fee, net_amount } = computeFees(Number(form.price) || 0);
 
   const submit = async () => {
@@ -140,11 +141,12 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
             </div>
             <div className="space-y-1.5">
               <Label>Job title</Label>
-              <Input className="rounded-xl" placeholder="e.g. Weed the front flower beds" value={form.title} onChange={(e) => set("title", e.target.value)} />
+              <Input className="rounded-xl" maxLength={120} placeholder="e.g. Weed the front flower beds" value={form.title} onChange={(e) => set("title", e.target.value)} />
+              {form.title.trim() && form.title.trim().length < 3 && <p className="text-xs text-rose-600 font-semibold">Title must be at least 3 characters.</p>}
             </div>
             <div className="space-y-1.5">
               <Label>Description</Label>
-              <Textarea className="rounded-xl" placeholder="What needs to get done? Any tools or details teens should know about?" value={form.description} onChange={(e) => set("description", e.target.value)} />
+              <Textarea className="rounded-xl" maxLength={2000} placeholder="What needs to get done? Any tools or details teens should know about?" value={form.description} onChange={(e) => set("description", e.target.value)} />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
@@ -172,7 +174,8 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label>Pay ($)</Label>
-                <Input className="rounded-xl" type="number" min="1" placeholder="25" value={form.price} onChange={(e) => set("price", e.target.value)} />
+                <Input className="rounded-xl" type="number" min="1" max={MAX_UNIT_PRICE} placeholder="25" value={form.price} onChange={(e) => set("price", e.target.value)} />
+                {priceError && <p className="text-xs text-rose-600 font-semibold">{priceError}</p>}
               </div>
               <div className="space-y-1.5">
                 <Label>Pay type</Label>

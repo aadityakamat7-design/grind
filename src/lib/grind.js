@@ -2,6 +2,11 @@
 
 export const PLATFORM_FEE_RATE = 0.15;
 
+// Price caps — enforced server-side via entity schema, mirrored here for
+// client-side validation so users get immediate feedback before Stripe.
+export const MAX_UNIT_PRICE = 500;   // per-job or per-hour rate (Listing, JobPost)
+export const MAX_TOTAL_PRICE = 2000; // escrow total incl. multi-hour (Booking, JobPost.charge)
+
 export const CATEGORIES = [
   { value: "tutoring", label: "Tutoring", icon: "GraduationCap" },
   { value: "lawn_care", label: "Lawn Care", icon: "Sprout" },

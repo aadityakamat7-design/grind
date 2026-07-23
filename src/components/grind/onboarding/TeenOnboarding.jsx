@@ -110,7 +110,7 @@ export default function TeenOnboarding({ user }) {
         <div className="grid grid-cols-2 gap-3">
           <div>
             <Label className="text-slate-800">First name</Label>
-            <Input className="rounded-xl mt-1 text-slate-900" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+            <Input className="rounded-xl mt-1 text-slate-900" maxLength={48} value={firstName} onChange={(e) => setFirstName(e.target.value)} />
           </div>
           <div>
             <Label className="text-slate-800">Last initial</Label>
@@ -123,7 +123,7 @@ export default function TeenOnboarding({ user }) {
         </div>
         <div>
           <Label className="text-slate-800">Bio</Label>
-          <Textarea className="rounded-xl mt-1 text-slate-900" placeholder="Tell neighbors a bit about yourself" value={bio} onChange={(e) => setBio(e.target.value)} />
+          <Textarea className="rounded-xl mt-1 text-slate-900" maxLength={500} placeholder="Tell neighbors a bit about yourself" value={bio} onChange={(e) => setBio(e.target.value)} />
         </div>
         <div>
           <Label className="text-slate-800">Skills</Label>

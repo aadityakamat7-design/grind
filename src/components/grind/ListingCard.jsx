@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { MapPin } from "lucide-react";
+import { MapPin, AlertTriangle } from "lucide-react";
 import { Image } from "@/components/ui/image";
 import { CATEGORY_LABELS, money } from "@/lib/grind";
 import TrustBadge from "@/components/grind/TrustBadge";
@@ -17,12 +17,18 @@ export default function ListingCard({ listing, teen, to }) {
         <Image src={photo} alt={listing.title} className="w-full h-36 object-cover" />
       )}
       <div className="p-4">
+        {listing.is_hazard_flagged && (
+          <div className="flex items-start gap-2 bg-rose-50 border border-rose-200 rounded-xl p-2.5 mb-3 text-xs text-rose-700">
+            <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+            <span><span className="font-bold">Safety warning:</span> {listing.hazard_reason || "This listing was flagged for safety review."}</span>
+          </div>
+        )}
         <div className="flex items-start justify-between gap-2">
-          <div>
+          <div className="min-w-0">
             <p className="text-xs font-semibold text-blue-600 uppercase tracking-wide">
               {CATEGORY_LABELS[listing.category] || listing.category}
             </p>
-            <h3 className="font-bold text-slate-900 mt-0.5 leading-snug">{listing.title}</h3>
+            <h3 className="font-bold text-slate-900 mt-0.5 leading-snug truncate">{listing.title}</h3>
           </div>
           <div className="text-right shrink-0">
             <p className="font-extrabold text-slate-900">{money(listing.price)}</p>

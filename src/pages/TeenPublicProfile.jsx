@@ -51,7 +51,7 @@ export default function TeenPublicProfile() {
         <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-blue-600 to-sky-500 flex items-center justify-center mx-auto text-white text-3xl font-extrabold">
           {profile.display_name?.charAt(0)}
         </div>
-        <h1 className="text-xl font-extrabold text-slate-900 mt-3">{profile.display_name}</h1>
+        <h1 className="text-xl font-extrabold text-slate-900 mt-3 truncate">{profile.display_name}</h1>
         <div className="flex justify-center mt-1.5">
           {profile.review_count > 0 ? (
             <RatingStars rating={profile.avg_rating} count={profile.review_count} />
@@ -61,7 +61,7 @@ export default function TeenPublicProfile() {
             </span>
           )}
         </div>
-        <p className="text-sm text-slate-500 mt-2 max-w-sm mx-auto">{profile.bio}</p>
+        <p className="text-sm text-slate-500 mt-2 max-w-sm mx-auto line-clamp-4">{profile.bio}</p>
         <p className="text-xs text-slate-400 mt-2 flex items-center justify-center gap-1">
           <MapPin className="w-3 h-3" /> ZIP {profile.zip}
         </p>
@@ -101,11 +101,17 @@ export default function TeenPublicProfile() {
         <div className="space-y-3">
           {listings.map((l) => (
             <div key={l.id} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
+              {l.is_hazard_flagged && (
+                <div className="flex items-start gap-2 bg-rose-50 border border-rose-200 rounded-xl p-2.5 mb-3 text-xs text-rose-700">
+                  <Lock className="w-4 h-4 shrink-0 mt-0.5" />
+                  <span><span className="font-bold">Safety warning:</span> {l.hazard_reason || "This service was flagged for safety review."}</span>
+                </div>
+              )}
               <div className="flex items-start justify-between gap-2">
-                <div>
+                <div className="min-w-0">
                   <p className="text-xs font-semibold text-blue-600 uppercase tracking-wide">{CATEGORY_LABELS[l.category]}</p>
-                  <h3 className="font-bold text-slate-900 mt-0.5">{l.title}</h3>
-                  <p className="text-sm text-slate-500 mt-1">{l.description}</p>
+                  <h3 className="font-bold text-slate-900 mt-0.5 truncate">{l.title}</h3>
+                  <p className="text-sm text-slate-500 mt-1 line-clamp-3">{l.description}</p>
                 </div>
                 <div className="text-right shrink-0">
                   <p className="font-extrabold text-slate-900">{money(l.price)}</p>

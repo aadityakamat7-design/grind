@@ -6,13 +6,15 @@
       "type": "string"
     },
     "listing_title": {
-      "type": "string"
+      "type": "string",
+      "maxLength": 80
     },
     "teen_user_id": {
       "type": "string"
     },
     "teen_display_name": {
-      "type": "string"
+      "type": "string",
+      "maxLength": 50
     },
     "parent_user_id": {
       "type": "string"
@@ -21,7 +23,8 @@
       "type": "string"
     },
     "buyer_name": {
-      "type": "string"
+      "type": "string",
+      "maxLength": 80
     },
     "scheduled_start": {
       "type": "string",
@@ -37,7 +40,8 @@
       "description": "Whether this job requires being physically present at a location"
     },
     "notes": {
-      "type": "string"
+      "type": "string",
+      "maxLength": 1000
     },
     "is_recurring": {
       "type": "boolean",
@@ -53,6 +57,8 @@
     },
     "tip_amount": {
       "type": "number",
+      "minimum": 0,
+      "maximum": 200,
       "default": 0,
       "rls": {
         "write": {
@@ -75,10 +81,14 @@
       "default": "pending_parent_approval"
     },
     "price_total": {
-      "type": "number"
+      "type": "number",
+      "minimum": 0,
+      "maximum": 2000
     },
     "charge_amount": {
       "type": "number",
+      "minimum": 0,
+      "maximum": 2000,
       "description": "Amount the buyer actually pays after referral credit"
     },
     "platform_fee": {
@@ -124,7 +134,6 @@
     },
     "payout_review_reason": {
       "type": "string",
-      "description": "Why the payout is held for manual review",
       "rls": {
         "write": {
           "user_condition": {

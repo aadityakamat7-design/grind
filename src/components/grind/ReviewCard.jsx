@@ -37,8 +37,9 @@ export default function ReviewCard({ review, viewer, onChanged }) {
   const submitEdit = async () => {
     setSaving(true);
     const { text: safeText } = maskPII(editText.trim(), false);
+    const safeRating = Math.max(1, Math.min(5, Math.round(Number(editRating) || 0)));
     await base44.entities.Review.update(review.id, {
-      rating: editRating,
+      rating: safeRating,
       text: safeText,
       edited_at: new Date().toISOString(),
     });

@@ -8,10 +8,13 @@
     },
     "display_name": {
       "type": "string",
+      "minLength": 2,
+      "maxLength": 50,
       "description": "First name + last initial only"
     },
     "bio": {
-      "type": "string"
+      "type": "string",
+      "maxLength": 500
     },
     "photo_url": {
       "type": "string"
@@ -70,7 +73,7 @@
     },
     "referral_code": {
       "type": "string",
-      "description": "This teen's shareable referral code \u2014 rewards land in their Grind Wallet"
+      "description": "This teen's shareable referral code \u2014 rewards land in their Kickstart Wallet"
     },
     "is_available": {
       "type": "boolean",

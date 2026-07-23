@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import ResponsiveSelect from "@/components/grind/ResponsiveSelect";
 import { AlertTriangle } from "lucide-react";
-import { CATEGORIES, checkHazard } from "@/lib/grind";
+import { CATEGORIES, checkHazard, MAX_UNIT_PRICE } from "@/lib/grind";
 
 export default function ListingForm({ open, onOpenChange, listing, profile, onSaved }) {
   const [form, setForm] = useState(
@@ -16,8 +16,10 @@ export default function ListingForm({ open, onOpenChange, listing, profile, onSa
   const [hazard, setHazard] = useState(null);
   const [saving, setSaving] = useState(false);
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
+  const priceError = Number(form.price) > MAX_UNIT_PRICE ? `Max ${MAX_UNIT_PRICE} per job` : "";
 
   const save = async () => {
+    if (priceError) return;
     const check = checkHazard(`${form.title} ${form.description}`, profile?.age ?? 16);
     if (check.flagged) {
       setHazard(check.reason);
@@ -70,11 +72,11 @@ export default function ListingForm({ open, onOpenChange, listing, profile, onSa
           </div>
           <div>
             <Label>Title</Label>
-            <Input className="rounded-xl mt-1" placeholder="e.g. Algebra tutoring after school" value={form.title} onChange={(e) => set("title", e.target.value)} />
+            <Input className="rounded-xl mt-1" maxLength={80} placeholder="e.g. Algebra tutoring after school" value={form.title} onChange={(e) => set("title", e.target.value)} />
           </div>
           <div>
             <Label>Description</Label>
-            <Textarea className="rounded-xl mt-1" placeholder="What do you offer? What should neighbors expect?" value={form.description} onChange={(e) => set("description", e.target.value)} />
+            <Textarea className="rounded-xl mt-1" maxLength={1000} placeholder="What do you offer? What should neighbors expect?" value={form.description} onChange={(e) => set("description", e.target.value)} />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
@@ -89,7 +91,8 @@ export default function ListingForm({ open, onOpenChange, listing, profile, onSa
             </div>
             <div>
               <Label>Price ($)</Label>
-              <Input type="number" min="1" className="rounded-xl mt-1" value={form.price} onChange={(e) => set("price", e.target.value)} />
+              <Input type="number" min="1" max={MAX_UNIT_PRICE} className="rounded-xl mt-1" value={form.price} onChange={(e) => set("price", e.target.value)} />
+              {priceError && <p className="text-xs text-rose-600 mt-1 font-semibold">{priceError}</p>}
             </div>
           </div>
           {hazard && (
@@ -100,7 +103,7 @@ export default function ListingForm({ open, onOpenChange, listing, profile, onSa
           )}
           <Button
             className="w-full rounded-xl"
-            disabled={!form.category || !form.title || !form.price || saving}
+            disabled={!form.category || !form.title || !form.price || !!priceError || saving}
             onClick={save}
           >
             {saving ? "Saving..." : listing ? "Save changes" : "Publish service"}
