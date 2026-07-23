@@ -27,7 +27,7 @@
       "minimum": 1,
       "maximum": 5,
       "multipleOf": 1,
-      "description": "Integer star rating from 1 to 5 inclusive"
+      "description": "Integer star rating from 1 to 5 inclusive (enforced server-side)"
     },
     "text": {
       "type": "string",
@@ -79,23 +79,15 @@
   ],
   "rls": {
     "create": {
-      "data.author_id": "{{user.id}}"
+      "user_condition": {
+        "role": "admin"
+      }
     },
     "read": null,
     "update": {
-      "$or": [
-        {
-          "data.author_id": "{{user.id}}"
-        },
-        {
-          "data.subject_id": "{{user.id}}"
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        }
-      ]
+      "user_condition": {
+        "role": "admin"
+      }
     },
     "delete": {
       "user_condition": {
