@@ -83,19 +83,47 @@
     "price_total": {
       "type": "number",
       "minimum": 0,
-      "maximum": 2000
+      "maximum": 2000,
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     },
     "charge_amount": {
       "type": "number",
       "minimum": 0,
       "maximum": 2000,
-      "description": "Amount the buyer actually pays after referral credit"
+      "description": "Amount the buyer actually pays after referral credit",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     },
     "platform_fee": {
-      "type": "number"
+      "type": "number",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     },
     "net_amount": {
-      "type": "number"
+      "type": "number",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     },
     "payment_status": {
       "type": "string",
@@ -212,16 +240,9 @@
   ],
   "rls": {
     "create": {
-      "$or": [
-        {
-          "created_by_id": "{{user.id}}"
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        }
-      ]
+      "user_condition": {
+        "role": "admin"
+      }
     },
     "read": {
       "$or": [
