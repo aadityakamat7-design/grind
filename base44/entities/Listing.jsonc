@@ -30,11 +30,25 @@
     "title": {
       "type": "string",
       "minLength": 3,
-      "maxLength": 80
+      "maxLength": 80,
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     },
     "description": {
       "type": "string",
-      "maxLength": 1000
+      "maxLength": 1000,
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     },
     "price_model": {
       "type": "string",
@@ -47,7 +61,14 @@
     "price": {
       "type": "number",
       "minimum": 1,
-      "maximum": 500
+      "maximum": 500,
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     },
     "photos": {
       "type": "array",
@@ -61,11 +82,25 @@
     },
     "is_hazard_flagged": {
       "type": "boolean",
-      "default": false
+      "default": false,
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     },
     "hazard_reason": {
       "type": "string",
-      "maxLength": 500
+      "maxLength": 500,
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     },
     "status": {
       "type": "string",
@@ -85,16 +120,9 @@
   ],
   "rls": {
     "create": {
-      "$or": [
-        {
-          "data.teen_user_id": "{{user.id}}"
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        }
-      ]
+      "user_condition": {
+        "role": "admin"
+      }
     },
     "read": null,
     "update": {
