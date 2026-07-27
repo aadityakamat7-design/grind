@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Copy, Check, ShieldAlert, MapPin } from "lucide-react";
 import { calcAge, genInviteCode, SKILL_SUGGESTIONS } from "@/lib/grind";
 import { checkEligibility, stateName } from "@/lib/stateWorkRules";
+import { setCachedUser } from "@/lib/useAppUser";
 import TeenEligibilityStep from "@/components/grind/onboarding/TeenEligibilityStep";
 
 export default function TeenOnboarding({ user }) {
@@ -31,47 +32,64 @@ export default function TeenOnboarding({ user }) {
   const createProfile = async () => {
     setSaving(true);
     setGeoError("");
-    let geo;
-    try {
-      const res = await base44.functions.invoke("geocodeAddress", { query: `${zip}, ${usState}` });
-      geo = res.data;
-    } catch (err) {
-      setGeoError(err.response?.data?.error || "Couldn't verify that ZIP code. Please check it and try again.");
-      setSaving(false);
-      return;
+
+    // Idempotent: if a profile already exists (e.g. from a previous partial
+    // onboarding), reuse it instead of creating a duplicate.
+    const existing = await base44.entities.TeenProfile.filter({ user_id: user.id });
+    let profile = existing[0];
+
+    if (!profile) {
+      let geo;
+      try {
+        const res = await base44.functions.invoke("geocodeAddress", { query: `${zip}, ${usState}` });
+        geo = res.data;
+      } catch (err) {
+        setGeoError(err.response?.data?.error || "Couldn't verify that ZIP code. Please check it and try again.");
+        setSaving(false);
+        return;
+      }
+      const result = checkEligibility(dob, usState);
+      const newCode = genInviteCode();
+      // Public profile — no sensitive data (DOB, exact coordinates, ZIP)
+      profile = await base44.entities.TeenProfile.create({
+        user_id: user.id,
+        display_name: `${firstName} ${lastInitial ? lastInitial.toUpperCase() + "." : ""}`.trim(),
+        bio,
+        state: usState,
+        eligibility_min_age: result.minAge,
+        resolved_city: geo.city,
+        skills,
+        invite_code: newCode,
+      });
+      // Private data — DOB, age, exact coordinates, ZIP. Readable only by the
+      // teen, their linked parent, and admins (RLS-enforced).
+      await base44.entities.TeenPrivateData.create({
+        user_id: user.id,
+        date_of_birth: dob,
+        age: calcAge(dob),
+        zip,
+        latitude: geo.lat,
+        longitude: geo.lng,
+      });
     }
-    const result = checkEligibility(dob, usState);
-    const code = genInviteCode();
-    // Public profile — no sensitive data (DOB, exact coordinates, ZIP)
-    await base44.entities.TeenProfile.create({
-      user_id: user.id,
-      display_name: `${firstName} ${lastInitial ? lastInitial.toUpperCase() + "." : ""}`.trim(),
-      bio,
-      state: usState,
-      eligibility_min_age: result.minAge,
-      resolved_city: geo.city,
-      skills,
-      invite_code: code,
-    });
-    // Private data — DOB, age, exact coordinates, ZIP. Readable only by the
-    // teen, their linked parent, and admins (RLS-enforced).
-    await base44.entities.TeenPrivateData.create({
-      user_id: user.id,
-      date_of_birth: dob,
-      age: calcAge(dob),
-      zip,
-      latitude: geo.lat,
-      longitude: geo.lng,
-    });
+
+    // Ensure the profile has an invite code (self-heal for older profiles)
+    let code = profile.invite_code;
+    if (!code) {
+      code = genInviteCode();
+      await base44.entities.TeenProfile.update(profile.id, { invite_code: code });
+    }
+
     // Persist state + eligibility on the user record so it isn't re-checked incorrectly later
-    await base44.auth.updateMe({
+    const updatedUser = {
+      ...user,
       app_role: "teen",
       onboarded: true,
       date_of_birth: dob,
       work_state: usState,
-      eligibility_status: result.status,
-      eligibility_min_age: result.minAge,
-    });
+    };
+    await base44.auth.updateMe(updatedUser);
+    setCachedUser(updatedUser);
     localStorage.removeItem("kickstart_teen_dob");
     localStorage.removeItem("kickstart_teen_state");
     localStorage.removeItem("kickstart_teen_min_age");

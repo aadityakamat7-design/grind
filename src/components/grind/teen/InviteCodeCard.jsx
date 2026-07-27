@@ -26,8 +26,21 @@ export default function InviteCodeCard({ profile, onUpdated }) {
     }
   }, [profile]);
 
-  if (!profile) return null;
-  const isActive = profile.status === "active";
+  const isActive = profile?.status === "active";
+
+  if (!profile) {
+    return (
+      <div className="rounded-2xl p-5 border bg-amber-50 border-amber-200">
+        <div className="flex items-start gap-3">
+          <ShieldAlert className="w-5 h-5 text-amber-500 mt-0.5 shrink-0" />
+          <div className="flex-1">
+            <p className="font-bold text-sm text-amber-800">Setting up your parent code…</p>
+            <p className="text-xs mt-1 text-amber-700">We're preparing your parent-link code. If this doesn't appear shortly, refresh the page.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const copyCode = () => {
     navigator.clipboard.writeText(code);
