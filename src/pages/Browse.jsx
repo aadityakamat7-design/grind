@@ -38,7 +38,7 @@ export default function Browse() {
   useEffect(() => { load(); }, [load]);
 
   if (loading)
-    return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin" /></div>;
+    return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-muted border-t-foreground rounded-full animate-spin" /></div>;
 
   const myZip = buyerProfile?.zip;
 
@@ -60,9 +60,9 @@ export default function Browse() {
     <PullToRefresh onRefresh={load}>
     <div className="space-y-5">
       <div>
-        <h1 className="text-2xl font-extrabold text-slate-900">Find local help</h1>
+        <h1 className="text-2xl font-bold text-foreground">Find local help</h1>
         {myZip && (
-          <p className="text-sm text-slate-500 mt-1 flex items-center gap-1">
+          <p className="text-sm text-muted-foreground mt-1 flex items-center gap-1">
             <MapPin className="w-3.5 h-3.5" /> Showing teens near {myZip}
           </p>
         )}
@@ -71,9 +71,9 @@ export default function Browse() {
       <SavedTeensRow userId={user.id} />
 
       <div className="relative">
-        <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+        <Search className="w-4 h-4 text-muted-foreground absolute left-3.5 top-1/2 -translate-y-1/2" />
         <Input
-          className="rounded-xl pl-10 bg-white"
+          className="rounded-xl pl-10 bg-card"
           placeholder="Search services..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -83,8 +83,8 @@ export default function Browse() {
       <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-4 px-4 pb-1">
         <button
           onClick={() => setCategory("all")}
-          className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap border transition-colors ${
-            category === "all" ? "bg-slate-900 text-white border-slate-900" : "bg-white text-slate-600 border-slate-200"
+          className={`px-4 py-2 rounded-full text-xs font-medium whitespace-nowrap border transition-colors ${
+            category === "all" ? "bg-foreground text-background border-foreground" : "bg-card text-muted-foreground border-border"
           }`}
         >
           All
@@ -93,8 +93,8 @@ export default function Browse() {
           <button
             key={c.value}
             onClick={() => setCategory(c.value)}
-            className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap border transition-colors ${
-              category === c.value ? "bg-slate-900 text-white border-slate-900" : "bg-white text-slate-600 border-slate-200"
+            className={`px-4 py-2 rounded-full text-xs font-medium whitespace-nowrap border transition-colors ${
+              category === c.value ? "bg-foreground text-background border-foreground" : "bg-card text-muted-foreground border-border"
             }`}
           >
             {c.label}
@@ -114,12 +114,12 @@ export default function Browse() {
                 to={`/teens/${l.teen_user_id}?listing=${l.id}`}
               />
               {!l._inArea && (
-                <span className="absolute top-2 right-2 bg-slate-900 text-white text-[10px] font-bold px-2 py-1 rounded-full">
+                <span className="absolute top-2 right-2 bg-foreground text-background text-[10px] font-medium px-2 py-1 rounded-full">
                   Outside service area
                 </span>
               )}
               {l._distance != null && (
-                <span className="absolute top-2 left-2 bg-white/90 text-slate-700 text-[10px] font-bold px-2 py-1 rounded-full shadow-sm">
+                <span className="absolute top-2 left-2 bg-card/90 text-foreground text-[10px] font-medium px-2 py-1 rounded-full shadow-soft">
                   {l._distance < 1 ? "<1 mi" : `${Math.round(l._distance)} mi`}
                 </span>
               )}

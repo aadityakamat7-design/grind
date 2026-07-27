@@ -13,15 +13,15 @@ export default function Account() {
 
   return (
     <div className="space-y-5">
-      <h1 className="text-2xl font-extrabold text-slate-900">Account</h1>
-      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex items-center gap-4">
-        <div className="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center">
-          <UserCircle className="w-8 h-8 text-blue-500" />
+      <h1 className="text-2xl font-bold text-foreground">Account</h1>
+      <div className="bg-card rounded-2xl border border-border shadow-soft p-5 flex items-center gap-4">
+        <div className="w-14 h-14 rounded-2xl bg-muted flex items-center justify-center">
+          <UserCircle className="w-8 h-8 text-muted-foreground" />
         </div>
         <div>
-          <p className="font-bold text-slate-900">{user.full_name || user.email}</p>
-          <p className="text-xs text-slate-500">{user.email}</p>
-          <span className="inline-flex items-center gap-1 mt-1.5 rounded-full bg-blue-50 text-blue-700 px-2.5 py-0.5 text-xs font-semibold">
+          <p className="font-semibold text-foreground">{user.full_name || user.email}</p>
+          <p className="text-xs text-muted-foreground">{user.email}</p>
+          <span className="inline-flex items-center gap-1 mt-1.5 rounded-full bg-secondary text-muted-foreground px-2.5 py-0.5 text-xs font-medium">
             <ShieldCheck className="w-3 h-3" />
             {ROLE_LABELS[user.app_role] || "Member"}
           </span>
@@ -32,7 +32,7 @@ export default function Account() {
 
       <Button
         variant="outline"
-        className="w-full rounded-xl text-rose-600 border-rose-200 hover:bg-rose-50 hover:text-rose-700"
+        className="w-full rounded-xl text-destructive border-destructive/20 hover:bg-destructive/10 hover:text-destructive"
         onClick={() => base44.auth.logout("/")}
       >
         <LogOut className="w-4 h-4 mr-2" /> Log out

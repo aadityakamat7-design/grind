@@ -43,8 +43,8 @@ export default function BookingDetail() {
   useEffect(() => { load(); }, [load]);
 
   if (loading)
-    return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin" /></div>;
-  if (!booking) return <p className="text-center text-slate-500 py-20">Booking not found.</p>;
+    return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-muted border-t-foreground rounded-full animate-spin" /></div>;
+  if (!booking) return <p className="text-center text-muted-foreground py-20">Booking not found.</p>;
 
   const isTeen = user.id === booking.teen_user_id;
   const isBuyer = user.id === booking.buyer_user_id;
@@ -115,50 +115,50 @@ export default function BookingDetail() {
 
   return (
     <div className="space-y-5">
-      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+      <div className="bg-card rounded-2xl border border-border shadow-soft p-6">
         <div className="flex items-start justify-between gap-2">
           <div>
-            <h1 className="text-xl font-extrabold text-slate-900">{booking.listing_title}</h1>
-            <p className="text-sm text-slate-500 mt-1">
+            <h1 className="text-xl font-bold text-foreground">{booking.listing_title}</h1>
+            <p className="text-sm text-muted-foreground mt-1">
               {booking.teen_display_name} · booked by {booking.buyer_name}
             </p>
           </div>
-          <p className="font-extrabold text-slate-900 text-lg">{money(booking.price_total)}</p>
+          <p className="font-bold text-foreground text-lg">{money(booking.price_total)}</p>
         </div>
         <div className="flex items-center gap-2 mt-3 flex-wrap">
           <StatusBadge status={booking.status} />
           <StatusBadge status={booking.payment_status} />
           {booking.is_recurring && (
-            <span className="inline-flex items-center gap-1 rounded-full border border-blue-200 bg-blue-50 text-blue-700 px-2.5 py-0.5 text-xs font-semibold capitalize">
+            <span className="inline-flex items-center gap-1 rounded-full border border-border bg-secondary text-muted-foreground px-2.5 py-0.5 text-xs font-medium capitalize">
               <Repeat className="w-3 h-3" /> {booking.recurrence || "recurring"}
             </span>
           )}
           {booking.status === "in_progress" && <TrustBadge type="location_shared" />}
         </div>
 
-        <div className="mt-5 space-y-2.5 text-sm text-slate-600">
+        <div className="mt-5 space-y-2.5 text-sm text-muted-foreground">
           {booking.scheduled_start && (
             <p className="flex items-center gap-2">
-              <CalendarDays className="w-4 h-4 text-slate-400" />
+              <CalendarDays className="w-4 h-4 text-muted-foreground" />
               {format(new Date(booking.scheduled_start), "EEEE, MMM d 'at' h:mm a")}
             </p>
           )}
           {booking.is_physical !== false && (
             <p className="flex items-center gap-2">
               {addressVisible ? (
-                <><MapPin className="w-4 h-4 text-slate-400" /> {booking.address || "Address not provided"}</>
+                <><MapPin className="w-4 h-4 text-muted-foreground" /> {booking.address || "Address not provided"}</>
               ) : (
-                <><Lock className="w-4 h-4 text-slate-400" /> Address revealed after parent approval</>
+                <><Lock className="w-4 h-4 text-muted-foreground" /> Address revealed after parent approval</>
               )}
             </p>
           )}
           {booking.notes && (
             <p className="flex items-start gap-2">
-              <FileText className="w-4 h-4 text-slate-400 mt-0.5" /> {booking.notes}
+              <FileText className="w-4 h-4 text-muted-foreground mt-0.5" /> {booking.notes}
             </p>
           )}
           {booking.tip_amount > 0 && (
-            <p className="flex items-center gap-2 font-semibold text-emerald-600">
+            <p className="flex items-center gap-2 font-medium text-foreground">
               💚 {money(booking.tip_amount)} tip from {booking.buyer_name}
             </p>
           )}
@@ -169,7 +169,7 @@ export default function BookingDetail() {
         <PaymentStatusTracker booking={booking} />
 
         {booking.status === "in_progress" && isParent && (
-          <div className="mt-4 bg-blue-50 rounded-xl p-3 text-xs text-blue-700 font-semibold">
+          <div className="mt-4 bg-secondary border border-border rounded-xl p-3 text-xs text-muted-foreground font-medium">
             📍 {booking.teen_display_name}'s live location is being shared with you while this job is active.
           </div>
         )}
@@ -192,7 +192,7 @@ export default function BookingDetail() {
           onStart={startJob}
           onFinish={finishJob}
         />
-        {handshakeError && <p className="text-xs text-rose-600 font-semibold text-center">{handshakeError}</p>}
+        {handshakeError && <p className="text-xs text-destructive font-medium text-center">{handshakeError}</p>}
         {isTeen && booking.status === "in_progress" && <AlertParentButton booking={booking} />}
         {(isTeen || isBuyer) && ["pending_parent_approval", "confirmed", "in_progress"].includes(booking.status) && (
           <div className="grid grid-cols-2 gap-3">
@@ -207,7 +207,7 @@ export default function BookingDetail() {
             {(isTeen || booking.status === "pending_parent_approval") && (
               <Button
                 variant="outline"
-                className="rounded-xl text-rose-600 border-rose-200 hover:bg-rose-50 hover:text-rose-700"
+                className="rounded-xl text-destructive border-destructive/20 hover:bg-destructive/10 hover:text-destructive"
                 disabled={acting}
                 onClick={cancelBooking}
               >

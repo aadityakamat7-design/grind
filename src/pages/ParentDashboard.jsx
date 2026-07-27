@@ -41,13 +41,13 @@ export default function ParentDashboard() {
   useEffect(() => { load(); }, [load]);
 
   if (loading)
-    return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin" /></div>;
+    return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-muted border-t-foreground rounded-full animate-spin" /></div>;
 
   if (links.length === 0)
     return (
       <PullToRefresh onRefresh={load}>
         <div className="space-y-6">
-          <h1 className="text-2xl font-extrabold text-slate-900">Parent dashboard</h1>
+          <h1 className="text-2xl font-bold text-foreground">Parent dashboard</h1>
           <EmptyState icon={Users} title="No linked students yet" subtitle="Ask your teen for their parent code and link their account to see their jobs, income, and safety status here." />
           <LinkTeenCard onLinked={load} />
         </div>
@@ -70,8 +70,8 @@ export default function ParentDashboard() {
     <PullToRefresh onRefresh={load}>
     <div className="space-y-7">
       <div>
-        <h1 className="text-2xl font-extrabold text-slate-900">Parent dashboard</h1>
-        <p className="text-sm text-slate-500 mt-1">Full visibility into your student's activity.</p>
+        <h1 className="text-2xl font-bold text-foreground">Parent dashboard</h1>
+        <p className="text-sm text-muted-foreground mt-1">Full visibility into your student's activity.</p>
       </div>
 
       <LinkTeenCard onLinked={load} />
@@ -82,8 +82,8 @@ export default function ParentDashboard() {
             <button
               key={l.teen_user_id}
               onClick={() => setSelected(l.teen_user_id)}
-              className={`shrink-0 rounded-xl px-4 py-2 text-xs font-bold transition-colors ${
-                selected === l.teen_user_id ? "bg-blue-600 text-white" : "bg-white border border-slate-200 text-slate-600 hover:border-blue-300"
+              className={`shrink-0 rounded-xl px-4 py-2 text-xs font-medium transition-colors ${
+                selected === l.teen_user_id ? "bg-foreground text-background" : "bg-card border border-border text-muted-foreground hover:border-foreground/30"
               }`}
             >
               {l.teen_display_name}
@@ -118,11 +118,11 @@ export default function ParentDashboard() {
       <SafetyPanel activeJobs={activeJobs} alerts={alerts} />
 
       <div>
-        <h2 className="font-bold text-slate-900 mb-3 flex items-center gap-1.5">
-          <CalendarDays className="w-4 h-4 text-blue-500" /> Upcoming appointments
+        <h2 className="font-semibold text-foreground mb-3 flex items-center gap-1.5">
+          <CalendarDays className="w-4 h-4 text-muted-foreground" /> Upcoming appointments
         </h2>
         {upcoming.length === 0 ? (
-          <p className="text-sm text-slate-400">Nothing scheduled — approved bookings will appear here with date, time, and location.</p>
+          <p className="text-sm text-muted-foreground">Nothing scheduled — approved bookings will appear here with date, time, and location.</p>
         ) : (
           <div className="space-y-3">
             {upcoming.map((b) => <BookingCard key={b.id} booking={b} perspective="teen" />)}

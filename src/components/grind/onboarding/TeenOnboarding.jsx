@@ -109,7 +109,7 @@ export default function TeenOnboarding({ user }) {
   if (step === 1)
     return (
       <div className="space-y-4">
-        <h2 className="text-xl font-extrabold text-slate-900">Are you eligible in your state?</h2>
+        <h2 className="text-xl font-bold text-foreground">Are you eligible in your state?</h2>
         <TeenEligibilityStep
           initialDob={dob}
           initialState={usState}
@@ -125,42 +125,42 @@ export default function TeenOnboarding({ user }) {
   if (step === 2)
     return (
       <div className="space-y-4">
-        <h2 className="text-xl font-extrabold text-slate-900">Build your profile</h2>
-        <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-xs text-emerald-800 font-semibold">
+        <h2 className="text-xl font-bold text-foreground">Build your profile</h2>
+        <div className="flex items-center gap-2 bg-secondary border border-border rounded-xl p-3 text-xs text-foreground font-medium">
           <MapPin className="w-4 h-4 shrink-0" />
           Eligible to work in {stateName(usState)} · Age {calcAge(dob)}
         </div>
-        <p className="text-sm text-slate-600">Neighbors will only ever see your first name and last initial.</p>
+        <p className="text-sm text-muted-foreground">Neighbors will only ever see your first name and last initial.</p>
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <Label className="text-slate-800">First name</Label>
-            <Input className="rounded-xl mt-1 text-slate-900" maxLength={48} value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+            <Label className="text-foreground">First name</Label>
+            <Input className="rounded-xl mt-1" maxLength={48} value={firstName} onChange={(e) => setFirstName(e.target.value)} />
           </div>
           <div>
-            <Label className="text-slate-800">Last initial</Label>
-            <Input className="rounded-xl mt-1 text-slate-900" maxLength={1} value={lastInitial} onChange={(e) => setLastInitial(e.target.value)} />
+            <Label className="text-foreground">Last initial</Label>
+            <Input className="rounded-xl mt-1" maxLength={1} value={lastInitial} onChange={(e) => setLastInitial(e.target.value)} />
           </div>
         </div>
         <div>
-          <Label className="text-slate-800">ZIP code</Label>
-          <Input className="rounded-xl mt-1 text-slate-900" placeholder="Your neighborhood ZIP" value={zip} onChange={(e) => setZip(e.target.value)} />
+          <Label className="text-foreground">ZIP code</Label>
+          <Input className="rounded-xl mt-1" placeholder="Your neighborhood ZIP" value={zip} onChange={(e) => setZip(e.target.value)} />
         </div>
         <div>
-          <Label className="text-slate-800">Bio</Label>
-          <Textarea className="rounded-xl mt-1 text-slate-900" maxLength={500} placeholder="Tell neighbors a bit about yourself" value={bio} onChange={(e) => setBio(e.target.value)} />
+          <Label className="text-foreground">Bio</Label>
+          <Textarea className="rounded-xl mt-1" maxLength={500} placeholder="Tell neighbors a bit about yourself" value={bio} onChange={(e) => setBio(e.target.value)} />
         </div>
         <div>
-          <Label className="text-slate-800">Skills</Label>
+          <Label className="text-foreground">Skills</Label>
           <div className="flex flex-wrap gap-2 mt-2">
             {SKILL_SUGGESTIONS.map((s) => (
               <button
                 key={s}
                 type="button"
                 onClick={() => toggleSkill(s)}
-                className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
+                className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
                   skills.includes(s)
-                    ? "bg-blue-600 text-white border-blue-600"
-                    : "bg-white text-slate-700 border-slate-200 hover:border-blue-300"
+                    ? "bg-foreground text-background border-foreground"
+                    : "bg-card text-foreground border-border hover:border-foreground/30"
                 }`}
               >
                 {s}
@@ -168,7 +168,7 @@ export default function TeenOnboarding({ user }) {
             ))}
           </div>
         </div>
-        {geoError && <p className="text-xs text-rose-600 font-semibold">{geoError}</p>}
+        {geoError && <p className="text-xs text-destructive font-medium">{geoError}</p>}
         <Button className="w-full rounded-xl" disabled={!firstName || !zip || saving} onClick={createProfile}>
           {saving ? "Creating..." : "Create profile"}
         </Button>
@@ -177,16 +177,16 @@ export default function TeenOnboarding({ user }) {
 
   return (
     <div className="space-y-4 text-center">
-      <div className="w-16 h-16 rounded-2xl bg-amber-50 flex items-center justify-center mx-auto">
-        <ShieldAlert className="w-8 h-8 text-amber-500" />
+      <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mx-auto">
+        <ShieldAlert className="w-8 h-8 text-muted-foreground" />
       </div>
-      <h2 className="text-xl font-extrabold text-slate-900">Invite your parent</h2>
-      <p className="text-sm text-slate-600">
+      <h2 className="text-xl font-bold text-foreground">Invite your parent</h2>
+      <p className="text-sm text-muted-foreground">
         Your account is <span className="font-semibold">waiting for a parent</span>. You can't publish services or take bookings until a parent or guardian links to your account and approves it.
       </p>
-      <div className="bg-slate-50 rounded-2xl p-5">
-        <p className="text-xs text-slate-500 font-semibold uppercase tracking-wide">Your parent code</p>
-        <p className="text-3xl font-extrabold tracking-[0.3em] text-blue-600 mt-1">{inviteCode}</p>
+      <div className="bg-muted rounded-2xl p-5">
+        <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Your parent code</p>
+        <p className="text-3xl font-bold tracking-[0.3em] text-foreground mt-1">{inviteCode}</p>
       </div>
       <Button variant="outline" className="w-full rounded-xl" onClick={copyCode}>
         {copied ? <Check className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}

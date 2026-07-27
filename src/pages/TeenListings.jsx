@@ -39,21 +39,21 @@ export default function TeenListings() {
   };
 
   if (loading)
-    return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin" /></div>;
+    return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-muted border-t-foreground rounded-full animate-spin" /></div>;
 
   const canPublish = profile?.status === "active";
 
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-extrabold text-slate-900">My services</h1>
+        <h1 className="text-2xl font-bold text-foreground">My services</h1>
         <Button className="rounded-xl" disabled={!canPublish} onClick={() => { setEditing(null); setFormOpen(true); }}>
           <Plus className="w-4 h-4 mr-1.5" /> New
         </Button>
       </div>
 
       {!canPublish && (
-        <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-xl p-3">
+        <p className="text-sm text-muted-foreground bg-secondary border border-border rounded-xl p-3">
           You can create services once your parent approves your account.
         </p>
       )}
@@ -63,28 +63,28 @@ export default function TeenListings() {
       ) : (
         <div className="space-y-3">
           {listings.map((l) => (
-            <div key={l.id} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
+            <div key={l.id} className="bg-card rounded-2xl border border-border shadow-soft p-4">
               <div className="flex items-start justify-between gap-2">
                 <div>
-                  <p className="text-xs font-semibold text-blue-600 uppercase tracking-wide">{CATEGORY_LABELS[l.category]}</p>
-                  <h3 className="font-bold text-slate-900 mt-0.5">{l.title}</h3>
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{CATEGORY_LABELS[l.category]}</p>
+                  <h3 className="font-semibold text-foreground mt-0.5">{l.title}</h3>
                 </div>
-                <p className="font-extrabold text-slate-900 shrink-0">
+                <p className="font-bold text-foreground shrink-0">
                   {money(l.price)}
-                  <span className="text-[11px] text-slate-400 font-medium">{l.price_model === "HOURLY" ? "/hr" : ""}</span>
+                  <span className="text-[11px] text-muted-foreground font-medium">{l.price_model === "HOURLY" ? "/hr" : ""}</span>
                 </p>
               </div>
-              <p className="text-sm text-slate-500 mt-1 line-clamp-2">{l.description}</p>
+              <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{l.description}</p>
               <div className="flex items-center justify-between mt-3">
                 <StatusBadge status={l.status} />
                 <div className="flex items-center gap-1">
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-slate-700" onClick={() => { setEditing(l); setFormOpen(true); }}>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => { setEditing(l); setFormOpen(true); }}>
                     <Pencil className="w-4 h-4" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-slate-700" onClick={() => togglePause(l)}>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => togglePause(l)}>
                     {l.status === "paused" ? <Play className="w-4 h-4" /> : <Pause className="w-4 h-4" />}
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-rose-600" onClick={() => remove(l)}>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => remove(l)}>
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 </div>

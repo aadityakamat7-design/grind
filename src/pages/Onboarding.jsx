@@ -28,8 +28,8 @@ export default function Onboarding() {
 
   if (loading)
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-white">
-        <div className="w-8 h-8 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin" />
+      <div className="fixed inset-0 flex items-center justify-center bg-background">
+        <div className="w-8 h-8 border-4 border-muted border-t-foreground rounded-full animate-spin" />
       </div>
     );
   if (!user) return <Navigate to="/" replace />;
@@ -37,24 +37,24 @@ export default function Onboarding() {
     return <Navigate to={ROLE_HOME[user.app_role] || "/browse"} replace />;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-white">
+    <div className="min-h-screen bg-background">
       <div className="max-w-md mx-auto px-6 py-10">
         <div className="flex items-center gap-2 mb-8">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-600 to-sky-500 flex items-center justify-center">
-            <Zap className="w-4 h-4 text-white" />
+          <div className="w-8 h-8 rounded-xl bg-foreground flex items-center justify-center">
+            <Zap className="w-4 h-4 text-background" />
           </div>
-          <span className="font-extrabold text-lg text-slate-900">Kickstart</span>
+          <span className="font-bold text-lg text-foreground">Kickstart</span>
         </div>
 
         {!role ? (
           <div className="space-y-4">
-            <h1 className="text-2xl font-extrabold text-slate-900">Who are you?</h1>
-            <p className="text-sm text-slate-500">Pick your role to set up your account.</p>
+            <h1 className="text-2xl font-bold text-foreground">Who are you?</h1>
+            <p className="text-sm text-muted-foreground">Pick your role to set up your account.</p>
             <RolePicker onSelect={setRole} />
           </div>
         ) : (
           <div>
-            <button onClick={() => setRole(null)} className="text-xs font-semibold text-slate-400 mb-4 hover:text-slate-600">
+            <button onClick={() => setRole(null)} className="text-xs font-medium text-muted-foreground mb-4 hover:text-foreground">
               ← Change role
             </button>
             {role === "teen" && <TeenOnboarding user={user} />}

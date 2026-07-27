@@ -11,7 +11,7 @@ export default function RatingStars({ rating = 0, count, size = "w-4 h-4", onSel
           key={i}
           onClick={onSelect ? () => onSelect(i) : undefined}
           className={`${size} ${onSelect ? "cursor-pointer" : ""} ${
-            i <= clamped ? "fill-amber-400 text-amber-400" : "text-slate-300"
+            i <= clamped ? "fill-foreground text-foreground" : "text-border"
           }`}
         />
       ))}

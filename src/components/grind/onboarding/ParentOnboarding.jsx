@@ -51,14 +51,14 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-xl font-extrabold text-slate-900">Link to your teen</h2>
-      <p className="text-sm text-slate-500">
+      <h2 className="text-xl font-bold text-foreground">Link to your teen</h2>
+      <p className="text-sm text-muted-foreground">
         Enter your teen's connection code to confirm your relationship and become their approved parent or guardian.
       </p>
       <div>
-        <Label className="text-slate-800">Enter your teen's connection code</Label>
+        <Label className="text-foreground">Enter your teen's connection code</Label>
         <Input
-          className="rounded-xl mt-1 uppercase tracking-widest font-bold text-center text-lg text-slate-900"
+          className="rounded-xl mt-1 uppercase tracking-widest font-medium text-center text-lg"
           placeholder="ABC123"
           value={code}
           onChange={(e) => setCode(e.target.value)}
@@ -66,17 +66,17 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
         />
       </div>
       {error && (
-        <div className="flex items-start gap-2 bg-rose-50 border border-rose-200 rounded-xl p-3 text-sm text-rose-700">
+        <div className="flex items-start gap-2 bg-destructive/10 border border-destructive/20 rounded-xl p-3 text-sm text-destructive">
           <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
           {error}
         </div>
       )}
-      <div className="bg-emerald-50 rounded-xl p-4 space-y-2 text-xs text-emerald-800">
+      <div className="bg-secondary border border-border rounded-xl p-4 space-y-2 text-xs text-muted-foreground">
         <p className="flex items-start gap-2"><ShieldCheck className="w-4 h-4 shrink-0" /> You approve or deny every booking before it's confirmed.</p>
         <p className="flex items-start gap-2"><ShieldCheck className="w-4 h-4 shrink-0" /> You can read all of your teen's messages.</p>
         <p className="flex items-start gap-2"><ShieldCheck className="w-4 h-4 shrink-0" /> All payments go to your payout account — never directly to the teen.</p>
       </div>
-      <label className="flex items-start gap-2.5 text-sm text-slate-600 cursor-pointer">
+      <label className="flex items-start gap-2.5 text-sm text-muted-foreground cursor-pointer">
         <Checkbox checked={tosAccepted} onCheckedChange={setTosAccepted} className="mt-0.5" />
         <span>I confirm I am this teen's parent or legal guardian and I accept the Terms of Service.</span>
       </label>

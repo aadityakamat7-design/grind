@@ -28,11 +28,11 @@ export default function FaqSection() {
   return (
     <Accordion type="single" collapsible className="max-w-2xl mx-auto">
       {FAQS.map((f) => (
-        <AccordionItem key={f.q} value={f.q} className="border-white/10">
-          <AccordionTrigger className="text-left text-white font-bold hover:no-underline hover:text-sky-300">
+        <AccordionItem key={f.q} value={f.q} className="border-border">
+          <AccordionTrigger className="text-left text-foreground font-medium hover:no-underline">
             {f.q}
           </AccordionTrigger>
-          <AccordionContent className="text-slate-400 leading-relaxed">{f.a}</AccordionContent>
+          <AccordionContent className="text-muted-foreground leading-relaxed">{f.a}</AccordionContent>
         </AccordionItem>
       ))}
     </Accordion>

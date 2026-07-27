@@ -50,15 +50,15 @@ export default function JobBoard() {
   };
 
   if (loading)
-    return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin" /></div>;
+    return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-muted border-t-foreground rounded-full animate-spin" /></div>;
 
   return (
     <PullToRefresh onRefresh={load}>
     <div className="space-y-5">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-extrabold text-slate-900">{isBuyer ? "My job posts" : "Job board"}</h1>
-          <p className="text-sm text-slate-500 mt-1">
+          <h1 className="text-2xl font-bold text-foreground">{isBuyer ? "My job posts" : "Job board"}</h1>
+          <p className="text-sm text-muted-foreground mt-1">
             {isBuyer
               ? "Post tasks for local teens — every job is AI-screened against your state's child labor laws."
               : "Jobs posted by neighbors near you. Every one passed an AI child labor law safety check."}
@@ -96,7 +96,7 @@ export default function JobBoard() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="rounded-xl text-rose-600 border-rose-200 hover:bg-rose-50 hover:text-rose-700"
+                      className="rounded-xl text-destructive border-destructive/20 hover:bg-destructive/10 hover:text-destructive"
                       onClick={() => cancelJob(job)}
                     >
                       Cancel post

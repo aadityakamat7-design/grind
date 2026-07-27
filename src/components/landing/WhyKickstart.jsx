@@ -13,26 +13,24 @@ export default function WhyKickstart() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-60px" }}
         transition={{ duration: 0.6 }}
-        className="relative rounded-2xl p-[1px] bg-gradient-to-b from-sky-400/60 via-blue-600/40 to-transparent"
+        className="rounded-2xl bg-foreground p-6 shadow-elevated"
       >
-        <div className="rounded-2xl bg-slate-900/95 p-6 h-full">
-          <div className="flex items-center gap-2 mb-5">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-600 to-sky-500 flex items-center justify-center">
-              <Zap className="w-4 h-4 text-white" />
-            </div>
-            <h3 className="font-extrabold text-white text-lg">KickStart</h3>
+        <div className="flex items-center gap-2 mb-5">
+          <div className="w-7 h-7 rounded-lg bg-background flex items-center justify-center">
+            <Zap className="w-4 h-4 text-foreground" />
           </div>
-          <ul className="space-y-3">
-            {US.map((item) => (
-              <li key={item} className="flex items-center gap-3 text-sm font-semibold text-slate-200">
-                <span className="w-5 h-5 rounded-full bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center shrink-0">
-                  <Check className="w-3 h-3 text-emerald-400" />
-                </span>
-                {item}
-              </li>
-            ))}
-          </ul>
+          <h3 className="font-bold text-background text-lg">KickStart</h3>
         </div>
+        <ul className="space-y-3">
+          {US.map((item) => (
+            <li key={item} className="flex items-center gap-3 text-sm font-medium text-background/90">
+              <span className="w-5 h-5 rounded-full bg-background/15 flex items-center justify-center shrink-0">
+                <Check className="w-3 h-3 text-background" />
+              </span>
+              {item}
+            </li>
+          ))}
+        </ul>
       </motion.div>
 
       <motion.div
@@ -40,14 +38,14 @@ export default function WhyKickstart() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-60px" }}
         transition={{ duration: 0.6, delay: 0.1 }}
-        className="rounded-2xl bg-white/[0.03] border border-white/10 p-6"
+        className="rounded-2xl bg-muted border border-border p-6"
       >
-        <h3 className="font-extrabold text-slate-400 text-lg mb-5">Other options</h3>
+        <h3 className="font-semibold text-muted-foreground text-lg mb-5">Other options</h3>
         <ul className="space-y-3">
           {THEM.map((item) => (
-            <li key={item} className="flex items-center gap-3 text-sm font-semibold text-slate-500">
-              <span className="w-5 h-5 rounded-full bg-rose-500/10 border border-rose-500/20 flex items-center justify-center shrink-0">
-                <X className="w-3 h-3 text-rose-400/70" />
+            <li key={item} className="flex items-center gap-3 text-sm font-medium text-muted-foreground">
+              <span className="w-5 h-5 rounded-full bg-secondary border border-border flex items-center justify-center shrink-0">
+                <X className="w-3 h-3 text-muted-foreground" />
               </span>
               {item}
             </li>

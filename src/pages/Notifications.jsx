@@ -41,14 +41,14 @@ export default function Notifications() {
   };
 
   if (loading)
-    return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin" /></div>;
+    return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-muted border-t-foreground rounded-full animate-spin" /></div>;
 
   const hasUnread = items.some((n) => !n.read);
 
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-extrabold text-slate-900">Notifications</h1>
+        <h1 className="text-2xl font-bold text-foreground">Notifications</h1>
         {hasUnread && (
           <Button variant="outline" className="rounded-xl" onClick={markAllRead}>Mark all read</Button>
         )}
@@ -65,20 +65,20 @@ export default function Notifications() {
                 key={n.id}
                 onClick={() => open(n)}
                 className={`w-full flex items-start gap-3 rounded-2xl border p-4 text-left transition-colors ${
-                  n.read ? "bg-white border-slate-100" : "bg-blue-50/60 border-blue-100"
+                  n.read ? "bg-card border-border" : "bg-secondary border-border"
                 }`}
               >
-                <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${n.read ? "bg-slate-100 text-slate-400" : "bg-blue-100 text-blue-600"}`}>
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${n.read ? "bg-muted text-muted-foreground" : "bg-foreground text-background"}`}>
                   <Icon className="w-4.5 h-4.5 w-5 h-5" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className={`text-sm ${n.read ? "font-semibold text-slate-700" : "font-bold text-slate-900"}`}>{n.title}</p>
-                  {n.body && <p className="text-xs text-slate-500 mt-0.5">{n.body}</p>}
-                  <p className="text-[11px] text-slate-400 mt-1">
+                  <p className={`text-sm ${n.read ? "font-medium text-muted-foreground" : "font-semibold text-foreground"}`}>{n.title}</p>
+                  {n.body && <p className="text-xs text-muted-foreground mt-0.5">{n.body}</p>}
+                  <p className="text-[11px] text-muted-foreground mt-1">
                     {n.created_date ? formatDistanceToNow(new Date(n.created_date), { addSuffix: true }) : ""}
                   </p>
                 </div>
-                {!n.read && <span className="w-2 h-2 rounded-full bg-blue-500 mt-1.5 shrink-0" />}
+                {!n.read && <span className="w-2 h-2 rounded-full bg-foreground mt-1.5 shrink-0" />}
               </button>
             );
           })}

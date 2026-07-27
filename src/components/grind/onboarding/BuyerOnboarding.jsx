@@ -56,8 +56,8 @@ export default function BuyerOnboarding({ user }) {
   if (step === 1)
     return (
       <div className="space-y-4">
-        <h2 className="text-xl font-extrabold text-slate-900">Where are you?</h2>
-        <p className="text-sm text-slate-500">Kickstart is hyperlocal — we'll show you teens in your neighborhood.</p>
+        <h2 className="text-xl font-bold text-foreground">Where are you?</h2>
+        <p className="text-sm text-muted-foreground">Kickstart is hyperlocal — we'll show you teens in your neighborhood.</p>
         <div>
           <Label>Home address</Label>
           <Input className="rounded-xl mt-1" placeholder="123 Maple St" value={address} onChange={(e) => setAddress(e.target.value)} />
@@ -69,9 +69,9 @@ export default function BuyerOnboarding({ user }) {
         <div>
           <Label>Referral code (optional)</Label>
           <Input className="rounded-xl mt-1" placeholder="Got a code from a friend?" value={refCode} onChange={(e) => setRefCode(e.target.value)} />
-          <p className="text-xs text-slate-400 mt-1">You'll both get $10 booking credit after your first completed booking.</p>
+          <p className="text-xs text-muted-foreground mt-1">You'll both get $10 booking credit after your first completed booking.</p>
         </div>
-        {geoError && <p className="text-xs text-rose-600 font-semibold">{geoError}</p>}
+        {geoError && <p className="text-xs text-destructive font-medium">{geoError}</p>}
         <Button className="w-full rounded-xl" disabled={!address || !zip || saving} onClick={continueToVerify}>
           {saving ? "Saving..." : "Continue"}
         </Button>
@@ -80,8 +80,8 @@ export default function BuyerOnboarding({ user }) {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-xl font-extrabold text-slate-900">Verify you're an adult</h2>
-      <p className="text-sm text-slate-500">
+      <h2 className="text-xl font-bold text-foreground">Verify you're an adult</h2>
+      <p className="text-sm text-muted-foreground">
         Because you'll be working with teens, every neighbor must verify their identity before booking or messaging. This keeps kids safe and builds trust with parents.
       </p>
       <IdentityVerifyCard role="buyer" onVerified={finish} />

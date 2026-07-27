@@ -64,7 +64,7 @@ export default function TeenHome() {
   useEffect(() => { load(); }, [load]);
 
   if (loading)
-    return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin" /></div>;
+    return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-muted border-t-foreground rounded-full animate-spin" /></div>;
 
   const activeJobs = bookings.filter((b) => b.status === "in_progress");
   const upcoming = bookings.filter((b) => ["confirmed", "in_progress"].includes(b.status));
@@ -78,10 +78,10 @@ export default function TeenHome() {
     <div className="space-y-6">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-extrabold text-slate-900">Hey, {profile?.display_name?.split(" ")[0]} 👋</h1>
-          <p className="text-sm text-slate-500 mt-1">Here's what's happening with your hustle.</p>
+          <h1 className="text-2xl font-bold text-foreground">Hey, {profile?.display_name?.split(" ")[0]} 👋</h1>
+          <p className="text-sm text-muted-foreground mt-1">Here's what's happening with your hustle.</p>
         </div>
-        <Link to="/teen/listings" className="flex items-center gap-1 shrink-0 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl px-3 py-2 transition-colors">
+        <Link to="/teen/listings" className="flex items-center gap-1 shrink-0 bg-foreground hover:bg-foreground/90 text-background text-xs font-medium rounded-xl px-3 py-2 transition-colors">
           <Plus className="w-3.5 h-3.5" /> Create listing
         </Link>
       </div>
@@ -99,9 +99,9 @@ export default function TeenHome() {
 
       {activeJobs.length > 0 && (
         <div>
-          <h2 className="font-bold text-slate-900 mb-3 flex items-center gap-2">
+          <h2 className="font-semibold text-foreground mb-3 flex items-center gap-2">
             Job in progress
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="w-2 h-2 rounded-full bg-foreground animate-pulse" />
           </h2>
           <div className="space-y-3">
             {activeJobs.map((b) => (
@@ -120,7 +120,7 @@ export default function TeenHome() {
 
       {pendingApproval.length > 0 && (
         <div>
-          <h2 className="font-bold text-slate-900 mb-3">Waiting on parent approval</h2>
+          <h2 className="font-semibold text-foreground mb-3">Waiting on parent approval</h2>
           <div className="space-y-3">
             {pendingApproval.map((b) => <BookingCard key={b.id} booking={b} perspective="teen" />)}
           </div>
@@ -128,7 +128,7 @@ export default function TeenHome() {
       )}
 
       <div>
-        <h2 className="font-bold text-slate-900 mb-3">Upcoming jobs</h2>
+        <h2 className="font-semibold text-foreground mb-3">Upcoming jobs</h2>
         {upcoming.length === 0 ? (
           <p className="text-sm text-slate-400">
             {profile?.status === "active"

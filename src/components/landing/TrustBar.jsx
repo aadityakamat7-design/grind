@@ -20,10 +20,10 @@ export default function TrustBar() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: i * 0.06, duration: 0.5 }}
-          className="flex flex-col items-center gap-2.5 rounded-2xl bg-white/[0.04] border border-white/10 px-3 py-5 text-center backdrop-blur-sm"
+          className="flex flex-col items-center gap-2.5 rounded-2xl bg-card border border-border px-3 py-5 text-center shadow-soft"
         >
-          <item.icon className="w-5 h-5 text-sky-400" />
-          <span className="text-xs font-semibold text-slate-300 leading-tight">{item.label}</span>
+          <item.icon className="w-5 h-5 text-foreground" />
+          <span className="text-xs font-medium text-muted-foreground leading-tight">{item.label}</span>
         </motion.div>
       ))}
     </div>

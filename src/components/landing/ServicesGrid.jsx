@@ -25,10 +25,10 @@ export default function ServicesGrid() {
           viewport={{ once: true }}
           transition={{ delay: i * 0.04, duration: 0.4 }}
           whileHover={{ y: -4 }}
-          className="rounded-2xl bg-gradient-to-b from-white/[0.07] to-white/[0.02] border border-white/10 p-4 text-center backdrop-blur-sm cursor-default"
+          className="rounded-2xl bg-card border border-border p-4 text-center shadow-soft cursor-default"
         >
           <span className="text-2xl block mb-2">{s.emoji}</span>
-          <span className="text-xs font-bold text-slate-200">{s.label}</span>
+          <span className="text-xs font-medium text-foreground">{s.label}</span>
         </motion.div>
       ))}
     </div>

@@ -4,17 +4,17 @@ import { Star, Search, Lock } from "lucide-react";
 
 function ProfileMock() {
   return (
-    <div className="rounded-xl bg-slate-950/70 border border-white/10 p-3 space-y-2">
+    <div className="rounded-xl bg-muted border border-border p-3 space-y-2">
       <div className="flex items-center gap-2">
-        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center text-white text-xs font-extrabold">A</div>
+        <div className="w-8 h-8 rounded-lg bg-foreground flex items-center justify-center text-background text-xs font-bold">A</div>
         <div>
-          <div className="text-[11px] font-bold text-white">Ava R.</div>
-          <div className="text-[9px] text-slate-400">Tutoring · Pet sitting</div>
+          <div className="text-[11px] font-semibold text-foreground">Ava R.</div>
+          <div className="text-[9px] text-muted-foreground">Tutoring · Pet sitting</div>
         </div>
       </div>
       <div className="flex gap-1.5">
         {["Math", "Dogs", "Weekends"].map((t) => (
-          <span key={t} className="rounded-full bg-white/10 px-2 py-0.5 text-[9px] font-semibold text-slate-300">{t}</span>
+          <span key={t} className="rounded-full bg-secondary px-2 py-0.5 text-[9px] font-medium text-muted-foreground">{t}</span>
         ))}
       </div>
     </div>
@@ -23,12 +23,12 @@ function ProfileMock() {
 
 function HiredMock() {
   return (
-    <div className="rounded-xl bg-slate-950/70 border border-white/10 p-3 space-y-2">
+    <div className="rounded-xl bg-muted border border-border p-3 space-y-2">
       <div className="flex items-center justify-between">
-        <span className="text-[11px] font-bold text-white">Lawn mowing</span>
-        <span className="text-[11px] font-extrabold text-emerald-400">$40</span>
+        <span className="text-[11px] font-semibold text-foreground">Lawn mowing</span>
+        <span className="text-[11px] font-bold text-foreground">$40</span>
       </div>
-      <div className="rounded-lg bg-emerald-500/15 border border-emerald-500/30 px-2 py-1.5 text-center text-[10px] font-bold text-emerald-300">
+      <div className="rounded-lg bg-foreground px-2 py-1.5 text-center text-[10px] font-medium text-background">
         Booking confirmed ✓
       </div>
     </div>
@@ -37,11 +37,11 @@ function HiredMock() {
 
 function PaidMock() {
   return (
-    <div className="rounded-xl bg-slate-950/70 border border-white/10 p-3 space-y-2">
-      <div className="text-[9px] text-slate-400">Wallet balance</div>
-      <div className="text-lg font-extrabold text-white">$262.50</div>
-      <div className="flex items-center gap-1 text-[10px] text-slate-300">
-        <Star className="w-3 h-3 fill-amber-400 text-amber-400" /> New 5-star review
+    <div className="rounded-xl bg-muted border border-border p-3 space-y-2">
+      <div className="text-[9px] text-muted-foreground">Wallet balance</div>
+      <div className="text-lg font-bold text-foreground">$262.50</div>
+      <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+        <Star className="w-3 h-3 fill-foreground text-foreground" /> New 5-star review
       </div>
     </div>
   );
@@ -49,18 +49,18 @@ function PaidMock() {
 
 function BrowseMock() {
   return (
-    <div className="rounded-xl bg-slate-950/70 border border-white/10 p-3 space-y-2">
-      <div className="flex items-center gap-1.5 text-[9px] text-slate-400">
+    <div className="rounded-xl bg-muted border border-border p-3 space-y-2">
+      <div className="flex items-center gap-1.5 text-[9px] text-muted-foreground">
         <Search className="w-3 h-3" /> Teens near 30327
       </div>
       {[["Jordan P.", "Lawn care", "4.9"], ["Ava R.", "Tutoring", "5.0"]].map(([n, s, r]) => (
-        <div key={n} className="flex items-center justify-between rounded-lg bg-white/5 px-2 py-1.5">
+        <div key={n} className="flex items-center justify-between rounded-lg bg-card border border-border px-2 py-1.5">
           <div>
-            <span className="text-[10px] font-bold text-white">{n}</span>
-            <span className="text-[9px] text-slate-400 ml-1.5">{s}</span>
+            <span className="text-[10px] font-semibold text-foreground">{n}</span>
+            <span className="text-[9px] text-muted-foreground ml-1.5">{s}</span>
           </div>
-          <span className="flex items-center gap-0.5 text-[9px] font-bold text-amber-400">
-            <Star className="w-2.5 h-2.5 fill-amber-400" /> {r}
+          <span className="flex items-center gap-0.5 text-[9px] font-semibold text-foreground">
+            <Star className="w-2.5 h-2.5 fill-foreground" /> {r}
           </span>
         </div>
       ))}
@@ -70,32 +70,32 @@ function BrowseMock() {
 
 function ChooseMock() {
   return (
-    <div className="rounded-xl bg-slate-950/70 border border-white/10 p-3 space-y-2">
+    <div className="rounded-xl bg-muted border border-border p-3 space-y-2">
       <div className="flex items-center gap-2">
-        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-white text-xs font-extrabold">J</div>
+        <div className="w-8 h-8 rounded-lg bg-foreground flex items-center justify-center text-background text-xs font-bold">J</div>
         <div>
-          <div className="text-[11px] font-bold text-white">Jordan P. <span className="text-[9px] text-emerald-400">✓ Verified</span></div>
-          <div className="flex items-center gap-0.5 text-[9px] text-amber-400 font-bold">
-            <Star className="w-2.5 h-2.5 fill-amber-400" /> 4.9 · 32 jobs
+          <div className="text-[11px] font-semibold text-foreground">Jordan P. <span className="text-[9px] text-muted-foreground">✓ Verified</span></div>
+          <div className="flex items-center gap-0.5 text-[9px] font-semibold text-foreground">
+            <Star className="w-2.5 h-2.5 fill-foreground" /> 4.9 · 32 jobs
           </div>
         </div>
       </div>
-      <div className="rounded-lg bg-blue-600/25 border border-sky-500/30 px-2 py-1.5 text-center text-[10px] font-bold text-sky-300">Book for Saturday</div>
+      <div className="rounded-lg bg-foreground px-2 py-1.5 text-center text-[10px] font-medium text-background">Book for Saturday</div>
     </div>
   );
 }
 
 function PaySecureMock() {
   return (
-    <div className="rounded-xl bg-slate-950/70 border border-white/10 p-3 space-y-2">
-      <div className="flex items-center gap-1.5 text-[9px] text-slate-400">
-        <Lock className="w-3 h-3 text-sky-400" /> Paid to KickStart — held securely
+    <div className="rounded-xl bg-muted border border-border p-3 space-y-2">
+      <div className="flex items-center gap-1.5 text-[9px] text-muted-foreground">
+        <Lock className="w-3 h-3" /> Paid to KickStart — held securely
       </div>
       <div className="flex items-center justify-between">
-        <span className="text-[10px] font-bold text-white">Lawn mowing</span>
-        <span className="text-[11px] font-extrabold text-white">$40.00</span>
+        <span className="text-[10px] font-semibold text-foreground">Lawn mowing</span>
+        <span className="text-[11px] font-bold text-foreground">$40.00</span>
       </div>
-      <div className="rounded-lg bg-emerald-500/15 border border-emerald-500/30 px-2 py-1.5 text-center text-[10px] font-bold text-emerald-300">
+      <div className="rounded-lg bg-foreground px-2 py-1.5 text-center text-[10px] font-medium text-background">
         Job done → teen paid ✓
       </div>
     </div>
@@ -120,13 +120,13 @@ export default function HowItWorks() {
   return (
     <div>
       <div className="flex justify-center mb-8">
-        <div className="inline-flex rounded-xl bg-white/[0.05] border border-white/10 p-1 backdrop-blur-sm">
+        <div className="inline-flex rounded-xl bg-muted border border-border p-1">
           {[["teen", "I'm a teen"], ["neighbor", "I'm a neighbor"]].map(([key, label]) => (
             <button
               key={key}
               onClick={() => setTab(key)}
-              className={`px-5 py-2 rounded-lg text-sm font-bold transition-colors ${
-                tab === key ? "bg-gradient-to-r from-blue-600 to-sky-500 text-white shadow-lg shadow-blue-500/25" : "text-slate-400 hover:text-white"
+              className={`px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                tab === key ? "bg-foreground text-background shadow-soft" : "text-muted-foreground hover:text-foreground"
               }`}
             >
               {label}
@@ -144,12 +144,12 @@ export default function HowItWorks() {
           className="grid md:grid-cols-3 gap-5"
         >
           {FLOWS[tab].map((s) => (
-            <div key={s.title} className="rounded-2xl bg-white/[0.04] border border-white/10 p-6 backdrop-blur-sm hover:border-white/20 transition-colors">
+            <div key={s.title} className="rounded-2xl bg-card border border-border p-6 shadow-card hover:shadow-elevated transition-shadow duration-300">
               <div className="flex items-center gap-3 mb-4">
-                <span className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-sky-500 flex items-center justify-center text-sm font-extrabold text-white">{s.n}</span>
-                <h3 className="font-bold text-white text-lg">{s.title}</h3>
+                <span className="w-8 h-8 rounded-lg bg-foreground flex items-center justify-center text-sm font-bold text-background">{s.n}</span>
+                <h3 className="font-semibold text-foreground text-lg">{s.title}</h3>
               </div>
-              <p className="text-sm text-slate-400 leading-relaxed mb-5">{s.desc}</p>
+              <p className="text-sm text-muted-foreground leading-relaxed mb-5">{s.desc}</p>
               <s.Mock />
             </div>
           ))}

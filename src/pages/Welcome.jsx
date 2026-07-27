@@ -28,9 +28,9 @@ function Section({ id, eyebrow, title, subtitle, children, className = "" }) {
         transition={{ duration: 0.6 }}
         className="text-center mb-12"
       >
-        {eyebrow && <p className="text-xs font-extrabold text-sky-400 uppercase tracking-[0.2em] mb-3">{eyebrow}</p>}
-        <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">{title}</h2>
-        {subtitle && <p className="text-slate-400 mt-3 max-w-xl mx-auto leading-relaxed">{subtitle}</p>}
+        {eyebrow && <p className="text-xs font-semibold text-muted-foreground uppercase tracking-[0.2em] mb-3">{eyebrow}</p>}
+        <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">{title}</h2>
+        {subtitle && <p className="text-muted-foreground mt-3 max-w-xl mx-auto leading-relaxed">{subtitle}</p>}
       </motion.div>
       {children}
     </section>
@@ -43,8 +43,8 @@ export default function Welcome() {
 
   if (loading)
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-slate-950">
-        <div className="w-8 h-8 border-4 border-blue-900 border-t-sky-400 rounded-full animate-spin" />
+      <div className="fixed inset-0 flex items-center justify-center bg-background">
+        <div className="w-8 h-8 border-4 border-muted border-t-foreground rounded-full animate-spin" />
       </div>
     );
 
@@ -58,23 +58,23 @@ export default function Welcome() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white overflow-x-hidden scroll-smooth">
-      <div className="opacity-70"><FallingMoney /></div>
+    <div className="min-h-screen bg-background text-foreground overflow-x-hidden scroll-smooth">
+      <div className="opacity-40"><FallingMoney /></div>
 
       {/* Header */}
-      <header className="sticky top-0 inset-x-0 z-30 bg-slate-950/70 backdrop-blur-md border-b border-white/5 pt-[env(safe-area-inset-top)]">
+      <header className="sticky top-0 inset-x-0 z-30 bg-background/80 backdrop-blur-md border-b border-border pt-[env(safe-area-inset-top)]">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-sky-500 flex items-center justify-center shadow-lg shadow-blue-500/30">
-              <Zap className="w-5 h-5 text-white" />
+            <div className="w-9 h-9 rounded-xl bg-foreground flex items-center justify-center shadow-card">
+              <Zap className="w-5 h-5 text-background" />
             </div>
-            <span className="font-extrabold text-xl tracking-tight">KickStart</span>
+            <span className="font-bold text-xl tracking-tight">KickStart</span>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" className="text-slate-300 hover:text-white hover:bg-white/10 rounded-xl font-bold" onClick={() => navigate("/login")}>
+            <Button variant="ghost" className="text-muted-foreground hover:text-foreground hover:bg-accent rounded-xl font-medium" onClick={() => navigate("/login")}>
               Log in
             </Button>
-            <Button className="rounded-xl font-bold bg-gradient-to-r from-blue-600 to-sky-500 hover:from-blue-500 hover:to-sky-400 hidden sm:inline-flex" onClick={() => navigate("/register")}>
+            <Button className="rounded-xl font-medium" onClick={() => navigate("/register")}>
               Get Started
             </Button>
           </div>
@@ -124,26 +124,27 @@ export default function Welcome() {
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="relative overflow-hidden bg-gradient-to-br from-blue-700 via-blue-600 to-sky-500 rounded-3xl p-10 sm:p-14 text-center shadow-2xl shadow-blue-500/25"
+          className="relative overflow-hidden bg-foreground rounded-3xl p-10 sm:p-14 text-center shadow-elevated"
         >
-          <div className="absolute -top-20 -right-20 w-64 h-64 bg-white/10 rounded-full blur-3xl pointer-events-none" />
-          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">Ready to Get Started?</h2>
-          <p className="text-blue-100 mt-3 max-w-md mx-auto">Join your local community now — thousands of teens and neighbors are already helping each other.</p>
+          <div className="absolute -top-20 -right-20 w-64 h-64 bg-background/10 rounded-full blur-3xl pointer-events-none" />
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-background">Ready to Get Started?</h2>
+          <p className="text-background/70 mt-3 max-w-md mx-auto">Join your local community now — thousands of teens and neighbors are already helping each other.</p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center mt-7">
             <Button
-              className="h-12 px-10 rounded-xl text-base font-bold bg-white text-blue-700 hover:bg-blue-50 shadow-lg"
+              className="h-12 px-10 rounded-xl text-base font-medium bg-background text-foreground hover:bg-background/90 shadow-card"
               onClick={() => startSignup("teen")}
             >
               Start Earning Today
             </Button>
             <Button
-              className="h-12 px-10 rounded-xl text-base font-bold bg-blue-900/40 border border-white/30 text-white hover:bg-blue-900/60"
+              variant="outline"
+              className="h-12 px-10 rounded-xl text-base font-medium bg-transparent border-background/30 text-background hover:bg-background/10 hover:text-background"
               onClick={() => startSignup("buyer")}
             >
               Find Help Near You
             </Button>
           </div>
-          <p className="text-xs text-blue-200/80 mt-4">Free to join · Takes less than 2 minutes</p>
+          <p className="text-xs text-background/50 mt-4">Free to join · Takes less than 2 minutes</p>
         </motion.div>
       </section>
 

@@ -21,13 +21,13 @@ export default function SafetyGrid() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-60px" }}
           transition={{ delay: i * 0.06, duration: 0.5 }}
-          className="rounded-2xl bg-white/[0.04] border border-white/10 p-5 backdrop-blur-sm hover:bg-white/[0.06] transition-colors"
+          className="rounded-2xl bg-card border border-border p-5 shadow-soft hover:shadow-card transition-shadow duration-300"
         >
-          <div className="w-10 h-10 rounded-xl bg-blue-500/15 border border-blue-500/20 flex items-center justify-center mb-4">
-            <item.icon className="w-5 h-5 text-sky-400" />
+          <div className="w-10 h-10 rounded-xl bg-muted border border-border flex items-center justify-center mb-4">
+            <item.icon className="w-5 h-5 text-foreground" />
           </div>
-          <h3 className="font-bold text-white">{item.title}</h3>
-          <p className="text-sm text-slate-400 mt-1.5 leading-relaxed">{item.desc}</p>
+          <h3 className="font-semibold text-foreground">{item.title}</h3>
+          <p className="text-sm text-muted-foreground mt-1.5 leading-relaxed">{item.desc}</p>
         </motion.div>
       ))}
     </div>

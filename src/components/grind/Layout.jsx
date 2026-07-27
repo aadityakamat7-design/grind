@@ -72,9 +72,9 @@ export default function Layout() {
               if (location.pathname === tab.to) window.scrollTo({ top: 0, behavior: "smooth" });
             }}
             className={({ isActive }) =>
-              `group flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-semibold transition-all ${
+              `group flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all duration-200 ${
                 isActive
-                  ? "bg-foreground text-background shadow-sm"
+                  ? "bg-foreground text-background shadow-soft"
                   : "text-muted-foreground hover:bg-accent hover:text-foreground"
               }`
             }
@@ -100,7 +100,7 @@ export default function Layout() {
           </Link>
         </div>
         <div className="flex-1 overflow-y-auto px-3 py-5">
-          <p className="px-3.5 mb-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+          <p className="px-3.5 mb-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
             {roleLabel}
           </p>
           <NavItems />
@@ -111,7 +111,7 @@ export default function Layout() {
               <UserCircle className="w-5 h-5 text-muted-foreground" />
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-bold truncate">{user.full_name || user.email}</p>
+              <p className="text-sm font-semibold truncate">{user.full_name || user.email}</p>
               <p className="text-xs text-muted-foreground truncate">{roleLabel}</p>
             </div>
           </Link>
@@ -186,7 +186,7 @@ export default function Layout() {
                   if (location.pathname === tab.to) window.scrollTo({ top: 0, behavior: "smooth" });
                 }}
                 className={({ isActive }) =>
-                  `flex flex-col items-center gap-0.5 py-2.5 px-3 text-[11px] font-semibold transition-colors ${
+                  `flex flex-col items-center gap-0.5 py-2.5 px-3 text-[11px] font-medium transition-colors duration-200 ${
                     isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"
                   }`
                 }

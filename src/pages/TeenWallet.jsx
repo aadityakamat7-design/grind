@@ -26,15 +26,15 @@ export default function TeenWallet() {
   useEffect(() => { load(); }, [load]);
 
   if (loading)
-    return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin" /></div>;
+    return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-muted border-t-foreground rounded-full animate-spin" /></div>;
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-extrabold text-slate-900">Kickstart Wallet</h1>
+      <h1 className="text-2xl font-bold text-foreground">Kickstart Wallet</h1>
 
-      <div className="bg-gradient-to-br from-blue-950 via-blue-800 to-blue-600 rounded-2xl p-6 text-white shadow-lg shadow-blue-200">
+      <div className="bg-foreground rounded-2xl p-6 text-background shadow-card">
         <p className="text-xs opacity-80 flex items-center gap-1.5"><Wallet className="w-3.5 h-3.5" /> Current balance</p>
-        <p className="text-4xl font-extrabold mt-1">{money(wallet.balance || 0)}</p>
+        <p className="text-4xl font-bold mt-1">{money(wallet.balance || 0)}</p>
         <p className="text-[11px] opacity-70 mt-2">Job payouts land here the moment a neighbor releases payment.</p>
       </div>
 
@@ -50,7 +50,7 @@ export default function TeenWallet() {
       </div>
 
       <div>
-        <h2 className="font-bold text-slate-900 mb-3">Activity</h2>
+        <h2 className="font-semibold text-foreground mb-3">Activity</h2>
         <TransactionList transactions={transactions} />
       </div>
 

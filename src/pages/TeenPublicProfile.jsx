@@ -40,46 +40,46 @@ export default function TeenPublicProfile() {
   useEffect(() => { load(); }, [load]);
 
   if (loading)
-    return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin" /></div>;
+    return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-muted border-t-foreground rounded-full animate-spin" /></div>;
 
   if (!profile)
-    return <p className="text-center text-slate-500 py-20">This teen's profile isn't available.</p>;
+    return <p className="text-center text-muted-foreground py-20">This teen's profile isn't available.</p>;
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 text-center">
-        <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-blue-600 to-sky-500 flex items-center justify-center mx-auto text-white text-3xl font-extrabold">
+      <div className="bg-card rounded-2xl border border-border shadow-soft p-6 text-center">
+        <div className="w-20 h-20 rounded-3xl bg-foreground flex items-center justify-center mx-auto text-background text-3xl font-bold">
           {profile.display_name?.charAt(0)}
         </div>
-        <h1 className="text-xl font-extrabold text-slate-900 mt-3 truncate">{profile.display_name}</h1>
+        <h1 className="text-xl font-bold text-foreground mt-3 truncate">{profile.display_name}</h1>
         <div className="flex justify-center mt-1.5">
           {profile.review_count > 0 ? (
             <RatingStars rating={profile.avg_rating} count={profile.review_count} />
           ) : (
-            <span className="inline-flex items-center gap-1 rounded-full bg-violet-50 text-violet-700 border border-violet-200 px-2.5 py-0.5 text-xs font-bold">
+            <span className="inline-flex items-center gap-1 rounded-full bg-secondary text-muted-foreground border border-border px-2.5 py-0.5 text-xs font-medium">
               ✨ New to Kickstart
             </span>
           )}
         </div>
-        <p className="text-sm text-slate-500 mt-2 max-w-sm mx-auto line-clamp-4">{profile.bio}</p>
-        <p className="text-xs text-slate-400 mt-2 flex items-center justify-center gap-1">
+        <p className="text-sm text-muted-foreground mt-2 max-w-sm mx-auto line-clamp-4">{profile.bio}</p>
+        <p className="text-xs text-muted-foreground mt-2 flex items-center justify-center gap-1">
           <MapPin className="w-3 h-3" /> {profile.resolved_city || profile.state}
         </p>
         <div className="flex justify-center gap-2 mt-3 flex-wrap">
           <TrustBadge type="parent_approved" />
           {profile.parent_identity_verified && (
-            <span className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-blue-50 text-blue-700 border-blue-200">
+            <span className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium bg-secondary text-muted-foreground border-border">
               <ShieldCheck className="w-3 h-3" /> Parent identity verified
             </span>
           )}
-          <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${
-            profile.is_available !== false ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-slate-100 text-slate-500 border-slate-200"
+          <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium ${
+            profile.is_available !== false ? "bg-foreground text-background border-foreground" : "bg-muted text-muted-foreground border-border"
           }`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${profile.is_available !== false ? "bg-emerald-500" : "bg-slate-400"}`} />
+            <span className={`w-1.5 h-1.5 rounded-full ${profile.is_available !== false ? "bg-background" : "bg-muted-foreground"}`} />
             {profile.is_available !== false ? "Available now" : "Busy"}
           </span>
         </div>
-        <p className="text-[11px] text-slate-400 mt-3 flex items-center justify-center gap-1">
+        <p className="text-[11px] text-muted-foreground mt-3 flex items-center justify-center gap-1">
           <Lock className="w-3 h-3" /> Contact info and exact addresses stay hidden until a booking is confirmed.
         </p>
         <div className="mt-3 flex items-center justify-center gap-4">
@@ -91,31 +91,31 @@ export default function TeenPublicProfile() {
       {profile.skills?.length > 0 && (
         <div className="flex flex-wrap gap-2 justify-center">
           {profile.skills.map((s) => (
-            <span key={s} className="px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold">{s}</span>
+            <span key={s} className="px-3 py-1 rounded-full bg-secondary text-muted-foreground text-xs font-medium">{s}</span>
           ))}
         </div>
       )}
 
       <div>
-        <h2 className="font-bold text-slate-900 mb-3">Services</h2>
+        <h2 className="font-semibold text-foreground mb-3">Services</h2>
         <div className="space-y-3">
           {listings.map((l) => (
-            <div key={l.id} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
+            <div key={l.id} className="bg-card rounded-2xl border border-border shadow-soft p-4">
               {l.is_hazard_flagged && (
-                <div className="flex items-start gap-2 bg-rose-50 border border-rose-200 rounded-xl p-2.5 mb-3 text-xs text-rose-700">
+                <div className="flex items-start gap-2 bg-destructive/10 border border-destructive/20 rounded-xl p-2.5 mb-3 text-xs text-destructive">
                   <Lock className="w-4 h-4 shrink-0 mt-0.5" />
-                  <span><span className="font-bold">Safety warning:</span> {l.hazard_reason || "This service was flagged for safety review."}</span>
+                  <span><span className="font-semibold">Safety warning:</span> {l.hazard_reason || "This service was flagged for safety review."}</span>
                 </div>
               )}
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
-                  <p className="text-xs font-semibold text-blue-600 uppercase tracking-wide">{CATEGORY_LABELS[l.category]}</p>
-                  <h3 className="font-bold text-slate-900 mt-0.5 truncate">{l.title}</h3>
-                  <p className="text-sm text-slate-500 mt-1 line-clamp-3">{l.description}</p>
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{CATEGORY_LABELS[l.category]}</p>
+                  <h3 className="font-semibold text-foreground mt-0.5 truncate">{l.title}</h3>
+                  <p className="text-sm text-muted-foreground mt-1 line-clamp-3">{l.description}</p>
                 </div>
                 <div className="text-right shrink-0">
-                  <p className="font-extrabold text-slate-900">{money(l.price)}</p>
-                  <p className="text-[11px] text-slate-400">{l.price_model === "HOURLY" ? "per hour" : "fixed"}</p>
+                  <p className="font-bold text-foreground">{money(l.price)}</p>
+                  <p className="text-[11px] text-muted-foreground">{l.price_model === "HOURLY" ? "per hour" : "fixed"}</p>
                 </div>
               </div>
               <Button className="rounded-xl w-full mt-3" onClick={() => setBookingListing(l)}>
@@ -123,26 +123,26 @@ export default function TeenPublicProfile() {
               </Button>
             </div>
           ))}
-          {listings.length === 0 && <p className="text-sm text-slate-400">No published services right now.</p>}
+          {listings.length === 0 && <p className="text-sm text-muted-foreground">No published services right now.</p>}
         </div>
       </div>
 
       <div>
-        <h2 className="font-bold text-slate-900 mb-3">Reviews</h2>
+        <h2 className="font-semibold text-foreground mb-3">Reviews</h2>
         {categoryAverages(reviews).length > 0 && (
           <div className="flex flex-wrap gap-2 mb-3">
             {categoryAverages(reviews).map((c) => (
-              <span key={c.category} className="inline-flex items-center gap-1 rounded-full bg-white border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-700">
+              <span key={c.category} className="inline-flex items-center gap-1 rounded-full bg-card border border-border px-3 py-1 text-xs font-medium text-foreground">
                 {CATEGORY_LABELS[c.category] || c.category}
-                <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                <Star className="w-3 h-3 fill-foreground text-foreground" />
                 {c.avg.toFixed(1)}
-                <span className="text-slate-400 font-normal">({c.count})</span>
+                <span className="text-muted-foreground font-normal">({c.count})</span>
               </span>
             ))}
           </div>
         )}
         {reviews.length === 0 ? (
-          <p className="text-sm text-slate-400">No reviews yet — complete your first job to start building your reputation.</p>
+          <p className="text-sm text-muted-foreground">No reviews yet — complete your first job to start building your reputation.</p>
         ) : (
           <div className="space-y-3">
             {reviews.map((r) => (

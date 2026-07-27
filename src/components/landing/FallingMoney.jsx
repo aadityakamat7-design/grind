@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from "react";
 
 // Full-page falling money layer — sparse dollar bills with pseudo-3D flip,
 // scroll parallax by depth, and slight blur on bills closest to the camera.
+// Monochrome: gray bills on a light background.
 export default function FallingMoney() {
   const canvasRef = useRef(null);
   const scrollRef = useRef(0);
@@ -21,7 +22,7 @@ export default function FallingMoney() {
       sway: Math.random() * Math.PI * 2,
       spin: Math.random() * Math.PI * 2,
       spinSpeed: (Math.random() - 0.5) * 0.9,
-      green: Math.random() > 0.35,
+      dark: Math.random() > 0.35,
     }));
 
     const resize = () => {
@@ -50,28 +51,28 @@ export default function FallingMoney() {
         ctx.translate(xx, yy);
         ctx.rotate(b.spin + time * b.spinSpeed + Math.sin(time * 0.5 + b.sway) * 0.15);
         ctx.scale(1, flip);
-        ctx.globalAlpha = 0.1 + b.depth * 0.3;
+        ctx.globalAlpha = 0.06 + b.depth * 0.12;
         ctx.filter = b.depth > 0.82 ? "blur(3px)" : "none";
 
         const bw = size, bh = size * 0.48, r = 3;
         const grad = ctx.createLinearGradient(-bw / 2, 0, bw / 2, 0);
-        if (b.green) {
-          grad.addColorStop(0, "#6ee7b7");
-          grad.addColorStop(1, "#059669");
+        if (b.dark) {
+          grad.addColorStop(0, "#d4d4d4");
+          grad.addColorStop(1, "#737373");
         } else {
-          grad.addColorStop(0, "#7dd3fc");
-          grad.addColorStop(1, "#2563eb");
+          grad.addColorStop(0, "#e5e5e5");
+          grad.addColorStop(1, "#a3a3a3");
         }
         ctx.fillStyle = grad;
         ctx.beginPath();
         ctx.roundRect(-bw / 2, -bh / 2, bw, bh, r);
         ctx.fill();
 
-        ctx.strokeStyle = "rgba(255,255,255,0.45)";
+        ctx.strokeStyle = "rgba(0,0,0,0.15)";
         ctx.lineWidth = 1;
         ctx.strokeRect(-bw / 2 + 2.5, -bh / 2 + 2.5, bw - 5, bh - 5);
 
-        ctx.fillStyle = "rgba(255,255,255,0.8)";
+        ctx.fillStyle = "rgba(0,0,0,0.35)";
         ctx.font = `bold ${bh * 0.62}px sans-serif`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";

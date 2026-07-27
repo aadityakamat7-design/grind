@@ -43,8 +43,8 @@ export default function ChatThread() {
   }, [messages]);
 
   if (loading)
-    return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin" /></div>;
-  if (!thread) return <p className="text-center text-slate-500 py-20">Conversation not found.</p>;
+    return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-muted border-t-foreground rounded-full animate-spin" /></div>;
+  if (!thread) return <p className="text-center text-muted-foreground py-20">Conversation not found.</p>;
 
   const isParent = user.app_role === "parent";
   const canSend = !isParent && (user.id === thread.teen_user_id || user.id === thread.buyer_user_id);
@@ -83,34 +83,34 @@ export default function ChatThread() {
 
   return (
     <div className="flex flex-col" style={{ minHeight: "calc(100vh - 200px)" }}>
-      <div className="pb-3 border-b border-slate-100 mb-4">
-        <h1 className="font-extrabold text-slate-900">
+      <div className="pb-3 border-b border-border mb-4">
+        <h1 className="font-bold text-foreground">
           {isParent ? `${thread.teen_display_name} ↔ ${thread.buyer_name}` : (user.id === thread.teen_user_id ? thread.buyer_name : thread.teen_display_name)}
         </h1>
-        <p className="text-xs text-slate-500">{thread.listing_title}</p>
+        <p className="text-xs text-muted-foreground">{thread.listing_title}</p>
         {!thread.is_confirmed && (
-          <p className="text-[11px] text-amber-600 mt-1.5 flex items-center gap-1">
+          <p className="text-[11px] text-muted-foreground mt-1.5 flex items-center gap-1">
             <Lock className="w-3 h-3" /> Phone numbers, emails, and addresses are hidden until the booking is confirmed.
           </p>
         )}
         {isParent && (
-          <p className="text-[11px] text-blue-600 mt-1 flex items-center gap-1">
+          <p className="text-[11px] text-foreground mt-1 flex items-center gap-1">
             <Eye className="w-3 h-3" /> Read-only parent view
           </p>
         )}
       </div>
 
       <div className="flex-1 space-y-3">
-        {messages.length === 0 && <p className="text-center text-sm text-slate-400 py-10">Say hi 👋</p>}
+        {messages.length === 0 && <p className="text-center text-sm text-muted-foreground py-10">Say hi 👋</p>}
         {messages.map((m) => {
           const mine = m.sender_id === user.id;
           return (
             <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
-              <div className={`max-w-[75%] rounded-2xl px-4 py-2.5 text-sm ${m.pending ? "opacity-60" : ""} ${mine ? "bg-blue-600 text-white rounded-br-md" : "bg-white border border-slate-100 text-slate-800 rounded-bl-md shadow-sm"}`}>
-                {!mine && <p className={`text-[10px] font-bold mb-0.5 ${mine ? "text-blue-100" : "text-blue-600"}`}>{m.sender_name}</p>}
+              <div className={`max-w-[75%] rounded-2xl px-4 py-2.5 text-sm ${m.pending ? "opacity-60" : ""} ${mine ? "bg-foreground text-background rounded-br-md" : "bg-card border border-border text-foreground rounded-bl-md shadow-soft"}`}>
+                {!mine && <p className="text-[10px] font-semibold mb-0.5 text-muted-foreground">{m.sender_name}</p>}
                 <p className="whitespace-pre-wrap">{m.body}</p>
                 {m.flagged && (
-                  <p className={`text-[10px] mt-1 flex items-center gap-1 ${mine ? "text-blue-200" : "text-amber-600"}`}>
+                  <p className={`text-[10px] mt-1 flex items-center gap-1 ${mine ? "text-background/50" : "text-muted-foreground"}`}>
                     <AlertTriangle className="w-3 h-3" /> Flagged: possible contact info or off-platform request
                   </p>
                 )}
@@ -122,9 +122,9 @@ export default function ChatThread() {
       </div>
 
       {canSend && (
-        <div className="sticky bottom-20 mt-4 flex gap-2 bg-slate-50 pt-2">
+        <div className="sticky bottom-20 mt-4 flex gap-2 bg-background pt-2">
           <Input
-            className="rounded-xl bg-white"
+            className="rounded-xl bg-card"
             placeholder="Type a message..."
             value={body}
             onChange={(e) => setBody(e.target.value)}

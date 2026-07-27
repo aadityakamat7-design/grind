@@ -2,20 +2,20 @@ import React from "react";
 
 export default function AuthLayout({ icon: Icon, title, subtitle, footer, children }) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4 py-10">
+    <div className="min-h-screen flex items-center justify-center bg-muted px-4 py-10">
       <div className="w-full max-w-md">
         <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-950 to-blue-700 mb-4 shadow-lg shadow-blue-200">
-            <Icon className="w-7 h-7 text-white" aria-hidden="true" />
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-foreground mb-4 shadow-card">
+            <Icon className="w-7 h-7 text-background" aria-hidden="true" />
           </div>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900">{title}</h1>
-          {subtitle && <p className="text-slate-600 mt-2">{subtitle}</p>}
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">{title}</h1>
+          {subtitle && <p className="text-muted-foreground mt-2">{subtitle}</p>}
         </div>
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 text-slate-900">
+        <div className="bg-card rounded-2xl shadow-card border border-border p-8 text-card-foreground">
           {children}
         </div>
         {footer && (
-          <p className="text-center text-sm text-slate-600 mt-6">{footer}</p>
+          <p className="text-center text-sm text-muted-foreground mt-6">{footer}</p>
         )}
       </div>
     </div>

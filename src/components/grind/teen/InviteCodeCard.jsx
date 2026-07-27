@@ -30,12 +30,12 @@ export default function InviteCodeCard({ profile, onUpdated }) {
 
   if (!profile) {
     return (
-      <div className="rounded-2xl p-5 border bg-amber-50 border-amber-200">
+      <div className="rounded-2xl p-5 border bg-card border-border shadow-soft">
         <div className="flex items-start gap-3">
-          <ShieldAlert className="w-5 h-5 text-amber-500 mt-0.5 shrink-0" />
+          <ShieldAlert className="w-5 h-5 text-muted-foreground mt-0.5 shrink-0" />
           <div className="flex-1">
-            <p className="font-bold text-sm text-amber-800">Setting up your parent code…</p>
-            <p className="text-xs mt-1 text-amber-700">We're preparing your parent-link code. If this doesn't appear shortly, refresh the page.</p>
+            <p className="font-semibold text-sm text-foreground">Setting up your parent code…</p>
+            <p className="text-xs mt-1 text-muted-foreground">We're preparing your parent-link code. If this doesn't appear shortly, refresh the page.</p>
           </div>
         </div>
       </div>
@@ -49,30 +49,30 @@ export default function InviteCodeCard({ profile, onUpdated }) {
   };
 
   return (
-    <div className={`rounded-2xl p-5 border ${isActive ? "bg-emerald-50 border-emerald-200" : "bg-amber-50 border-amber-200"}`}>
+    <div className={`rounded-2xl p-5 border shadow-soft ${isActive ? "bg-card border-border" : "bg-card border-border"}`}>
       <div className="flex items-start gap-3">
         {isActive ? (
-          <ShieldCheck className="w-5 h-5 text-emerald-500 mt-0.5 shrink-0" />
+          <ShieldCheck className="w-5 h-5 text-foreground mt-0.5 shrink-0" />
         ) : (
-          <ShieldAlert className="w-5 h-5 text-amber-500 mt-0.5 shrink-0" />
+          <ShieldAlert className="w-5 h-5 text-muted-foreground mt-0.5 shrink-0" />
         )}
         <div className="flex-1">
           <div className="flex items-center justify-between gap-2 flex-wrap">
-            <p className={`font-bold text-sm ${isActive ? "text-emerald-800" : "text-amber-800"}`}>
+            <p className="font-semibold text-sm text-foreground">
               {isActive ? "Parent linked" : "Waiting for your parent"}
             </p>
             {isActive && <TrustBadge type="parent_approved" />}
           </div>
-          <p className={`text-xs mt-1 ${isActive ? "text-emerald-700" : "text-amber-700"}`}>
+          <p className="text-xs mt-1 text-muted-foreground">
             {isActive
               ? "Your account is verified. Keep this code to link another parent or guardian if you ever need to."
               : "Your services can't go live until a parent links to your account with your code:"}
           </p>
           <div className="flex items-center gap-2 mt-3">
-            <span className={`font-extrabold tracking-[0.25em] bg-white rounded-lg px-3 py-1.5 text-sm border ${isActive ? "text-emerald-900 border-emerald-200" : "text-amber-900 border-amber-200"}`}>
+            <span className="font-bold tracking-[0.25em] bg-muted rounded-lg px-3 py-1.5 text-sm border border-border text-foreground">
               {code || "…"}
             </span>
-            <button onClick={copyCode} className={isActive ? "text-emerald-700 hover:text-emerald-900" : "text-amber-700 hover:text-amber-900"}>
+            <button onClick={copyCode} className="text-muted-foreground hover:text-foreground transition-colors">
               {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
             </button>
           </div>
