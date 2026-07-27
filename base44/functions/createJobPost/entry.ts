@@ -67,6 +67,13 @@ Respond with:
       }, { status: 400 });
     }
 
+    const gross = Math.round(price * 100) / 100;
+    const platformFee = Math.round(gross * 0.15 * 100) / 100;
+    const netAmount = Math.round((gross - platformFee) * 100) / 100;
+
+    // Jobs go live immediately after passing the AI screen — no posting fee.
+    // The neighbor pays via Stripe at the "Start job" handshake, and funds are
+    // held in escrow until both sides confirm completion.
     const job = await base44.asServiceRole.entities.JobPost.create({
       buyer_user_id: user.id,
       buyer_name: body.buyerName || 'Neighbor',
@@ -83,6 +90,10 @@ Respond with:
       ai_approved: true,
       ai_minimum_age: screen.minimum_age || 13,
       ai_law_notes: screen.state_law_notes || '',
+      status: 'open',
+      charge_amount: gross,
+      platform_fee: platformFee,
+      net_amount: netAmount,
     });
 
     return Response.json({ job, screening: screen });

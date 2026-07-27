@@ -10,7 +10,6 @@ import ResponsiveSelect from "@/components/grind/ResponsiveSelect";
 import { ShieldCheck, ShieldX, Sparkles, Lock } from "lucide-react";
 import { CATEGORIES, computeFees, money, MAX_UNIT_PRICE } from "@/lib/grind";
 import { US_STATES } from "@/lib/jobScreen";
-import { startJobCheckout } from "@/lib/stripeCheckout";
 
 export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, onPosted }) {
   const [form, setForm] = useState({
@@ -18,7 +17,7 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
     price_model: "FIXED", state: "", scheduled_start: "",
     is_physical: true, address: "",
   });
-  const [phase, setPhase] = useState("form"); // form | screening | blocked | approved | paying
+  const [phase, setPhase] = useState("form"); // form | screening | blocked | approved
   const [screening, setScreening] = useState(null);
 
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
@@ -58,10 +57,7 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
       return;
     }
     onPosted?.();
-    setPhase("paying");
-    const checkoutResult = await startJobCheckout(job.id);
-    if (checkoutResult.paid || checkoutResult.blocked) setPhase("approved");
-    // otherwise the browser is redirecting to Stripe checkout
+    setPhase("approved");
   };
 
   const close = (v) => {
@@ -106,21 +102,11 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
           </div>
         )}
 
-        {phase === "paying" && (
-          <div className="py-10 text-center space-y-3">
-            <div className="w-10 h-10 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin mx-auto" />
-            <p className="font-bold text-slate-900 text-sm">Redirecting to secure checkout…</p>
-            <p className="text-xs text-slate-500 max-w-xs mx-auto">
-              Your job stays a draft and won't go live until the posting fee is paid and held in escrow.
-            </p>
-          </div>
-        )}
-
         {phase === "approved" && (
           <div className="py-4 space-y-4">
             <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4">
               <p className="font-bold text-emerald-700 text-sm flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4" /> Paid & posted!
+                <ShieldCheck className="w-4 h-4" /> Job posted!
               </p>
               <p className="text-sm text-emerald-700 mt-2">{screening?.reason}</p>
               {screening?.minimum_age > 13 && (
@@ -213,13 +199,13 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
             )}
             {Number(form.price) > 0 && (
               <div className="bg-slate-50 rounded-xl p-4 text-sm space-y-1.5">
-                <div className="flex justify-between"><span className="text-slate-500">You pay now (held in escrow)</span><span className="font-bold">{money(form.price)}</span></div>
+                <div className="flex justify-between"><span className="text-slate-500">Job price (paid at start)</span><span className="font-bold">{money(form.price)}</span></div>
                 <div className="flex justify-between text-xs text-slate-400"><span>Platform fee (15%)</span><span>{money(platform_fee)}</span></div>
                 <div className="flex justify-between text-xs text-slate-400"><span>Teen earns (85%)</span><span>{money(net_amount)}</span></div>
               </div>
             )}
             <Button className="w-full rounded-xl" disabled={!valid} onClick={submit}>
-              Run safety check, then pay {form.price ? money(form.price) : ""}
+              Run safety check & post
             </Button>
           </div>
         )}

@@ -19,9 +19,6 @@ Deno.serve(async (req) => {
     if (job.status !== 'open') {
       return Response.json({ error: 'This job is no longer available.' }, { status: 400 });
     }
-    if (job.payment_status !== 'held') {
-      return Response.json({ error: "This job's posting fee hasn't been paid yet, so it can't be taken." }, { status: 400 });
-    }
 
     const [profiles, links, privateData, buyerProfiles] = await Promise.all([
       svc.TeenProfile.filter({ user_id: user.id }),
@@ -64,8 +61,7 @@ Deno.serve(async (req) => {
       charge_amount: job.charge_amount ?? job.price,
       platform_fee: platformFee,
       net_amount: netAmount,
-      payment_status: 'held',
-      stripe_payment_intent_id: job.stripe_payment_intent_id,
+      payment_status: 'unpaid',
       status: 'pending_parent_approval',
     });
 

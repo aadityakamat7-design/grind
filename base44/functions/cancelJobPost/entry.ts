@@ -1,6 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
-import { refundHeldPayment } from '../../shared/stripeRefund.ts';
 
+// Cancels an open job post. No payment is involved at the posting stage — the
+// neighbor pays at the "Start job" handshake, so cancellation just closes the post.
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -15,12 +16,7 @@ Deno.serve(async (req) => {
     if (job.buyer_user_id !== user.id) return Response.json({ error: 'Forbidden' }, { status: 403 });
     if (job.status !== 'open') return Response.json({ error: 'Job can no longer be cancelled' }, { status: 400 });
 
-    await refundHeldPayment(job);
-
-    await base44.asServiceRole.entities.JobPost.update(job.id, {
-      status: 'cancelled',
-      payment_status: job.payment_status === 'unpaid' ? 'unpaid' : 'refunded',
-    });
+    await base44.asServiceRole.entities.JobPost.update(job.id, { status: 'cancelled' });
 
     return Response.json({ success: true });
   } catch (error) {
