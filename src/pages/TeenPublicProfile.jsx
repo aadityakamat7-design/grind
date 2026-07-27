@@ -57,7 +57,7 @@ export default function TeenPublicProfile() {
             <RatingStars rating={profile.avg_rating} count={profile.review_count} />
           ) : (
             <span className="inline-flex items-center gap-1 rounded-full bg-violet-50 text-violet-700 border border-violet-200 px-2.5 py-0.5 text-xs font-bold">
-              ✨ New to Grind
+              ✨ New to Kickstart
             </span>
           )}
         </div>

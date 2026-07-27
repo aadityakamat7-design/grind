@@ -10,7 +10,7 @@
         "buyer",
         "admin"
       ],
-      "description": "The Grind role selected during onboarding"
+      "description": "The Kickstart role selected during onboarding"
     },
     "onboarding_complete": {
       "type": "boolean",

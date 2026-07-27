@@ -1,4 +1,4 @@
-// Shared constants, helpers, and safety logic for Grind
+// Shared constants, helpers, and safety logic for Kickstart
 
 export const PLATFORM_FEE_RATE = 0.15;
 

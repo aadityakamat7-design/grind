@@ -72,7 +72,7 @@ export async function releaseBookingPayment(base44, booking, tip) {
   return teenGets;
 }
 
-// Credits a referral reward to a user: teens get cash added to their Grind
+// Credits a referral reward to a user: teens get cash added to their Kickstart
 // Wallet, neighbors get credit applied to their next booking.
 async function creditReferralReward(svc, userId, reward) {
   const teenProfiles = await svc.TeenProfile.filter({ user_id: userId });

@@ -16,7 +16,7 @@ export const US_STATES = [
 
 export async function screenJob({ title, description, category, price, state }) {
   return base44.integrations.Core.InvokeLLM({
-    prompt: `You are a strict child labor law compliance officer for "Grind", a marketplace where teenagers aged 13-17 perform casual local jobs for neighbors (federal FLSA "casual employment" context — yard work, babysitting, tutoring, etc.).
+    prompt: `You are a strict child labor law compliance officer for "Kickstart", a marketplace where teenagers aged 13-17 perform casual local jobs for neighbors (federal FLSA "casual employment" context — yard work, babysitting, tutoring, etc.).
 
 Evaluate whether the following job may legally and safely be performed by a teen worker in the U.S. state of ${state}. Apply BOTH:
 1. Federal FLSA rules, including the Hazardous Occupations Orders — always block: roofing or any work at height (ladders, scaffolding, trees above shoulder height), power-driven machinery (saws, wood chippers, meat slicers), driving a motor vehicle as part of the job, excavation/demolition, electrical or plumbing work, handling chemicals/pesticides/herbicides, work involving alcohol, tobacco, cannabis, firearms, or adult content, and anything sexualized, exploitative, dangerous, or illegal.

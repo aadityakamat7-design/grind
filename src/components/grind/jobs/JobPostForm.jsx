@@ -94,7 +94,7 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
               )}
             </div>
             <p className="text-xs text-slate-500">
-              Teen safety comes first on Grind. Try adjusting the task so it doesn't involve prohibited work, then post again.
+              Teen safety comes first on Kickstart. Try adjusting the task so it doesn't involve prohibited work, then post again.
             </p>
             <Button variant="outline" className="w-full rounded-xl" onClick={() => setPhase("form")}>
               Edit and try again
