@@ -7,8 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ShieldCheck, Lock } from "lucide-react";
+import { ShieldCheck, Lock, MessageCircle } from "lucide-react";
 import { computeFees, money } from "@/lib/grind";
+import SafetyAdvisorChat from "@/components/grind/SafetyAdvisorChat";
 
 export default function BookDialog({ open, onOpenChange, listing, buyer, buyerProfile }) {
   const navigate = useNavigate();
@@ -19,6 +20,7 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
   const [recurrence, setRecurrence] = useState("none");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [safetyOpen, setSafetyOpen] = useState(false);
 
   const total = listing.price_model === "HOURLY" ? Number(listing.price) * Number(hours || 1) : Number(listing.price);
   const { platform_fee, net_amount } = computeFees(total);
@@ -102,12 +104,32 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
             <ShieldCheck className="w-4 h-4 mt-0.5 shrink-0" />
             No payment yet — you'll pay when both you and the teen tap "Start job." The teen's parent must approve this booking first.
           </div>
+          <Button
+            variant="outline"
+            className="w-full rounded-xl"
+            onClick={() => setSafetyOpen(true)}
+          >
+            <MessageCircle className="w-4 h-4 mr-2" /> Talk to Safety Advisor
+          </Button>
           {error && <p className="text-xs text-rose-600 font-semibold text-center">{error}</p>}
           <Button className="w-full rounded-xl" disabled={!when || !address || saving} onClick={book}>
             {saving ? "Booking..." : "Request booking"}
           </Button>
         </div>
       </DialogContent>
+
+      <Dialog open={safetyOpen} onOpenChange={setSafetyOpen}>
+        <DialogContent className="rounded-2xl max-w-md max-h-[85vh] flex flex-col">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <ShieldCheck className="w-5 h-5" /> Safety Advisor
+            </DialogTitle>
+          </DialogHeader>
+          <div className="flex-1 overflow-hidden">
+            <SafetyAdvisorChat listing={listing} onClose={() => setSafetyOpen(false)} />
+          </div>
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 }
