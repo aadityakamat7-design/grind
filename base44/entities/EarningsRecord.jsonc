@@ -5,6 +5,10 @@
     "teen_user_id": {
       "type": "string"
     },
+    "parent_user_id": {
+      "type": "string",
+      "description": "The linked parent who can also read this record (denormalized from ParentTeenLink at creation)"
+    },
     "booking_id": {
       "type": "string"
     },
@@ -46,9 +50,7 @@
           "data.teen_user_id": "{{user.id}}"
         },
         {
-          "user_condition": {
-            "data.app_role": "PARENT"
-          }
+          "data.parent_user_id": "{{user.id}}"
         },
         {
           "user_condition": {
