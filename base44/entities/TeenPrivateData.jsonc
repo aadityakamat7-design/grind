@@ -1,0 +1,80 @@
+{
+  "name": "TeenPrivateData",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "Owning teen user id"
+    },
+    "parent_user_id": {
+      "type": "string",
+      "description": "Linked parent user id \u2014 set when the ParentTeenLink is confirmed, so the parent can read this record via RLS"
+    },
+    "date_of_birth": {
+      "type": "string",
+      "format": "date"
+    },
+    "age": {
+      "type": "number"
+    },
+    "zip": {
+      "type": "string"
+    },
+    "latitude": {
+      "type": "number",
+      "description": "Exact latitude \u2014 never exposed to the client; used only by server functions for distance calculation"
+    },
+    "longitude": {
+      "type": "number",
+      "description": "Exact longitude \u2014 never exposed to the client; used only by server functions for distance calculation"
+    }
+  },
+  "required": [
+    "user_id",
+    "date_of_birth"
+  ],
+  "rls": {
+    "create": {
+      "data.user_id": "{{user.id}}"
+    },
+    "read": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "data.parent_user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}
