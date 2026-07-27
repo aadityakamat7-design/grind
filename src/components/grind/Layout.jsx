@@ -49,7 +49,7 @@ export default function Layout() {
   if (!user) return <Navigate to="/" replace />;
   if (!user.app_role || !user.onboarded) return <Navigate to="/onboarding" replace />;
 
-  const tabs = TABS[user.app_role] || TABS.BUYER;
+  const tabs = TABS[user.app_role] || TABS.buyer;
 
   return (
     <div className="min-h-screen bg-background">
