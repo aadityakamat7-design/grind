@@ -55,6 +55,54 @@
         "monthly"
       ]
     },
+    "teen_started_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the teen confirmed Start job \u2014 the job only starts once both sides confirm (server-set only)",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "buyer_started_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the neighbor confirmed Start job \u2014 the job only starts once both sides confirm (server-set only)",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "teen_finished_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the teen confirmed Finish job \u2014 payment only releases once both sides confirm (server-set only)",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "buyer_finished_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the neighbor confirmed Finish job \u2014 payment only releases once both sides confirm (server-set only)",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
     "tip_amount": {
       "type": "number",
       "minimum": 0,
@@ -78,7 +126,15 @@
         "cancelled",
         "denied"
       ],
-      "default": "pending_parent_approval"
+      "default": "pending_parent_approval",
+      "description": "Advanced to in_progress/completed only by the server once both sides confirm",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     },
     "price_total": {
       "type": "number",

@@ -16,9 +16,13 @@ export default function TipReleaseDialog({ open, onOpenChange, booking, onReleas
 
   const release = async () => {
     setSaving(true);
-    // Release, earnings, wallet credit, notifications & referral all run server-side.
-    // A tip must be paid through Stripe checkout before anything is credited.
-    const res = await base44.functions.invoke("releasePayment", { bookingId: booking.id, tipAmount: tipAmt });
+    // Records the buyer's "finish". Payment only releases once the teen has
+    // finished too — all of it server-side. A tip clears Stripe first.
+    const res = await base44.functions.invoke("jobHandshake", {
+      bookingId: booking.id,
+      action: "finish",
+      tipAmount: tipAmt,
+    });
     if (res.data?.url) {
       if (window.self !== window.top) {
         alert("Checkout only works from the published app. Open your app in a new tab to pay the tip.");
@@ -37,7 +41,7 @@ export default function TipReleaseDialog({ open, onOpenChange, booking, onReleas
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="rounded-2xl max-w-sm">
         <DialogHeader>
-          <DialogTitle>Confirm & pay {booking.teen_display_name}</DialogTitle>
+          <DialogTitle>Finish job & pay {booking.teen_display_name}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <div>
@@ -64,8 +68,11 @@ export default function TipReleaseDialog({ open, onOpenChange, booking, onReleas
             <div className="flex justify-between font-bold text-slate-900"><span>{booking.teen_display_name} receives</span><span>{money(teenGets)}</span></div>
           </div>
           <Button className="w-full rounded-xl" disabled={saving} onClick={release}>
-            {saving ? "Releasing..." : `Release ${money(teenGets)}`}
+            {saving ? "Confirming..." : `Finish job & release ${money(teenGets)}`}
           </Button>
+          <p className="text-xs text-center text-slate-400">
+            Payment is released once {booking.teen_display_name} also marks the job finished.
+          </p>
         </div>
       </DialogContent>
     </Dialog>

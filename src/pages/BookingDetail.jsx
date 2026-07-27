@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useOutletContext, Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { CalendarDays, MapPin, Lock, MessageCircle, FileText, Play, CheckCircle2, Repeat } from "lucide-react";
+import { CalendarDays, MapPin, Lock, MessageCircle, FileText, Repeat } from "lucide-react";
 import { format } from "date-fns";
 import StatusBadge from "@/components/grind/StatusBadge";
 import TrustBadge from "@/components/grind/TrustBadge";
@@ -15,6 +15,7 @@ import RescheduleDialog from "@/components/grind/RescheduleDialog";
 import AlertParentButton from "@/components/grind/AlertParentButton";
 import PaymentStatusTracker from "@/components/grind/PaymentStatusTracker";
 import EarningsBreakdown from "@/components/grind/teen/EarningsBreakdown";
+import JobHandshakePanel from "@/components/grind/JobHandshakePanel";
 
 export default function BookingDetail() {
   const { bookingId } = useParams();
@@ -27,6 +28,7 @@ export default function BookingDetail() {
   const [reviewOpen, setReviewOpen] = useState(false);
   const [tipOpen, setTipOpen] = useState(false);
   const [reschedOpen, setReschedOpen] = useState(false);
+  const [handshakeError, setHandshakeError] = useState("");
 
   const load = useCallback(async () => {
     const [b, threads, reviews] = await Promise.all([
@@ -70,43 +72,36 @@ export default function BookingDetail() {
 
   const canReview = booking.status === "completed" && !myReview && (isTeen || isBuyer);
 
+  // Both sides must confirm — the server decides when the job actually
+  // starts, completes, and when the escrowed payment is released.
   const startJob = async () => {
     setActing(true);
-    await base44.entities.Booking.update(booking.id, { status: "in_progress" });
-    await notify(booking.buyer_user_id, {
-      type: "booking",
-      title: `${booking.teen_display_name} started the job`,
-      body: `"${booking.listing_title}" is now in progress.`,
-      link: `/bookings/${booking.id}`,
-    });
-    if (booking.parent_user_id) {
-      await notify(booking.parent_user_id, {
-        type: "booking",
-        title: "Booking is starting",
-        body: `"${booking.listing_title}" just started — live location is being shared with you.`,
-        link: `/bookings/${booking.id}`,
-      });
+    setHandshakeError("");
+    try {
+      await base44.functions.invoke("jobHandshake", { bookingId: booking.id, action: "start" });
+    } catch (err) {
+      setHandshakeError(err.response?.data?.error || "Couldn't start the job. Please try again.");
+      setActing(false);
+      return;
     }
     setActing(false);
     load();
   };
 
-  const completeJob = async () => {
+  const finishJob = async () => {
+    // The neighbor finishes through the tip dialog so they can add a tip.
+    if (isBuyer) {
+      setTipOpen(true);
+      return;
+    }
     setActing(true);
-    await base44.entities.Booking.update(booking.id, { status: "completed" });
-    await notify(booking.buyer_user_id, {
-      type: "booking",
-      title: "Job marked complete",
-      body: `"${booking.listing_title}" is done — confirm completion to release payment.`,
-      link: `/bookings/${booking.id}`,
-    });
-    if (booking.parent_user_id) {
-      await notify(booking.parent_user_id, {
-        type: "booking",
-        title: "Booking completed",
-        body: `"${booking.listing_title}" was marked complete by ${booking.teen_display_name}.`,
-        link: `/bookings/${booking.id}`,
-      });
+    setHandshakeError("");
+    try {
+      await base44.functions.invoke("jobHandshake", { bookingId: booking.id, action: "finish" });
+    } catch (err) {
+      setHandshakeError(err.response?.data?.error || "Couldn't finish the job. Please try again.");
+      setActing(false);
+      return;
     }
     setActing(false);
     load();
@@ -188,22 +183,16 @@ export default function BookingDetail() {
             <Lock className="w-4 h-4 mr-2" /> Complete payment — {money(booking.charge_amount ?? booking.price_total)}
           </Button>
         )}
-        {isTeen && booking.status === "confirmed" && (
-          <Button className="w-full rounded-xl" disabled={acting} onClick={startJob}>
-            <Play className="w-4 h-4 mr-2" /> Start job — share location with parent
-          </Button>
-        )}
-        {isTeen && booking.status === "in_progress" && (
-          <Button className="w-full rounded-xl" disabled={acting} onClick={completeJob}>
-            <CheckCircle2 className="w-4 h-4 mr-2" /> Mark job complete
-          </Button>
-        )}
+        <JobHandshakePanel
+          booking={booking}
+          isTeen={isTeen}
+          isBuyer={isBuyer}
+          acting={acting}
+          onStart={startJob}
+          onFinish={finishJob}
+        />
+        {handshakeError && <p className="text-xs text-rose-600 font-semibold text-center">{handshakeError}</p>}
         {isTeen && booking.status === "in_progress" && <AlertParentButton booking={booking} />}
-        {isBuyer && booking.status === "completed" && booking.payment_status === "held" && (
-          <Button className="w-full rounded-xl" disabled={acting} onClick={() => setTipOpen(true)}>
-            <CheckCircle2 className="w-4 h-4 mr-2" /> Confirm completion & release payment
-          </Button>
-        )}
         {(isTeen || isBuyer) && ["pending_parent_approval", "confirmed"].includes(booking.status) && (
           <div className="grid grid-cols-2 gap-3">
             <Button
