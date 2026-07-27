@@ -5,7 +5,7 @@ import { useAppUser } from "@/lib/useAppUser";
 import NotificationBell from "@/components/grind/NotificationBell";
 
 const TABS = {
-  TEEN: [
+  teen: [
     { to: "/teen", label: "Home", icon: Home, end: true },
     { to: "/teen/listings", label: "Listings", icon: List },
     { to: "/jobs", label: "Jobs", icon: Briefcase },
@@ -13,20 +13,20 @@ const TABS = {
     { to: "/messages", label: "Messages", icon: MessageCircle },
     { to: "/teen/wallet", label: "Wallet", icon: Wallet },
   ],
-  PARENT: [
+  parent: [
     { to: "/parent", label: "Dashboard", icon: LayoutDashboard, end: true },
     { to: "/parent/approvals", label: "Approvals", icon: ShieldCheck },
     { to: "/messages", label: "Messages", icon: MessageCircle },
     { to: "/parent/payouts", label: "Payouts", icon: Wallet },
   ],
-  BUYER: [
+  buyer: [
     { to: "/buyer", label: "Home", icon: Home, end: true },
     { to: "/browse", label: "Browse", icon: Search },
     { to: "/jobs", label: "My Jobs", icon: Briefcase },
     { to: "/buyer/bookings", label: "Bookings", icon: CalendarDays },
     { to: "/messages", label: "Messages", icon: MessageCircle },
   ],
-  ADMIN: [
+  admin: [
     { to: "/admin", label: "Admin", icon: LayoutDashboard, end: true },
     { to: "/browse", label: "Browse", icon: Search },
     { to: "/messages", label: "Messages", icon: MessageCircle },

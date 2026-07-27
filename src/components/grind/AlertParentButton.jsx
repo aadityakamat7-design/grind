@@ -1,6 +1,6 @@
 import React, { useState } from "react";
+import { base44 } from "@/api/base44Client";
 import { ShieldAlert, CheckCircle2 } from "lucide-react";
-import { notify } from "@/lib/notify";
 
 export default function AlertParentButton({ booking }) {
   const [sending, setSending] = useState(false);
@@ -8,14 +8,13 @@ export default function AlertParentButton({ booking }) {
 
   const alertParent = async () => {
     setSending(true);
-    await notify(booking.parent_user_id, {
-      type: "safety",
-      title: `🚨 Safety alert from ${booking.teen_display_name}`,
-      body: `${booking.teen_display_name} tapped the safety button during "${booking.listing_title}" at ${booking.address}. Their current live location has been shared with you — please check in now.`,
-      link: `/bookings/${booking.id}`,
-    });
+    try {
+      await base44.functions.invoke("alertParent", { bookingId: booking.id });
+      setSent(true);
+    } catch {
+      // Server function validates the teen is on the booking before notifying
+    }
     setSending(false);
-    setSent(true);
   };
 
   if (sent)

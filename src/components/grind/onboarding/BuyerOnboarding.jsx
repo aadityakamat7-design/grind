@@ -48,7 +48,7 @@ export default function BuyerOnboarding({ user }) {
   };
 
   const finish = async () => {
-    await base44.auth.updateMe({ app_role: "BUYER", onboarded: true });
+    await base44.auth.updateMe({       app_role: "buyer", onboarded: true });
     // Hard redirect so the freshly-set role is picked up
     window.location.href = "/buyer";
   };
@@ -84,7 +84,7 @@ export default function BuyerOnboarding({ user }) {
       <p className="text-sm text-slate-500">
         Because you'll be working with teens, every neighbor must verify their identity before booking or messaging. This keeps kids safe and builds trust with parents.
       </p>
-      <IdentityVerifyCard role="BUYER" onVerified={finish} />
+      <IdentityVerifyCard role="buyer" onVerified={finish} />
     </div>
   );
 }

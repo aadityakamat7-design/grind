@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { ShieldCheck, CalendarDays, MapPin } from "lucide-react";
 import { format } from "date-fns";
 import { money } from "@/lib/grind";
-import { notify } from "@/lib/notify";
 
 export default function ApprovalQueue({ pending, onDecided }) {
   const [acting, setActing] = useState(null);
@@ -25,9 +24,6 @@ export default function ApprovalQueue({ pending, onDecided }) {
       setActing(null);
       return;
     }
-    const verb = approve ? "approved" : "denied";
-    await notify(booking.buyer_user_id, { type: "approval", title: `Booking ${verb}`, body: `"${booking.listing_title}" with ${booking.teen_display_name} was ${verb} by their parent.`, link: `/bookings/${booking.id}` });
-    await notify(booking.teen_user_id, { type: "approval", title: `Booking ${verb}`, body: `Your parent ${verb} "${booking.listing_title}".`, link: `/bookings/${booking.id}` });
     setActing(null);
     onDecided?.();
   };

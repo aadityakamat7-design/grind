@@ -15,17 +15,24 @@ Deno.serve(async (req) => {
     const listing = await base44.asServiceRole.entities.Listing.get(listingId);
     if (!listing) return Response.json({ error: 'Listing not found' }, { status: 404 });
 
-    const [teenProfiles, buyerProfiles] = await Promise.all([
+    const [teenProfiles, buyerProfiles, teenPrivate] = await Promise.all([
       base44.asServiceRole.entities.TeenProfile.filter({ user_id: listing.teen_user_id }),
       base44.asServiceRole.entities.BuyerProfile.filter({ user_id: user.id }),
+      base44.asServiceRole.entities.TeenPrivateData.filter({ user_id: listing.teen_user_id }),
     ]);
     const teenProfile = teenProfiles[0];
     const buyerProfile = buyerProfiles[0];
+    const teenPrivateData = teenPrivate[0];
     if (!teenProfile) return Response.json({ error: 'Teen profile not found' }, { status: 404 });
     if (!buyerProfile) return Response.json({ error: 'Please complete your profile first' }, { status: 400 });
 
+    // Buyer must be ID-verified before booking — protects teens from anonymous neighbors
+    if (buyerProfile.id_verification_status !== 'verified') {
+      return Response.json({ error: 'Please verify your identity before booking a teen. Complete ID verification in your profile.' }, { status: 403 });
+    }
+
     if (
-      teenProfile.latitude == null || teenProfile.longitude == null ||
+      teenPrivateData?.latitude == null || teenPrivateData?.longitude == null ||
       buyerProfile.latitude == null || buyerProfile.longitude == null
     ) {
       return Response.json(
@@ -43,7 +50,7 @@ Deno.serve(async (req) => {
 
     const distance = haversineMiles(
       buyerProfile.latitude, buyerProfile.longitude,
-      teenProfile.latitude, teenProfile.longitude
+      teenPrivateData.latitude, teenPrivateData.longitude
     );
     const radius = teenProfile.service_radius_miles || 3;
     if (distance > radius) {

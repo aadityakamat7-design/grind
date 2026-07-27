@@ -5,9 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { CheckCircle2 } from "lucide-react";
 import RatingStars from "@/components/grind/RatingStars";
-import { recomputeTeenRating, recomputeBuyerRating } from "@/lib/ratings";
 import { maskPII } from "@/lib/grind";
-import { notify } from "@/lib/notify";
 
 const MAX_LENGTH = 500;
 

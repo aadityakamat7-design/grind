@@ -63,7 +63,7 @@ export default function TeenPublicProfile() {
         </div>
         <p className="text-sm text-slate-500 mt-2 max-w-sm mx-auto line-clamp-4">{profile.bio}</p>
         <p className="text-xs text-slate-400 mt-2 flex items-center justify-center gap-1">
-          <MapPin className="w-3 h-3" /> ZIP {profile.zip}
+          <MapPin className="w-3 h-3" /> {profile.resolved_city || profile.state}
         </p>
         <div className="flex justify-center gap-2 mt-3 flex-wrap">
           <TrustBadge type="parent_approved" />

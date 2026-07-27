@@ -36,7 +36,10 @@ Deno.serve(async (req) => {
     });
 
     const results = listings
-      .filter((l) => profileByUid[l.teen_user_id]?.is_available !== false)
+      .filter((l) => {
+        const teen = profileByUid[l.teen_user_id];
+        return teen?.status === 'active' && teen?.is_available !== false;
+      })
       .map((l) => {
         const teen = profileByUid[l.teen_user_id];
         const priv = privateByUid[l.teen_user_id];
@@ -56,6 +59,7 @@ Deno.serve(async (req) => {
           description: l.description,
           price: l.price,
           price_model: l.price_model,
+          photos: l.photos || [],
           is_hazard_flagged: l.is_hazard_flagged,
           hazard_reason: l.hazard_reason,
           teen_resolved_city: teen.resolved_city || '',

@@ -6,7 +6,6 @@ import { format } from "date-fns";
 import StatusBadge from "@/components/grind/StatusBadge";
 import RescheduleDialog from "@/components/grind/RescheduleDialog";
 import { money } from "@/lib/grind";
-import { notify } from "@/lib/notify";
 
 export default function AppointmentCard({ booking, onChanged }) {
   const [reschedOpen, setReschedOpen] = useState(false);
@@ -30,7 +29,6 @@ export default function AppointmentCard({ booking, onChanged }) {
       setActing(false);
       return;
     }
-    await notify(booking.teen_user_id, { type: "booking", title: "Booking cancelled", body: `"${booking.listing_title}" was cancelled and the held payment was refunded.`, link: `/bookings/${booking.id}` });
     setActing(false);
     onChanged?.();
   };

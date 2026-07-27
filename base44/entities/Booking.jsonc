@@ -186,6 +186,7 @@
       "enum": [
         "unpaid",
         "held",
+        "releasing",
         "released",
         "refunded"
       ],

@@ -5,7 +5,7 @@ import { ShieldCheck, AlertCircle, Camera, Loader2, IdCard } from "lucide-react"
 
 // Photo-based ID verification: the user takes a photo of their government-issued
 // ID; the AI analysis and profile update run server-side (verifyIdPhoto function).
-export default function IdentityVerifyCard({ onVerified, role = "PARENT" }) {
+export default function IdentityVerifyCard({ onVerified, role = "parent" }) {
   const fileRef = useRef(null);
   const [status, setStatus] = useState("idle"); // idle | analyzing | failed
   const [error, setError] = useState("");
@@ -48,7 +48,7 @@ export default function IdentityVerifyCard({ onVerified, role = "PARENT" }) {
       <div>
         <h3 className="font-bold text-slate-900">Verify your identity</h3>
         <p className="text-sm text-slate-500 mt-1">
-          {role === "BUYER"
+          {role === "buyer"
             ? "Because you'll be working with teens, every neighbor verifies who they are."
             : "To protect teens on KickStart, every parent verifies who they are."}{" "}
           Take a clear photo of your government-issued

@@ -6,7 +6,6 @@ import { ShieldCheck, MapPin, CalendarDays, FileText } from "lucide-react";
 import { format } from "date-fns";
 import EmptyState from "@/components/grind/EmptyState";
 import { money } from "@/lib/grind";
-import { notify } from "@/lib/notify";
 
 export default function ParentApprovals() {
   const { user } = useOutletContext();
@@ -33,11 +32,8 @@ export default function ParentApprovals() {
 
   const decide = async (booking, approve) => {
     setActing(booking.id);
-    // Approval/denial (including the actual Stripe escrow refund) runs server-side
+    // Approval/denial (including notifications + Stripe escrow refund) runs server-side
     await base44.functions.invoke("decideBooking", { bookingId: booking.id, approve });
-    const verb = approve ? "approved" : "denied";
-    await notify(booking.buyer_user_id, { type: "approval", title: `Booking ${verb}`, body: `"${booking.listing_title}" with ${booking.teen_display_name} was ${verb} by their parent.`, link: `/bookings/${booking.id}` });
-    await notify(booking.teen_user_id, { type: "approval", title: `Booking ${verb}`, body: `Your parent ${verb} "${booking.listing_title}".`, link: `/bookings/${booking.id}` });
     setActing(null);
     load();
   };
@@ -101,7 +97,7 @@ export default function ParentApprovals() {
                 )}
               </div>
               <p className="text-xs text-slate-400 mt-3">
-                Payment of {money(b.price_total)} is already held in escrow. Denying refunds the neighbor automatically.
+                No payment yet — the neighbor pays when both sides start the job. Denying cancels the booking.
               </p>
               <div className="grid grid-cols-2 gap-3 mt-4">
                 <Button

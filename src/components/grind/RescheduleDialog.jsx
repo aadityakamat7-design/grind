@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { format } from "date-fns";
-import { notify } from "@/lib/notify";
 
 export default function RescheduleDialog({ open, onOpenChange, booking, actorIsBuyer, onDone }) {
   const [when, setWhen] = useState("");
@@ -13,15 +12,14 @@ export default function RescheduleDialog({ open, onOpenChange, booking, actorIsB
 
   const save = async () => {
     setSaving(true);
-    const newStart = new Date(when).toISOString();
-    await base44.entities.Booking.update(booking.id, { scheduled_start: newStart });
-    const otherId = actorIsBuyer ? booking.teen_user_id : booking.buyer_user_id;
-    await notify(otherId, {
-      type: "booking",
-      title: "Booking rescheduled",
-      body: `"${booking.listing_title}" was moved to ${format(new Date(newStart), "EEE, MMM d 'at' h:mm a")}.`,
-      link: `/bookings/${booking.id}`,
-    });
+    try {
+      await base44.functions.invoke("rescheduleBooking", {
+        bookingId: booking.id,
+        newStart: new Date(when).toISOString(),
+      });
+    } catch {
+      // Server validates participant + status before updating
+    }
     setSaving(false);
     onOpenChange(false);
     onDone?.();

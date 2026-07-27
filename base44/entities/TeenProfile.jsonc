@@ -19,13 +19,6 @@
     "photo_url": {
       "type": "string"
     },
-    "date_of_birth": {
-      "type": "string",
-      "format": "date"
-    },
-    "age": {
-      "type": "number"
-    },
     "state": {
       "type": "string",
       "description": "US state code used for the legal work-age eligibility check"
@@ -34,20 +27,9 @@
       "type": "number",
       "description": "Minimum working age in the teen's state per the rules table"
     },
-    "zip": {
-      "type": "string"
-    },
-    "latitude": {
-      "type": "number",
-      "description": "Geocoded latitude of the teen's ZIP/address"
-    },
-    "longitude": {
-      "type": "number",
-      "description": "Geocoded longitude of the teen's ZIP/address"
-    },
     "resolved_city": {
       "type": "string",
-      "description": "City resolved from geocoding"
+      "description": "City resolved from geocoding \u2014 the only location signal exposed publicly"
     },
     "service_radius_miles": {
       "type": "number",
@@ -112,8 +94,7 @@
   },
   "required": [
     "user_id",
-    "display_name",
-    "date_of_birth"
+    "display_name"
   ],
   "rls": {
     "create": {

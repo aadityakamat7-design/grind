@@ -17,6 +17,14 @@ Deno.serve(async (req) => {
       Deno.env.get('STRIPE_WEBHOOK_SECRET'),
     );
 
+    // Dedupe by event id — Stripe retries webhooks, so a retried event must
+    // never double-process a booking or create a duplicate transfer.
+    const existing = await base44.asServiceRole.entities.WebhookEvent.filter({ event_id: event.id });
+    if (existing.length > 0) {
+      return Response.json({ received: true, duplicate: true });
+    }
+    await base44.asServiceRole.entities.WebhookEvent.create({ event_id: event.id, event_type: event.type });
+
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object;
       const tipBookingId = session.metadata?.tip_booking_id;

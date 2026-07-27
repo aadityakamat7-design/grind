@@ -7,7 +7,7 @@ import TeenOnboarding from "@/components/grind/onboarding/TeenOnboarding";
 import ParentOnboarding from "@/components/grind/onboarding/ParentOnboarding";
 import BuyerOnboarding from "@/components/grind/onboarding/BuyerOnboarding";
 
-const ROLE_HOME = { TEEN: "/teen", PARENT: "/parent", BUYER: "/buyer", ADMIN: "/admin" };
+const ROLE_HOME = { teen: "/teen", parent: "/parent", buyer: "/buyer", admin: "/admin" };
 
 export default function Onboarding() {
   const { user, loading } = useAppUser();
@@ -15,9 +15,9 @@ export default function Onboarding() {
   const inviteCode = urlParams.get("code") || "";
   const identityReturn = urlParams.get("identity_return") === "1";
   const [role, setRole] = useState(() => {
-    if (inviteCode || identityReturn) return "PARENT";
+    if (inviteCode || identityReturn) return "parent";
     const stored = localStorage.getItem("grind_signup_role");
-    return ["TEEN", "PARENT", "BUYER"].includes(stored) ? stored : null;
+    return ["teen", "parent", "buyer"].includes(stored) ? stored : null;
   });
 
   // Clear the stored signup role after mount (not inside the state initializer,
@@ -57,9 +57,9 @@ export default function Onboarding() {
             <button onClick={() => setRole(null)} className="text-xs font-semibold text-slate-400 mb-4 hover:text-slate-600">
               ← Change role
             </button>
-            {role === "TEEN" && <TeenOnboarding user={user} />}
-            {role === "PARENT" && <ParentOnboarding user={user} initialCode={inviteCode} />}
-            {role === "BUYER" && <BuyerOnboarding user={user} />}
+            {role === "teen" && <TeenOnboarding user={user} />}
+            {role === "parent" && <ParentOnboarding user={user} initialCode={inviteCode} />}
+            {role === "buyer" && <BuyerOnboarding user={user} />}
           </div>
         )}
       </div>

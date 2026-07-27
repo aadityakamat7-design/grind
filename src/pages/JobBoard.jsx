@@ -12,7 +12,7 @@ import { startJobCheckout } from "@/lib/stripeCheckout";
 
 export default function JobBoard() {
   const { user } = useOutletContext();
-  const isBuyer = user.app_role === "BUYER";
+  const isBuyer = user.app_role === "buyer";
   const [jobs, setJobs] = useState([]);
   const [buyerProfile, setBuyerProfile] = useState(null);
   const [buyerRatings, setBuyerRatings] = useState({});

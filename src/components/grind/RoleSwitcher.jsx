@@ -3,10 +3,10 @@ import { base44 } from "@/api/base44Client";
 import { Sparkles, ShieldCheck, Search, LayoutDashboard } from "lucide-react";
 
 const ROLES = [
-  { key: "TEEN", label: "Teen", icon: Sparkles, home: "/teen" },
-  { key: "PARENT", label: "Parent", icon: ShieldCheck, home: "/parent" },
-  { key: "BUYER", label: "Neighbor", icon: Search, home: "/browse" },
-  { key: "ADMIN", label: "Admin", icon: LayoutDashboard, home: "/admin" },
+  { key: "teen", label: "Teen", icon: Sparkles, home: "/teen" },
+  { key: "parent", label: "Parent", icon: ShieldCheck, home: "/parent" },
+  { key: "buyer", label: "Neighbor", icon: Search, home: "/browse" },
+  { key: "admin", label: "Admin", icon: LayoutDashboard, home: "/admin" },
 ];
 
 export default function RoleSwitcher({ user }) {

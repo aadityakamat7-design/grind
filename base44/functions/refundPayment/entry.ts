@@ -19,12 +19,64 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Booking can no longer be cancelled' }, { status: 400 });
     }
 
+    // Once both sides have started the job, a simple cancel+refund is no longer
+    // safe — the teen may have already done work. Flag it for dispute review
+    // instead of auto-refunding.
+    if (booking.status === 'in_progress' && booking.teen_started_at && booking.buyer_started_at) {
+      await base44.asServiceRole.entities.Booking.update(booking.id, {
+        dispute_flagged_at: new Date().toISOString(),
+        payout_status: 'pending_review',
+        payout_review_reason: 'Cancellation requested after both sides started — manual review required',
+      });
+      await base44.asServiceRole.entities.Notification.create({
+        user_id: booking.teen_user_id,
+        type: 'booking',
+        title: 'Cancellation requested',
+        body: `"${booking.listing_title}" — a cancellation was requested after the job started. Our team is reviewing it before any refund is issued.`,
+        link: `/bookings/${booking.id}`,
+        read: false,
+      });
+      await base44.asServiceRole.entities.Notification.create({
+        user_id: booking.buyer_user_id,
+        type: 'booking',
+        title: 'Cancellation in review',
+        body: `"${booking.listing_title}" — since the job already started, your cancellation is under review. We'll resolve it within 1 business day.`,
+        link: `/bookings/${booking.id}`,
+        read: false,
+      });
+      if (booking.parent_user_id) {
+        await base44.asServiceRole.entities.Notification.create({
+          user_id: booking.parent_user_id,
+          type: 'booking',
+          title: 'Cancellation needs review',
+          body: `"${booking.listing_title}" — a cancellation was requested after the job started. It's under review.`,
+          link: `/bookings/${booking.id}`,
+          read: false,
+        });
+      }
+      return Response.json({ success: true, disputed: true });
+    }
+
     await refundHeldPayment(booking);
 
     await base44.asServiceRole.entities.Booking.update(booking.id, {
       status: 'cancelled',
       payment_status: booking.payment_status === 'unpaid' ? 'unpaid' : 'refunded',
     });
+
+    // Notify the other party server-side (client-side notify() can't create
+    // notifications for other users due to RLS)
+    const otherId = user.id === booking.buyer_user_id ? booking.teen_user_id : booking.buyer_user_id;
+    if (otherId) {
+      await base44.asServiceRole.entities.Notification.create({
+        user_id: otherId,
+        type: 'booking',
+        title: 'Booking cancelled',
+        body: `"${booking.listing_title}" was cancelled and any held payment was refunded.`,
+        link: `/bookings/${booking.id}`,
+        read: false,
+      });
+    }
 
     return Response.json({ success: true });
   } catch (error) {

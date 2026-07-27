@@ -8,7 +8,6 @@ import StatusBadge from "@/components/grind/StatusBadge";
 import TrustBadge from "@/components/grind/TrustBadge";
 import ReviewDialog from "@/components/grind/ReviewDialog";
 import { money } from "@/lib/grind";
-import { notify } from "@/lib/notify";
 import TipReleaseDialog from "@/components/grind/TipReleaseDialog";
 import RescheduleDialog from "@/components/grind/RescheduleDialog";
 import AlertParentButton from "@/components/grind/AlertParentButton";
@@ -55,9 +54,15 @@ export default function BookingDetail() {
 
   const cancelBooking = async () => {
     setActing(true);
-    await base44.functions.invoke("refundPayment", { bookingId: booking.id });
-    const otherId = isBuyer ? booking.teen_user_id : booking.buyer_user_id;
-    await notify(otherId, { type: "booking", title: "Booking cancelled", body: `"${booking.listing_title}" was cancelled and any held payment was refunded.`, link: `/bookings/${booking.id}` });
+    setHandshakeError("");
+    try {
+      const res = await base44.functions.invoke("refundPayment", { bookingId: booking.id });
+      if (res.data?.disputed) {
+        setHandshakeError("This job already started — the cancellation is under review. Our team will resolve it within 1 business day.");
+      }
+    } catch (err) {
+      setHandshakeError(err.response?.data?.error || "Couldn't cancel this booking.");
+    }
     setActing(false);
     load();
   };

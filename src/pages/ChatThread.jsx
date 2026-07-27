@@ -4,8 +4,6 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Send, Lock, Eye, AlertTriangle } from "lucide-react";
-import { maskPII } from "@/lib/grind";
-import { notify } from "@/lib/notify";
 
 export default function ChatThread() {
   const { threadId } = useParams();
@@ -48,48 +46,33 @@ export default function ChatThread() {
     return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin" /></div>;
   if (!thread) return <p className="text-center text-slate-500 py-20">Conversation not found.</p>;
 
-  const isParent = user.app_role === "PARENT";
+  const isParent = user.app_role === "parent";
   const canSend = !isParent && (user.id === thread.teen_user_id || user.id === thread.buyer_user_id);
 
   const send = async () => {
     const raw = body.trim();
     if (!raw) return;
-    const { text, flagged } = maskPII(raw, thread.is_confirmed);
     const senderName = user.id === thread.teen_user_id ? thread.teen_display_name : thread.buyer_name;
 
     // Optimistic: show the message instantly, then swap in the saved record.
     const tempId = `temp-${Date.now()}`;
-    setMessages((prev) => [...prev, { id: tempId, thread_id: thread.id, sender_id: user.id, sender_name: senderName, body: text, flagged, pending: true }]);
+    setMessages((prev) => [...prev, { id: tempId, thread_id: thread.id, sender_id: user.id, sender_name: senderName, body: raw, pending: true }]);
     setBody("");
     setSending(true);
     try {
-      const msg = await base44.entities.Message.create({
-        thread_id: thread.id,
-        sender_id: user.id,
-        sender_name: senderName,
-        body: text,
-        flagged,
-        pii_masked: text !== raw,
-      });
-      setMessages((prev) => {
-        const withoutTemp = prev.filter((m) => m.id !== tempId);
-        return withoutTemp.some((m) => m.id === msg.id) ? withoutTemp : [...withoutTemp, msg];
-      });
-      await base44.entities.MessageThread.update(thread.id, {
-        last_message: text.slice(0, 80),
-        last_message_at: new Date().toISOString(),
-      });
-      const recipients = (thread.participant_ids || []).filter((id) => id && id !== user.id);
-      await Promise.all(
-        recipients.map((id) =>
-          notify(id, {
-            type: "message",
-            title: `New message from ${senderName}`,
-            body: text.slice(0, 100),
-            link: `/messages/${thread.id}`,
-          })
-        )
-      );
+      // Server-side: masks PII, sets participant_ids, notifies recipients,
+      // and flags off-platform requests. The client never creates a Message
+      // directly (Message.create is service-role only).
+      const res = await base44.functions.invoke("sendMessage", { threadId: thread.id, body: raw });
+      const msg = res.data?.message;
+      if (msg) {
+        setMessages((prev) => {
+          const withoutTemp = prev.filter((m) => m.id !== tempId);
+          return withoutTemp.some((m) => m.id === msg.id) ? withoutTemp : [...withoutTemp, msg];
+        });
+      } else {
+        setMessages((prev) => prev.filter((m) => m.id !== tempId));
+      }
     } catch {
       // Roll back and restore the draft so nothing is lost
       setMessages((prev) => prev.filter((m) => m.id !== tempId));

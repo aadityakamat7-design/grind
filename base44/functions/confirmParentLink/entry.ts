@@ -44,6 +44,13 @@ Deno.serve(async (req) => {
     }
 
     await svc.TeenProfile.update(teen.id, { status: 'active', parent_identity_verified: identityVerified });
+
+    // Stamp the parent_user_id on the teen's private data so the parent can
+    // read it via RLS (DOB, exact coordinates) for oversight.
+    const privateRecords = await svc.TeenPrivateData.filter({ user_id: teen.user_id });
+    if (privateRecords[0]) {
+      await svc.TeenPrivateData.update(privateRecords[0].id, { parent_user_id: user.id });
+    }
     await svc.Notification.create({
       user_id: teen.user_id,
       type: 'approval',

@@ -9,7 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import ResponsiveSelect from "@/components/grind/ResponsiveSelect";
 import { ShieldCheck, ShieldX, Sparkles, Lock } from "lucide-react";
 import { CATEGORIES, computeFees, money, MAX_UNIT_PRICE } from "@/lib/grind";
-import { screenJob, US_STATES } from "@/lib/jobScreen";
+import { US_STATES } from "@/lib/jobScreen";
 import { startJobCheckout } from "@/lib/stripeCheckout";
 
 export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, onPosted }) {
@@ -28,17 +28,10 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
 
   const submit = async () => {
     setPhase("screening");
-    const result = await screenJob({
-      title: form.title, description: form.description,
-      category: form.category, price: Number(form.price), state: form.state,
-    });
-    setScreening(result);
-    if (!result.allowed) {
-      setPhase("blocked");
-      return;
-    }
     let job;
     try {
+      // createJobPost runs the AI child labor law screening server-side and
+      // rejects hazardous jobs before they're ever created.
       const res = await base44.functions.invoke("createJobPost", {
         buyerName: buyer.full_name || "Neighbor",
         title: form.title.trim(),
@@ -51,13 +44,17 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
         is_physical: form.is_physical,
         address: form.is_physical ? form.address.trim() : "",
         scheduledStart: form.scheduled_start || undefined,
-        ai_approved: true,
-        ai_minimum_age: result.minimum_age || 13,
-        ai_law_notes: result.state_law_notes || "",
       });
       job = res.data.job;
+      setScreening(res.data.screening || { allowed: true, reason: "This job passed the AI safety check.", minimum_age: job.ai_minimum_age, state_law_notes: job.ai_law_notes });
     } catch (err) {
-      setPhase("form");
+      const screening = err.response?.data?.screening;
+      setScreening({
+        reason: err.response?.data?.error || "Couldn't screen this job.",
+        state_law_notes: screening?.state_law_notes,
+        minimum_age: screening?.minimum_age,
+      });
+      setPhase("blocked");
       return;
     }
     onPosted?.();

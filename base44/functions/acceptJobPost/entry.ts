@@ -23,17 +23,25 @@ Deno.serve(async (req) => {
       return Response.json({ error: "This job's posting fee hasn't been paid yet, so it can't be taken." }, { status: 400 });
     }
 
-    const [profiles, links] = await Promise.all([
+    const [profiles, links, privateData, buyerProfiles] = await Promise.all([
       svc.TeenProfile.filter({ user_id: user.id }),
       svc.ParentTeenLink.filter({ teen_user_id: user.id }),
+      svc.TeenPrivateData.filter({ user_id: user.id }),
+      svc.BuyerProfile.filter({ user_id: job.buyer_user_id }),
     ]);
     const profile = profiles[0];
     const link = links[0];
+    const teenPrivate = privateData[0];
+    const buyerProfile = buyerProfiles[0];
 
     if (profile?.status !== 'active') {
       return Response.json({ error: "Your account isn't live yet — your parent must verify their ID and confirm your link before you can take jobs." }, { status: 403 });
     }
-    if (job.ai_minimum_age && profile?.age && profile.age < job.ai_minimum_age) {
+    // The neighbor must be ID-verified before a teen accepts an in-person job
+    if (job.is_physical !== false && buyerProfile?.id_verification_status !== 'verified') {
+      return Response.json({ error: "This neighbor hasn't verified their identity yet. You can't accept this job until they do." }, { status: 403 });
+    }
+    if (job.ai_minimum_age && teenPrivate?.age && teenPrivate.age < job.ai_minimum_age) {
       return Response.json({ error: `This job requires workers age ${job.ai_minimum_age}+ under ${job.state} law.` }, { status: 403 });
     }
 

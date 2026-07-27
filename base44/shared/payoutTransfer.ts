@@ -79,6 +79,11 @@ export async function attemptBookingPayout(base44, booking, { skipReview = false
         booking_id: booking.id,
         parent_user_id: booking.parent_user_id,
       },
+    }, {
+      // Idempotency key tied to the booking — a retried webhook or concurrent
+      // processPayout call can never create a duplicate transfer for the
+      // same booking.
+      idempotencyKey: `payout_${booking.id}`,
     });
     await svc.Booking.update(booking.id, {
       payout_status: 'transferred',

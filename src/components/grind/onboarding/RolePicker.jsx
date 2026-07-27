@@ -2,9 +2,9 @@ import React from "react";
 import { Sparkles, ShieldCheck, Search, ChevronRight } from "lucide-react";
 
 const ROLES = [
-  { key: "TEEN", icon: Sparkles, title: "I'm a teen (13–17)", desc: "I want to earn money doing local jobs", cls: "bg-blue-50 text-blue-600" },
-  { key: "PARENT", icon: ShieldCheck, title: "I'm a parent", desc: "My teen invited me to approve their account", cls: "bg-emerald-50 text-emerald-600" },
-  { key: "BUYER", icon: Search, title: "I'm a neighbor (18+)", desc: "I want to hire trusted local teens", cls: "bg-blue-50 text-blue-600" },
+  { key: "teen", icon: Sparkles, title: "I'm a teen (13–17)", desc: "I want to earn money doing local jobs", cls: "bg-blue-50 text-blue-600" },
+  { key: "parent", icon: ShieldCheck, title: "I'm a parent", desc: "My teen invited me to approve their account", cls: "bg-emerald-50 text-emerald-600" },
+  { key: "buyer", icon: Search, title: "I'm a neighbor (18+)", desc: "I want to hire trusted local teens", cls: "bg-blue-50 text-blue-600" },
 ];
 
 export default function RolePicker({ onSelect }) {

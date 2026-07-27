@@ -42,24 +42,30 @@ export default function TeenOnboarding({ user }) {
     }
     const result = checkEligibility(dob, usState);
     const code = genInviteCode();
+    // Public profile — no sensitive data (DOB, exact coordinates, ZIP)
     await base44.entities.TeenProfile.create({
       user_id: user.id,
       display_name: `${firstName} ${lastInitial ? lastInitial.toUpperCase() + "." : ""}`.trim(),
       bio,
-      date_of_birth: dob,
-      age: calcAge(dob),
       state: usState,
       eligibility_min_age: result.minAge,
-      zip,
-      latitude: geo.lat,
-      longitude: geo.lng,
       resolved_city: geo.city,
       skills,
       invite_code: code,
     });
+    // Private data — DOB, age, exact coordinates, ZIP. Readable only by the
+    // teen, their linked parent, and admins (RLS-enforced).
+    await base44.entities.TeenPrivateData.create({
+      user_id: user.id,
+      date_of_birth: dob,
+      age: calcAge(dob),
+      zip,
+      latitude: geo.lat,
+      longitude: geo.lng,
+    });
     // Persist state + eligibility on the user record so it isn't re-checked incorrectly later
     await base44.auth.updateMe({
-      app_role: "TEEN",
+      app_role: "teen",
       onboarded: true,
       date_of_birth: dob,
       work_state: usState,

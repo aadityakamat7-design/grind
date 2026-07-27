@@ -26,6 +26,7 @@ export async function releaseBookingPayment(base44, booking, tip) {
 
   await svc.EarningsRecord.create({
     teen_user_id: booking.teen_user_id,
+    parent_user_id: booking.parent_user_id || '',
     booking_id: booking.id,
     listing_title: booking.listing_title,
     buyer_name: booking.buyer_name,

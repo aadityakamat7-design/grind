@@ -6,30 +6,31 @@ import { Search, MapPin } from "lucide-react";
 import ListingCard from "@/components/grind/ListingCard";
 import EmptyState from "@/components/grind/EmptyState";
 import SavedTeensRow from "@/components/grind/SavedTeensRow";
-import TeensMap from "@/components/grind/browse/TeensMap";
 import { CATEGORIES } from "@/lib/grind";
-import { haversineMiles } from "@/lib/geo";
 import PullToRefresh from "@/components/PullToRefresh";
 
 export default function Browse() {
   const { user } = useOutletContext();
   const [listings, setListings] = useState([]);
-  const [teensById, setTeensById] = useState({});
   const [buyerProfile, setBuyerProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
 
   const load = useCallback(async () => {
-    const [all, profiles, teens] = await Promise.all([
-      base44.entities.Listing.filter({ status: "published" }, "-created_date", 100),
+    // searchTeens computes distance server-side from TeenPrivateData and
+    // returns only a rounded distance + resolved city — never raw coordinates.
+    const [res, profiles] = await Promise.all([
+      base44.functions.invoke("searchTeens", {}),
       base44.entities.BuyerProfile.filter({ user_id: user.id }),
-      base44.entities.TeenProfile.list(undefined, 200),
     ]);
-    const byId = {};
-    teens.forEach((t) => { byId[t.user_id] = t; });
-    setTeensById(byId);
-    setListings(all.filter((l) => byId[l.teen_user_id]?.is_available !== false));
+    const raw = res.data?.listings || [];
+    // Map the server response into the shape ListingCard expects
+    setListings(raw.map((l) => ({
+      ...l,
+      service_area: l.teen_resolved_city || "Local",
+      teen_zip: "",
+    })));
     setBuyerProfile(profiles[0] || null);
     setLoading(false);
   }, [user.id]);
@@ -40,52 +41,20 @@ export default function Browse() {
     return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin" /></div>;
 
   const myZip = buyerProfile?.zip;
-  const hasBuyerLocation = buyerProfile?.latitude != null && buyerProfile?.longitude != null;
 
-  const withDistance = listings.map((l) => {
-    const teen = teensById[l.teen_user_id];
-    let distance = null;
-    let inArea = true;
-    if (hasBuyerLocation && teen?.latitude != null && teen?.longitude != null) {
-      distance = haversineMiles(buyerProfile.latitude, buyerProfile.longitude, teen.latitude, teen.longitude);
-      const sameState = teen.state && buyerProfile.state && teen.state === buyerProfile.state;
-      inArea = sameState && distance <= (teen.service_radius_miles || 3);
-    }
-    return { ...l, _distance: distance, _inArea: inArea };
-  });
-
-  const filtered = withDistance
+  const filtered = listings
     .filter((l) => category === "all" || l.category === category)
     .filter(
       (l) =>
         !search ||
         `${l.title} ${l.description} ${l.teen_display_name}`.toLowerCase().includes(search.toLowerCase())
     )
-    // In-service-area teens first, then by distance, then hyperlocal ZIP fallback
+    // In-service-area teens first, then by distance
     .sort((a, b) => {
       if (a._inArea !== b._inArea) return a._inArea ? -1 : 1;
       if (a._distance != null && b._distance != null) return a._distance - b._distance;
-      return (b.teen_zip === myZip ? 1 : 0) - (a.teen_zip === myZip ? 1 : 0);
+      return 0;
     });
-
-  const mapTeens = hasBuyerLocation
-    ? Object.values(
-        filtered.reduce((acc, l) => {
-          const teen = teensById[l.teen_user_id];
-          if (teen?.latitude != null && teen?.longitude != null && !acc[l.teen_user_id]) {
-            acc[l.teen_user_id] = {
-              id: l.teen_user_id,
-              lat: teen.latitude,
-              lng: teen.longitude,
-              display_name: l.teen_display_name,
-              inArea: l._inArea,
-              to: `/teens/${l.teen_user_id}?listing=${l.id}`,
-            };
-          }
-          return acc;
-        }, {})
-      )
-    : [];
 
   return (
     <PullToRefresh onRefresh={load}>
@@ -98,10 +67,6 @@ export default function Browse() {
           </p>
         )}
       </div>
-
-      {hasBuyerLocation && mapTeens.length > 0 && (
-        <TeensMap center={{ lat: buyerProfile.latitude, lng: buyerProfile.longitude }} teens={mapTeens} />
-      )}
 
       <SavedTeensRow userId={user.id} />
 
@@ -143,10 +108,19 @@ export default function Browse() {
         <div className="grid sm:grid-cols-2 gap-4">
           {filtered.map((l) => (
             <div key={l.id} className={`relative ${l._inArea ? "" : "opacity-50"}`}>
-              <ListingCard listing={l} teen={teensById[l.teen_user_id]} to={`/teens/${l.teen_user_id}?listing=${l.id}`} />
+              <ListingCard
+                listing={l}
+                teen={{ avg_rating: l.teen_avg_rating, review_count: l.teen_review_count }}
+                to={`/teens/${l.teen_user_id}?listing=${l.id}`}
+              />
               {!l._inArea && (
                 <span className="absolute top-2 right-2 bg-slate-900 text-white text-[10px] font-bold px-2 py-1 rounded-full">
                   Outside service area
+                </span>
+              )}
+              {l._distance != null && (
+                <span className="absolute top-2 left-2 bg-white/90 text-slate-700 text-[10px] font-bold px-2 py-1 rounded-full shadow-sm">
+                  {l._distance < 1 ? "<1 mi" : `${Math.round(l._distance)} mi`}
                 </span>
               )}
             </div>

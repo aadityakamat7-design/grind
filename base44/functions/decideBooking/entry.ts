@@ -17,13 +17,13 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Booking is not awaiting approval' }, { status: 400 });
     }
 
-    // NOTE: Identity verification requirement is temporarily disabled while
-    // Stripe Identity is being activated on the live account. Re-enable this
-    // check once verification is back online.
-    // const profiles = await base44.asServiceRole.entities.ParentProfile.filter({ user_id: user.id });
-    // if (!profiles[0]?.is_identity_verified) {
-    //   return Response.json({ error: 'Identity verification required' }, { status: 403 });
-    // }
+    // The parent must have passed ID verification before they can approve a
+    // booking. This is the core safety gate — an unverified parent cannot
+    // release their teen into a job.
+    const profiles = await base44.asServiceRole.entities.ParentProfile.filter({ user_id: user.id });
+    if (!profiles[0]?.is_identity_verified) {
+      return Response.json({ error: 'You must verify your identity before approving bookings. Complete ID verification in your dashboard.' }, { status: 403 });
+    }
 
     if (approve) {
       await base44.asServiceRole.entities.Booking.update(booking.id, { status: 'confirmed' });
@@ -31,12 +31,44 @@ Deno.serve(async (req) => {
       if (threads[0]) {
         await base44.asServiceRole.entities.MessageThread.update(threads[0].id, { is_confirmed: true });
       }
+      await base44.asServiceRole.entities.Notification.create({
+        user_id: booking.teen_user_id,
+        type: 'approval',
+        title: 'Booking approved! 🎉',
+        body: `Your parent approved "${booking.listing_title}". You can now start the job.`,
+        link: `/bookings/${booking.id}`,
+        read: false,
+      });
+      await base44.asServiceRole.entities.Notification.create({
+        user_id: booking.buyer_user_id,
+        type: 'booking',
+        title: 'Booking confirmed ✅',
+        body: `The parent approved "${booking.listing_title}". You can now start the job.`,
+        link: `/bookings/${booking.id}`,
+        read: false,
+      });
     } else {
       // Refund the escrowed Stripe payment before marking the booking denied
       const refunded = await refundHeldPayment(booking);
       await base44.asServiceRole.entities.Booking.update(booking.id, {
         status: 'denied',
         payment_status: refunded ? 'refunded' : booking.payment_status,
+      });
+      await base44.asServiceRole.entities.Notification.create({
+        user_id: booking.teen_user_id,
+        type: 'approval',
+        title: 'Booking denied',
+        body: `Your parent denied the booking for "${booking.listing_title}".`,
+        link: `/bookings/${booking.id}`,
+        read: false,
+      });
+      await base44.asServiceRole.entities.Notification.create({
+        user_id: booking.buyer_user_id,
+        type: 'booking',
+        title: 'Booking denied',
+        body: `The parent denied your booking for "${booking.listing_title}".${refunded ? ' Your payment will be refunded.' : ''}`,
+        link: `/bookings/${booking.id}`,
+        read: false,
       });
     }
 

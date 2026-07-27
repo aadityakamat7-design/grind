@@ -147,10 +147,26 @@ export async function recordFinish(base44, booking, role, tip = 0) {
   }
 
   // Both sides agree the job is done — release escrow exactly once.
+  // Atomic guard: flip payment_status from 'held' to 'releasing' using
+  // updateMany with a filter so only one concurrent call wins the lock.
+  // A unique lock token is stamped on stripe_transfer_id so the winner can
+  // confirm it got the lock via a re-read.
+  const lockToken = `lock_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+  await svc.Booking.updateMany(
+    { id: booking.id, payment_status: 'held' },
+    { $set: { payment_status: 'releasing', stripe_transfer_id: lockToken } },
+  );
   const fresh = await svc.Booking.get(booking.id);
-  if (fresh.payment_status !== 'held') {
+  if (fresh.payment_status !== 'releasing' || fresh.stripe_transfer_id !== lockToken) {
+    // Another call already claimed the release (or it was already released)
     return { finished: true, released: false };
   }
-  const teenGets = await releaseBookingPayment(base44, fresh, Number(fresh.tip_amount) || 0);
-  return { finished: true, released: true, teenGets };
+  try {
+    const teenGets = await releaseBookingPayment(base44, fresh, Number(fresh.tip_amount) || 0);
+    return { finished: true, released: true, teenGets };
+  } catch (err) {
+    // Roll back the sentinel so a retry can attempt the release again
+    await svc.Booking.update(booking.id, { payment_status: 'held', stripe_transfer_id: '' });
+    throw err;
+  }
 }

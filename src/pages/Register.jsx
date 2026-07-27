@@ -12,7 +12,7 @@ import RolePicker from "@/components/grind/onboarding/RolePicker";
 import TeenEligibilityStep from "@/components/grind/onboarding/TeenEligibilityStep";
 import { toast } from "@/components/ui/use-toast";
 
-const ROLE_TITLES = { TEEN: "teen", PARENT: "parent", BUYER: "neighbor" };
+const ROLE_TITLES = { teen: "teen", parent: "parent", buyer: "neighbor" };
 
 export default function Register() {
   const [role, setRole] = useState(null);
@@ -115,7 +115,7 @@ export default function Register() {
   }
 
   // Teens must pass the state + age legal eligibility check before creating an account
-  if (role === "TEEN" && !teenInfo) {
+  if (role === "teen" && !teenInfo) {
     return (
       <AuthLayout
         icon={UserPlus}

@@ -43,7 +43,7 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
       setSaving(false);
       return;
     }
-    await base44.auth.updateMe({ app_role: "PARENT", onboarded: true });
+    await base44.auth.updateMe({       app_role: "parent", onboarded: true });
     setSaving(false);
     // Hard redirect so the freshly-set role is picked up
     window.location.href = "/parent";

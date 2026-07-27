@@ -16,7 +16,7 @@ import SafetyGrid from "@/components/landing/SafetyGrid";
 import FaqSection from "@/components/landing/FaqSection";
 import LandingFooter from "@/components/landing/LandingFooter";
 
-const ROLE_HOME = { TEEN: "/teen", PARENT: "/parent", BUYER: "/buyer", ADMIN: "/admin" };
+const ROLE_HOME = { teen: "/teen", parent: "/parent", buyer: "/buyer", admin: "/admin" };
 
 function Section({ id, eyebrow, title, subtitle, children, className = "" }) {
   return (
@@ -132,13 +132,13 @@ export default function Welcome() {
           <div className="flex flex-col sm:flex-row gap-3 justify-center mt-7">
             <Button
               className="h-12 px-10 rounded-xl text-base font-bold bg-white text-blue-700 hover:bg-blue-50 shadow-lg"
-              onClick={() => startSignup("TEEN")}
+              onClick={() => startSignup("teen")}
             >
               Start Earning Today
             </Button>
             <Button
               className="h-12 px-10 rounded-xl text-base font-bold bg-blue-900/40 border border-white/30 text-white hover:bg-blue-900/60"
-              onClick={() => startSignup("BUYER")}
+              onClick={() => startSignup("buyer")}
             >
               Find Help Near You
             </Button>

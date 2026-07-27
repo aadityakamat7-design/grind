@@ -25,7 +25,7 @@ export default function Messages() {
   if (loading)
     return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin" /></div>;
 
-  const isParent = user.app_role === "PARENT";
+  const isParent = user.app_role === "parent";
 
   return (
     <div className="space-y-5">

@@ -37,7 +37,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    if (role === 'BUYER') {
+    if (role === 'buyer') {
       const profiles = await base44.asServiceRole.entities.BuyerProfile.filter({ user_id: user.id });
       if (!profiles[0]) return Response.json({ error: 'Buyer profile not found' }, { status: 400 });
       await base44.asServiceRole.entities.BuyerProfile.update(profiles[0].id, {
