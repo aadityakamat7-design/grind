@@ -13,6 +13,7 @@ import MessagesWidget from "@/components/grind/teen/MessagesWidget";
 import InviteCodeCard from "@/components/grind/teen/InviteCodeCard";
 import CashOutDialog from "@/components/grind/wallet/CashOutDialog";
 import { getOrCreateWallet } from "@/lib/wallet";
+import { genInviteCode } from "@/lib/grind";
 import PullToRefresh from "@/components/PullToRefresh";
 
 export default function TeenHome() {
@@ -33,8 +34,26 @@ export default function TeenHome() {
       base44.entities.WalletTransaction.filter({ teen_user_id: user.id, type: "earning" }, "-occurred_at", 50),
       base44.entities.MessageThread.filter({ teen_user_id: user.id }, "-last_message_at", 5),
     ]);
+    let p = profiles[0] || null;
+    // Self-heal: if the teen is onboarded but has no profile (e.g. from a
+    // partial onboarding), create a minimal one with an invite code so they
+    // can link their parent immediately.
+    if (!p) {
+      const code = genInviteCode();
+      p = await base44.entities.TeenProfile.create({
+        user_id: user.id,
+        display_name: (user.full_name || user.email?.split("@")[0] || "Teen").slice(0, 50),
+        invite_code: code,
+      });
+    }
+    // Self-heal: ensure the profile has an invite code
+    if (!p.invite_code) {
+      const code = genInviteCode();
+      await base44.entities.TeenProfile.update(p.id, { invite_code: code });
+      p = { ...p, invite_code: code };
+    }
     const weekAgo = Date.now() - 7 * 86400000;
-    setProfile(profiles[0] || null);
+    setProfile(p);
     setBookings(myBookings);
     setWallet(w);
     setWeekEarned(txns.filter((t) => t.occurred_at && new Date(t.occurred_at) > weekAgo).reduce((s, t) => s + t.amount, 0));
