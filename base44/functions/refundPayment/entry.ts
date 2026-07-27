@@ -15,12 +15,8 @@ Deno.serve(async (req) => {
 
     const isParticipant = [booking.buyer_user_id, booking.teen_user_id, booking.parent_user_id].includes(user.id);
     if (!isParticipant) return Response.json({ error: 'Forbidden' }, { status: 403 });
-    if (!['pending_parent_approval', 'confirmed'].includes(booking.status)) {
+    if (!['pending_parent_approval', 'confirmed', 'in_progress'].includes(booking.status)) {
       return Response.json({ error: 'Booking can no longer be cancelled' }, { status: 400 });
-    }
-    // Once confirmed, the buyer can no longer unilaterally claw back escrowed funds
-    if (booking.status === 'confirmed' && user.id === booking.buyer_user_id && user.role !== 'admin') {
-      return Response.json({ error: "Once confirmed, only the teen or their parent can cancel this booking" }, { status: 403 });
     }
 
     await refundHeldPayment(booking);

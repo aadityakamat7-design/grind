@@ -1,0 +1,45 @@
+{
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "flag_stale_handshakes",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "flag_stale": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "flagStaleHandshakes",
+            "args": {}
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Flag stale one-sided completions",
+            "description": "Bookings where one side finished but the other didn't within 24h"
+          }
+        }
+      }
+    ]
+  },
+  "name": "Dispute Review",
+  "description": "Every hour, flags one-sided job completions for review so held escrow is never auto-released on a single confirmation.",
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "recurring",
+      "cron_expression": "0 * * * *",
+      "one_time_date": null,
+      "timezone": "UTC",
+      "interval_value": null,
+      "interval_unit": null,
+      "interval_anchor": null,
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  }
+}

@@ -9,7 +9,6 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ShieldCheck, Lock } from "lucide-react";
 import { computeFees, money } from "@/lib/grind";
-import { startCheckout } from "@/lib/stripeCheckout";
 
 export default function BookDialog({ open, onOpenChange, listing, buyer, buyerProfile }) {
   const navigate = useNavigate();
@@ -39,9 +38,8 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
         hours,
       });
       const { bookingId } = res.data;
-      const result = await startCheckout(bookingId);
       onOpenChange(false);
-      if (result.paid || result.blocked) navigate(`/bookings/${bookingId}`);
+      navigate(`/bookings/${bookingId}`);
     } catch (err) {
       setError(err.response?.data?.error || "Couldn't create this booking. Please try again.");
     } finally {
@@ -102,11 +100,11 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
           </div>
           <div className="flex items-start gap-2 bg-emerald-50 rounded-xl p-3 text-xs text-emerald-700">
             <ShieldCheck className="w-4 h-4 mt-0.5 shrink-0" />
-            Your payment is held until the job is done. The teen's parent must approve this booking before it's confirmed.
+            No payment yet — you'll pay when both you and the teen tap "Start job." The teen's parent must approve this booking first.
           </div>
           {error && <p className="text-xs text-rose-600 font-semibold text-center">{error}</p>}
           <Button className="w-full rounded-xl" disabled={!when || !address || saving} onClick={book}>
-            {saving ? "Booking..." : `Pay ${money(buyerPays)} & request booking`}
+            {saving ? "Booking..." : "Request booking"}
           </Button>
         </div>
       </DialogContent>

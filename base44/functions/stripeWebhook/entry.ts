@@ -1,7 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 import { getStripe } from '../../shared/stripeEnv.ts';
 import { applyVerifiedIdentity } from '../../shared/identityVerification.ts';
-import { recordFinish } from '../../shared/jobHandshake.ts';
+import { recordFinish, recordBuyerStartAfterPayment } from '../../shared/jobHandshake.ts';
 
 Deno.serve(async (req) => {
   try {
@@ -32,11 +32,22 @@ Deno.serve(async (req) => {
       }
       const bookingId = session.metadata?.booking_id;
       if (bookingId) {
-        await base44.asServiceRole.entities.Booking.update(bookingId, {
-          payment_status: 'held',
-          stripe_payment_intent_id: session.payment_intent,
-        });
-        console.log(`Booking ${bookingId} marked as held (payment ${session.payment_intent})`);
+        if (session.metadata?.start_payment === '1') {
+          // Buyer's start payment cleared — record buyer_started_at + held, and
+          // advance to in_progress if the teen has already started.
+          const booking = await base44.asServiceRole.entities.Booking.get(bookingId);
+          if (booking && !booking.buyer_started_at) {
+            await recordBuyerStartAfterPayment(base44, booking, session.payment_intent);
+            console.log(`Booking ${bookingId} buyer start recorded (payment ${session.payment_intent})`);
+          }
+        } else {
+          // Legacy escrow payment (pre-start model) — kept for backward compat.
+          await base44.asServiceRole.entities.Booking.update(bookingId, {
+            payment_status: 'held',
+            stripe_payment_intent_id: session.payment_intent,
+          });
+          console.log(`Booking ${bookingId} marked as held (payment ${session.payment_intent})`);
+        }
       }
       const jobPostId = session.metadata?.job_post_id;
       if (jobPostId) {

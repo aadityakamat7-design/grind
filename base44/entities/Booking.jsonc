@@ -278,6 +278,18 @@
         }
       }
     },
+    "dispute_flagged_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Set when a one-sided completion is flagged for review after the timeout window",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
     "reminder_sent": {
       "type": "boolean",
       "default": false,

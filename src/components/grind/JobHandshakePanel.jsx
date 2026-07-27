@@ -16,17 +16,23 @@ export default function JobHandshakePanel({ booking, isTeen, isBuyer, acting, on
   const otherName = isTeen ? booking.buyer_name : booking.teen_display_name;
 
   if (booking.status === "confirmed") {
+    const amount = booking.charge_amount ?? booking.price_total;
     return (
       <div className="space-y-2">
         <Button className="w-full rounded-xl" disabled={acting || !!mine.started} onClick={onStart}>
           <Play className="w-4 h-4 mr-2" />
-          {mine.started ? "You're ready to start" : "Start job"}
+          {mine.started
+            ? "You're ready to start"
+            : isBuyer
+              ? `Start job & pay $${Number(amount || 0).toFixed(2)}`
+              : "Start job"}
         </Button>
         <WaitingLine
           mineDone={!!mine.started}
           theirsDone={!!theirs.started}
           otherName={otherName}
           verb="start"
+          isBuyer={isBuyer}
         />
       </div>
     );
@@ -52,7 +58,7 @@ export default function JobHandshakePanel({ booking, isTeen, isBuyer, acting, on
   return null;
 }
 
-function WaitingLine({ mineDone, theirsDone, otherName, verb }) {
+function WaitingLine({ mineDone, theirsDone, otherName, verb, isBuyer }) {
   if (mineDone && !theirsDone) {
     return (
       <p className="flex items-center justify-center gap-1.5 text-xs text-slate-500 font-medium">
@@ -63,13 +69,15 @@ function WaitingLine({ mineDone, theirsDone, otherName, verb }) {
   if (!mineDone && theirsDone) {
     return (
       <p className="text-xs text-center text-slate-500 font-medium">
-        {otherName} is ready — confirm to {verb} the job.
+        {otherName} is ready — {verb === "start" && isBuyer ? "tap to pay and " : ""}{verb} the job.
       </p>
     );
   }
   return (
     <p className="text-xs text-center text-slate-400">
-      Both of you must confirm to {verb} the job.
+      {verb === "start"
+        ? "Both of you must confirm to start. The neighbor pays when they start."
+        : "Both of you must confirm to finish the job."}
     </p>
   );
 }

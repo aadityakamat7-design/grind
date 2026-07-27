@@ -19,21 +19,19 @@ export function bothFinished(b) {
   return !!b.teen_finished_at && !!b.buyer_finished_at;
 }
 
-// Records one side's "start" and flips the booking to in_progress once both agree.
-export async function recordStart(base44, booking, role) {
+// Teen confirms Start. If the buyer has already paid (buyer_started_at set),
+// the job goes in_progress immediately. No money moves here — the buyer's
+// start payment is handled separately (checkout + webhook).
+export async function recordStart(base44, booking) {
   const svc = base44.asServiceRole.entities;
-  const field = role === 'teen' ? 'teen_started_at' : 'buyer_started_at';
-  if (booking[field]) return { alreadyDone: true, started: bothStarted(booking) };
+  if (booking.teen_started_at) return { alreadyDone: true, started: bothStarted(booking) };
 
-  const patch = { [field]: new Date().toISOString() };
+  const patch = { teen_started_at: new Date().toISOString() };
   const next = { ...booking, ...patch };
   const nowStarted = bothStarted(next);
   if (nowStarted) patch.status = 'in_progress';
 
   await svc.Booking.update(booking.id, patch);
-
-  const otherId = role === 'teen' ? booking.buyer_user_id : booking.teen_user_id;
-  const actorName = role === 'teen' ? booking.teen_display_name : booking.buyer_name;
 
   if (nowStarted) {
     for (const uid of [booking.teen_user_id, booking.buyer_user_id]) {
@@ -56,9 +54,59 @@ export async function recordStart(base44, booking, role) {
     }
   } else {
     await svc.Notification.create({
-      user_id: otherId,
+      user_id: booking.buyer_user_id,
       type: 'booking',
-      title: `${actorName} is ready to start`,
+      title: `${booking.teen_display_name} is ready to start`,
+      body: `Press "Start job" on "${booking.listing_title}" to pay and begin.`,
+      link: `/bookings/${booking.id}`,
+    });
+  }
+
+  return { started: nowStarted };
+}
+
+// Called by the webhook once the buyer's start payment clears Stripe. Records
+// buyer_started_at, marks payment held, and advances to in_progress if the
+// teen has already started.
+export async function recordBuyerStartAfterPayment(base44, booking, paymentIntentId) {
+  const svc = base44.asServiceRole.entities;
+  if (booking.buyer_started_at) return { alreadyDone: true, started: bothStarted(booking) };
+
+  const patch = {
+    buyer_started_at: new Date().toISOString(),
+    payment_status: 'held',
+    stripe_payment_intent_id: paymentIntentId,
+  };
+  const next = { ...booking, ...patch };
+  const nowStarted = bothStarted(next);
+  if (nowStarted) patch.status = 'in_progress';
+
+  await svc.Booking.update(booking.id, patch);
+
+  if (nowStarted) {
+    for (const uid of [booking.teen_user_id, booking.buyer_user_id]) {
+      await svc.Notification.create({
+        user_id: uid,
+        type: 'booking',
+        title: 'Job started',
+        body: `Both sides confirmed — "${booking.listing_title}" is now in progress.`,
+        link: `/bookings/${booking.id}`,
+      });
+    }
+    if (booking.parent_user_id) {
+      await svc.Notification.create({
+        user_id: booking.parent_user_id,
+        type: 'booking',
+        title: 'Job started',
+        body: `"${booking.listing_title}" just started — live location is being shared with you.`,
+        link: `/bookings/${booking.id}`,
+      });
+    }
+  } else {
+    await svc.Notification.create({
+      user_id: booking.teen_user_id,
+      type: 'booking',
+      title: `${booking.buyer_name} is ready to start`,
       body: `Press "Start job" on "${booking.listing_title}" to begin.`,
       link: `/bookings/${booking.id}`,
     });

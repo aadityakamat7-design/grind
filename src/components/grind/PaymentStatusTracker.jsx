@@ -1,10 +1,19 @@
 import React from "react";
-import { CheckCircle2, Circle, Clock, RotateCcw } from "lucide-react";
+import { CheckCircle2, Circle, Clock, Lock, RotateCcw } from "lucide-react";
 
 // Visual escrow → payout timeline so users always know where the money is.
 export default function PaymentStatusTracker({ booking }) {
-  const { payment_status, payout_status } = booking;
-  if (!payment_status || payment_status === "unpaid") return null;
+  const { payment_status, payout_status, status } = booking;
+  if (!payment_status) return null;
+  if (payment_status === "unpaid") {
+    if (status !== "confirmed") return null;
+    return (
+      <div className="mt-4 flex items-center gap-2 bg-slate-50 rounded-xl p-3 text-sm text-slate-600">
+        <Lock className="w-4 h-4 text-slate-400" />
+        No payment yet — you'll pay when both you and the teen tap "Start job."
+      </div>
+    );
+  }
 
   if (payment_status === "refunded") {
     return (

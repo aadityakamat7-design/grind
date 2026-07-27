@@ -1,7 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 import { getStripe } from '../../shared/stripeEnv.ts';
 import { getSafeOrigin } from '../../shared/safeOrigin.ts';
-import { roleFor, recordStart, recordFinish } from '../../shared/jobHandshake.ts';
+import { roleFor, recordStart, recordFinish, recordBuyerStartAfterPayment } from '../../shared/jobHandshake.ts';
 
 // The single entry point for the two-sided start/finish handshake.
 // Only the teen and the neighbor on the booking can call it, and the booking
@@ -32,11 +32,56 @@ Deno.serve(async (req) => {
       if (booking.status !== 'confirmed') {
         return Response.json({ error: 'This job must be approved by the parent before it can start.' }, { status: 400 });
       }
-      if (booking.payment_status !== 'held') {
-        return Response.json({ error: 'Payment must be held in escrow before the job can start.' }, { status: 400 });
+      if (booking.teen_started_at && booking.buyer_started_at) {
+        return Response.json({ alreadyDone: true, started: true });
       }
-      const result = await recordStart(base44, booking, role);
-      return Response.json(result);
+
+      // Teen start: just record the teen's confirmation. No payment moves here.
+      if (role === 'teen') {
+        if (booking.teen_started_at) return Response.json({ alreadyDone: true });
+        const result = await recordStart(base44, booking);
+        return Response.json(result);
+      }
+
+      // Buyer start: the buyer pays the job price now. Funds are held in escrow
+      // (platform balance) — the webhook records buyer_started_at + held, and
+      // advances to in_progress if the teen has already started.
+      if (booking.buyer_started_at) return Response.json({ alreadyDone: true });
+
+      const chargeAmount = booking.charge_amount ?? booking.price_total;
+      const cents = Math.round(Number(chargeAmount) * 100);
+      if (cents <= 0) {
+        // Referral credit covered the whole job — no charge, mark held directly.
+        const result = await recordBuyerStartAfterPayment(base44, booking, '');
+        return Response.json(result);
+      }
+
+      const stripe = getStripe();
+      const origin = getSafeOrigin(req);
+      const session = await stripe.checkout.sessions.create({
+        mode: 'payment',
+        line_items: [{
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: booking.listing_title || 'Kickstart job',
+              description: 'Held in escrow until both sides confirm the job is complete.',
+            },
+            unit_amount: cents,
+          },
+          quantity: 1,
+        }],
+        success_url: `${origin}/bookings/${booking.id}?started=1`,
+        cancel_url: `${origin}/bookings/${booking.id}`,
+        metadata: {
+          base44_app_id: Deno.env.get('BASE44_APP_ID'),
+          booking_id: booking.id,
+          start_payment: '1',
+        },
+        payment_intent_data: { metadata: { booking_id: booking.id, start_payment: '1' } },
+      });
+      await base44.asServiceRole.entities.Booking.update(booking.id, { stripe_session_id: session.id });
+      return Response.json({ url: session.url });
     }
 
     // action === 'finish'

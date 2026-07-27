@@ -9,7 +9,6 @@ import TrustBadge from "@/components/grind/TrustBadge";
 import ReviewDialog from "@/components/grind/ReviewDialog";
 import { money } from "@/lib/grind";
 import { notify } from "@/lib/notify";
-import { startCheckout } from "@/lib/stripeCheckout";
 import TipReleaseDialog from "@/components/grind/TipReleaseDialog";
 import RescheduleDialog from "@/components/grind/RescheduleDialog";
 import AlertParentButton from "@/components/grind/AlertParentButton";
@@ -63,13 +62,6 @@ export default function BookingDetail() {
     load();
   };
 
-  const payNow = async () => {
-    setActing(true);
-    const result = await startCheckout(booking.id);
-    setActing(false);
-    if (result.paid) load();
-  };
-
   const canReview = booking.status === "completed" && !myReview && (isTeen || isBuyer);
 
   // Both sides must confirm — the server decides when the job actually
@@ -78,7 +70,16 @@ export default function BookingDetail() {
     setActing(true);
     setHandshakeError("");
     try {
-      await base44.functions.invoke("jobHandshake", { bookingId: booking.id, action: "start" });
+      const res = await base44.functions.invoke("jobHandshake", { bookingId: booking.id, action: "start" });
+      if (res.data?.url) {
+        if (window.self !== window.top) {
+          alert("Checkout only works from the published app. Open your app in a new tab to pay.");
+          setActing(false);
+          return;
+        }
+        window.location.href = res.data.url;
+        return;
+      }
     } catch (err) {
       setHandshakeError(err.response?.data?.error || "Couldn't start the job. Please try again.");
       setActing(false);
@@ -178,11 +179,6 @@ export default function BookingDetail() {
           </Link>
         )}
 
-        {isBuyer && booking.payment_status === "unpaid" && booking.status !== "cancelled" && (
-          <Button className="w-full rounded-xl" disabled={acting} onClick={payNow}>
-            <Lock className="w-4 h-4 mr-2" /> Complete payment — {money(booking.charge_amount ?? booking.price_total)}
-          </Button>
-        )}
         <JobHandshakePanel
           booking={booking}
           isTeen={isTeen}
@@ -193,7 +189,7 @@ export default function BookingDetail() {
         />
         {handshakeError && <p className="text-xs text-rose-600 font-semibold text-center">{handshakeError}</p>}
         {isTeen && booking.status === "in_progress" && <AlertParentButton booking={booking} />}
-        {(isTeen || isBuyer) && ["pending_parent_approval", "confirmed"].includes(booking.status) && (
+        {(isTeen || isBuyer) && ["pending_parent_approval", "confirmed", "in_progress"].includes(booking.status) && (
           <div className="grid grid-cols-2 gap-3">
             <Button
               variant="outline"
