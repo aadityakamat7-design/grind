@@ -4,6 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Send, Lock, Eye, AlertTriangle } from "lucide-react";
+import BookingAssistantChat from "@/components/grind/BookingAssistantChat";
 
 export default function ChatThread() {
   const { threadId } = useParams();
@@ -135,6 +136,8 @@ export default function ChatThread() {
           </Button>
         </div>
       )}
+
+      <BookingAssistantChat threadId={thread.id} bookingId={thread.booking_id} user={user} />
     </div>
   );
 }
