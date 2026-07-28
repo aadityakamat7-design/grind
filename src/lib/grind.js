@@ -22,6 +22,25 @@ export const CATEGORY_LABELS = CATEGORIES.reduce((acc, c) => {
   return acc;
 }, {});
 
+// Minimum price per category — enforced server-side, mirrored here for
+// immediate client-side feedback. Each category has a flat minimum and an
+// hourly minimum.
+export const CATEGORY_MINIMUMS = {
+  tutoring:    { FIXED: 15, HOURLY: 15 },
+  lawn_care:   { FIXED: 20, HOURLY: 15 },
+  pet_sitting: { FIXED: 15, HOURLY: 12 },
+  tech_help:   { FIXED: 15, HOURLY: 15 },
+  babysitting: { FIXED: 25, HOURLY: 12 },
+  car_washing: { FIXED: 20, HOURLY: 15 },
+  odd_jobs:    { FIXED: 15, HOURLY: 12 },
+};
+
+export function categoryMinimum(category, priceModel) {
+  const m = CATEGORY_MINIMUMS[category];
+  if (!m) return 0;
+  return m[priceModel] || m.FIXED || 0;
+}
+
 export const SKILL_SUGGESTIONS = [
   "Math", "Reading", "Coding", "Spanish", "Piano", "Mowing",
   "Weeding", "Dog walking", "Cat care", "Phone setup", "Wi-Fi help",

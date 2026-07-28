@@ -34,10 +34,6 @@ Deno.serve(async (req) => {
     if (profile?.status !== 'active') {
       return Response.json({ error: "Your account isn't live yet — your parent must verify their ID and confirm your link before you can take jobs." }, { status: 403 });
     }
-    // The neighbor must be ID-verified before a teen accepts an in-person job
-    if (job.is_physical !== false && buyerProfile?.id_verification_status !== 'verified') {
-      return Response.json({ error: "This neighbor hasn't verified their identity yet. You can't accept this job until they do." }, { status: 403 });
-    }
     if (job.ai_minimum_age && teenPrivate?.age && teenPrivate.age < job.ai_minimum_age) {
       return Response.json({ error: `This job requires workers age ${job.ai_minimum_age}+ under ${job.state} law.` }, { status: 403 });
     }
@@ -72,6 +68,11 @@ Deno.serve(async (req) => {
       booking_id: booking.id,
     });
 
+    // The teen must verify their own identity the first time they accept a
+    // job. The booking is created in pending_parent_approval either way; the
+    // parent can only approve once the teen is verified.
+    const identityRequired = profile.identity_status !== 'verified';
+
     await svc.MessageThread.create({
       booking_id: booking.id,
       listing_title: job.title,
@@ -103,7 +104,7 @@ Deno.serve(async (req) => {
       read: false,
     });
 
-    return Response.json({ success: true, bookingId: booking.id });
+    return Response.json({ success: true, bookingId: booking.id, identityRequired });
   } catch (error) {
     console.error('acceptJobPost error:', error.message);
     return Response.json({ error: error.message }, { status: 500 });

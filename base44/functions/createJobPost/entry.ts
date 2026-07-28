@@ -5,6 +5,17 @@ const MIN_TITLE = 3;
 const MAX_TITLE = 120;
 const MAX_DESC = 2000;
 
+// Server-side minimum prices per category — the client can never bypass these.
+const CATEGORY_MINIMUMS: Record<string, Record<string, number>> = {
+  tutoring:    { FIXED: 15, HOURLY: 15 },
+  lawn_care:   { FIXED: 20, HOURLY: 15 },
+  pet_sitting: { FIXED: 15, HOURLY: 12 },
+  tech_help:   { FIXED: 15, HOURLY: 15 },
+  babysitting: { FIXED: 25, HOURLY: 12 },
+  car_washing: { FIXED: 20, HOURLY: 15 },
+  odd_jobs:    { FIXED: 15, HOURLY: 12 },
+};
+
 // Server-side job post creation with title + price validation.
 // RLS locks JobPost.create to admin-only, so this function is the only path.
 Deno.serve(async (req) => {
@@ -25,6 +36,19 @@ Deno.serve(async (req) => {
     const price = Number(body.price);
     if (!Number.isFinite(price) || price < 1 || price > MAX_UNIT_PRICE) {
       return Response.json({ error: `Price must be between $1 and $${MAX_UNIT_PRICE}.` }, { status: 400 });
+    }
+
+    // Server-side minimum-price enforcement per category + price model.
+    const priceModel = body.price_model || 'FIXED';
+    const mins = CATEGORY_MINIMUMS[body.category] || CATEGORY_MINIMUMS.odd_jobs;
+    const minimum = mins[priceModel] || mins.FIXED;
+    if (price < minimum) {
+      return Response.json({
+        error: `The minimum for ${body.category.replace('_', ' ')} jobs is $${minimum}${priceModel === 'HOURLY' ? '/hr' : ''}. Please raise your price.`,
+        minimum,
+        category: body.category,
+        price_model: priceModel,
+      }, { status: 400 });
     }
 
     // Server-side AI child labor law screening — the client can never bypass

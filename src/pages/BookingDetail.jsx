@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useOutletContext, Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
@@ -27,6 +27,7 @@ export default function BookingDetail() {
   const [tipOpen, setTipOpen] = useState(false);
   const [reschedOpen, setReschedOpen] = useState(false);
   const [handshakeError, setHandshakeError] = useState("");
+  const autoPromptedRef = useRef(false);
 
   const load = useCallback(async () => {
     const [b, threads, reviews] = await Promise.all([
@@ -41,6 +42,17 @@ export default function BookingDetail() {
   }, [bookingId, user.id]);
 
   useEffect(() => { load(); }, [load]);
+
+  // Auto-prompt both sides to leave a review the moment a job is completed
+  // and paid out — they can close it and revisit via the button below.
+  useEffect(() => {
+    if (!booking || !user) return;
+    const canReview = booking.status === "completed" && !myReview && (user.id === booking.teen_user_id || user.id === booking.buyer_user_id);
+    if (canReview && booking.payment_status === "released" && !autoPromptedRef.current) {
+      autoPromptedRef.current = true;
+      setReviewOpen(true);
+    }
+  }, [booking, myReview, user]);
 
   if (loading)
     return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-muted border-t-foreground rounded-full animate-spin" /></div>;

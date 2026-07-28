@@ -74,6 +74,47 @@
         }
       }
     },
+    "identity_status": {
+      "type": "string",
+      "enum": [
+        "unverified",
+        "processing",
+        "verified",
+        "failed"
+      ],
+      "default": "unverified",
+      "description": "Teen's own identity verification status \u2014 triggered the first time they accept a job, set server-side only",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "identity_session_id": {
+      "type": "string",
+      "description": "Stripe Identity verification session id for the teen",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "identity_verified_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the teen passed identity verification",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
     "status": {
       "type": "string",
       "enum": [
