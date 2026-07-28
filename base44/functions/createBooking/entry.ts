@@ -60,8 +60,15 @@ Deno.serve(async (req) => {
       );
     }
 
-    const total = listing.price_model === 'HOURLY' ? Number(listing.price) * Number(hours || 1) : Number(listing.price);
-    if (total > 2000) {
+    const hoursNum = Number(hours);
+    if (listing.price_model === 'HOURLY' && (!Number.isFinite(hoursNum) || hoursNum <= 0 || hoursNum > 24)) {
+      return Response.json(
+        { error: 'Please enter a valid number of hours (between 0 and 24).' },
+        { status: 400 }
+      );
+    }
+    const total = listing.price_model === 'HOURLY' ? Number(listing.price) * hoursNum : Number(listing.price);
+    if (total <= 0 || total > 2000) {
       return Response.json(
         { error: 'Total exceeds the maximum allowed per booking ($2,000). Please reduce the hours or price.' },
         { status: 400 }
