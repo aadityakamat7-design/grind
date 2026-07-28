@@ -40,16 +40,34 @@
     },
     {
       "function_name": "jobHandshake",
-      "description": "Records the teen's or neighbor's Start/Finish confirmation for a booking. Both sides must confirm each step. The neighbor pays into escrow on Start."
+      "description": "Records the teen's or neighbor's Start/Finish confirmation for a booking"
     },
     {
       "function_name": "rescheduleBooking",
-      "description": "Reschedules a booking to a new start time (ISO 8601). Notifies the other party and the parent."
+      "description": "Reschedules a booking to a new start time"
     },
     {
       "function_name": "decideBooking",
-      "description": "For parents only: approves or denies a pending booking. Requires the parent to be identity-verified."
+      "description": "For parents: approves or denies a pending booking"
     }
   ],
+  "context_files": [],
+  "app_user_connector_configs": [],
+  "selected_skill_names": [],
+  "selected_workspace_skill_ids": [],
+  "model": "automatic",
+  "whatsapp_greeting": null,
+  "telegram_greeting": null,
+  "line_greeting": null,
+  "memory_config": {
+    "enabled": true,
+    "scope": "both",
+    "include_other_conversation_context": false,
+    "instructions": null
+  },
+  "voice_config": {
+    "voice_id": null
+  },
+  "allow_anonymous_access": false,
   "name": "booking_assistant"
 }
