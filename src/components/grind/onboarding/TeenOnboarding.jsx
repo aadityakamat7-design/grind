@@ -80,6 +80,13 @@ export default function TeenOnboarding({ user }) {
       await base44.entities.TeenProfile.update(profile.id, { invite_code: code });
     }
 
+    // [REVIEW: Teen ToS consent — TeenOnboarding does not record terms_accepted_at
+    // or terms_version because teens are minors. The teen's legal relationship to
+    // the platform is covered by the parent's ToS acceptance during ParentOnboarding
+    // (confirmParentLink flow), where the parent attests guardianship and accepts
+    // the Terms. If legal counsel determines teens need their own ToS acceptance,
+    // add a ToS checkbox here and record terms_accepted_at + terms_version (use
+    // TERMS_VERSION = "2026-07" to match ParentOnboarding/BuyerOnboarding).]
     // Persist state + eligibility on the user record so it isn't re-checked incorrectly later
     const updatedUser = {
       ...user,

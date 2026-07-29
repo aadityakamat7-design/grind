@@ -18,6 +18,9 @@ export function useAppUser() {
   const reload = useCallback(async () => {
     try {
       const u = await base44.auth.me();
+      // Defensive: lowercase app_role so legacy uppercase values (TEEN/BUYER/PARENT)
+      // never silently break role-based routing or comparisons.
+      if (u && u.app_role) u.app_role = u.app_role.toLowerCase();
       cachedUser = u;
       setUser(u);
     } catch {
