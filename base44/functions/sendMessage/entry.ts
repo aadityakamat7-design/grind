@@ -29,6 +29,16 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'You can only send messages in your own conversations.' }, { status: 403 });
     }
 
+    // Block check — either side can block the other
+    const otherId = user.id === thread.teen_user_id ? thread.buyer_user_id : thread.teen_user_id;
+    const [blocksBySender, blocksByOther] = await Promise.all([
+      svc.Block.filter({ blocker_id: user.id, blocked_id: otherId }),
+      svc.Block.filter({ blocker_id: otherId, blocked_id: user.id }),
+    ]);
+    if (blocksBySender.length > 0 || blocksByOther.length > 0) {
+      return Response.json({ error: 'You cannot send messages to this user.' }, { status: 403 });
+    }
+
     const { text, flagged } = maskPII(rawBody, !!thread.is_confirmed);
     const senderName = user.id === thread.teen_user_id ? thread.teen_display_name : thread.buyer_name;
     const participantIds = thread.participant_ids || [thread.buyer_user_id, thread.teen_user_id, thread.parent_user_id].filter(Boolean);

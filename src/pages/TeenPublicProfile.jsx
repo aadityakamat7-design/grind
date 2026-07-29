@@ -7,6 +7,7 @@ import RatingStars from "@/components/grind/RatingStars";
 import TrustBadge from "@/components/grind/TrustBadge";
 import BookDialog from "@/components/grind/BookDialog";
 import ReportButton from "@/components/grind/ReportButton";
+import BlockButton from "@/components/grind/BlockButton";
 import SaveTeenButton from "@/components/grind/SaveTeenButton";
 import ReviewCard from "@/components/grind/ReviewCard";
 import { CATEGORY_LABELS, money } from "@/lib/grind";
@@ -85,6 +86,7 @@ export default function TeenPublicProfile() {
         <div className="mt-3 flex items-center justify-center gap-4">
           <SaveTeenButton buyer={user} teenUserId={profile.user_id} teenName={profile.display_name} />
           <ReportButton reporter={user} subjectId={profile.user_id} subjectName={profile.display_name} />
+          <BlockButton user={user} blockedId={profile.user_id} blockedName={profile.display_name} />
         </div>
       </div>
 

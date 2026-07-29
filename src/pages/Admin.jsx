@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
 import { Users, Search, CalendarDays, Wallet, Flag, BadgeCheck } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import MetricCard from "@/components/grind/admin/MetricCard";
 import ReportRow from "@/components/grind/admin/ReportRow";
 import PayoutReviewQueue from "@/components/grind/admin/PayoutReviewQueue";
@@ -79,6 +80,40 @@ export default function Admin() {
         ) : (
           <div className="space-y-3">
             {reports.map((r) => <ReportRow key={r.id} report={r} onResolve={resolve} onHideReview={hideReview} acting={acting} />)}
+          </div>
+        )}
+      </div>
+
+      <div>
+        <h2 className="font-bold text-slate-900 mb-3 flex items-center gap-2">
+          <Users className="w-4 h-4" /> Teen management
+        </h2>
+        {teens.length === 0 ? (
+          <p className="text-sm text-slate-400">No teens yet.</p>
+        ) : (
+          <div className="space-y-2.5">
+            {teens.map((t) => (
+              <div key={t.id} className="flex items-center justify-between bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
+                <div>
+                  <p className="font-bold text-slate-900 text-sm">{t.display_name}</p>
+                  <p className="text-xs text-slate-500">{t.resolved_city || t.state || "—"}</p>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="rounded-xl"
+                  disabled={acting}
+                  onClick={async () => {
+                    setActing(true);
+                    await base44.entities.TeenProfile.update(t.id, { status: t.status === "suspended" ? "active" : "suspended" });
+                    setActing(false);
+                    load();
+                  }}
+                >
+                  {t.status === "suspended" ? "Unsuspend" : "Suspend"}
+                </Button>
+              </div>
+            ))}
           </div>
         )}
       </div>

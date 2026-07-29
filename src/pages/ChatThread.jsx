@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Send, Lock, Eye, AlertTriangle } from "lucide-react";
 import BookingAssistantChat from "@/components/grind/BookingAssistantChat";
+import ReportButton from "@/components/grind/ReportButton";
+import BlockButton from "@/components/grind/BlockButton";
 
 export default function ChatThread() {
   const { threadId } = useParams();
@@ -98,6 +100,20 @@ export default function ChatThread() {
           <p className="text-[11px] text-foreground mt-1 flex items-center gap-1">
             <Eye className="w-3 h-3" /> Read-only parent view
           </p>
+        )}
+        {!isParent && (
+          <div className="flex items-center gap-4 mt-2">
+            <ReportButton
+              reporter={user}
+              subjectId={user.id === thread.teen_user_id ? thread.buyer_user_id : thread.teen_user_id}
+              subjectName={user.id === thread.teen_user_id ? thread.buyer_name : thread.teen_display_name}
+            />
+            <BlockButton
+              user={user}
+              blockedId={user.id === thread.teen_user_id ? thread.buyer_user_id : thread.teen_user_id}
+              blockedName={user.id === thread.teen_user_id ? thread.buyer_name : thread.teen_display_name}
+            />
+          </div>
         )}
       </div>
 

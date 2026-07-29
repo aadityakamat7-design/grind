@@ -26,11 +26,6 @@ Deno.serve(async (req) => {
     if (!teenProfile) return Response.json({ error: 'Teen profile not found' }, { status: 404 });
     if (!buyerProfile) return Response.json({ error: 'Please complete your profile first' }, { status: 400 });
 
-    // Buyer must be ID-verified before booking — protects teens from anonymous neighbors
-    if (buyerProfile.id_verification_status !== 'verified') {
-      return Response.json({ error: 'Please verify your identity before booking a teen. Complete ID verification in your profile.' }, { status: 403 });
-    }
-
     if (
       teenPrivateData?.latitude == null || teenPrivateData?.longitude == null ||
       buyerProfile.latitude == null || buyerProfile.longitude == null
@@ -46,6 +41,15 @@ Deno.serve(async (req) => {
         { error: 'This teen is in a different state — bookings must stay within the same state for legal compliance.' },
         { status: 400 }
       );
+    }
+
+    // Block check — either side can block the other
+    const [blocksByBuyer, blocksByTeen] = await Promise.all([
+      base44.asServiceRole.entities.Block.filter({ blocker_id: user.id, blocked_id: listing.teen_user_id }),
+      base44.asServiceRole.entities.Block.filter({ blocker_id: listing.teen_user_id, blocked_id: user.id }),
+    ]);
+    if (blocksByBuyer.length > 0 || blocksByTeen.length > 0) {
+      return Response.json({ error: 'This booking cannot be created.' }, { status: 403 });
     }
 
     const distance = haversineMiles(

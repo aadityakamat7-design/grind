@@ -15,6 +15,34 @@
     "onboarding_complete": {
       "type": "boolean",
       "default": false
+    },
+    "onboarded": {
+      "type": "boolean",
+      "default": false,
+      "description": "Set true after onboarding completes"
+    },
+    "date_of_birth": {
+      "type": "string",
+      "format": "date",
+      "description": "Collected at onboarding for age verification"
+    },
+    "work_state": {
+      "type": "string",
+      "description": "US state code for work eligibility (teens)"
+    },
+    "terms_accepted_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when the user accepted the Terms of Service"
+    },
+    "terms_version": {
+      "type": "string",
+      "description": "Version of the ToS the user accepted"
+    },
+    "payment_auth_acknowledged_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when the parent acknowledged payment authorization"
     }
   }
 }

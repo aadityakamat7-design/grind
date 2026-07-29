@@ -1,24 +1,38 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { genInviteCode } from "@/lib/grind";
+import { Checkbox } from "@/components/ui/checkbox";
+import { genInviteCode, calcAge } from "@/lib/grind";
 import { redeemReferralCode } from "@/lib/referrals";
 
-// Neighbors (buyers) do not go through identity verification — they can sign
-// up, post jobs, and hire teens without an ID check. Only the address is
-// needed to match them with local teens.
+const TERMS_VERSION = "2026-07";
+
 export default function BuyerOnboarding({ user }) {
   const [address, setAddress] = useState("");
   const [zip, setZip] = useState("");
+  const [dob, setDob] = useState("");
   const [refCode, setRefCode] = useState("");
+  const [tosAccepted, setTosAccepted] = useState(false);
   const [saving, setSaving] = useState(false);
   const [geoError, setGeoError] = useState("");
+  const [ageError, setAgeError] = useState("");
 
   const finish = async () => {
     setSaving(true);
     setGeoError("");
+    setAgeError("");
+
+    // Buyers must be 18+ — they're hiring and paying
+    const age = calcAge(dob);
+    if (age === null || age < 18) {
+      setAgeError("You must be at least 18 years old to hire on Kickstart.");
+      setSaving(false);
+      return;
+    }
+
     const existing = await base44.entities.BuyerProfile.filter({ user_id: user.id });
     if (!existing[0]) {
       let geo;
@@ -43,9 +57,14 @@ export default function BuyerOnboarding({ user }) {
       });
       if (refCode.trim()) await redeemReferralCode(refCode, user);
     }
-    await base44.auth.updateMe({ app_role: "buyer", onboarded: true });
+    await base44.auth.updateMe({
+      app_role: "buyer",
+      onboarded: true,
+      date_of_birth: dob,
+      terms_accepted_at: new Date().toISOString(),
+      terms_version: TERMS_VERSION,
+    });
     setSaving(false);
-    // Hard redirect so the freshly-set role is picked up
     window.location.href = "/buyer";
   };
 
@@ -62,12 +81,26 @@ export default function BuyerOnboarding({ user }) {
         <Input className="rounded-xl mt-1" placeholder="e.g. 94110" value={zip} onChange={(e) => setZip(e.target.value)} />
       </div>
       <div>
+        <Label>Date of birth</Label>
+        <Input type="date" className="rounded-xl mt-1" value={dob} onChange={(e) => setDob(e.target.value)} />
+        <p className="text-xs text-muted-foreground mt-1">You must be 18 or older to hire on Kickstart.</p>
+      </div>
+      <div>
         <Label>Referral code (optional)</Label>
         <Input className="rounded-xl mt-1" placeholder="Got a code from a friend?" value={refCode} onChange={(e) => setRefCode(e.target.value)} />
         <p className="text-xs text-muted-foreground mt-1">You'll both get $10 booking credit after your first completed booking.</p>
       </div>
+      {ageError && <p className="text-xs text-destructive font-medium">{ageError}</p>}
       {geoError && <p className="text-xs text-destructive font-medium">{geoError}</p>}
-      <Button className="w-full rounded-xl" disabled={!address || !zip || saving} onClick={finish}>
+      <label className="flex items-start gap-2.5 text-sm text-muted-foreground cursor-pointer">
+        <Checkbox checked={tosAccepted} onCheckedChange={setTosAccepted} className="mt-0.5" />
+        <span>I accept the{" "}
+          <Link to="/terms" className="text-foreground font-medium hover:underline">Terms of Service</Link>
+          {" "}and{" "}
+          <Link to="/privacy" className="text-foreground font-medium hover:underline">Privacy Policy</Link>.
+        </span>
+      </label>
+      <Button className="w-full rounded-xl" disabled={!address || !zip || !dob || !tosAccepted || saving} onClick={finish}>
         {saving ? "Saving..." : "Get started"}
       </Button>
     </div>
