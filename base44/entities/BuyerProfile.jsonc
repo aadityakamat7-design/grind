@@ -46,6 +46,17 @@
         }
       }
     },
+    "identity_session_id": {
+      "type": "string",
+      "description": "Stripe Identity verification session id for the buyer",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
     "referral_code": {
       "type": "string",
       "description": "This neighbor's shareable referral code"

@@ -26,6 +26,16 @@ Deno.serve(async (req) => {
     if (!teenProfile) return Response.json({ error: 'Teen profile not found' }, { status: 404 });
     if (!buyerProfile) return Response.json({ error: 'Please complete your profile first' }, { status: 400 });
 
+    // Buyer identity gate — adults must be ID-verified before booking minors.
+    // Enforced server-side; the UI surfaces a verification prompt but cannot
+    // bypass this check.
+    if (buyerProfile.id_verification_status !== 'verified') {
+      return Response.json(
+        { error: 'Please verify your ID before booking. Tap "Verify my ID" to start a one-time identity check.', needsVerification: true },
+        { status: 403 }
+      );
+    }
+
     if (
       teenPrivateData?.latitude == null || teenPrivateData?.longitude == null ||
       buyerProfile.latitude == null || buyerProfile.longitude == null

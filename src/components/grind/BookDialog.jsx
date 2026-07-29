@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ShieldCheck, Lock, MessageCircle } from "lucide-react";
 import { computeFees, money } from "@/lib/grind";
 import SafetyAdvisorChat from "@/components/grind/SafetyAdvisorChat";
+import BuyerIdentityGate from "@/components/grind/buyer/BuyerIdentityGate";
 
 export default function BookDialog({ open, onOpenChange, listing, buyer, buyerProfile }) {
   const navigate = useNavigate();
@@ -21,6 +22,7 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [safetyOpen, setSafetyOpen] = useState(false);
+  const [buyerVerified, setBuyerVerified] = useState(buyerProfile?.id_verification_status === "verified");
 
   const total = listing.price_model === "HOURLY" ? Number(listing.price) * Number(hours || 1) : Number(listing.price);
   const { platform_fee, net_amount } = computeFees(total);
@@ -43,7 +45,11 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
       onOpenChange(false);
       navigate(`/bookings/${bookingId}`);
     } catch (err) {
-      setError(err.response?.data?.error || "Couldn't create this booking. Please try again.");
+      const msg = err.response?.data?.error || "Couldn't create this booking. Please try again.";
+      setError(msg);
+      if (err.response?.data?.needsVerification) {
+        setBuyerVerified(false);
+      }
     } finally {
       setSaving(false);
     }
@@ -56,6 +62,13 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
           <DialogTitle>Book {listing.teen_display_name}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
+          {!buyerVerified ? (
+            <BuyerIdentityGate
+              buyerProfile={buyerProfile}
+              onVerified={() => setBuyerVerified(true)}
+            />
+          ) : (
+          <>
           <div>
             <Label>Date & time</Label>
             <Input type="datetime-local" className="rounded-xl mt-1" value={when} onChange={(e) => setWhen(e.target.value)} />
@@ -115,6 +128,8 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
           <Button className="w-full rounded-xl" disabled={!when || !address || saving} onClick={book}>
             {saving ? "Booking..." : "Request booking"}
           </Button>
+          </>
+          )}
         </div>
       </DialogContent>
 
