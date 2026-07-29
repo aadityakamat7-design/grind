@@ -5,7 +5,7 @@ import { Zap, Instagram, Twitter, Facebook } from "lucide-react";
 const COLS = [
   { title: "Product", links: ["About", "How it works", "Safety"] },
   { title: "Company", links: ["Contact", "Support"] },
-  { title: "Legal", links: ["Privacy Policy", "Terms of Service"] },
+  { title: "Legal", links: [{ label: "Privacy Policy", to: "/privacy" }, { label: "Terms of Service", to: "/terms" }] },
 ];
 
 export default function LandingFooter() {
@@ -36,8 +36,12 @@ export default function LandingFooter() {
               <h4 className="text-xs font-semibold text-foreground uppercase tracking-wider mb-4">{col.title}</h4>
               <ul className="space-y-2.5">
                 {col.links.map((l) => (
-                  <li key={l}>
-                    <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{l}</a>
+                  <li key={typeof l === "string" ? l : l.label}>
+                    {typeof l === "string" ? (
+                      <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{l}</a>
+                    ) : (
+                      <Link to={l.to} className="text-sm text-muted-foreground hover:text-foreground transition-colors">{l.label}</Link>
+                    )}
                   </li>
                 ))}
               </ul>
