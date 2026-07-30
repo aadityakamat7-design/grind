@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { Navigate, useOutletContext } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Users, Search, CalendarDays, Wallet, Flag, BadgeCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,6 +10,7 @@ import StatusBadge from "@/components/grind/StatusBadge";
 import { money } from "@/lib/grind";
 
 export default function Admin() {
+  const { user } = useOutletContext();
   const [teens, setTeens] = useState([]);
   const [buyers, setBuyers] = useState([]);
   const [bookings, setBookings] = useState([]);
@@ -17,6 +19,7 @@ export default function Admin() {
   const [acting, setActing] = useState(false);
 
   const load = useCallback(async () => {
+    if (user?.app_role !== "admin") return;
     const [t, b, bk, r] = await Promise.all([
       base44.entities.TeenProfile.list("-created_date", 200),
       base44.entities.BuyerProfile.list("-created_date", 200),
@@ -28,9 +31,18 @@ export default function Admin() {
     setBookings(bk);
     setReports(r);
     setLoading(false);
-  }, []);
+  }, [user]);
 
   useEffect(() => { load(); }, [load]);
+
+  if (user?.app_role !== "admin") {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-center">
+        <p className="text-lg font-semibold text-foreground">Admins only</p>
+        <p className="text-sm text-muted-foreground mt-1">You don't have access to this page.</p>
+      </div>
+    );
+  }
 
   const resolve = async (report) => {
     setActing(true);

@@ -28,9 +28,6 @@ export default function TermsOfService() {
           <p>
             <strong>Adult users (18+).</strong> Neighbors hiring teens and parents managing teen accounts must be at least 18 years old and legally able to enter contracts.
           </p>
-          <p className="text-xs bg-muted/50 rounded-lg p-3 border border-border">
-            [REVIEW: Confirm the minimum age of 13 aligns with your state's digital contract and child labor laws. Some states may require a higher minimum age for certain service categories. Have counsel verify against COPPA and your target states.]
-          </p>
 
           <h2>2. Accounts and Parental Consent</h2>
           <p>
@@ -47,9 +44,6 @@ export default function TermsOfService() {
           <p>
             KickStart is a venue that connects neighbors with teens and their parents. We are <strong>not</strong> a party to any agreement between a neighbor and a teen (or their parent). We do not employ teens, do not direct or control how work is performed, and are not responsible for the quality, safety, or legality of any service. You use KickStart at your own risk.
           </p>
-          <p className="text-xs bg-muted/50 rounded-lg p-3 border border-border">
-            [REVIEW: Counsel should confirm the independent-contractor / no-employment language holds in your jurisdiction, especially given minors are involved.]
-          </p>
 
           <h2>4. Fees and Payments</h2>
           <p>
@@ -60,9 +54,6 @@ export default function TermsOfService() {
           </p>
           <p>
             <strong>Payouts.</strong> Earnings are paid to the parent's connected Stripe Connect account, not directly to the teen. The parent is responsible for any tax reporting and for distributing earnings to the teen as they see fit.
-          </p>
-          <p className="text-xs bg-muted/50 rounded-lg p-3 border border-border">
-            [REVIEW: Confirm the platform fee percentage and any state-specific tax collection obligations with counsel and your accountant.]
           </p>
 
           <h2>5. Refunds and Disputes</h2>
@@ -111,9 +102,6 @@ export default function TermsOfService() {
           <p>
             To the fullest extent permitted by law, KickStart and its operators are not liable for any indirect, incidental, or consequential damages arising from your use of the platform, including any harm or loss related to a job performed through the platform. Our total liability is limited to the fees you paid us in the preceding 12 months.
           </p>
-          <p className="text-xs bg-muted/50 rounded-lg p-3 border border-border">
-            [REVIEW: Limitation-of-liability clauses for services involving minors may be restricted in some states. Have counsel confirm enforceability.]
-          </p>
 
           <h2>12. Indemnification</h2>
           <p>
@@ -122,10 +110,8 @@ export default function TermsOfService() {
 
           <h2>13. Dispute Resolution and Governing Law</h2>
           <p>
-            These terms are governed by the laws of [REVIEW: state/country], without regard to conflict-of-law principles. Any dispute will first be attempted through good-faith negotiation. If unresolved, disputes will be resolved through binding arbitration rather than in court, except where small-claims court is available.
-          </p>
-          <p className="text-xs bg-muted/50 rounded-lg p-3 border border-border">
-            [REVIEW: Insert governing-law jurisdiction and confirm arbitration clause with counsel. Some jurisdictions disfavor mandatory arbitration for consumer/minor disputes.]
+            {/* FILL IN: Replace "the State of California, United States" with your governing-law jurisdiction if different */}
+            These terms are governed by the laws of the State of California, United States, without regard to conflict-of-law principles. Any dispute will first be attempted through good-faith negotiation. If unresolved, disputes will be resolved through binding arbitration rather than in court, except where small-claims court is available.
           </p>
 
           <h2>14. Changes to These Terms</h2>
@@ -135,7 +121,7 @@ export default function TermsOfService() {
 
           <h2>15. Contact</h2>
           <p>
-            Questions about these terms? Contact us through the in-app support or at [REVIEW: legal contact email / address].
+            Questions about these terms? Contact us through the in-app support or at <a href="mailto:aaditya.kamat10@gmail.com" className="text-foreground font-medium hover:underline">aaditya.kamat10@gmail.com</a>.
           </p>
         </div>
       </div>

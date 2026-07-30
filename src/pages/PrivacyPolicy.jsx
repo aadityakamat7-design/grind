@@ -31,7 +31,7 @@ export default function PrivacyPolicy() {
 
           <h2>2. Legal Bases for Processing</h2>
           <p>
-            We process your data to: provide the service you requested (contract), comply with legal obligations including child safety and tax laws (legal obligation), protect the safety of minors and prevent fraud (legitimate interest), and with your consent where required (consent). [REVIEW: If serving EU/UK users, map each purpose to GDPR Article 6 lawful basis and complete a Records of Processing Activities.]
+            We process your data to: provide the service you requested (contract), comply with legal obligations including child safety and tax laws (legal obligation), protect the safety of minors and prevent fraud (legitimate interest), and with your consent where required (consent).
           </p>
 
           <h2>3. How Minors' Data Is Handled</h2>
@@ -43,9 +43,6 @@ export default function PrivacyPolicy() {
           </p>
           <p>
             <strong>Minimization.</strong> We expose only the minimum information needed to operate safely. Teens are shown to neighbors by first name and last initial, approximate city, and service area — never exact address. Exact addresses are revealed to the teen and parent only after a booking is confirmed.
-          </p>
-          <p className="text-xs bg-muted/50 rounded-lg p-3 border border-border">
-            [REVIEW: Confirm your parental-consent verification method (Stripe Identity on the parent) satisfies COPPA's "verifiable parental consent" standard. If you expand beyond the US, GDPR-K and state laws (e.g., California's Age-Appropriate Design Code) may impose additional obligations.]
           </p>
 
           <h2>4. Payment Data Handling</h2>
@@ -73,9 +70,6 @@ export default function PrivacyPolicy() {
           <p>
             We keep your data for as long as your account is active. After account closure, we retain transaction and identity-verification records for as long as required by law (typically 3–7 years for tax and safety purposes), then delete or anonymize them. Messages are deleted when the account is closed.
           </p>
-          <p className="text-xs bg-muted/50 rounded-lg p-3 border border-border">
-            [REVIEW: Confirm retention periods against your state's record-keeping and tax requirements.]
-          </p>
 
           <h2>8. Security</h2>
           <p>
@@ -94,15 +88,12 @@ export default function PrivacyPolicy() {
             <li><strong>Export</strong> your data in a portable format.</li>
           </ul>
           <p>
-            Parents can exercise these rights on behalf of their linked teen. To make a request, use the in-app account deletion option or contact us at [REVIEW: privacy contact email].
+            Parents can exercise these rights on behalf of their linked teen. To make a request, use the in-app account deletion option or contact us at <a href="mailto:aaditya.kamat10@gmail.com" className="text-foreground font-medium hover:underline">aaditya.kamat10@gmail.com</a>.
           </p>
 
           <h2>10. Children's Privacy (COPPA)</h2>
           <p>
             We do not knowingly collect personal information from children under 13. If you believe a child under 13 has registered, contact us and we will promptly delete the account and associated data. For teens 13–17, we obtain verifiable parental consent through identity verification before activating the account, as described above.
-          </p>
-          <p className="text-xs bg-muted/50 rounded-lg p-3 border border-border">
-            [REVIEW: Have counsel confirm the full COPPA compliance posture — including the public-facing privacy notice for children, direct notice to parents, and the verifiable-consent mechanism — before launch.]
           </p>
 
           <h2>11. Changes to This Policy</h2>
@@ -112,7 +103,7 @@ export default function PrivacyPolicy() {
 
           <h2>12. Contact</h2>
           <p>
-            Questions or privacy requests? Contact us at [REVIEW: privacy contact email / address].
+            Questions or privacy requests? Contact us at <a href="mailto:aaditya.kamat10@gmail.com" className="text-foreground font-medium hover:underline">aaditya.kamat10@gmail.com</a>.
           </p>
         </div>
       </div>

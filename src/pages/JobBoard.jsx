@@ -27,13 +27,11 @@ export default function JobBoard() {
       setJobs(mine);
       setBuyerProfile(profiles[0] || null);
     } else {
-      const openJobs = await base44.entities.JobPost.filter({ status: "open" }, "-created_date", 50);
-      setJobs(openJobs);
-      // Let teens see a neighbor's rating before accepting a booking.
-      const allBuyers = await base44.entities.BuyerProfile.list("-created_date", 200);
-      const ratings = {};
-      allBuyers.forEach((b) => { ratings[b.user_id] = { avg: b.avg_rating || 0, count: b.review_count || 0 }; });
-      setBuyerRatings(ratings);
+      // Fetch open jobs + buyer ratings via a server function that strips
+      // the physical address and never pulls buyer coordinates to the client.
+      const res = await base44.functions.invoke("getJobBoard", {});
+      setJobs(res.data.jobs);
+      setBuyerRatings(res.data.ratings);
     }
     setLoading(false);
   }, [user.id, isBuyer]);

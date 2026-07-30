@@ -6,7 +6,7 @@ import { BadgeCheck, Reply, Pencil } from "lucide-react";
 import RatingStars from "@/components/grind/RatingStars";
 import ReportButton from "@/components/grind/ReportButton";
 import { CATEGORY_LABELS } from "@/lib/grind";
-import { isReviewEditable, recomputeTeenRating, recomputeBuyerRating } from "@/lib/ratings";
+import { isReviewEditable } from "@/lib/ratings";
 import { maskPII } from "@/lib/grind";
 import { format } from "date-fns";
 

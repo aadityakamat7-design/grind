@@ -34,6 +34,7 @@ import Messages from '@/pages/Messages';
 import ChatThread from '@/pages/ChatThread';
 import Notifications from '@/pages/Notifications';
 import Admin from '@/pages/Admin';
+import AdminRoute from '@/components/grind/AdminRoute';
 import TermsOfService from '@/pages/TermsOfService';
 import PrivacyPolicy from '@/pages/PrivacyPolicy';
 import Support from '@/pages/Support';
@@ -106,7 +107,7 @@ const AuthenticatedApp = () => {
         <Route path="/messages" element={<Messages />} />
         <Route path="/messages/:threadId" element={<ChatThread />} />
         <Route path="/notifications" element={<Notifications />} />
-        <Route path="/admin" element={<Admin />} />
+        <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
         </Routes>

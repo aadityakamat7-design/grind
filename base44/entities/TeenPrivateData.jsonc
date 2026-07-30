@@ -12,10 +12,24 @@
     },
     "date_of_birth": {
       "type": "string",
-      "format": "date"
+      "format": "date",
+      "description": "Self-reported date of birth \u2014 used only before ID verification. Once verified_dob is set, that is the source of truth."
+    },
+    "verified_dob": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of birth from the teen's Stripe-verified government ID \u2014 the source of truth for age/eligibility checks. Set server-side only when identity verification completes.",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     },
     "age": {
-      "type": "number"
+      "type": "number",
+      "description": "Self-reported age (derived from date_of_birth at onboarding). Superseded by verified_dob once identity is verified."
     },
     "zip": {
       "type": "string"

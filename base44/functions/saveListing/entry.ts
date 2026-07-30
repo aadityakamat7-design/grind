@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 import { checkHazard } from '../../shared/hazardCheck.ts';
+import { getVerifiedAge } from '../../shared/teenAge.ts';
 
 const MAX_UNIT_PRICE = 500;
 const MIN_TITLE = 3;
@@ -35,7 +36,7 @@ Deno.serve(async (req) => {
     // Server-side hazard screening — a client can't bypass this by calling
     // saveListing directly with a prohibited task.
     const privateData = await svc.TeenPrivateData.filter({ user_id: user.id });
-    const age = privateData[0]?.age || 18;
+    const age = getVerifiedAge(privateData[0]) ?? 18;
     const hazard = checkHazard(`${title} ${body.description || ''}`, age);
     if (hazard.flagged) {
       return Response.json({ error: hazard.reason }, { status: 400 });

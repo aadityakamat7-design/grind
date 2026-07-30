@@ -1,9 +1,13 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 
-// Parent-teen linking. The teen's connection code + the parent's explicit
-// attestation of the relationship are enough to confirm the link and activate
-// the teen's account. Stripe Identity verification is tracked separately (for
-// payouts) and never blocks this connection.
+// Parent-teen linking — two-factor safety model:
+//   Check 1: parent identity verified (Stripe Identity: government ID + liveness)
+//   Check 2: relationship attested (invite code + explicit attestation checkbox)
+// The link only becomes 'confirmed' and the teen only goes 'active' when BOTH
+// checks pass. If identity is not yet verified, the link stays 'pending' and
+// the teen remains unlistable/unsearchable. When the parent later completes
+// identity verification, markParentVerified (in identityVerification.ts)
+// flips the link to confirmed and activates the teen.
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -26,14 +30,17 @@ Deno.serve(async (req) => {
     const identityVerified = !!parentProfiles[0]?.is_identity_verified;
 
     const now = new Date().toISOString();
+    // relationship_confirmed is always true at this point (attestation passed).
+    // The link only becomes confirmed when identity is ALSO verified.
+    const fullyVerified = identityVerified;
+
     const data = {
       teen_profile_id: teen.id,
       teen_display_name: teen.display_name,
       identity_verified: identityVerified,
       relationship_confirmed: true,
       relationship_attested_at: now,
-      status: 'confirmed',
-      confirmed_at: now,
+      ...(fullyVerified ? { status: 'confirmed', confirmed_at: now } : { status: 'pending' }),
     };
 
     const existing = await svc.ParentTeenLink.filter({ parent_user_id: user.id, teen_user_id: teen.user_id });
@@ -43,7 +50,12 @@ Deno.serve(async (req) => {
       await svc.ParentTeenLink.create({ parent_user_id: user.id, teen_user_id: teen.user_id, ...data });
     }
 
-    await svc.TeenProfile.update(teen.id, { status: 'active', parent_identity_verified: identityVerified });
+    // Only activate the teen (making them listable/searchable) when both
+    // checks have passed. A pending link keeps the teen in their current state.
+    await svc.TeenProfile.update(teen.id, {
+      parent_identity_verified: identityVerified,
+      ...(fullyVerified ? { status: 'active' } : {}),
+    });
 
     // Stamp the parent_user_id on the teen's private data so the parent can
     // read it via RLS (DOB, exact coordinates) for oversight.
@@ -51,22 +63,40 @@ Deno.serve(async (req) => {
     if (privateRecords[0]) {
       await svc.TeenPrivateData.update(privateRecords[0].id, { parent_user_id: user.id });
     }
-    await svc.Notification.create({
-      user_id: teen.user_id,
-      type: 'approval',
-      title: 'Your account is live! 🎉',
-      body: `${user.full_name || 'Your parent'} confirmed your link. You can now publish services and take jobs.`,
-      link: '/teen',
-    });
-    await svc.Notification.create({
-      user_id: user.id,
-      type: 'approval',
-      title: `You're linked with ${teen.display_name}! 🎉`,
-      body: `You'll now see their bookings, income, and safety status on your dashboard.`,
-      link: '/parent',
-    });
 
-    return Response.json({ linked: true, fullyVerified: true, teenName: teen.display_name });
+    if (fullyVerified) {
+      await svc.Notification.create({
+        user_id: teen.user_id,
+        type: 'approval',
+        title: 'Your account is live! 🎉',
+        body: `${user.full_name || 'Your parent'} confirmed your link and verified their ID. You can now publish services and take jobs.`,
+        link: '/teen',
+      });
+      await svc.Notification.create({
+        user_id: user.id,
+        type: 'approval',
+        title: `You're linked with ${teen.display_name}! 🎉`,
+        body: `You'll now see their bookings, income, and safety status on your dashboard.`,
+        link: '/parent',
+      });
+    } else {
+      await svc.Notification.create({
+        user_id: teen.user_id,
+        type: 'approval',
+        title: 'Parent linked — one more step',
+        body: `${user.full_name || 'Your parent'} confirmed the link. They still need to verify their ID before your account goes live.`,
+        link: '/teen',
+      });
+      await svc.Notification.create({
+        user_id: user.id,
+        type: 'approval',
+        title: 'Link started — verify your ID',
+        body: `You're linked with ${teen.display_name}. Verify your government ID to activate their account.`,
+        link: '/parent',
+      });
+    }
+
+    return Response.json({ linked: true, fullyVerified, teenName: teen.display_name });
   } catch (error) {
     console.error('confirmParentLink error:', error.message);
     return Response.json({ error: error.message }, { status: 500 });

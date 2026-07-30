@@ -1,26 +1,62 @@
 // Geocodes an address or ZIP code into coordinates + resolved city/state using
 // OpenStreetMap's free Nominatim API (no API key required).
-export async function geocodeAddress(query: string) {
+// Nominatim rate-limits at ~1 req/sec with no SLA, so results are cached for
+// 24 hours and a stale cached value is returned as a fallback on transient
+// failures.
+
+type GeocodeResult = {
+  lat: number;
+  lng: number;
+  city: string;
+  state: string;
+  formatted_address: string;
+};
+
+const cache = new Map<string, { value: GeocodeResult; expires: number }>();
+const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
+
+export async function geocodeAddress(query: string): Promise<GeocodeResult> {
+  const key = query.trim().toLowerCase();
+  const cached = cache.get(key);
+  if (cached && cached.expires > Date.now()) {
+    return cached.value;
+  }
+
   const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=jsonv2&addressdetails=1&limit=1&countrycodes=us`;
-  const res = await fetch(url, {
-    headers: { 'User-Agent': 'GrindApp/1.0 (teen job marketplace address verification)' },
-  });
-  if (!res.ok) throw new Error('Geocoding service is unavailable right now. Please try again.');
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      headers: { 'User-Agent': 'GrindApp/1.0 (teen job marketplace address verification)' },
+    });
+  } catch {
+    // Network error — fall back to a stale cached value if available
+    if (cached) return cached.value;
+    throw new Error('Geocoding service is unavailable right now. Please try again.');
+  }
+
+  if (!res.ok) {
+    if (cached) return cached.value;
+    throw new Error('Geocoding service is unavailable right now. Please try again.');
+  }
+
   const results = await res.json();
   const result = results?.[0];
   if (!result) {
     throw new Error("We couldn't find that address. Please double check it and try again.");
   }
+
   const addr = result.address || {};
   const city = addr.city || addr.town || addr.village || addr.hamlet || '';
   const state = addr.state ? US_STATE_ABBR[addr.state] || addr.state : '';
-  return {
+  const value: GeocodeResult = {
     lat: parseFloat(result.lat),
     lng: parseFloat(result.lon),
     city,
     state,
     formatted_address: result.display_name,
   };
+  cache.set(key, { value, expires: Date.now() + CACHE_TTL_MS });
+  return value;
 }
 
 const US_STATE_ABBR: Record<string, string> = {

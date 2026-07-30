@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
+import { getVerifiedAge } from '../../shared/teenAge.ts';
 
 // Runs the teen's "take this job" flow server-side, since JobPost.status is
 // locked to admin/service-role writes (so a buyer/teen can never flip a job
@@ -34,7 +35,8 @@ Deno.serve(async (req) => {
     if (profile?.status !== 'active') {
       return Response.json({ error: "Your account isn't live yet — your parent must verify their ID and confirm your link before you can take jobs." }, { status: 403 });
     }
-    if (job.ai_minimum_age && teenPrivate?.age && teenPrivate.age < job.ai_minimum_age) {
+    const teenAge = getVerifiedAge(teenPrivate);
+    if (job.ai_minimum_age && teenAge != null && teenAge < job.ai_minimum_age) {
       return Response.json({ error: `This job requires workers age ${job.ai_minimum_age}+ under ${job.state} law.` }, { status: 403 });
     }
 
