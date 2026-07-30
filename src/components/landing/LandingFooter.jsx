@@ -4,7 +4,7 @@ import { Zap, Instagram, Twitter, Facebook } from "lucide-react";
 
 const COLS = [
   { title: "Product", links: ["About", "How it works", "Safety"] },
-  { title: "Company", links: ["Contact", "Support"] },
+  { title: "Company", links: ["Contact", { label: "Support", to: "/support" }] },
   { title: "Legal", links: [{ label: "Privacy Policy", to: "/privacy" }, { label: "Terms of Service", to: "/terms" }] },
 ];
 

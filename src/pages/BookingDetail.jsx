@@ -14,6 +14,7 @@ import AlertParentButton from "@/components/grind/AlertParentButton";
 import PaymentStatusTracker from "@/components/grind/PaymentStatusTracker";
 import EarningsBreakdown from "@/components/grind/teen/EarningsBreakdown";
 import JobHandshakePanel from "@/components/grind/JobHandshakePanel";
+import CheckInTimeline from "@/components/grind/parent/CheckInTimeline";
 
 export default function BookingDetail() {
   const { bookingId } = useParams();
@@ -74,6 +75,19 @@ export default function BookingDetail() {
       }
     } catch (err) {
       setHandshakeError(err.response?.data?.error || "Couldn't cancel this booking.");
+    }
+    setActing(false);
+    load();
+  };
+
+  const reportProblem = async () => {
+    setActing(true);
+    setHandshakeError("");
+    try {
+      await base44.functions.invoke("reportBookingProblem", { bookingId: booking.id });
+      setHandshakeError("This booking has been flagged for our team to review.");
+    } catch (err) {
+      setHandshakeError(err.response?.data?.error || "Couldn't submit your report.");
     }
     setActing(false);
     load();
@@ -180,6 +194,8 @@ export default function BookingDetail() {
 
         <PaymentStatusTracker booking={booking} />
 
+        <CheckInTimeline booking={booking} />
+
         {booking.status === "in_progress" && isParent && (
           <div className="mt-4 bg-secondary border border-border rounded-xl p-3 text-xs text-muted-foreground font-medium">
             📍 {booking.teen_display_name}'s live location is being shared with you while this job is active.
@@ -238,6 +254,26 @@ export default function BookingDetail() {
         {canReview && booking.payment_status === "released" && (
           <Button variant="outline" className="w-full rounded-xl" onClick={() => setReviewOpen(true)}>
             Leave a review
+          </Button>
+        )}
+        {isParent && ["confirmed", "in_progress"].includes(booking.status) && !booking.dispute_flagged_at && (
+          <Button
+            variant="outline"
+            className="w-full rounded-xl text-destructive border-destructive/20 hover:bg-destructive/10 hover:text-destructive"
+            disabled={acting}
+            onClick={cancelBooking}
+          >
+            Cancel & refund
+          </Button>
+        )}
+        {(isTeen || isBuyer || isParent) && ["confirmed", "in_progress", "completed"].includes(booking.status) && !booking.dispute_flagged_at && (
+          <Button
+            variant="outline"
+            className="w-full rounded-xl text-destructive border-destructive/20 hover:bg-destructive/10 hover:text-destructive"
+            disabled={acting}
+            onClick={reportProblem}
+          >
+            Report a problem
           </Button>
         )}
       </div>

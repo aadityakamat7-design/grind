@@ -1,6 +1,6 @@
 import React from "react";
 import { Outlet, NavLink, Navigate, Link, useLocation, useNavigate } from "react-router-dom";
-import { Home, List, CalendarDays, MessageCircle, Wallet, LayoutDashboard, ShieldCheck, Search, Zap, UserCircle, Briefcase, ArrowLeft } from "lucide-react";
+import { Home, List, CalendarDays, MessageCircle, Wallet, LayoutDashboard, ShieldCheck, Search, Zap, UserCircle, Briefcase, ArrowLeft, LifeBuoy } from "lucide-react";
 import { useAppUser } from "@/lib/useAppUser";
 import NotificationBell from "@/components/grind/NotificationBell";
 
@@ -115,6 +115,9 @@ export default function Layout() {
               <p className="text-xs text-muted-foreground truncate">{roleLabel}</p>
             </div>
           </Link>
+          <Link to="/support" className="flex items-center gap-3 rounded-xl px-3.5 py-2 mt-1 text-xs font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors">
+            <LifeBuoy className="w-4 h-4 shrink-0" /> Support
+          </Link>
         </div>
       </aside>
 
@@ -139,6 +142,7 @@ export default function Layout() {
           )}
           <div className="flex items-center gap-3">
             <NotificationBell userId={user.id} />
+            <Link to="/support" className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">Help</Link>
             <Link to="/account" className="text-muted-foreground hover:text-foreground transition-colors">
               <UserCircle className="w-6 h-6" />
             </Link>
