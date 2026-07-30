@@ -99,7 +99,7 @@ export default function BuyerIdentityGate({ buyerProfile, onVerified }) {
         <div>
           <p className="font-bold text-foreground">Verify your ID before booking</p>
           <p className="text-muted-foreground mt-1">
-            For everyone's safety, neighbors must verify their identity with a government ID before booking a teen. This is a one-time check powered by Stripe Identity.
+            For everyone's safety, neighbors must verify their identity with their government ID number before booking a teen. This is a one-time check powered by Stripe Identity.
           </p>
         </div>
       </div>

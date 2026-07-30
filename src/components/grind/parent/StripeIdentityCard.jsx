@@ -80,14 +80,14 @@ export default function StripeIdentityCard({ onVerified }) {
       <div>
         <h3 className="font-bold text-slate-900">Verify your identity</h3>
         <p className="text-sm text-slate-500 mt-1">
-          To protect teens, every parent verifies with a real government-issued photo ID and a live selfie.
-          Verification happens on Stripe's secure page — we never see or store your ID images.
+          To protect teens, every parent verifies with their government ID number.
+          Verification happens on Stripe's secure page — we never see or store your ID details.
         </p>
       </div>
       {status === "processing" && (
         <div className="bg-blue-50 rounded-xl p-3 text-sm text-blue-900 flex items-start gap-2">
           <Loader2 className="w-4 h-4 shrink-0 mt-0.5 animate-spin" />
-          <span>Stripe is still reviewing your documents — this usually takes a minute or two.</span>
+          <span>Stripe is still verifying your details — this usually takes a minute or two.</span>
         </div>
       )}
       {(status === "failed" || error) && (
@@ -98,7 +98,7 @@ export default function StripeIdentityCard({ onVerified }) {
       )}
       <div className="bg-blue-50 rounded-xl p-3 text-xs text-blue-900 flex items-start gap-2">
         <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5" />
-        Have your driver's license, state ID, or passport ready, plus your phone camera for the selfie check.
+        Have your government ID number ready (such as your driver's license or state ID number).
       </div>
       <div className="grid gap-2">
         <Button className="w-full rounded-xl" onClick={start}>

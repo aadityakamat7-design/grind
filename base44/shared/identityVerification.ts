@@ -56,10 +56,9 @@ export async function applyVerifiedIdentity(base44, stripe, sessionId) {
     limit: 1,
   });
   const report = reports.data[0];
-  const documentOk = report?.document?.status === 'verified';
-  const selfieOk = report?.selfie?.status === 'verified';
-  if (!documentOk || !selfieOk) {
-    return { verified: false, status: 'failed', lastError: 'Document or selfie check did not pass' };
+  const idNumberOk = report?.id_number?.status === 'verified';
+  if (!idNumberOk) {
+    return { verified: false, status: 'failed', lastError: 'ID number check did not pass' };
   }
 
   const userId = session.metadata?.user_id;

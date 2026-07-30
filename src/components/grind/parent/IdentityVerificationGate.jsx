@@ -92,7 +92,7 @@ export default function IdentityVerificationGate({ open, onOpenChange, onVerifie
           <div className="space-y-4">
             <div className="flex items-start gap-2 bg-secondary rounded-xl p-3 text-sm text-muted-foreground">
               <Loader2 className="w-4 h-4 shrink-0 mt-0.5 animate-spin" />
-              <span>Stripe is still reviewing your documents — this usually takes a minute or two. You can check again below.</span>
+              <span>Stripe is still verifying your details — this usually takes a minute or two. You can check again below.</span>
             </div>
             <Button variant="outline" className="w-full rounded-xl" onClick={checkStatus}>
               Check status again
@@ -122,7 +122,7 @@ export default function IdentityVerificationGate({ open, onOpenChange, onVerifie
 
             <div className="bg-secondary rounded-xl p-3 text-xs text-muted-foreground flex items-start gap-2">
               <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5" />
-              <span>Have your driver's license, state ID, or passport ready, plus your phone camera for the selfie check. We never see or store your ID images.</span>
+              <span>You'll enter your full name, date of birth, and government ID number (such as your driver's license or state ID number). We never see or store your ID details.</span>
             </div>
 
             <div className="grid gap-2">

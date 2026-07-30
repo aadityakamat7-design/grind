@@ -28,14 +28,7 @@ Deno.serve(async (req) => {
     }
 
     const session = await stripe.identity.verificationSessions.create({
-      type: 'document',
-      options: {
-        document: {
-          allowed_types: ['driving_license', 'passport', 'id_card'],
-          require_matching_selfie: true,
-          require_live_capture: true,
-        },
-      },
+      type: 'id_number',
       metadata: {
         base44_app_id: Deno.env.get('BASE44_APP_ID'),
         user_id: user.id,
