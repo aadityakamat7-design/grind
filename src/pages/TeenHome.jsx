@@ -82,7 +82,7 @@ export default function TeenHome() {
           <p className="text-sm text-muted-foreground mt-1">Here's what's happening with your hustle.</p>
         </div>
         <Link to="/teen/listings" className="flex items-center gap-1 shrink-0 bg-foreground hover:bg-foreground/90 text-background text-xs font-medium rounded-xl px-3 py-2 transition-colors">
-          <Plus className="w-3.5 h-3.5" /> Create listing
+          <Plus className="w-3.5 h-3.5" /> Create service
         </Link>
       </div>
 

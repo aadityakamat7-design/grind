@@ -93,11 +93,19 @@ Deno.serve(async (req) => {
     const creditApplied = Math.min(Number(buyerProfile.referral_credit || 0), total);
     const buyerPays = Math.round((total - creditApplied) * 100) / 100;
 
-    const links = await base44.asServiceRole.entities.ParentTeenLink.filter({
-      teen_user_id: listing.teen_user_id, status: 'confirmed',
-    });
-    const parentUserId = links[0]?.parent_user_id || '';
+    // 18+ teens use the platform independently — no parent approval needed.
+    // 13–17 teens require a linked, verified parent.
+    const teenAge = teenPrivateData?.age || 0;
+    const needsParent = teenAge < 18;
+    let parentUserId = '';
+    if (needsParent) {
+      const links = await base44.asServiceRole.entities.ParentTeenLink.filter({
+        teen_user_id: listing.teen_user_id, status: 'confirmed',
+      });
+      parentUserId = links[0]?.parent_user_id || '';
+    }
     const buyerName = user.full_name?.split(' ')[0] || 'Neighbor';
+    const bookingStatus = needsParent ? 'pending_parent_approval' : 'confirmed';
 
     const booking = await base44.asServiceRole.entities.Booking.create({
       listing_id: listing.id,
@@ -112,7 +120,7 @@ Deno.serve(async (req) => {
       notes: notes || '',
       is_recurring: !!recurrence && recurrence !== 'none',
       recurrence: recurrence && recurrence !== 'none' ? recurrence : undefined,
-      status: 'pending_parent_approval',
+      status: bookingStatus,
       price_total: total,
       charge_amount: buyerPays,
       platform_fee,
@@ -134,7 +142,7 @@ Deno.serve(async (req) => {
       teen_display_name: listing.teen_display_name,
       parent_user_id: parentUserId,
       participant_ids: [user.id, listing.teen_user_id, parentUserId].filter(Boolean),
-      is_confirmed: false,
+      is_confirmed: !needsParent,
     });
 
     if (parentUserId) {
@@ -150,8 +158,10 @@ Deno.serve(async (req) => {
     await base44.asServiceRole.entities.Notification.create({
       user_id: listing.teen_user_id,
       type: 'booking',
-      title: 'New booking request',
-      body: `"${listing.title}" — waiting on parent approval.`,
+      title: needsParent ? 'New booking request' : 'New booking confirmed!',
+      body: needsParent
+        ? `"${listing.title}" — waiting on parent approval.`
+        : `"${listing.title}" — the neighbor will pay to confirm.`,
       link: `/bookings/${booking.id}`,
       read: false,
     });

@@ -35,8 +35,9 @@ export function useApprovalWithVerification(profile, onDecided) {
   }, []);
 
   const attempt = useCallback(async (booking, approve) => {
-    // Already verified — go straight through.
-    if (profile?.is_identity_verified) {
+    // Deny/refund doesn't require identity verification — go straight through.
+    // Approve requires verification; if already verified, also go straight through.
+    if (!approve || profile?.is_identity_verified) {
       try {
         await runDecide(booking, approve);
         onDecided?.();
@@ -46,7 +47,7 @@ export function useApprovalWithVerification(profile, onDecided) {
       return;
     }
 
-    // Not verified — stash the pending action and open the gate.
+    // Approve while not verified — stash the pending action and open the gate.
     pendingRef.current = { bookingId: booking.id, approve, booking };
     try { sessionStorage.setItem(PENDING_KEY, JSON.stringify({ bookingId: booking.id, approve })); } catch { /* ignore */ }
     setGateOpen(true);

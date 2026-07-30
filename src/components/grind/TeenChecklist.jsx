@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { CheckCircle2, Circle } from "lucide-react";
+import { CheckCircle2, Circle, ChevronRight } from "lucide-react";
 
 export default function TeenChecklist({ profile, bookings = [] }) {
   const [listingCount, setListingCount] = useState(null);
@@ -13,10 +14,10 @@ export default function TeenChecklist({ profile, bookings = [] }) {
   if (!profile || listingCount === null) return null;
 
   const items = [
-    { label: "Create your profile", done: true },
-    { label: "Get your parent's approval", done: profile.status === "active" },
-    { label: "Publish your first service", done: listingCount > 0 },
-    { label: "Complete your first job", done: bookings.some((b) => b.status === "completed") },
+    { label: "Create your profile", done: true, to: null },
+    { label: "Get your parent's approval", done: profile.status === "active", to: "/teen" },
+    { label: "Publish your first service", done: listingCount > 0, to: "/teen/listings" },
+    { label: "Complete your first job", done: bookings.some((b) => b.status === "completed"), to: "/teen/bookings" },
   ];
   if (items.every((i) => i.done)) return null;
   const doneCount = items.filter((i) => i.done).length;
@@ -32,10 +33,17 @@ export default function TeenChecklist({ profile, bookings = [] }) {
       </div>
       <div className="mt-3 space-y-2">
         {items.map((i) => (
-          <p key={i.label} className={`flex items-center gap-2 text-sm ${i.done ? "text-slate-400 line-through" : "text-slate-700 font-semibold"}`}>
-            {i.done ? <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" /> : <Circle className="w-4 h-4 text-slate-300 shrink-0" />}
-            {i.label}
-          </p>
+          <div key={i.label} className="flex items-center justify-between gap-2">
+            <p className={`flex items-center gap-2 text-sm ${i.done ? "text-slate-400 line-through" : "text-slate-700 font-semibold"}`}>
+              {i.done ? <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" /> : <Circle className="w-4 h-4 text-slate-300 shrink-0" />}
+              {i.label}
+            </p>
+            {!i.done && i.to && (
+              <Link to={i.to} className="flex items-center gap-0.5 text-xs font-bold text-blue-600 hover:text-blue-700 shrink-0">
+                Do it <ChevronRight className="w-3 h-3" />
+              </Link>
+            )}
+          </div>
         ))}
       </div>
     </div>

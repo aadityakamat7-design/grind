@@ -9,6 +9,7 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp
 import AuthLayout from "@/components/AuthLayout";
 import GoogleIcon from "@/components/GoogleIcon";
 import RolePicker from "@/components/grind/onboarding/RolePicker";
+import LegalModal from "@/components/grind/LegalModal";
 import TeenEligibilityStep from "@/components/grind/onboarding/TeenEligibilityStep";
 import { toast } from "@/components/ui/use-toast";
 
@@ -23,6 +24,7 @@ export default function Register() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showOtp, setShowOtp] = useState(false);
+  const [legalModal, setLegalModal] = useState(null);
   const [otpCode, setOtpCode] = useState("");
 
   const handleSubmit = async (e) => {
@@ -308,11 +310,12 @@ export default function Register() {
         </Button>
         <p className="text-center text-xs text-muted-foreground mt-4">
           By creating an account, you agree to our{" "}
-          <Link to="/terms" className="text-foreground font-medium hover:underline">Terms of Service</Link>
+          <button type="button" onClick={() => setLegalModal("terms")} className="text-foreground font-medium hover:underline">Terms of Service</button>
           {" "}and{" "}
-          <Link to="/privacy" className="text-foreground font-medium hover:underline">Privacy Policy</Link>.
+          <button type="button" onClick={() => setLegalModal("privacy")} className="text-foreground font-medium hover:underline">Privacy Policy</button>.
         </p>
       </form>
+      <LegalModal type={legalModal} open={!!legalModal} onOpenChange={(v) => !v && setLegalModal(null)} />
     </AuthLayout>
   );
 }

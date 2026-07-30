@@ -4,8 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Copy, Check, ShieldAlert, MapPin } from "lucide-react";
+import { ShieldAlert, MapPin } from "lucide-react";
 import { calcAge, genInviteCode, SKILL_SUGGESTIONS } from "@/lib/grind";
+import ShareInvite from "@/components/grind/ShareInvite";
 import { checkEligibility, stateName } from "@/lib/stateWorkRules";
 import { setCachedUser } from "@/lib/useAppUser";
 import TeenEligibilityStep from "@/components/grind/onboarding/TeenEligibilityStep";
@@ -22,7 +23,6 @@ export default function TeenOnboarding({ user }) {
   const [zip, setZip] = useState("");
   const [skills, setSkills] = useState([]);
   const [inviteCode, setInviteCode] = useState("");
-  const [copied, setCopied] = useState(false);
   const [saving, setSaving] = useState(false);
   const [geoError, setGeoError] = useState("");
 
@@ -100,17 +100,19 @@ export default function TeenOnboarding({ user }) {
     localStorage.removeItem("kickstart_teen_dob");
     localStorage.removeItem("kickstart_teen_state");
     localStorage.removeItem("kickstart_teen_min_age");
+    const age = calcAge(dob);
+    if (age !== null && age >= 18) {
+      // 18+ — no parent needed, activate the profile immediately
+      try {
+        await base44.functions.invoke("activateIndependentTeen", {});
+      } catch { /* non-fatal — profile still exists */ }
+      setSaving(false);
+      window.location.href = "/teen";
+      return;
+    }
     setInviteCode(code);
     setSaving(false);
     setStep(3);
-  };
-
-  const copyCode = () => {
-    navigator.clipboard.writeText(
-      `Hey! I'm joining Kickstart to earn money doing local jobs. I need you to approve my account — download the app, sign up as a Parent, and enter my code: ${inviteCode}`
-    );
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
   };
 
   if (step === 1)
@@ -195,10 +197,7 @@ export default function TeenOnboarding({ user }) {
         <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Your parent code</p>
         <p className="text-3xl font-bold tracking-[0.3em] text-foreground mt-1">{inviteCode}</p>
       </div>
-      <Button variant="outline" className="w-full rounded-xl" onClick={copyCode}>
-        {copied ? <Check className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
-        {copied ? "Copied!" : "Copy invite message"}
-      </Button>
+      <ShareInvite code={inviteCode} />
       {/* Hard redirect so the freshly-set role is picked up */}
       <Button className="w-full rounded-xl" onClick={() => { window.location.href = "/teen"; }}>Go to my dashboard</Button>
     </div>

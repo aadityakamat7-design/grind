@@ -7,7 +7,7 @@ import NotificationBell from "@/components/grind/NotificationBell";
 const TABS = {
   teen: [
     { to: "/teen", label: "Home", icon: Home, end: true },
-    { to: "/teen/listings", label: "Listings", icon: List },
+    { to: "/teen/listings", label: "My Services", icon: List },
     { to: "/jobs", label: "Jobs", icon: Briefcase },
     { to: "/teen/bookings", label: "Bookings", icon: CalendarDays },
     { to: "/messages", label: "Messages", icon: MessageCircle },

@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { genInviteCode, calcAge } from "@/lib/grind";
 import { redeemReferralCode } from "@/lib/referrals";
+import LegalModal from "@/components/grind/LegalModal";
 
 const TERMS_VERSION = "2026-07";
 
@@ -19,6 +20,7 @@ export default function BuyerOnboarding({ user }) {
   const [saving, setSaving] = useState(false);
   const [geoError, setGeoError] = useState("");
   const [ageError, setAgeError] = useState("");
+  const [legalModal, setLegalModal] = useState(null);
 
   const finish = async () => {
     setSaving(true);
@@ -95,14 +97,15 @@ export default function BuyerOnboarding({ user }) {
       <label className="flex items-start gap-2.5 text-sm text-muted-foreground cursor-pointer">
         <Checkbox checked={tosAccepted} onCheckedChange={setTosAccepted} className="mt-0.5" />
         <span>I accept the{" "}
-          <Link to="/terms" className="text-foreground font-medium hover:underline">Terms of Service</Link>
+          <button type="button" onClick={() => setLegalModal("terms")} className="text-foreground font-medium hover:underline">Terms of Service</button>
           {" "}and{" "}
-          <Link to="/privacy" className="text-foreground font-medium hover:underline">Privacy Policy</Link>.
+          <button type="button" onClick={() => setLegalModal("privacy")} className="text-foreground font-medium hover:underline">Privacy Policy</button>.
         </span>
       </label>
       <Button className="w-full rounded-xl" disabled={!address || !zip || !dob || !tosAccepted || saving} onClick={finish}>
         {saving ? "Saving..." : "Get started"}
       </Button>
+      <LegalModal type={legalModal} open={!!legalModal} onOpenChange={(v) => !v && setLegalModal(null)} />
     </div>
   );
 }

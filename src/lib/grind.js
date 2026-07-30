@@ -113,3 +113,16 @@ export function genInviteCode() {
 }
 
 export const money = (n) => `$${Number(n || 0).toFixed(2)}`;
+
+// Parse a server timestamp as UTC. The platform may store custom datetime
+// fields without a timezone suffix; without this, browsers in negative UTC
+// offsets interpret them as local time and show future dates (e.g. "in 7 hours").
+export function parseUTC(s) {
+  if (!s) return null;
+  if (typeof s !== "string") return new Date(s);
+  // Datetime strings with a 'T' but no timezone suffix → treat as UTC
+  if (s.includes("T") && !/[zZ]$|[+-]\d{2}:?\d{2}$/.test(s)) {
+    return new Date(s + "Z");
+  }
+  return new Date(s);
+}

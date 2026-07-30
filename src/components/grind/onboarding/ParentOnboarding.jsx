@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ShieldCheck, AlertCircle } from "lucide-react";
 import { calcAge } from "@/lib/grind";
+import LegalModal from "@/components/grind/LegalModal";
 
 const TERMS_VERSION = "2026-07";
 
@@ -17,6 +18,7 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
   const [tosAccepted, setTosAccepted] = useState(false);
   const [paymentAuth, setPaymentAuth] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [legalModal, setLegalModal] = useState(null);
 
   useEffect(() => {
     (async () => {
@@ -104,9 +106,9 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
       <label className="flex items-start gap-2.5 text-sm text-muted-foreground cursor-pointer">
         <Checkbox checked={tosAccepted} onCheckedChange={setTosAccepted} className="mt-0.5" />
         <span>I confirm I am this teen's parent or legal guardian and I accept the{" "}
-          <Link to="/terms" className="text-foreground font-medium hover:underline">Terms of Service</Link>
+          <button type="button" onClick={() => setLegalModal("terms")} className="text-foreground font-medium hover:underline">Terms of Service</button>
           {" "}and{" "}
-          <Link to="/privacy" className="text-foreground font-medium hover:underline">Privacy Policy</Link>.
+          <button type="button" onClick={() => setLegalModal("privacy")} className="text-foreground font-medium hover:underline">Privacy Policy</button>.
         </span>
       </label>
       <label className="flex items-start gap-2.5 text-sm text-muted-foreground cursor-pointer">
@@ -116,6 +118,7 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
       <Button className="w-full rounded-xl" disabled={!code || !dob || !tosAccepted || !paymentAuth || saving} onClick={link}>
         {saving ? "Linking..." : "Confirm & approve my teen"}
       </Button>
+      <LegalModal type={legalModal} open={!!legalModal} onOpenChange={(v) => !v && setLegalModal(null)} />
     </div>
   );
 }

@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { MessageCircle } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { parseUTC } from "@/lib/grind";
 
 export default function MessagesWidget({ threads }) {
   return (
@@ -24,7 +25,7 @@ export default function MessagesWidget({ threads }) {
                 <p className="text-xs text-slate-500 truncate">{t.last_message || "New conversation"}</p>
               </div>
               {t.last_message_at && (
-                <p className="text-[10px] text-slate-400 shrink-0">{formatDistanceToNow(new Date(t.last_message_at), { addSuffix: true })}</p>
+                <p className="text-[10px] text-slate-400 shrink-0">{formatDistanceToNow(parseUTC(t.last_message_at), { addSuffix: true })}</p>
               )}
             </Link>
           ))}

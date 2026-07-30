@@ -4,6 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Bell, ShieldCheck, ShieldAlert, CalendarDays, Wallet, MessageCircle, Star } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { parseUTC } from "@/lib/grind";
 import EmptyState from "@/components/grind/EmptyState";
 
 const TYPE_ICONS = {
@@ -75,7 +76,7 @@ export default function Notifications() {
                   <p className={`text-sm ${n.read ? "font-medium text-muted-foreground" : "font-semibold text-foreground"}`}>{n.title}</p>
                   {n.body && <p className="text-xs text-muted-foreground mt-0.5">{n.body}</p>}
                   <p className="text-[11px] text-muted-foreground mt-1">
-                    {n.created_date ? formatDistanceToNow(new Date(n.created_date), { addSuffix: true }) : ""}
+                    {n.created_date ? formatDistanceToNow(parseUTC(n.created_date), { addSuffix: true }) : ""}
                   </p>
                 </div>
                 {!n.read && <span className="w-2 h-2 rounded-full bg-foreground mt-1.5 shrink-0" />}

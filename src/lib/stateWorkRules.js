@@ -49,22 +49,24 @@ export function stateName(code) {
   return US_STATES.find((s) => s.code === code)?.name || code;
 }
 
-// Returns { status: "eligible" | "blocked" | "invalid", reason, age, minAge }
+// Returns { status: "eligible" | "blocked" | "invalid", reason, age, minAge, needsParent }
+// 18+ teens use the platform independently (no parent needed).
+// 13–17 teens require a linked, verified parent. Under 13 is blocked.
 export function checkEligibility(dateOfBirth, stateCode) {
   const age = calcAgeFrom(dateOfBirth);
   if (age === null || !stateCode) return { status: "invalid" };
   if (age < 13) return { status: "blocked", reason: "under_13", age, minAge: 13 };
-  if (age > 17) return { status: "blocked", reason: "over_17", age };
+  // 18+ can join as independent teens — no parent approval required
+  if (age >= 18) return { status: "eligible", age, minAge: 18, needsParent: false };
+  // 13–17: check state minimum age, parent required
   const minAge = Math.max(13, STATE_MIN_AGES[stateCode] ?? 14);
   if (age < minAge) return { status: "blocked", reason: "under_state_min", age, minAge };
-  return { status: "eligible", age, minAge };
+  return { status: "eligible", age, minAge, needsParent: true };
 }
 
 export function blockedMessage(result, stateCode) {
   const st = stateName(stateCode);
   if (result.reason === "under_13")
     return "Kickstart is for teens 13 and older. We'd love to have you when you turn 13!";
-  if (result.reason === "over_17")
-    return "Kickstart teen accounts are for ages 13–17. Since you're 18+, sign up as a neighbor instead.";
   return `In ${st}, teens need to be at least ${result.minAge} to do this kind of work. You're ${result.age} now — you'll be able to join Kickstart when you turn ${result.minAge}.`;
 }

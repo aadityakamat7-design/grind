@@ -3,6 +3,7 @@ import { Link, useOutletContext } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { MessageCircle, Eye } from "lucide-react";
 import { format } from "date-fns";
+import { parseUTC } from "@/lib/grind";
 import EmptyState from "@/components/grind/EmptyState";
 
 export default function Messages() {
@@ -59,7 +60,7 @@ export default function Messages() {
                       {isParent ? `${t.teen_display_name} ↔ ${t.buyer_name}` : otherName}
                     </p>
                     {t.last_message_at && (
-                      <p className="text-[11px] text-muted-foreground shrink-0">{format(new Date(t.last_message_at), "MMM d")}</p>
+                      <p className="text-[11px] text-muted-foreground shrink-0">{format(parseUTC(t.last_message_at), "MMM d")}</p>
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground truncate mt-0.5">{t.last_message || t.listing_title}</p>

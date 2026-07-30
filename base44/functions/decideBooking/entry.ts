@@ -17,15 +17,14 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Booking is not awaiting approval' }, { status: 400 });
     }
 
-    // The parent must have passed ID verification before they can approve a
-    // booking. This is the core safety gate — an unverified parent cannot
-    // release their teen into a job.
-    const profiles = await base44.asServiceRole.entities.ParentProfile.filter({ user_id: user.id });
-    if (!profiles[0]?.is_identity_verified) {
-      return Response.json({ error: 'You must verify your identity before approving bookings. Complete ID verification in your dashboard.' }, { status: 403 });
-    }
-
     if (approve) {
+      // The parent must have passed ID verification before they can APPROVE a
+      // booking. This is the core safety gate — an unverified parent cannot
+      // release their teen into a job. Denial/refund does NOT require verification.
+      const profiles = await base44.asServiceRole.entities.ParentProfile.filter({ user_id: user.id });
+      if (!profiles[0]?.is_identity_verified) {
+        return Response.json({ error: 'You must verify your identity before approving bookings. Complete ID verification in your dashboard.' }, { status: 403 });
+      }
       // The teen must have completed their own identity verification before
       // the parent can approve their first job. Once verified, this check
       // passes for all future jobs.
