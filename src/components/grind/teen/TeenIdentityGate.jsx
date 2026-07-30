@@ -129,7 +129,7 @@ export default function TeenIdentityGate({ open, onOpenChange, onVerified }) {
               </Button>
               {status === "failed" && (
                 <a
-                  href="mailto:support@kickstart.app"
+                  href="mailto:aaditya.kamat10@gmail.com"
                   className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors py-1"
                 >
                   <LifeBuoy className="w-3.5 h-3.5" /> Contact support

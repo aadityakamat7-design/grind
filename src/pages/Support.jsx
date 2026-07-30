@@ -24,10 +24,8 @@ export default function Support() {
             <div>
               <p className="text-sm font-semibold text-foreground">Email us</p>
               <p className="text-sm text-muted-foreground mt-0.5">
-                {/* [REVIEW: owner to set — replace with the monitored support email address] */}
-                <a href="mailto:support@kickstart.example" className="text-foreground font-medium hover:underline">support@kickstart.example</a>
+                <a href="mailto:aaditya.kamat10@gmail.com" className="text-foreground font-medium hover:underline">aaditya.kamat10@gmail.com</a>
               </p>
-              <p className="text-xs text-muted-foreground mt-1">This is a placeholder — replace with your monitored support email.</p>
             </div>
           </div>
         </div>
