@@ -1,5 +1,15 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { getStripe } from '../../shared/stripeEnv.ts';
+import { getSafeOrigin } from '../../shared/safeOrigin.ts';
+
+// Only allow relative paths (starting with a single "/") as the return URL to
+// prevent open-redirect attacks via attacker-supplied external domains.
+function safeReturnUrl(req: Request, returnUrl?: string): string {
+  if (typeof returnUrl === 'string' && returnUrl.startsWith('/') && !returnUrl.startsWith('//')) {
+    return `${getSafeOrigin(req)}${returnUrl}`;
+  }
+  return getSafeOrigin(req);
+}
 
 // Creates a Stripe Identity verification session for a buyer (neighbor).
 // Buyers must verify before their first booking — adults transact with
@@ -27,7 +37,7 @@ Deno.serve(async (req) => {
         user_id: user.id,
         verification_subject: 'buyer',
       },
-      return_url: returnUrl,
+      return_url: safeReturnUrl(req, returnUrl),
     });
 
     await base44.asServiceRole.entities.BuyerProfile.update(profile.id, {

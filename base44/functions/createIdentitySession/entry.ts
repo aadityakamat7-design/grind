@@ -1,5 +1,15 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 import { getStripe } from '../../shared/stripeEnv.ts';
+import { getSafeOrigin } from '../../shared/safeOrigin.ts';
+
+// Only allow relative paths (starting with a single "/") as the return URL to
+// prevent open-redirect attacks via attacker-supplied external domains.
+function safeReturnUrl(req: Request, returnUrl?: string): string {
+  if (typeof returnUrl === 'string' && returnUrl.startsWith('/') && !returnUrl.startsWith('//')) {
+    return `${getSafeOrigin(req)}${returnUrl}`;
+  }
+  return getSafeOrigin(req);
+}
 
 Deno.serve(async (req) => {
   try {
@@ -33,7 +43,7 @@ Deno.serve(async (req) => {
         base44_app_id: Deno.env.get('BASE44_APP_ID'),
         user_id: user.id,
       },
-      return_url: returnUrl,
+      return_url: safeReturnUrl(req, returnUrl),
     });
 
     await base44.asServiceRole.entities.ParentProfile.update(profile.id, {

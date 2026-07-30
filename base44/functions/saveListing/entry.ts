@@ -61,11 +61,21 @@ Deno.serve(async (req) => {
       await svc.Listing.update(body.listingId, data);
       listing = { id: body.listingId };
     } else {
+      // Enforce caller ownership — never trust a client-supplied teenUserId.
+      // The listing is always attributed to the authenticated user.
+      let teenDisplayName = (user.full_name || '').slice(0, 50);
+      if (body.teenProfileId) {
+        const profile = await svc.TeenProfile.get(body.teenProfileId);
+        if (!profile || profile.user_id !== user.id) {
+          return Response.json({ error: 'Invalid teen profile.' }, { status: 403 });
+        }
+        teenDisplayName = (profile.display_name || teenDisplayName).slice(0, 50);
+      }
       listing = await svc.Listing.create({
         ...data,
-        teen_user_id: body.teenUserId,
+        teen_user_id: user.id,
         teen_profile_id: body.teenProfileId,
-        teen_display_name: (body.teenDisplayName || '').slice(0, 50),
+        teen_display_name: teenDisplayName,
       });
     }
 
