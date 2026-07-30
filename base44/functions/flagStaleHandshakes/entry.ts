@@ -9,6 +9,10 @@ const STALE_HOURS = 24;
 Deno.serve(async (_req) => {
   try {
     const base44 = createClientFromRequest(_req);
+    const user = await base44.auth.me();
+    if (!user || user.role !== 'admin') {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     const svc = base44.asServiceRole.entities;
     const cutoff = new Date(Date.now() - STALE_HOURS * 60 * 60 * 1000);
 
