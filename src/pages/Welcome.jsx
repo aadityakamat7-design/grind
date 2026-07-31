@@ -101,7 +101,7 @@ export default function Welcome() {
         <MarketplacePreview />
       </Section>
 
-      <Section eyebrow="Why KickStart" title="Better than a paper route" subtitle="Everything a first job should be — without the downsides.">
+      <Section id="why" eyebrow="Why KickStart" title="Better than a paper route" subtitle="Everything a first job should be — without the downsides.">
         <WhyKickstart />
       </Section>
 
@@ -109,7 +109,7 @@ export default function Welcome() {
         <EarningsCalculator />
       </Section>
 
-      <Section eyebrow="Safety" title="Safety isn't a feature. It's the foundation." subtitle="Every layer of KickStart is built to protect teens and reassure parents.">
+      <Section id="safety" eyebrow="Safety" title="Safety isn't a feature. It's the foundation." subtitle="Every layer of KickStart is built to protect teens and reassure parents.">
         <SafetyGrid />
       </Section>
 

@@ -3,9 +3,19 @@ import { Link } from "react-router-dom";
 import { Zap, Instagram, Twitter, Facebook } from "lucide-react";
 
 const COLS = [
-  { title: "Product", links: ["About", "How it works", "Safety"] },
-  { title: "Company", links: ["Contact", { label: "Support", to: "/support" }] },
-  { title: "Legal", links: [{ label: "Privacy Policy", to: "/privacy" }, { label: "Terms of Service", to: "/terms" }] },
+  { title: "Product", links: [
+    { label: "About", href: "#why" },
+    { label: "How it works", href: "#how-it-works" },
+    { label: "Safety", href: "#safety" },
+  ]},
+  { title: "Company", links: [
+    { label: "Contact", href: "mailto:aaditya.kamat10@gmail.com" },
+    { label: "Support", to: "/support" },
+  ]},
+  { title: "Legal", links: [
+    { label: "Privacy Policy", to: "/privacy" },
+    { label: "Terms of Service", to: "/terms" },
+  ]},
 ];
 
 export default function LandingFooter() {
@@ -36,11 +46,11 @@ export default function LandingFooter() {
               <h4 className="text-xs font-semibold text-foreground uppercase tracking-wider mb-4">{col.title}</h4>
               <ul className="space-y-2.5">
                 {col.links.map((l) => (
-                  <li key={typeof l === "string" ? l : l.label}>
-                    {typeof l === "string" ? (
-                      <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{l}</a>
-                    ) : (
+                  <li key={l.label}>
+                    {l.to ? (
                       <Link to={l.to} className="text-sm text-muted-foreground hover:text-foreground transition-colors">{l.label}</Link>
+                    ) : (
+                      <a href={l.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors">{l.label}</a>
                     )}
                   </li>
                 ))}
