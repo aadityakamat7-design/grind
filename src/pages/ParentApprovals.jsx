@@ -2,18 +2,16 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useOutletContext } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { ShieldCheck, ShieldAlert, MapPin, CalendarDays, FileText, IdCard } from "lucide-react";
+import { ShieldCheck, MapPin, CalendarDays, FileText } from "lucide-react";
 import { format } from "date-fns";
 import EmptyState from "@/components/grind/EmptyState";
 import { money } from "@/lib/grind";
 import IdentityVerificationGate from "@/components/grind/parent/IdentityVerificationGate";
-import NudgeVerifyButton from "@/components/grind/parent/NudgeVerifyButton";
 import { useApprovalWithVerification } from "@/hooks/useApprovalWithVerification";
 
 export default function ParentApprovals() {
   const { user } = useOutletContext();
   const [pending, setPending] = useState([]);
-  const [teenProfiles, setTeenProfiles] = useState({});
   const [loading, setLoading] = useState(true);
 
   const [profile, setProfile] = useState(null);
@@ -28,14 +26,6 @@ export default function ParentApprovals() {
     ]);
     setPending(data);
     setProfile(profiles[0] || null);
-    // Load each pending booking's teen profile to surface identity status
-    const teenIds = [...new Set(data.map((b) => b.teen_user_id).filter(Boolean))];
-    const teenProfileResults = await Promise.all(
-      teenIds.map((tid) => base44.entities.TeenProfile.filter({ user_id: tid }))
-    );
-    const map = {};
-    teenIds.forEach((tid, i) => { map[tid] = teenProfileResults[i]?.[0] || null; });
-    setTeenProfiles(map);
     setLoading(false);
   }, [user.id]);
 
@@ -60,8 +50,6 @@ export default function ParentApprovals() {
       ) : (
         <div className="space-y-4">
           {pending.map((b) => {
-            const teenProfile = teenProfiles[b.teen_user_id];
-            const teenVerified = teenProfile?.identity_status === "verified";
             return (
               <div key={b.id} className="bg-card rounded-2xl border border-border shadow-soft p-5">
                 <div className="flex items-start justify-between gap-2">
@@ -94,20 +82,6 @@ export default function ParentApprovals() {
                   )}
                 </div>
 
-                {/* Teen identity verification status — the parent reviews
-                    both the teen's identity and the job before approving. */}
-                <div className={`mt-3 flex items-start gap-2 rounded-xl p-3 text-xs ${teenVerified ? "bg-secondary text-muted-foreground" : "bg-secondary/60 text-muted-foreground"}`}>
-                  {teenVerified ? (
-                    <><IdCard className="w-4 h-4 shrink-0 mt-0.5" /><span><span className="font-semibold text-foreground">{b.teen_display_name}'s identity is verified.</span> You can approve this job.</span></>
-                  ) : (
-                    <><ShieldAlert className="w-4 h-4 shrink-0 mt-0.5" /><span><span className="font-semibold text-foreground">Waiting for {b.teen_display_name} to verify their identity.</span> They were prompted when they accepted — you can approve once they're verified. You can deny now if you prefer.</span></>
-                  )}
-                </div>
-
-                {!teenVerified && (
-                  <NudgeVerifyButton bookingId={b.id} teenName={b.teen_display_name} />
-                )}
-
                 <p className="text-xs text-muted-foreground/70 mt-3">
                   No payment yet — the neighbor pays when both sides start the job. Denying cancels the booking.
                 </p>
@@ -120,7 +94,7 @@ export default function ParentApprovals() {
                   >
                     Deny & refund
                   </Button>
-                  <Button className="rounded-xl" disabled={acting === b.id || !teenVerified} onClick={() => attempt(b, true)}>
+                  <Button className="rounded-xl" disabled={acting === b.id} onClick={() => attempt(b, true)}>
                     Approve
                   </Button>
                 </div>

@@ -1,30 +1,19 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { ShieldCheck, ShieldAlert, CalendarDays, MapPin } from "lucide-react";
+import { ShieldCheck, CalendarDays, MapPin } from "lucide-react";
 import { format } from "date-fns";
 import { money } from "@/lib/grind";
 import IdentityVerificationGate from "@/components/grind/parent/IdentityVerificationGate";
-import NudgeVerifyButton from "@/components/grind/parent/NudgeVerifyButton";
 import { useApprovalWithVerification } from "@/hooks/useApprovalWithVerification";
 
 export default function ApprovalQueue({ pending, onDecided }) {
   const [profile, setProfile] = useState(null);
-  const [teenProfiles, setTeenProfiles] = useState({});
 
   const loadProfile = useCallback(async () => {
     const profiles = await base44.entities.ParentProfile.filter({});
     setProfile(profiles[0] || null);
-    const teenIds = [...new Set(pending.map((b) => b.teen_user_id).filter(Boolean))];
-    if (teenIds.length) {
-      const results = await Promise.all(
-        teenIds.map((tid) => base44.entities.TeenProfile.filter({ user_id: tid }))
-      );
-      const map = {};
-      teenIds.forEach((tid, i) => { map[tid] = results[i]?.[0] || null; });
-      setTeenProfiles(map);
-    }
-  }, [pending]);
+  }, []);
 
   useEffect(() => { loadProfile(); }, [loadProfile]);
 
@@ -42,7 +31,6 @@ export default function ApprovalQueue({ pending, onDecided }) {
       ) : (
         <div className="space-y-3">
           {pending.map((b) => {
-            const teenVerified = teenProfiles[b.teen_user_id]?.identity_status === "verified";
             return (
               <div key={b.id} className="bg-secondary/60 border border-border rounded-2xl p-4">
                 <div className="flex items-start justify-between gap-2">
@@ -62,15 +50,7 @@ export default function ApprovalQueue({ pending, onDecided }) {
                   {b.address && (
                     <p className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 text-muted-foreground/60" /> {b.address}</p>
                   )}
-                  {!teenVerified && (
-                    <p className="flex items-center gap-1.5 text-muted-foreground/80">
-                      <ShieldAlert className="w-3.5 h-3.5" /> Waiting for {b.teen_display_name} to verify identity
-                    </p>
-                  )}
                 </div>
-                {!teenVerified && (
-                  <NudgeVerifyButton bookingId={b.id} teenName={b.teen_display_name} />
-                )}
                 <div className="grid grid-cols-2 gap-2.5 mt-3">
                   <Button
                     variant="outline"
@@ -81,7 +61,7 @@ export default function ApprovalQueue({ pending, onDecided }) {
                   >
                     Deny & refund
                   </Button>
-                  <Button size="sm" className="rounded-xl" disabled={acting === b.id || !teenVerified} onClick={() => attempt(b, true)}>
+                  <Button size="sm" className="rounded-xl" disabled={acting === b.id} onClick={() => attempt(b, true)}>
                     Approve
                   </Button>
                 </div>
