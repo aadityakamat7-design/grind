@@ -54,6 +54,19 @@ export default function ParentDashboard() {
       </PullToRefresh>
     );
 
+  if (bookings.length === 0)
+    return (
+      <PullToRefresh onRefresh={load}>
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Parent dashboard</h1>
+            <p className="text-sm text-muted-foreground mt-1">You'll see jobs to approve here once your teen gets their first request.</p>
+          </div>
+          <LinkTeenCard onLinked={load} />
+        </div>
+      </PullToRefresh>
+    );
+
   const shownLinks = selected === "all" ? links : links.filter((l) => l.teen_user_id === selected);
   const shownIds = shownLinks.map((l) => l.teen_user_id);
   const shownBookings = bookings.filter((b) => shownIds.includes(b.teen_user_id));
