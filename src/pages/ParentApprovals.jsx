@@ -7,6 +7,7 @@ import { format } from "date-fns";
 import EmptyState from "@/components/grind/EmptyState";
 import { money } from "@/lib/grind";
 import IdentityVerificationGate from "@/components/grind/parent/IdentityVerificationGate";
+import NudgeVerifyButton from "@/components/grind/parent/NudgeVerifyButton";
 import { useApprovalWithVerification } from "@/hooks/useApprovalWithVerification";
 
 export default function ParentApprovals() {
@@ -102,6 +103,10 @@ export default function ParentApprovals() {
                     <><ShieldAlert className="w-4 h-4 shrink-0 mt-0.5" /><span><span className="font-semibold text-foreground">Waiting for {b.teen_display_name} to verify their identity.</span> They were prompted when they accepted — you can approve once they're verified. You can deny now if you prefer.</span></>
                   )}
                 </div>
+
+                {!teenVerified && (
+                  <NudgeVerifyButton bookingId={b.id} teenName={b.teen_display_name} />
+                )}
 
                 <p className="text-xs text-muted-foreground/70 mt-3">
                   No payment yet — the neighbor pays when both sides start the job. Denying cancels the booking.

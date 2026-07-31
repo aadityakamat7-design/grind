@@ -5,6 +5,7 @@ import { ShieldCheck, ShieldAlert, CalendarDays, MapPin } from "lucide-react";
 import { format } from "date-fns";
 import { money } from "@/lib/grind";
 import IdentityVerificationGate from "@/components/grind/parent/IdentityVerificationGate";
+import NudgeVerifyButton from "@/components/grind/parent/NudgeVerifyButton";
 import { useApprovalWithVerification } from "@/hooks/useApprovalWithVerification";
 
 export default function ApprovalQueue({ pending, onDecided }) {
@@ -67,6 +68,9 @@ export default function ApprovalQueue({ pending, onDecided }) {
                     </p>
                   )}
                 </div>
+                {!teenVerified && (
+                  <NudgeVerifyButton bookingId={b.id} teenName={b.teen_display_name} />
+                )}
                 <div className="grid grid-cols-2 gap-2.5 mt-3">
                   <Button
                     variant="outline"
