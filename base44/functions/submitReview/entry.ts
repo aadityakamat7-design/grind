@@ -27,6 +27,13 @@ Deno.serve(async (req) => {
     const subjectId = isBuyerToTeen ? booking.teen_user_id : booking.buyer_user_id;
     const authorName = isBuyerToTeen ? booking.buyer_name : booking.teen_display_name;
 
+    // Authorization: only the booking's buyer can leave a buyer_to_teen review,
+    // and only the booking's teen can leave a teen_to_buyer review.
+    const expectedAuthor = isBuyerToTeen ? booking.buyer_user_id : booking.teen_user_id;
+    if (expectedAuthor !== user.id) {
+      return Response.json({ error: 'You are not authorized to review this booking.' }, { status: 403 });
+    }
+
     // Duplicate guard
     const existing = await svc.Review.filter({ booking_id: bookingId, author_id: user.id });
     if (existing.length > 0) return Response.json({ duplicate: true });
