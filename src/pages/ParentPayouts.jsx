@@ -2,11 +2,9 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useOutletContext } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { Wallet, ShieldCheck, Clock, CheckCircle2, Landmark } from "lucide-react";
+import { Wallet, Clock, CheckCircle2, Landmark } from "lucide-react";
 import { format } from "date-fns";
 import EmptyState from "@/components/grind/EmptyState";
-import StripeIdentityCard from "@/components/grind/parent/StripeIdentityCard";
-import ConnectBankCard from "@/components/grind/parent/ConnectBankCard";
 import { money } from "@/lib/grind";
 
 const PAYOUT_LABELS = {
@@ -60,17 +58,6 @@ export default function ParentPayouts() {
         <h1 className="text-2xl font-extrabold text-slate-900">Payouts</h1>
         <p className="text-sm text-slate-500 mt-1">All teen earnings pay out to your bank — never directly to your teen.</p>
       </div>
-
-      {!profile?.is_identity_verified ? (
-        <StripeIdentityCard onVerified={() => { window.history.replaceState({}, "", window.location.pathname); load(); }} />
-      ) : (
-        <div className="flex items-center gap-3 bg-blue-50 border border-blue-200 rounded-2xl p-4">
-          <ShieldCheck className="w-5 h-5 text-blue-600" />
-          <p className="text-sm font-semibold text-blue-900">Parent identity verified</p>
-        </div>
-      )}
-
-      <ConnectBankCard profile={profile} onUpdated={load} />
 
       <div className="bg-gradient-to-br from-blue-950 via-blue-800 to-blue-600 rounded-2xl p-6 text-white shadow-lg shadow-blue-200">
         <p className="text-sm opacity-80">Total released to you</p>
