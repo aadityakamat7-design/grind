@@ -40,6 +40,15 @@ const ROLE_LABELS = {
   admin: "Administrator",
 };
 
+const ROLE_HOME = { teen: "/teen", parent: "/parent", buyer: "/buyer", admin: "/admin" };
+
+const RESTRICTED_PREFIXES = [
+  { prefix: "/teen", role: "teen" },
+  { prefix: "/parent", role: "parent" },
+  { prefix: "/buyer", role: "buyer" },
+  { prefix: "/admin", role: "admin" },
+];
+
 export default function Layout() {
   const { user, loading, reload } = useAppUser();
   const location = useLocation();
@@ -55,6 +64,14 @@ export default function Layout() {
   }
   if (!user) return <Navigate to="/" replace />;
   if (!user.app_role || !user.onboarded) return <Navigate to="/onboarding" replace />;
+
+  // Block cross-role access: a teen can't open /parent, a parent can't open /teen, etc.
+  const blocked = RESTRICTED_PREFIXES.find(({ prefix }) =>
+    location.pathname === prefix || location.pathname.startsWith(prefix + "/")
+  );
+  if (blocked && blocked.role !== user.app_role) {
+    return <Navigate to={ROLE_HOME[user.app_role] || "/"} replace />;
+  }
 
   const tabs = TABS[user.app_role] || TABS.buyer;
   const roleLabel = ROLE_LABELS[user.app_role] || "Member";

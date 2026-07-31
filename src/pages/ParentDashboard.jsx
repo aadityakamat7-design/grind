@@ -40,6 +40,12 @@ export default function ParentDashboard() {
 
   useEffect(() => { load(); }, [load]);
 
+  // Real-time: reload when any booking changes (new booking, status update, etc.)
+  useEffect(() => {
+    const unsub = base44.entities.Booking.subscribe(() => load());
+    return unsub;
+  }, [load]);
+
   if (loading)
     return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-muted border-t-foreground rounded-full animate-spin" /></div>;
 

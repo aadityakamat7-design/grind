@@ -3,7 +3,6 @@ import { useOutletContext } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { LogOut, UserCircle, ShieldCheck } from "lucide-react";
-import RoleSwitcher from "@/components/grind/RoleSwitcher";
 import DeleteAccountButton from "@/components/grind/DeleteAccountButton";
 
 const ROLE_LABELS = { TEEN: "Teen", PARENT: "Parent / Guardian", BUYER: "Neighbor", ADMIN: "Admin" };
@@ -27,8 +26,6 @@ export default function Account() {
           </span>
         </div>
       </div>
-
-      <RoleSwitcher user={user} />
 
       <Button
         variant="outline"

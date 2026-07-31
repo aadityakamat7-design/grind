@@ -1,18 +1,22 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Wallet, ArrowUpRight } from "lucide-react";
 import { money } from "@/lib/grind";
 
 export default function StudentIncomeCard({ name, total, week, pending, connectStatus }) {
+  const navigate = useNavigate();
   return (
-    <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+    <div
+      onClick={() => navigate("/parent/payouts")}
+      className="cursor-pointer bg-white rounded-2xl border border-slate-100 shadow-sm p-5 hover:shadow-md active:scale-[0.99] transition-all"
+    >
       <div className="flex items-center justify-between">
         <p className="font-bold text-slate-900 flex items-center gap-2">
           <Wallet className="w-4 h-4 text-emerald-500" /> {name}'s income
         </p>
-        <Link to="/parent/payouts" className="flex items-center gap-1 text-[11px] font-bold text-blue-600 hover:text-blue-700">
+        <span className="flex items-center gap-1 text-[11px] font-bold text-blue-600">
           Payouts <ArrowUpRight className="w-3 h-3" />
-        </Link>
+        </span>
       </div>
       <div className="grid grid-cols-3 gap-3 mt-3">
         <div>

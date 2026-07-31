@@ -1,17 +1,22 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { ArrowUpRight, Wallet } from "lucide-react";
 import { money } from "@/lib/grind";
 
 export default function EarningsSummary({ balance, week, pending, onCashOut }) {
+  const navigate = useNavigate();
   return (
-    <div className="bg-gradient-to-br from-blue-950 via-blue-800 to-blue-600 rounded-2xl p-5 text-white shadow-lg shadow-blue-200">
+    <div
+      onClick={() => navigate("/teen/wallet")}
+      className="cursor-pointer bg-gradient-to-br from-blue-950 via-blue-800 to-blue-600 rounded-2xl p-5 text-white shadow-lg shadow-blue-200 hover:opacity-95 active:scale-[0.99] transition-all"
+    >
       <div className="flex items-start justify-between">
         <div>
           <p className="text-xs opacity-80 flex items-center gap-1.5"><Wallet className="w-3.5 h-3.5" /> Kickstart Wallet balance</p>
           <p className="text-3xl font-extrabold mt-1">{money(balance)}</p>
         </div>
         <button
-          onClick={onCashOut}
+          onClick={(e) => { e.stopPropagation(); onCashOut(); }}
           disabled={balance <= 0}
           className="flex items-center gap-1 bg-white/20 hover:bg-white/30 rounded-xl px-3 py-2 text-xs font-bold transition-colors disabled:opacity-50"
         >
