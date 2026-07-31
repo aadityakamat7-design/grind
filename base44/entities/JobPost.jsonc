@@ -73,7 +73,21 @@
     },
     "address": {
       "type": "string",
-      "description": "Job site address, revealed to the teen and parent only after the booking is approved"
+      "description": "Job site address \u2014 readable only by the buyer who owns the post and admins. Revealed to the teen and parent only after the booking is approved, via the Booking entity. Server functions strip this before sending open jobs to the client.",
+      "rls": {
+        "read": {
+          "$or": [
+            {
+              "data.buyer_user_id": "{{user.id}}"
+            },
+            {
+              "user_condition": {
+                "role": "admin"
+              }
+            }
+          ]
+        }
+      }
     },
     "state": {
       "type": "string",
@@ -207,7 +221,21 @@
         "role": "admin"
       }
     },
-    "read": null,
+    "read": {
+      "$or": [
+        {
+          "data.buyer_user_id": "{{user.id}}"
+        },
+        {
+          "data.assigned_teen_user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
     "update": {
       "$or": [
         {
