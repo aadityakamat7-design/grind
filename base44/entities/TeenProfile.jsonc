@@ -49,6 +49,11 @@
       "type": "number",
       "default": 0
     },
+    "jobs_completed": {
+      "type": "number",
+      "default": 0,
+      "description": "Total jobs completed as a teen (incremented server-side when a booking's payment is released)"
+    },
     "invite_code": {
       "type": "string",
       "description": "Code a parent uses to link \u2014 readable only by the owning teen and admins (the parent enters it and the server looks it up; the client never reads another teen's code)",

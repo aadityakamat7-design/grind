@@ -36,6 +36,23 @@ export async function releaseBookingPayment(base44, booking, tip) {
     tax_year: new Date().getFullYear(),
   });
 
+  // Increment jobs_completed for both the teen and the buyer — this is the
+  // single point where a booking's payment is released, so it fires once.
+  const [teenProfiles, buyerProfiles] = await Promise.all([
+    svc.TeenProfile.filter({ user_id: booking.teen_user_id }),
+    svc.BuyerProfile.filter({ user_id: booking.buyer_user_id }),
+  ]);
+  if (teenProfiles[0]) {
+    await svc.TeenProfile.update(teenProfiles[0].id, {
+      jobs_completed: (teenProfiles[0].jobs_completed || 0) + 1,
+    });
+  }
+  if (buyerProfiles[0]) {
+    await svc.BuyerProfile.update(buyerProfiles[0].id, {
+      jobs_completed: (buyerProfiles[0].jobs_completed || 0) + 1,
+    });
+  }
+
   // Credit the teen's wallet (created server-side if missing)
   const wallets = await svc.WalletAccount.filter({ teen_user_id: booking.teen_user_id });
   const wallet = wallets[0] || await svc.WalletAccount.create({ teen_user_id: booking.teen_user_id, balance: 0 });

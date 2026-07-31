@@ -117,6 +117,11 @@
     "review_count": {
       "type": "number",
       "default": 0
+    },
+    "jobs_completed": {
+      "type": "number",
+      "default": 0,
+      "description": "Total jobs completed as a neighbor (incremented server-side when a booking's payment is released)"
     }
   },
   "required": [
