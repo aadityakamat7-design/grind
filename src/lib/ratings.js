@@ -7,7 +7,8 @@ const EDIT_WINDOW_MS = 24 * 60 * 60 * 1000;
 // A review can be edited by its author for 24h after submission, then it locks.
 export function isReviewEditable(review, viewerId) {
   if (!review || review.hidden) return false;
-  if (review.author_id !== viewerId) return false;
+  const isAuthor = review.is_mine !== undefined ? review.is_mine : review.author_id === viewerId;
+  if (!isAuthor) return false;
   if (!review.created_date) return false;
   return Date.now() - new Date(review.created_date).getTime() < EDIT_WINDOW_MS;
 }

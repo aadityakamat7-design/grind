@@ -11,16 +11,24 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { subject_id, booking_id } = await req.json();
+    const { subject_id, booking_id, author_id, direction } = await req.json();
     const svc = base44.asServiceRole.entities;
 
     let reviews;
     if (booking_id) {
       reviews = await svc.Review.filter({ booking_id }, '-created_date', 100);
+    } else if (author_id) {
+      // Only return the caller's own reviews — never another user's.
+      if (author_id !== user.id) {
+        return Response.json({ error: 'Can only query your own reviews' }, { status: 403 });
+      }
+      const filter = { author_id: user.id };
+      if (direction) filter.direction = direction;
+      reviews = await svc.Review.filter(filter, '-created_date', 100);
     } else if (subject_id) {
       reviews = await svc.Review.filter({ subject_id }, '-created_date', 100);
     } else {
-      return Response.json({ error: 'subject_id or booking_id required' }, { status: 400 });
+      return Response.json({ error: 'subject_id, booking_id, or author_id required' }, { status: 400 });
     }
 
     const isAdmin = user.role === 'admin';

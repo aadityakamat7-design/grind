@@ -61,10 +61,13 @@ Deno.serve(async (req) => {
 
     await recomputeSubjectRating(svc, subjectId, direction);
 
+    // Anonymized notification — never expose the reviewer's real name to the
+    // subject (or anyone else). Only admins can see author_name via the entity.
+    const reviewerLabel = isBuyerToTeen ? 'a neighbor' : 'a teen';
     await svc.Notification.create({
       user_id: subjectId,
       type: 'review',
-      title: `New review from ${authorName}`,
+      title: `New ${r}-star review from ${reviewerLabel}`,
       body: safeText ? safeText.slice(0, 100) : `You received a ${r}-star review.`,
       link: isBuyerToTeen ? `/teens/${booking.teen_user_id}` : `/bookings/${bookingId}`,
     });

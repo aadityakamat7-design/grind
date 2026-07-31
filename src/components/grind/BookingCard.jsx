@@ -1,11 +1,12 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { CalendarDays, ChevronRight } from "lucide-react";
 import { format } from "date-fns";
 import StatusBadge from "@/components/grind/StatusBadge";
 import { money } from "@/lib/grind";
 
 export default function BookingCard({ booking, perspective }) {
+  const navigate = useNavigate();
   const otherParty =
     perspective === "buyer" ? booking.teen_display_name : booking.buyer_name;
   return (
@@ -20,7 +21,15 @@ export default function BookingCard({ booking, perspective }) {
         <p className="font-semibold text-foreground truncate">{booking.listing_title}</p>
         <p className="text-xs text-muted-foreground mt-0.5">
           {perspective === "buyer" ? "with " : "for "}
-          {otherParty}
+          {perspective === "teen" ? (
+            <button
+              type="button"
+              className="font-medium text-foreground hover:underline"
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); navigate(`/neighbors/${booking.buyer_user_id}`); }}
+            >
+              {otherParty}
+            </button>
+          ) : otherParty}
           {booking.scheduled_start && ` · ${format(new Date(booking.scheduled_start), "MMM d, h:mm a")}`}
         </p>
         <div className="mt-1.5 flex items-center gap-1.5 flex-wrap">

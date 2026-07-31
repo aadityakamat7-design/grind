@@ -14,7 +14,8 @@ export default function ReviewNudge({ user, bookings }) {
       setPending([]);
       return;
     }
-    const myReviews = await base44.entities.Review.filter({ author_id: user.id, direction: "buyer_to_teen" });
+    const res = await base44.functions.invoke("getReviews", { author_id: user.id, direction: "buyer_to_teen" });
+    const myReviews = res.data?.reviews || [];
     const reviewedIds = new Set(myReviews.map((r) => r.booking_id));
     setPending(candidates.filter((b) => !reviewedIds.has(b.id)).slice(0, 2));
   }, [user.id, bookings]);

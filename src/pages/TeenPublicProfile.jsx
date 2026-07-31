@@ -25,15 +25,15 @@ export default function TeenPublicProfile() {
   const [bookingListing, setBookingListing] = useState(null);
 
   const load = useCallback(async () => {
-    const [profiles, teenListings, teenReviews, buyers] = await Promise.all([
+    const [profiles, teenListings, reviewsRes, buyers] = await Promise.all([
       base44.entities.TeenProfile.filter({ user_id: teenUserId }),
       base44.entities.Listing.filter({ teen_user_id: teenUserId, status: "published" }),
-      base44.entities.Review.filter({ subject_id: teenUserId, direction: "buyer_to_teen" }, "-created_date", 20),
+      base44.functions.invoke("getReviews", { subject_id: teenUserId }),
       base44.entities.BuyerProfile.filter({ user_id: user.id }),
     ]);
     setProfile(profiles[0] || null);
     setListings(teenListings);
-    setReviews(teenReviews.filter((r) => !r.hidden));
+    setReviews(reviewsRes.data?.reviews || []);
     setBuyerProfile(buyers[0] || null);
     setLoading(false);
   }, [teenUserId, user.id]);
@@ -66,6 +66,16 @@ export default function TeenPublicProfile() {
         <p className="text-xs text-muted-foreground mt-2 flex items-center justify-center gap-1">
           <MapPin className="w-3 h-3" /> {profile.resolved_city || profile.state}
         </p>
+        <div className="mt-4 grid grid-cols-2 gap-3 max-w-xs mx-auto">
+          <div className="bg-secondary rounded-xl p-3">
+            <p className="text-2xl font-bold text-foreground">{profile.jobs_completed || 0}</p>
+            <p className="text-xs text-muted-foreground">Jobs completed</p>
+          </div>
+          <div className="bg-secondary rounded-xl p-3">
+            <p className="text-2xl font-bold text-foreground">{profile.review_count || 0}</p>
+            <p className="text-xs text-muted-foreground">Reviews</p>
+          </div>
+        </div>
         <div className="flex justify-center gap-2 mt-3 flex-wrap">
           <TrustBadge type="parent_approved" />
           {profile.parent_identity_verified && (

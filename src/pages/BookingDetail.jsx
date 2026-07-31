@@ -7,6 +7,7 @@ import { format } from "date-fns";
 import StatusBadge from "@/components/grind/StatusBadge";
 import TrustBadge from "@/components/grind/TrustBadge";
 import ReviewDialog from "@/components/grind/ReviewDialog";
+import ReviewCard from "@/components/grind/ReviewCard";
 import { money } from "@/lib/grind";
 import TipReleaseDialog from "@/components/grind/TipReleaseDialog";
 import RescheduleDialog from "@/components/grind/RescheduleDialog";
@@ -22,6 +23,7 @@ export default function BookingDetail() {
   const [booking, setBooking] = useState(null);
   const [thread, setThread] = useState(null);
   const [myReview, setMyReview] = useState(null);
+  const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [acting, setActing] = useState(false);
   const [reviewOpen, setReviewOpen] = useState(false);
@@ -31,14 +33,16 @@ export default function BookingDetail() {
   const autoPromptedRef = useRef(false);
 
   const load = useCallback(async () => {
-    const [b, threads, reviews] = await Promise.all([
+    const [b, threads, reviewsRes] = await Promise.all([
       base44.entities.Booking.get(bookingId),
       base44.entities.MessageThread.filter({ booking_id: bookingId }),
-      base44.entities.Review.filter({ booking_id: bookingId, author_id: user.id }),
+      base44.functions.invoke("getReviews", { booking_id: bookingId }),
     ]);
     setBooking(b);
     setThread(threads[0] || null);
-    setMyReview(reviews[0] || null);
+    const allReviews = reviewsRes.data?.reviews || [];
+    setReviews(allReviews);
+    setMyReview(allReviews.find((r) => r.is_mine) || null);
     setLoading(false);
   }, [bookingId, user.id]);
 
@@ -277,6 +281,17 @@ export default function BookingDetail() {
           </Button>
         )}
       </div>
+
+      {booking.status === "completed" && reviews.length > 0 && (
+        <div>
+          <h2 className="font-semibold text-foreground mb-3">Reviews</h2>
+          <div className="space-y-3">
+            {reviews.map((r) => (
+              <ReviewCard key={r.id} review={r} viewer={user} onChanged={load} />
+            ))}
+          </div>
+        </div>
+      )}
 
       {tipOpen && (
         <TipReleaseDialog
