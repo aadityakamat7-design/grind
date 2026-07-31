@@ -3,17 +3,15 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 // Flags a booking for admin review when a participant reports a problem
 // ("job not completed as agreed", dispute, etc.).
 //
-// [REVIEW: schema choice — this function uses the existing `dispute_flagged_at`
+// Schema choice: this function uses the existing `dispute_flagged_at`
 // timestamp field + `payout_status: 'pending_review'` to flag the booking,
 // rather than adding a new `disputed` value to the Booking.status enum.
-// Owner should confirm this approach is acceptable, or request a new enum
-// value be added to the schema.]
 //
-// [REVIEW: owner to set — the refund/payment outcome for a disputed booking
-// (full refund, partial refund, or release to teen) is decided by an admin
-// during manual review. This function does NOT move any money — it only
-// flags the booking and notifies participants. No refund amounts,
-// cancellation windows, or dispute timelines are hardcoded here.]
+// The refund/payment outcome for a disputed booking (full refund, partial
+// refund, or release to teen) is decided by an admin during manual review.
+// This function does NOT move any money — it only flags the booking and
+// notifies participants. No refund amounts, cancellation windows, or
+// dispute timelines are hardcoded here.
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);

@@ -110,8 +110,10 @@ export default function TermsOfService() {
 
           <h2>13. Dispute Resolution and Governing Law</h2>
           <p>
-            {/* FILL IN: Replace "the State of California, United States" with your governing-law jurisdiction if different */}
-            These terms are governed by the laws of the State of California, United States, without regard to conflict-of-law principles. Any dispute will first be attempted through good-faith negotiation. If unresolved, disputes will be resolved through binding arbitration rather than in court, except where small-claims court is available.
+            These terms are governed by the laws of the State of California, United States, without regard to conflict-of-law principles. Any dispute will first be attempted through good-faith negotiation.
+          </p>
+          <p className="bg-muted rounded-xl p-4 border border-border text-foreground">
+            <strong>[PENDING LEGAL REVIEW]</strong> The arbitration enforceability clause for this platform is under review with legal counsel. Until counsel signs off, no binding arbitration language is in effect. Please check back for the finalized dispute resolution terms.
           </p>
 
           <h2>14. Changes to These Terms</h2>
