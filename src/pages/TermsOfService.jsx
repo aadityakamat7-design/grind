@@ -123,7 +123,7 @@ export default function TermsOfService() {
 
           <h2>15. Contact</h2>
           <p>
-            Questions about these terms? Contact us through the in-app support or at <a href="mailto:aaditya.kamat10@gmail.com" className="text-foreground font-medium hover:underline">aaditya.kamat10@gmail.com</a>.
+            Questions about these terms? Contact us through the in-app support or at <a href="mailto:kickstart@teenskickstart.base44.app" className="text-foreground font-medium hover:underline">kickstart@teenskickstart.base44.app</a>.
           </p>
         </div>
       </div>
