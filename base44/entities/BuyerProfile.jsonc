@@ -9,7 +9,22 @@
       "type": "string"
     },
     "address": {
-      "type": "string"
+      "type": "string",
+      "description": "Buyer home address \u2014 readable only by the owner and admins (RLS-enforced). Revealed to the teen/parent only after a booking is confirmed, via the Booking entity.",
+      "rls": {
+        "read": {
+          "$or": [
+            {
+              "data.user_id": "{{user.id}}"
+            },
+            {
+              "user_condition": {
+                "role": "admin"
+              }
+            }
+          ]
+        }
+      }
     },
     "zip": {
       "type": "string"
@@ -20,11 +35,39 @@
     },
     "latitude": {
       "type": "number",
-      "description": "Geocoded latitude of the buyer's address"
+      "description": "Geocoded latitude \u2014 readable only by the owner and admins; used only server-side for distance matching",
+      "rls": {
+        "read": {
+          "$or": [
+            {
+              "data.user_id": "{{user.id}}"
+            },
+            {
+              "user_condition": {
+                "role": "admin"
+              }
+            }
+          ]
+        }
+      }
     },
     "longitude": {
       "type": "number",
-      "description": "Geocoded longitude of the buyer's address"
+      "description": "Geocoded longitude \u2014 readable only by the owner and admins; used only server-side for distance matching",
+      "rls": {
+        "read": {
+          "$or": [
+            {
+              "data.user_id": "{{user.id}}"
+            },
+            {
+              "user_condition": {
+                "role": "admin"
+              }
+            }
+          ]
+        }
+      }
     },
     "resolved_city": {
       "type": "string",
@@ -83,7 +126,18 @@
     "create": {
       "data.user_id": "{{user.id}}"
     },
-    "read": null,
+    "read": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
     "update": {
       "$or": [
         {
