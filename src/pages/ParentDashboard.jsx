@@ -10,7 +10,6 @@ import SafetyPanel from "@/components/grind/parent/SafetyPanel";
 import ActivityFeed from "@/components/grind/parent/ActivityFeed";
 import LinkTeenCard from "@/components/grind/parent/LinkTeenCard";
 import PullToRefresh from "@/components/PullToRefresh";
-import StripeIdentityCard from "@/components/grind/parent/StripeIdentityCard";
 
 export default function ParentDashboard() {
   const { user } = useOutletContext();
@@ -18,7 +17,6 @@ export default function ParentDashboard() {
   const [bookings, setBookings] = useState([]);
   const [records, setRecords] = useState([]);
   const [connectStatus, setConnectStatus] = useState("not_setup");
-  const [identityVerified, setIdentityVerified] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [selected, setSelected] = useState("all");
   const [loading, setLoading] = useState(true);
@@ -36,7 +34,6 @@ export default function ParentDashboard() {
     setBookings(b);
     setRecords(r);
     setConnectStatus(profiles[0]?.connect_status || "not_setup");
-    setIdentityVerified(!!profiles[0]?.is_identity_verified);
     setNotifications(notifs);
     setLoading(false);
   }, [user.id]);
@@ -76,10 +73,6 @@ export default function ParentDashboard() {
         <h1 className="text-2xl font-bold text-foreground">Parent dashboard</h1>
         <p className="text-sm text-muted-foreground mt-1">Full visibility into your student's activity.</p>
       </div>
-
-      {!identityVerified && (
-        <StripeIdentityCard onVerified={() => { window.history.replaceState({}, "", window.location.pathname); load(); }} />
-      )}
 
       <LinkTeenCard onLinked={load} />
 

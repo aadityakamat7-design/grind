@@ -40,14 +40,14 @@ export default function ParentApprovals() {
 
   useEffect(() => { load(); }, [load]);
 
-  const { gateOpen, setGateOpen, attempt, onVerified, acting } = useApprovalWithVerification(profile, load);
+  const { gateOpen, setGateOpen, attempt, onVerified, acting, initialStep } = useApprovalWithVerification(profile, load);
 
   if (loading)
     return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-muted border-t-foreground rounded-full animate-spin" /></div>;
 
   return (
     <div className="space-y-5">
-      <IdentityVerificationGate open={gateOpen} onOpenChange={setGateOpen} onVerified={onVerified} />
+      <IdentityVerificationGate open={gateOpen} onOpenChange={setGateOpen} onVerified={onVerified} initialStep={initialStep} />
 
       <div>
         <h1 className="text-2xl font-extrabold text-foreground">Approvals</h1>

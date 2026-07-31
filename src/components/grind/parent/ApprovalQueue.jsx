@@ -27,11 +27,11 @@ export default function ApprovalQueue({ pending, onDecided }) {
 
   useEffect(() => { loadProfile(); }, [loadProfile]);
 
-  const { gateOpen, setGateOpen, attempt, onVerified, acting } = useApprovalWithVerification(profile, onDecided);
+  const { gateOpen, setGateOpen, attempt, onVerified, acting, initialStep } = useApprovalWithVerification(profile, onDecided);
 
   return (
     <div>
-      <IdentityVerificationGate open={gateOpen} onOpenChange={setGateOpen} onVerified={onVerified} />
+      <IdentityVerificationGate open={gateOpen} onOpenChange={setGateOpen} onVerified={onVerified} initialStep={initialStep} />
 
       <h2 className="font-bold text-foreground mb-3 flex items-center gap-1.5">
         <ShieldCheck className="w-4 h-4 text-muted-foreground" /> Approval queue
