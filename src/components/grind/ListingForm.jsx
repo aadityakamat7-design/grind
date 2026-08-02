@@ -7,7 +7,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import ResponsiveSelect from "@/components/grind/ResponsiveSelect";
 import { AlertTriangle } from "lucide-react";
-import { CATEGORIES, checkHazard, MAX_UNIT_PRICE } from "@/lib/grind";
+import { CATEGORIES, checkHazard, MAX_UNIT_PRICE, SKILL_CATEGORIES } from "@/lib/grind";
+import CredentialUpload from "@/components/grind/CredentialUpload";
 
 export default function ListingForm({ open, onOpenChange, listing, profile, onSaved }) {
   const [form, setForm] = useState(
@@ -15,6 +16,7 @@ export default function ListingForm({ open, onOpenChange, listing, profile, onSa
   );
   const [hazard, setHazard] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [credential, setCredential] = useState(null);
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
   const priceError = Number(form.price) > MAX_UNIT_PRICE ? `Max ${MAX_UNIT_PRICE} per job` : "";
 
@@ -27,8 +29,9 @@ export default function ListingForm({ open, onOpenChange, listing, profile, onSa
     }
     setHazard(null);
     setSaving(true);
+    let res;
     try {
-      await base44.functions.invoke("saveListing", {
+      res = await base44.functions.invoke("saveListing", {
         listingId: listing?.id,
         category: form.category,
         title: form.title.trim(),
@@ -44,6 +47,25 @@ export default function ListingForm({ open, onOpenChange, listing, profile, onSa
       setHazard(err.response?.data?.error || "Couldn't save this listing.");
       setSaving(false);
       return;
+    }
+    // After the listing is saved, optionally upload a credential proof file
+    // and create a Credential record (starts as pending admin review).
+    const newListingId = res?.listing?.id || listing?.id;
+    if (credential?.file && credential.label && newListingId) {
+      try {
+        const uploadRes = await base44.integrations.Core.UploadFile({ file: credential.file });
+        await base44.entities.Credential.create({
+          teen_user_id: profile.user_id,
+          teen_display_name: profile.display_name,
+          listing_id: newListingId,
+          listing_title: form.title.trim(),
+          category: form.category,
+          label: credential.label,
+          file_url: uploadRes.file_url,
+        });
+      } catch (credErr) {
+        console.error("credential upload failed:", credErr);
+      }
     }
     setSaving(false);
     onOpenChange(false);
@@ -98,6 +120,9 @@ export default function ListingForm({ open, onOpenChange, listing, profile, onSa
               <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
               <p><span className="font-semibold">Safety check:</span> {hazard} Please adjust your listing.</p>
             </div>
+          )}
+          {SKILL_CATEGORIES.includes(form.category) && (
+            <CredentialUpload listingId={listing?.id} onChange={setCredential} />
           )}
           <Button
             className="w-full rounded-xl"

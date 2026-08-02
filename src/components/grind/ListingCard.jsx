@@ -1,13 +1,21 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { MapPin, AlertTriangle } from "lucide-react";
+import { base44 } from "@/api/base44Client";
 import { Image } from "@/components/ui/image";
 import { CATEGORY_LABELS, money } from "@/lib/grind";
 import TrustBadge from "@/components/grind/TrustBadge";
 import RatingStars from "@/components/grind/RatingStars";
+import VerifiedSkillBadge from "@/components/grind/VerifiedSkillBadge";
 
 export default function ListingCard({ listing, teen, to }) {
   const photo = listing.photos?.[0];
+  const [creds, setCreds] = useState([]);
+  useEffect(() => {
+    base44.entities.Credential.filter({ listing_id: listing.id, status: "approved" })
+      .then(setCreds)
+      .catch(() => {});
+  }, [listing.id]);
   return (
     <Link
       to={to}
@@ -41,6 +49,7 @@ export default function ListingCard({ listing, teen, to }) {
             {listing.service_area || listing.teen_zip || "Local"}
           </span>
           <TrustBadge type="parent_approved" />
+          {creds.length > 0 && <VerifiedSkillBadge credentials={creds} />}
         </div>
         <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{listing.description}</p>
         <div className="flex items-center justify-between gap-2 mt-3">

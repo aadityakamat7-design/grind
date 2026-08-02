@@ -12,6 +12,7 @@ import SaveTeenButton from "@/components/grind/SaveTeenButton";
 import ReviewCard from "@/components/grind/ReviewCard";
 import { CATEGORY_LABELS, money } from "@/lib/grind";
 import { categoryAverages } from "@/lib/ratings";
+import VerifiedSkillBadge from "@/components/grind/VerifiedSkillBadge";
 import { Star } from "lucide-react";
 
 export default function TeenPublicProfile() {
@@ -23,18 +24,21 @@ export default function TeenPublicProfile() {
   const [buyerProfile, setBuyerProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [bookingListing, setBookingListing] = useState(null);
+  const [credentials, setCredentials] = useState([]);
 
   const load = useCallback(async () => {
-    const [profiles, teenListings, reviewsRes, buyers] = await Promise.all([
+    const [profiles, teenListings, reviewsRes, buyers, creds] = await Promise.all([
       base44.entities.TeenProfile.filter({ user_id: teenUserId }),
       base44.entities.Listing.filter({ teen_user_id: teenUserId, status: "published" }),
       base44.functions.invoke("getReviews", { subject_id: teenUserId }),
       base44.entities.BuyerProfile.filter({ user_id: user.id }),
+      base44.entities.Credential.filter({ teen_user_id: teenUserId, status: "approved" }),
     ]);
     setProfile(profiles[0] || null);
     setListings(teenListings);
     setReviews(reviewsRes.data?.reviews || []);
     setBuyerProfile(buyers[0] || null);
+    setCredentials(creds);
     setLoading(false);
   }, [teenUserId, user.id]);
 
@@ -108,10 +112,19 @@ export default function TeenPublicProfile() {
         </div>
       )}
 
+      {credentials.length > 0 && (
+        <div className="bg-card rounded-2xl border border-border shadow-soft p-4">
+          <h2 className="font-semibold text-foreground mb-3">Verified credentials</h2>
+          <VerifiedSkillBadge credentials={credentials} />
+        </div>
+      )}
+
       <div>
         <h2 className="font-semibold text-foreground mb-3">Services</h2>
         <div className="space-y-3">
-          {listings.map((l) => (
+          {listings.map((l) => {
+            const listingCreds = credentials.filter((c) => c.listing_id === l.id);
+            return (
             <div key={l.id} className="bg-card rounded-2xl border border-border shadow-soft p-4">
               {l.is_hazard_flagged && (
                 <div className="flex items-start gap-2 bg-destructive/10 border border-destructive/20 rounded-xl p-2.5 mb-3 text-xs text-destructive">
@@ -130,11 +143,17 @@ export default function TeenPublicProfile() {
                   <p className="text-[11px] text-muted-foreground">{l.price_model === "HOURLY" ? "per hour" : "fixed"}</p>
                 </div>
               </div>
+              {listingCreds.length > 0 && (
+                <div className="mt-3">
+                  <VerifiedSkillBadge credentials={listingCreds} />
+                </div>
+              )}
               <Button className="rounded-xl w-full mt-3" onClick={() => setBookingListing(l)}>
                 Book this service
               </Button>
             </div>
-          ))}
+            );
+          })}
           {listings.length === 0 && <p className="text-sm text-muted-foreground">No published services right now.</p>}
         </div>
       </div>

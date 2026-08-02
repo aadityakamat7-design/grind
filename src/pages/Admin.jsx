@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import MetricCard from "@/components/grind/admin/MetricCard";
 import ReportRow from "@/components/grind/admin/ReportRow";
 import PayoutReviewQueue from "@/components/grind/admin/PayoutReviewQueue";
+import CredentialReviewQueue from "@/components/grind/admin/CredentialReviewQueue";
 import StatusBadge from "@/components/grind/StatusBadge";
 import { money } from "@/lib/grind";
 
@@ -15,21 +16,24 @@ export default function Admin() {
   const [buyers, setBuyers] = useState([]);
   const [bookings, setBookings] = useState([]);
   const [reports, setReports] = useState([]);
+  const [credentials, setCredentials] = useState([]);
   const [loading, setLoading] = useState(true);
   const [acting, setActing] = useState(false);
 
   const load = useCallback(async () => {
     if (user?.app_role !== "admin") return;
-    const [t, b, bk, r] = await Promise.all([
+    const [t, b, bk, r, creds] = await Promise.all([
       base44.entities.TeenProfile.list("-created_date", 200),
       base44.entities.BuyerProfile.list("-created_date", 200),
       base44.entities.Booking.list("-created_date", 200),
       base44.entities.Report.list("-created_date", 100),
+      base44.entities.Credential.filter({ status: "pending" }, "-created_date", 100),
     ]);
     setTeens(t);
     setBuyers(b);
     setBookings(bk);
     setReports(r);
+    setCredentials(creds);
     setLoading(false);
   }, [user]);
 
@@ -82,6 +86,8 @@ export default function Admin() {
       </div>
 
       <PayoutReviewQueue bookings={bookings} onDone={load} />
+
+      <CredentialReviewQueue credentials={credentials} onDone={load} />
 
       <div>
         <h2 className="font-bold text-slate-900 mb-3 flex items-center gap-2">

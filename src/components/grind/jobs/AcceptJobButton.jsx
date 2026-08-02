@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
-import { Button } from "@/components/ui/button";
-import { Hand } from "lucide-react";
 import TeenIdentityGate from "@/components/grind/teen/TeenIdentityGate";
+import SlideToConfirm from "@/components/grind/SlideToConfirm";
 
 export default function AcceptJobButton({ job, teen, onAccepted }) {
   const [saving, setSaving] = useState(false);
@@ -35,9 +34,12 @@ export default function AcceptJobButton({ job, teen, onAccepted }) {
         onOpenChange={setGateOpen}
         onVerified={() => { setGateOpen(false); onAccepted?.(); }}
       />
-      <Button className="w-full rounded-xl" disabled={saving} onClick={accept}>
-        <Hand className="w-4 h-4 mr-2" /> {saving ? "Taking job..." : "Take this job"}
-      </Button>
+      <SlideToConfirm
+        label="Slide to accept job"
+        loadingLabel="Taking job..."
+        loading={saving}
+        onConfirm={accept}
+      />
       {error && <p className="text-xs text-destructive font-semibold">{error}</p>}
     </div>
   );

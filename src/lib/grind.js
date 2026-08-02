@@ -41,6 +41,10 @@ export function categoryMinimum(category, priceModel) {
   return m[priceModel] || m.FIXED || 0;
 }
 
+// Categories where a teen can optionally upload a skill credential
+// (test score, certificate, award photo) for admin review.
+export const SKILL_CATEGORIES = ["tutoring", "tech_help"];
+
 export const SKILL_SUGGESTIONS = [
   "Math", "Reading", "Coding", "Spanish", "Piano", "Mowing",
   "Weeding", "Dog walking", "Cat care", "Phone setup", "Wi-Fi help",

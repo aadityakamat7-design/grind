@@ -11,6 +11,7 @@ import { ShieldCheck, Lock, MessageCircle } from "lucide-react";
 import { computeFees, money } from "@/lib/grind";
 import SafetyAdvisorChat from "@/components/grind/SafetyAdvisorChat";
 import BuyerIdentityGate from "@/components/grind/buyer/BuyerIdentityGate";
+import SlideToConfirm from "@/components/grind/SlideToConfirm";
 
 export default function BookDialog({ open, onOpenChange, listing, buyer, buyerProfile }) {
   const navigate = useNavigate();
@@ -125,9 +126,13 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
             <MessageCircle className="w-4 h-4 mr-2" /> Talk to Safety Advisor
           </Button>
           {error && <p className="text-xs text-rose-600 font-semibold text-center">{error}</p>}
-          <Button className="w-full rounded-xl" disabled={!when || !address || saving} onClick={book}>
-            {saving ? "Booking..." : "Request booking"}
-          </Button>
+          <SlideToConfirm
+            label="Slide to confirm booking"
+            loadingLabel="Booking..."
+            loading={saving}
+            disabled={!when || !address}
+            onConfirm={book}
+          />
           </>
           )}
         </div>
