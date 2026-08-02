@@ -25,8 +25,8 @@ export default function LandingFooter() {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
           <div className="col-span-2">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-foreground flex items-center justify-center">
-                <Zap className="w-4 h-4 text-background" />
+              <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+                <Zap className="w-4 h-4 text-primary-foreground" />
               </div>
               <span className="font-bold text-lg text-foreground">KickStart</span>
             </div>
@@ -35,7 +35,7 @@ export default function LandingFooter() {
             </p>
             <div className="flex gap-3 mt-5">
               {[Instagram, Twitter, Facebook].map((Icon, i) => (
-                <a key={i} href="#" aria-label="Social link" className="w-9 h-9 rounded-lg bg-muted border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-colors">
+                <a key={i} href="#" aria-label="Social link" className="w-9 h-9 rounded-lg bg-muted border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors">
                   <Icon className="w-4 h-4" />
                 </a>
               ))}

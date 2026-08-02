@@ -58,7 +58,7 @@ export default function Phone3D() {
   }, []);
 
   return (
-    <div ref={wrapRef} className="relative mx-auto w-[240px] sm:w-[290px]" style={{ perspective: "1400px" }}>
+    <div ref={wrapRef} className="relative mx-auto w-[240px] sm:w-[290px] force-light" style={{ perspective: "1400px" }}>
       {/* Soft shadow beneath the phone for depth */}
       <div className="absolute left-1/2 -translate-x-1/2 bottom-[-2rem] w-[80%] h-8 bg-foreground/10 blur-2xl rounded-full" />
 

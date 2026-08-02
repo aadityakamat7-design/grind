@@ -6,7 +6,7 @@ function ProfileMock() {
   return (
     <div className="rounded-xl bg-muted border border-border p-3 space-y-2">
       <div className="flex items-center gap-2">
-        <div className="w-8 h-8 rounded-lg bg-foreground flex items-center justify-center text-background text-xs font-bold">A</div>
+        <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground text-xs font-bold">A</div>
         <div>
           <div className="text-[11px] font-semibold text-foreground">Ava R.</div>
           <div className="text-[9px] text-muted-foreground">Tutoring · Pet sitting</div>
@@ -28,7 +28,7 @@ function HiredMock() {
         <span className="text-[11px] font-semibold text-foreground">Lawn mowing</span>
         <span className="text-[11px] font-bold text-foreground">$40</span>
       </div>
-      <div className="rounded-lg bg-foreground px-2 py-1.5 text-center text-[10px] font-medium text-background">
+      <div className="rounded-lg bg-primary px-2 py-1.5 text-center text-[10px] font-medium text-primary-foreground">
         Booking confirmed ✓
       </div>
     </div>
@@ -72,7 +72,7 @@ function ChooseMock() {
   return (
     <div className="rounded-xl bg-muted border border-border p-3 space-y-2">
       <div className="flex items-center gap-2">
-        <div className="w-8 h-8 rounded-lg bg-foreground flex items-center justify-center text-background text-xs font-bold">J</div>
+        <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground text-xs font-bold">J</div>
         <div>
           <div className="text-[11px] font-semibold text-foreground">Jordan P. <span className="text-[9px] text-muted-foreground">✓ Verified</span></div>
           <div className="flex items-center gap-0.5 text-[9px] font-semibold text-foreground">
@@ -80,7 +80,7 @@ function ChooseMock() {
           </div>
         </div>
       </div>
-      <div className="rounded-lg bg-foreground px-2 py-1.5 text-center text-[10px] font-medium text-background">Book for Saturday</div>
+      <div className="rounded-lg bg-primary px-2 py-1.5 text-center text-[10px] font-medium text-primary-foreground">Book for Saturday</div>
     </div>
   );
 }
@@ -95,7 +95,7 @@ function PaySecureMock() {
         <span className="text-[10px] font-semibold text-foreground">Lawn mowing</span>
         <span className="text-[11px] font-bold text-foreground">$40.00</span>
       </div>
-      <div className="rounded-lg bg-foreground px-2 py-1.5 text-center text-[10px] font-medium text-background">
+      <div className="rounded-lg bg-primary px-2 py-1.5 text-center text-[10px] font-medium text-primary-foreground">
         Job done → teen paid ✓
       </div>
     </div>
@@ -126,7 +126,7 @@ export default function HowItWorks() {
               key={key}
               onClick={() => setTab(key)}
               className={`px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                tab === key ? "bg-foreground text-background shadow-soft" : "text-muted-foreground hover:text-foreground"
+                tab === key ? "bg-primary text-primary-foreground shadow-soft" : "text-muted-foreground hover:text-foreground"
               }`}
             >
               {label}
@@ -146,7 +146,7 @@ export default function HowItWorks() {
           {FLOWS[tab].map((s) => (
             <div key={s.title} className="rounded-2xl bg-card border border-border p-6 shadow-card hover:shadow-elevated transition-shadow duration-300">
               <div className="flex items-center gap-3 mb-4">
-                <span className="w-8 h-8 rounded-lg bg-foreground flex items-center justify-center text-sm font-bold text-background">{s.n}</span>
+                <span className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-sm font-bold text-primary-foreground">{s.n}</span>
                 <h3 className="font-semibold text-foreground text-lg">{s.title}</h3>
               </div>
               <p className="text-sm text-muted-foreground leading-relaxed mb-5">{s.desc}</p>

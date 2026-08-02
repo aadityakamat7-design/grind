@@ -58,15 +58,15 @@ export default function Welcome() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground overflow-x-hidden scroll-smooth">
+    <div className="min-h-screen bg-background text-foreground overflow-x-hidden scroll-smooth dark">
       <div className="opacity-40"><FallingMoney /></div>
 
       {/* Header */}
       <header className="sticky top-0 inset-x-0 z-30 bg-background/80 backdrop-blur-md border-b border-border pt-[env(safe-area-inset-top)]">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-foreground flex items-center justify-center shadow-card">
-              <Zap className="w-5 h-5 text-background" />
+            <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-card">
+              <Zap className="w-5 h-5 text-primary-foreground" />
             </div>
             <span className="font-bold text-xl tracking-tight">KickStart</span>
           </div>
@@ -124,27 +124,27 @@ export default function Welcome() {
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="relative overflow-hidden bg-foreground rounded-3xl p-10 sm:p-14 text-center shadow-elevated"
+          className="relative overflow-hidden bg-card rounded-3xl p-10 sm:p-14 text-center shadow-elevated"
         >
-          <div className="absolute -top-20 -right-20 w-64 h-64 bg-background/10 rounded-full blur-3xl pointer-events-none" />
-          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-background">Ready to Get Started?</h2>
-          <p className="text-background/70 mt-3 max-w-md mx-auto">Join your local community now — thousands of teens and neighbors are already helping each other.</p>
+          <div className="absolute -top-20 -right-20 w-64 h-64 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">Ready to Get Started?</h2>
+          <p className="text-foreground/70 mt-3 max-w-md mx-auto">Join your local community now — thousands of teens and neighbors are already helping each other.</p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center mt-7">
             <Button
-              className="h-12 px-10 rounded-xl text-base font-medium bg-background text-foreground hover:bg-background/90 shadow-card"
+              className="h-12 px-10 rounded-xl text-base font-medium"
               onClick={() => startSignup("teen")}
             >
               Start Earning Today
             </Button>
             <Button
               variant="outline"
-              className="h-12 px-10 rounded-xl text-base font-medium bg-transparent border-background/30 text-background hover:bg-background/10 hover:text-background"
+              className="h-12 px-10 rounded-xl text-base font-medium bg-transparent border-primary/40 text-foreground hover:bg-primary/10 hover:text-foreground"
               onClick={() => startSignup("buyer")}
             >
               Find Help Near You
             </Button>
           </div>
-          <p className="text-xs text-background/50 mt-4">Free to join · Takes less than 2 minutes</p>
+          <p className="text-xs text-foreground/50 mt-4">Free to join · Takes less than 2 minutes</p>
         </motion.div>
       </section>
 

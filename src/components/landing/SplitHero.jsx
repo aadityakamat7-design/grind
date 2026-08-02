@@ -26,8 +26,8 @@ export default function SplitHero({ onGetStarted, onLogin }) {
           <ul className="mt-7 space-y-3 flex flex-col items-center md:items-start">
             {TRUST_POINTS.map(({ icon: Icon, text }) => (
               <li key={text} className="flex items-center gap-2.5">
-                <span className="w-7 h-7 rounded-full bg-foreground flex items-center justify-center shrink-0">
-                  <Icon className="w-3.5 h-3.5 text-background" />
+                <span className="w-7 h-7 rounded-full bg-primary flex items-center justify-center shrink-0">
+                  <Icon className="w-3.5 h-3.5 text-primary-foreground" />
                 </span>
                 <span className="text-sm font-medium text-foreground/80">{text}</span>
               </li>

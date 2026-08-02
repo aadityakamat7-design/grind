@@ -48,8 +48,8 @@ export default function EarningsCalculator() {
             onClick={() => setService(s)}
             className={`rounded-xl border px-2 py-3 text-center transition-all duration-200 ${
               service.label === s.label
-                ? "bg-foreground border-foreground text-background"
-                : "bg-muted border-border text-muted-foreground hover:border-foreground/30"
+                ? "bg-primary border-primary text-primary-foreground"
+                : "bg-muted border-border text-muted-foreground hover:border-primary/40"
             }`}
           >
             <span className="block text-lg">{s.emoji}</span>

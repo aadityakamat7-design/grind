@@ -13,19 +13,19 @@ export default function WhyKickstart() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-60px" }}
         transition={{ duration: 0.6 }}
-        className="rounded-2xl bg-foreground p-6 shadow-elevated"
+        className="rounded-2xl bg-card p-6 shadow-elevated"
       >
         <div className="flex items-center gap-2 mb-5">
-          <div className="w-7 h-7 rounded-lg bg-background flex items-center justify-center">
-            <Zap className="w-4 h-4 text-foreground" />
+          <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center">
+            <Zap className="w-4 h-4 text-primary-foreground" />
           </div>
-          <h3 className="font-bold text-background text-lg">KickStart</h3>
+          <h3 className="font-bold text-foreground text-lg">KickStart</h3>
         </div>
         <ul className="space-y-3">
           {US.map((item) => (
-            <li key={item} className="flex items-center gap-3 text-sm font-medium text-background/90">
-              <span className="w-5 h-5 rounded-full bg-background/15 flex items-center justify-center shrink-0">
-                <Check className="w-3 h-3 text-background" />
+            <li key={item} className="flex items-center gap-3 text-sm font-medium text-foreground/90">
+              <span className="w-5 h-5 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
+                <Check className="w-3 h-3 text-primary" />
               </span>
               {item}
             </li>
