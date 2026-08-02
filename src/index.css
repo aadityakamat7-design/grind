@@ -237,6 +237,118 @@
 .border-red-100, .border-red-200 { border-color: hsl(0 72% 90%); }
 .bg-red-500, .bg-red-600 { background-color: hsl(0 72% 51%); }
 
+/* === Liquid chrome treatment (strictly grayscale — no color introduced) === */
+.chrome-btn {
+  background-image: linear-gradient(
+    160deg,
+    #5a5a5a 0%,
+    #3c3c3c 9%,
+    #242424 22%,
+    #131313 40%,
+    #0a0a0a 58%,
+    #0e0e0e 73%,
+    #1c1c1c 87%,
+    #383838 100%
+  );
+  background-size: 100% 220%;
+  background-position: 0% 0%;
+  color: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.4);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.12),
+    0 2px 8px -2px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+.chrome-btn:hover {
+  background-position: 0% 100%;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.15),
+    0 3px 12px -2px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+.chrome-btn:active {
+  background-position: 0% 45%;
+  box-shadow:
+    0 1px 1px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* Slide-to-confirm chrome */
+.chrome-track {
+  background-image: linear-gradient(
+    180deg,
+    #f4f4f4 0%,
+    #ebebeb 30%,
+    #e0e0e0 55%,
+    #d8d8d8 80%,
+    #e6e6e6 100%
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.05),
+    0 1px 3px rgba(0, 0, 0, 0.06);
+}
+.chrome-fill {
+  background-image: linear-gradient(
+    180deg,
+    #3a3a3a 0%,
+    #1e1e1e 25%,
+    #0c0c0c 50%,
+    #080808 65%,
+    #141414 82%,
+    #2a2a2a 100%
+  );
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+.chrome-fill-shine {
+  background-image: linear-gradient(
+    180deg,
+    #909090 0%,
+    #5a5a5a 25%,
+    #3a3a3a 50%,
+    #2a2a2a 70%,
+    #404040 100%
+  );
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+.chrome-handle {
+  background-image: radial-gradient(
+    circle at 32% 28%,
+    #fafafa 0%,
+    #e2e2e2 10%,
+    #b4b4b4 25%,
+    #787878 45%,
+    #3e3e3e 65%,
+    #1e1e1e 83%,
+    #0c0c0c 100%
+  );
+  box-shadow:
+    0 2px 5px rgba(0, 0, 0, 0.22),
+    0 1px 2px rgba(0, 0, 0, 0.12),
+    inset 0 1px 1px rgba(255, 255, 255, 0.4),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.18);
+}
+.chrome-flare {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.5) 45%,
+    rgba(255, 255, 255, 0.75) 50%,
+    rgba(255, 255, 255, 0.5) 55%,
+    transparent 100%
+  );
+}
+@keyframes chrome-flare-sweep {
+  0% { transform: translateX(-60%); opacity: 0; }
+  15% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { transform: translateX(200%); opacity: 0; }
+}
+.chrome-flare-run {
+  animation: chrome-flare-sweep 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 /* Hide scrollbars on horizontal scroll rows */
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }

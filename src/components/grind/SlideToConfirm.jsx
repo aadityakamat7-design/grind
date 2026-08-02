@@ -1,7 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect } from "react";
 import { Check, Loader2, ChevronRight } from "lucide-react";
 
-// Slide-to-confirm gesture: a pill track with a draggable handle.
+// Slide-to-confirm gesture with a liquid-chrome visual treatment.
 // Fires onConfirm only when dragged past 90% of the track width.
 // Snaps back with an overshoot-eased animation if released early.
 // Works with both mouse (desktop) and touch (mobile) via Pointer Events.
@@ -75,20 +75,35 @@ export default function SlideToConfirm({ onConfirm, label, disabled, loading, lo
   const ease = "cubic-bezier(0.34, 1.56, 0.64, 1)";
   const transition = animating && !dragging ? `transform 0.45s ${ease}` : "none";
   const fillTransition = animating && !dragging ? `width 0.45s ${ease}` : "none";
+  const shineTransition = animating && !dragging ? `opacity 0.45s ${ease}` : "none";
 
   return (
     <div
       ref={trackRef}
-      className="relative w-full h-14 rounded-full bg-secondary border border-border overflow-hidden select-none"
+      className="relative w-full h-14 rounded-full chrome-track overflow-hidden select-none"
       style={{ touchAction: "none" }}
     >
+      {/* Chrome fill that grows behind the handle */}
       <div
-        className="absolute top-0 left-0 bottom-0 bg-foreground rounded-full"
+        className="absolute top-0 left-0 bottom-0 chrome-fill rounded-full overflow-hidden"
         style={{
           width: dragX + HANDLE_SIZE + PADDING,
           transition: fillTransition,
         }}
-      />
+      >
+        {/* Shine overlay — brightens with drag progress, recedes on snap-back */}
+        <div
+          className="absolute inset-0 chrome-fill-shine"
+          style={{ opacity: progress, transition: shineTransition }}
+        />
+      </div>
+      {/* Success light-flare sweep */}
+      {completed && (
+        <div
+          className="absolute top-0 bottom-0 chrome-flare chrome-flare-run pointer-events-none"
+          style={{ width: "60%" }}
+        />
+      )}
       {!completed && (
         <div
           className="absolute inset-0 flex items-center justify-center text-sm font-medium pointer-events-none"
@@ -105,7 +120,7 @@ export default function SlideToConfirm({ onConfirm, label, disabled, loading, lo
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
-        className={`absolute flex items-center justify-center rounded-full bg-foreground text-background shadow-card ${
+        className={`absolute flex items-center justify-center rounded-full chrome-handle text-foreground ${
           disabled || loading ? "opacity-40 cursor-not-allowed" : "cursor-grab active:cursor-grabbing"
         }`}
         style={{
