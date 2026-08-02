@@ -51,15 +51,15 @@
 
   .dark {
     --background: 220 49% 8%;
-    --foreground: 138 45% 94%;
+    --foreground: 0 0% 100%;
     --card: 222 41% 13%;
-    --card-foreground: 138 45% 94%;
+    --card-foreground: 0 0% 100%;
     --popover: 222 41% 13%;
-    --popover-foreground: 138 45% 94%;
+    --popover-foreground: 0 0% 100%;
     --primary: 154 74% 57%;
     --primary-foreground: 152 74% 12%;
     --secondary: 222 35% 18%;
-    --secondary-foreground: 138 45% 94%;
+    --secondary-foreground: 0 0% 100%;
     --muted: 222 30% 16%;
     --muted-foreground: 151 28% 67%;
     --accent: 222 35% 18%;
@@ -79,7 +79,7 @@
     --shadow-elevated: 0 4px 12px -2px rgba(0,0,0,0.35), 0 8px 24px -4px rgba(0,0,0,0.25);
     --shadow-floating: 0 8px 32px -4px rgba(0,0,0,0.4), 0 2px 8px -2px rgba(0,0,0,0.25);
     --sidebar-background: 222 41% 13%;
-    --sidebar-foreground: 138 45% 94%;
+    --sidebar-foreground: 0 0% 100%;
     --sidebar-primary: 154 74% 57%;
     --sidebar-primary-foreground: 152 74% 12%;
     --sidebar-accent: 222 35% 18%;
