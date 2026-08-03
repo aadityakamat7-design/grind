@@ -3,6 +3,7 @@ import { Outlet, NavLink, Navigate, Link, useLocation, useNavigate } from "react
 import { Home, List, CalendarDays, MessageCircle, Wallet, LayoutDashboard, ShieldCheck, Search, Zap, UserCircle, Briefcase, ArrowLeft, LifeBuoy } from "lucide-react";
 import { useAppUser } from "@/lib/useAppUser";
 import NotificationBell from "@/components/grind/NotificationBell";
+import SiteFooter from "@/components/SiteFooter";
 
 const TABS = {
   teen: [
@@ -191,6 +192,7 @@ export default function Layout() {
         <main className="max-w-3xl lg:max-w-5xl mx-auto px-4 lg:px-8 pt-5 lg:pt-8 pb-28 lg:pb-12">
           <Outlet context={{ user, reload }} />
         </main>
+        <SiteFooter />
       </div>
 
       {/* Mobile bottom bar */}

@@ -1,10 +1,11 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { LifeBuoy, Mail, ArrowLeft, ShieldAlert } from "lucide-react";
+import SiteFooter from "@/components/SiteFooter";
 
 export default function Support() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       <div className="max-w-2xl mx-auto px-4 py-12 lg:py-20">
         <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-8">
           <ArrowLeft className="w-4 h-4" /> Back to KickStart
@@ -36,6 +37,7 @@ export default function Support() {
           </p>
         </div>
       </div>
+      <SiteFooter />
     </div>
   );
 }

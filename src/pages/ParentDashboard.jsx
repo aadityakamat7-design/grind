@@ -8,8 +8,8 @@ import StudentIncomeCard from "@/components/grind/parent/StudentIncomeCard";
 import ApprovalQueue from "@/components/grind/parent/ApprovalQueue";
 import SafetyPanel from "@/components/grind/parent/SafetyPanel";
 import ActivityFeed from "@/components/grind/parent/ActivityFeed";
-import LinkTeenCard from "@/components/grind/parent/LinkTeenCard";
-import ConnectBankCard from "@/components/grind/parent/ConnectBankCard";
+import PayoutStatusCard from "@/components/grind/parent/PayoutStatusCard";
+import LinkTeenDialog from "@/components/grind/parent/LinkTeenDialog";
 import PullToRefresh from "@/components/PullToRefresh";
 
 export default function ParentDashboard() {
@@ -58,7 +58,9 @@ export default function ParentDashboard() {
         <div className="space-y-6">
           <h1 className="text-2xl font-bold text-foreground">Parent dashboard</h1>
           <EmptyState icon={Users} title="No linked students yet" subtitle="Ask your teen for their parent code and link their account to see their jobs, income, and safety status here." />
-          <LinkTeenCard onLinked={load} />
+          <div className="pt-2">
+            <LinkTeenDialog onLinked={load} />
+          </div>
         </div>
       </PullToRefresh>
     );
@@ -71,10 +73,12 @@ export default function ParentDashboard() {
             <h1 className="text-2xl font-bold text-foreground">Parent dashboard</h1>
             <p className="text-sm text-muted-foreground mt-1">You'll see jobs to approve here once your teen gets their first request.</p>
           </div>
-          <LinkTeenCard onLinked={load} />
-          {connectStatus !== "active" && parentProfile?.is_identity_verified && (
-            <ConnectBankCard profile={parentProfile} onUpdated={load} returnPath="/parent" />
+          {parentProfile && (
+            <PayoutStatusCard profile={parentProfile} onUpdated={load} returnPath="/parent" />
           )}
+          <div className="pt-2">
+            <LinkTeenDialog onLinked={load} />
+          </div>
         </div>
       </PullToRefresh>
     );
@@ -99,7 +103,9 @@ export default function ParentDashboard() {
         <p className="text-sm text-muted-foreground mt-1">Full visibility into your student's activity.</p>
       </div>
 
-      <LinkTeenCard onLinked={load} />
+      {parentProfile && (
+        <PayoutStatusCard profile={parentProfile} onUpdated={load} returnPath="/parent" />
+      )}
 
       {links.length > 1 && (
         <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-4 px-4">
@@ -138,10 +144,6 @@ export default function ParentDashboard() {
         );
       })}
 
-      {connectStatus !== "active" && parentProfile?.is_identity_verified && (
-        <ConnectBankCard profile={parentProfile} onUpdated={load} returnPath="/parent" />
-      )}
-
       <ApprovalQueue pending={pending} onDecided={load} />
 
       <SafetyPanel activeJobs={activeJobs} alerts={alerts} />
@@ -160,6 +162,10 @@ export default function ParentDashboard() {
       </div>
 
       <ActivityFeed notifications={notifications} />
+
+      <div className="pt-2">
+        <LinkTeenDialog onLinked={load} />
+      </div>
     </div>
     </PullToRefresh>
   );

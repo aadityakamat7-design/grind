@@ -116,11 +116,6 @@ export default function IdentityVerificationGate({ open, onOpenChange, onVerifie
     }
   };
 
-  const skipBank = () => {
-    setStep("done");
-    setTimeout(() => { onVerified?.(); }, 600);
-  };
-
   const busy = status === "starting" || status === "checking";
 
   return (
@@ -240,12 +235,9 @@ export default function IdentityVerificationGate({ open, onOpenChange, onVerifie
                   <Button className="w-full rounded-xl" onClick={startBank}>
                     Set up payouts with Stripe
                   </Button>
-                  <Button variant="outline" className="w-full rounded-xl" onClick={skipBank}>
-                    Skip for now
-                  </Button>
                 </div>
                 <p className="text-xs text-muted-foreground text-center">
-                  You can connect your bank anytime from the Payouts page.
+                  Bank connection is required before you can approve your teen's job.
                 </p>
               </div>
             )}

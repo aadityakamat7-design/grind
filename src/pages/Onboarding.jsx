@@ -6,6 +6,7 @@ import RolePicker from "@/components/grind/onboarding/RolePicker";
 import TeenOnboarding from "@/components/grind/onboarding/TeenOnboarding";
 import ParentOnboarding from "@/components/grind/onboarding/ParentOnboarding";
 import BuyerOnboarding from "@/components/grind/onboarding/BuyerOnboarding";
+import SiteFooter from "@/components/SiteFooter";
 
 const ROLE_HOME = { teen: "/teen", parent: "/parent", buyer: "/buyer", admin: "/admin" };
 
@@ -37,8 +38,8 @@ export default function Onboarding() {
     return <Navigate to={ROLE_HOME[user.app_role] || "/browse"} replace />;
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-md mx-auto px-6 py-10">
+    <div className="min-h-screen bg-background flex flex-col">
+      <div className="flex-1 max-w-md mx-auto px-6 py-10 w-full">
         <div className="flex items-center gap-2 mb-8">
           <div className="w-8 h-8 rounded-xl bg-foreground flex items-center justify-center">
             <Zap className="w-4 h-4 text-background" />
@@ -63,6 +64,7 @@ export default function Onboarding() {
           </div>
         )}
       </div>
+      <SiteFooter />
     </div>
   );
 }

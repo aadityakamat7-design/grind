@@ -15,6 +15,7 @@ import EarningsCalculator from "@/components/landing/EarningsCalculator";
 import SafetyGrid from "@/components/landing/SafetyGrid";
 import FaqSection from "@/components/landing/FaqSection";
 import LandingFooter from "@/components/landing/LandingFooter";
+import SiteFooter from "@/components/SiteFooter";
 
 const ROLE_HOME = { teen: "/teen", parent: "/parent", buyer: "/buyer", admin: "/admin" };
 
@@ -150,6 +151,7 @@ export default function Welcome() {
       </section>
 
       <LandingFooter />
+      <SiteFooter />
     </div>
   );
 }

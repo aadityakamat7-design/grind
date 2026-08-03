@@ -25,6 +25,12 @@ Deno.serve(async (req) => {
       if (!profiles[0]?.is_identity_verified) {
         return Response.json({ error: 'You must verify your identity before approving bookings. Complete ID verification in your dashboard.' }, { status: 403 });
       }
+      // The parent must also have an active Stripe Connect payout account.
+      // This is the second safety gate — payouts cannot flow to an unconnected
+      // parent, so approval is blocked until the bank account is active.
+      if (profiles[0]?.connect_status !== 'active') {
+        return Response.json({ error: 'You need to connect your bank account before approving bookings. Complete payout setup in your dashboard.' }, { status: 403 });
+      }
       // The teen must have completed their own identity verification before
       // the parent can approve their first job. Once verified, this check
       // passes for all future jobs.

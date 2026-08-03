@@ -85,6 +85,16 @@ export default function ParentApprovals() {
                 <p className="text-xs text-muted-foreground/70 mt-3">
                   No payment yet — the neighbor pays when both sides start the job. Denying cancels the booking.
                 </p>
+                {(!profile?.is_identity_verified || profile?.connect_status !== "active") && (
+                  <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-700 mt-3">
+                    <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5" />
+                    <span>
+                      <strong className="font-semibold">Complete setup to approve this job.</strong>
+                      {!profile?.is_identity_verified ? " Verify your identity" : " Connect your bank account"}
+                      {" first — tap Approve to start the guided setup."}
+                    </span>
+                  </div>
+                )}
                 <div className="grid grid-cols-2 gap-3 mt-4">
                   <Button
                     variant="outline"

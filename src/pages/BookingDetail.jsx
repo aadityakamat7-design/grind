@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useOutletContext, Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { CalendarDays, MapPin, Lock, MessageCircle, FileText, Repeat } from "lucide-react";
+import { CalendarDays, MapPin, Lock, MessageCircle, FileText, Repeat, Clock } from "lucide-react";
 import { format } from "date-fns";
 import StatusBadge from "@/components/grind/StatusBadge";
 import TrustBadge from "@/components/grind/TrustBadge";
@@ -165,6 +165,17 @@ export default function BookingDetail() {
           )}
           {booking.status === "in_progress" && <TrustBadge type="location_shared" />}
         </div>
+
+        {booking.status === "pending_parent_approval" && (isTeen || isBuyer) && (
+          <div className="mt-4 flex items-start gap-2 bg-secondary border border-border rounded-xl p-3 text-xs text-muted-foreground">
+            <Clock className="w-4 h-4 shrink-0 mt-0.5" />
+            <span>
+              {isTeen
+                ? "Waiting for your parent to approve this job. If this is your first job, your parent may need to verify their identity and connect a bank account first — ask them to check their dashboard."
+                : "Waiting for the teen's parent to approve this job. This is a safety requirement and usually takes less than a day."}
+            </span>
+          </div>
+        )}
 
         <div className="mt-5 space-y-2.5 text-sm text-muted-foreground">
           {booking.scheduled_start && (
