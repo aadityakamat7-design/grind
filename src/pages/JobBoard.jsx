@@ -38,6 +38,12 @@ export default function JobBoard() {
 
   useEffect(() => { load(); }, [load]);
 
+  // Realtime: refresh the board when any job post changes (new post, taken, re-listed)
+  useEffect(() => {
+    const unsub = base44.entities.JobPost.subscribe(() => load());
+    return unsub;
+  }, [load]);
+
   const cancelJob = async (job) => {
     try {
       await base44.functions.invoke("cancelJobPost", { jobId: job.id });

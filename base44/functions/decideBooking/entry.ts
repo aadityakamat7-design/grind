@@ -66,6 +66,18 @@ Deno.serve(async (req) => {
         status: 'denied',
         payment_status: refunded ? 'refunded' : booking.payment_status,
       });
+
+      // Re-list the job post so other teens can see and accept it again.
+      const deniedJobPosts = await base44.asServiceRole.entities.JobPost.filter({ booking_id: booking.id });
+      if (deniedJobPosts[0] && deniedJobPosts[0].status === 'assigned') {
+        await base44.asServiceRole.entities.JobPost.update(deniedJobPosts[0].id, {
+          status: 'open',
+          assigned_teen_user_id: '',
+          assigned_teen_name: '',
+          booking_id: '',
+        });
+      }
+
       await base44.asServiceRole.entities.Notification.create({
         user_id: booking.teen_user_id,
         type: 'approval',

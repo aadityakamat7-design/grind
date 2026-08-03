@@ -46,6 +46,23 @@ Deno.serve(async (req) => {
     const platformFee = job.platform_fee != null ? job.platform_fee : Math.round(gross * 0.15 * 100) / 100;
     const netAmount = job.net_amount != null ? job.net_amount : Math.round((gross - platformFee) * 100) / 100;
 
+    // Atomically claim the job — prevents a race condition where two teens
+    // accept the same job at nearly the same time. The updateMany filter
+    // includes status: 'open', so if another teen already claimed it, this
+    // matches 0 records and we return a clear error.
+    const claimResult = await svc.JobPost.updateMany(
+      { id: jobId, status: 'open' },
+      { $set: {
+        status: 'assigned',
+        assigned_teen_user_id: user.id,
+        assigned_teen_name: profile?.display_name || user.full_name,
+      }}
+    );
+    const claimed = (claimResult?.modified_count ?? claimResult?.modifiedCount ?? claimResult?.count ?? 0) > 0;
+    if (!claimed) {
+      return Response.json({ error: 'This job has already been taken by another teen.' }, { status: 409 });
+    }
+
     const booking = await svc.Booking.create({
       listing_title: job.title,
       teen_user_id: user.id,
@@ -65,12 +82,7 @@ Deno.serve(async (req) => {
       status: 'pending_parent_approval',
     });
 
-    await svc.JobPost.update(job.id, {
-      status: 'assigned',
-      assigned_teen_user_id: user.id,
-      assigned_teen_name: profile?.display_name || user.full_name,
-      booking_id: booking.id,
-    });
+    await svc.JobPost.update(job.id, { booking_id: booking.id });
 
     // The teen must verify their own identity the first time they accept a
     // job. The booking is created in pending_parent_approval either way; the

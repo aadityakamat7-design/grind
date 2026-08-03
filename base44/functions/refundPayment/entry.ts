@@ -64,6 +64,18 @@ Deno.serve(async (req) => {
       payment_status: booking.payment_status === 'unpaid' ? 'unpaid' : 'refunded',
     });
 
+    // Re-list the job post so other teens can see and accept it again.
+    // Only re-list if the job is still in 'assigned' status (not yet completed).
+    const jobPosts = await base44.asServiceRole.entities.JobPost.filter({ booking_id: booking.id });
+    if (jobPosts[0] && jobPosts[0].status === 'assigned') {
+      await base44.asServiceRole.entities.JobPost.update(jobPosts[0].id, {
+        status: 'open',
+        assigned_teen_user_id: '',
+        assigned_teen_name: '',
+        booking_id: '',
+      });
+    }
+
     // Notify the other party server-side (client-side notify() can't create
     // notifications for other users due to RLS)
     const otherId = user.id === booking.buyer_user_id ? booking.teen_user_id : booking.buyer_user_id;
