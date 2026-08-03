@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { ShieldCheck, UserCheck, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import IPad3D from "./IPad3D";
@@ -9,10 +9,44 @@ const TRUST_POINTS = [
   { icon: Wallet, text: "Payments held safely until the job's done" },
 ];
 
-// Split hero: text left, scroll-driven 3D iPad right.
 export default function SplitHero({ onGetStarted, onLogin }) {
   const sectionRef = useRef(null);
+  const [isMobile, setIsMobile] = useState(
+    () => typeof window !== "undefined" && window.matchMedia("(max-width: 768px)").matches
+  );
 
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 768px)");
+    const handler = (e) => setIsMobile(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+
+  // Mobile: clean centered stack — no iPad, no 3D, no performance cost
+  if (isMobile) {
+    return (
+      <div className="relative min-h-[80vh] flex items-center justify-center px-6 py-20">
+        <div className="text-center max-w-sm">
+          <h1 className="text-4xl font-bold tracking-tight leading-[1.1] text-foreground">
+            Teens earn. Neighbors get things done.
+          </h1>
+          <p className="text-muted-foreground text-base mt-5 leading-relaxed">
+            Local jobs, parent-approved, paid safely.
+          </p>
+          <div className="flex flex-col gap-3 justify-center mt-8">
+            <Button size="lg" onClick={onGetStarted}>
+              Get Started
+            </Button>
+            <Button variant="outline" size="lg" onClick={onLogin}>
+              Log in
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Desktop: text left, scroll-driven 3D iPad right
   return (
     <div ref={sectionRef} className="relative min-h-[90vh] flex items-center py-16">
       <div className="relative z-10 max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-[45%_55%] gap-10 md:gap-6 items-center w-full">
