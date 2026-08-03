@@ -113,17 +113,6 @@
         }
       }
     },
-    "id_number": {
-      "type": "string",
-      "description": "ID number from the verified document (no raw images stored)",
-      "rls": {
-        "write": {
-          "user_condition": {
-            "role": "admin"
-          }
-        }
-      }
-    },
     "dob": {
       "type": "string",
       "format": "date",

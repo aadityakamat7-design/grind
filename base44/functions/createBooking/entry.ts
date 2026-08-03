@@ -25,14 +25,10 @@ Deno.serve(async (req) => {
     const buyerProfile = buyerProfiles[0];
     const teenPrivateData = teenPrivate[0];
     if (!teenProfile) return Response.json({ error: 'Teen profile not found' }, { status: 404 });
-    if (!buyerProfile) return Response.json({ error: 'Please complete your profile first' }, { status: 400 });
-
-    // Reject bookings for teens whose profile is not active (pending parent
-    // link or suspended) — closes a gap where a buyer with a direct listing
-    // link could book a teen who isn't live on the platform.
     if (teenProfile.status !== 'active') {
-      return Response.json({ error: 'This teen is not currently available for bookings.' }, { status: 403 });
+      return Response.json({ error: 'This teen is not currently available for bookings.' }, { status: 400 });
     }
+    if (!buyerProfile) return Response.json({ error: 'Please complete your profile first' }, { status: 400 });
 
     if (
       teenPrivateData?.latitude == null || teenPrivateData?.longitude == null ||
@@ -92,9 +88,7 @@ Deno.serve(async (req) => {
     const buyerPays = Math.round((total - creditApplied) * 100) / 100;
 
     // 18+ teens use the platform independently — no parent approval needed.
-    // 13–17 teens require a linked, verified parent. Use the Stripe-verified
-    // DOB (source of truth) when available, not the self-reported age a teen
-    // could inflate to bypass parent oversight.
+    // 13–17 teens require a linked, verified parent.
     const teenAge = getVerifiedAge(teenPrivateData) ?? 0;
     const needsParent = teenAge < 18;
     let parentUserId = '';

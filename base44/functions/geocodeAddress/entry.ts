@@ -16,6 +16,6 @@ Deno.serve(async (req) => {
     return Response.json(result);
   } catch (error) {
     console.error('geocodeAddress error:', error.message);
-    return Response.json({ error: 'Something went wrong' }, { status: 400 });
+    return Response.json({ error: 'Unable to verify that address. Please try again.' }, { status: 400 });
   }
 });

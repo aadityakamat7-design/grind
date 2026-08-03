@@ -56,7 +56,7 @@ Deno.serve(async (req) => {
     console.error('createIdentitySession error:', error.message);
     const friendly = /not set up to use Identity|identity\/use-cases|identity\/application/i.test(error.message || '')
       ? 'ID verification is temporarily unavailable — Stripe Identity has not been activated on the platform account yet. Please try again later.'
-      : error.message;
-    return Response.json({ error: 'Something went wrong' }, { status: 500 });
+      : 'Something went wrong';
+    return Response.json({ error: friendly }, { status: 500 });
   }
 });

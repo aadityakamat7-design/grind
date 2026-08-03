@@ -33,13 +33,11 @@ Deno.serve(async (req) => {
 
     const svc = base44.asServiceRole.entities;
 
-    // Reject listing creation/edit for teens whose profile is not active
-    // (pending parent link or suspended). The UI disables this, but a direct
-    // API call could bypass the UI check.
-    const profiles = await svc.TeenProfile.filter({ user_id: user.id });
-    const teenProfile = profiles[0];
-    if (!teenProfile || teenProfile.status !== 'active') {
-      return Response.json({ error: 'Your account is not active yet — you cannot publish listings.' }, { status: 403 });
+    // Reject if the teen's profile is not active — prevents suspended or
+    // pending_parent teens from creating or editing listings via direct API.
+    const teenProfiles = await svc.TeenProfile.filter({ user_id: user.id });
+    if (!teenProfiles[0] || teenProfiles[0].status !== 'active') {
+      return Response.json({ error: 'Your account is not active yet.' }, { status: 403 });
     }
 
     // Server-side hazard screening — a client can't bypass this by calling
