@@ -58,7 +58,7 @@ Deno.serve(async (req) => {
         assigned_teen_name: profile?.display_name || user.full_name,
       }}
     );
-    const claimed = (claimResult?.modified_count ?? claimResult?.modifiedCount ?? claimResult?.count ?? 0) > 0;
+    const claimed = (claimResult?.updated ?? 0) > 0;
     if (!claimed) {
       return Response.json({ error: 'This job has already been taken by another teen.' }, { status: 409 });
     }
