@@ -9,6 +9,7 @@ import ApprovalQueue from "@/components/grind/parent/ApprovalQueue";
 import SafetyPanel from "@/components/grind/parent/SafetyPanel";
 import ActivityFeed from "@/components/grind/parent/ActivityFeed";
 import LinkTeenCard from "@/components/grind/parent/LinkTeenCard";
+import ConnectBankCard from "@/components/grind/parent/ConnectBankCard";
 import PullToRefresh from "@/components/PullToRefresh";
 
 export default function ParentDashboard() {
@@ -17,6 +18,7 @@ export default function ParentDashboard() {
   const [bookings, setBookings] = useState([]);
   const [records, setRecords] = useState([]);
   const [connectStatus, setConnectStatus] = useState("not_setup");
+  const [parentProfile, setParentProfile] = useState(null);
   const [notifications, setNotifications] = useState([]);
   const [selected, setSelected] = useState("all");
   const [loading, setLoading] = useState(true);
@@ -33,6 +35,7 @@ export default function ParentDashboard() {
     setLinks(myLinks);
     setBookings(b);
     setRecords(r);
+    setParentProfile(profiles[0] || null);
     setConnectStatus(profiles[0]?.connect_status || "not_setup");
     setNotifications(notifs);
     setLoading(false);
@@ -131,6 +134,10 @@ export default function ParentDashboard() {
           />
         );
       })}
+
+      {connectStatus !== "active" && parentProfile && (
+        <ConnectBankCard profile={parentProfile} onUpdated={load} returnPath="/parent" />
+      )}
 
       <ApprovalQueue pending={pending} onDecided={load} />
 

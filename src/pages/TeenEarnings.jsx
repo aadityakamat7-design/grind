@@ -16,6 +16,13 @@ const STATUS = {
   refunded: { label: "Refunded", color: "#FF4D4D" },
 };
 
+const PAYOUT_STATUS = {
+  transferred: { label: "Sent to parent's bank", color: "#00D47E" },
+  pending_review: { label: "In review", color: "#F2B84B" },
+  awaiting_bank: { label: "Parent connecting bank", color: "#F2B84B" },
+  not_started: { label: "Released to parent", color: "#00D47E" },
+};
+
 function FontLoader() {
   useEffect(() => {
     const id = "earnings-fonts";
@@ -96,20 +103,23 @@ export default function TeenEarnings() {
   const [held, setHeld] = useState([]);
   const [refunded, setRefunded] = useState([]);
   const [cashouts, setCashouts] = useState([]);
+  const [releasedBookings, setReleasedBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [range, setRange] = useState("1M");
 
   const load = useCallback(async () => {
-    const [r, h, ref, c] = await Promise.all([
+    const [r, h, ref, c, rb] = await Promise.all([
       base44.entities.EarningsRecord.filter({ teen_user_id: user.id }, "-occurred_at"),
       base44.entities.Booking.filter({ teen_user_id: user.id, payment_status: "held" }),
       base44.entities.Booking.filter({ teen_user_id: user.id, payment_status: "refunded" }),
       base44.entities.WalletTransaction.filter({ teen_user_id: user.id, type: "cashout" }, "-occurred_at"),
+      base44.entities.Booking.filter({ teen_user_id: user.id, payment_status: "released" }),
     ]);
     setRecords(r);
     setHeld(h);
     setRefunded(ref);
     setCashouts(c);
+    setReleasedBookings(rb);
     setLoading(false);
   }, [user.id]);
 
@@ -133,6 +143,7 @@ export default function TeenEarnings() {
 
   const chartData = buildChartData(records, range);
   const hasData = records.length > 0 || held.length > 0 || refunded.length > 0;
+  const payoutByBooking = Object.fromEntries(releasedBookings.map((b) => [b.id, b.payout_status]));
 
   const transactions = [
     ...records.map((r) => ({
@@ -293,7 +304,8 @@ export default function TeenEarnings() {
         <h2 style={{ color: "#fff" }} className="text-sm font-semibold mb-3">Transactions</h2>
         <div className="space-y-2">
           {transactions.map((t) => {
-            const st = STATUS[t.status];
+            const payoutStatus = t.status === "paid" && t.bookingId ? payoutByBooking[t.bookingId] : null;
+            const st = payoutStatus ? (PAYOUT_STATUS[payoutStatus] || STATUS.paid) : STATUS[t.status];
             const prefix = t.status === "paid" ? "+" : t.status === "refunded" ? "\u2212" : "";
             return (
               <div
