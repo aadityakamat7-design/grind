@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useRef } from "react";
 import { ShieldCheck, UserCheck, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import Phone3D from "./Phone3D";
+import IPad3D from "./IPad3D";
 
 const TRUST_POINTS = [
   { icon: ShieldCheck, text: "Parent-approved bookings" },
@@ -9,10 +9,12 @@ const TRUST_POINTS = [
   { icon: Wallet, text: "Payments held safely until the job's done" },
 ];
 
-// Split hero: text left, floating 3D-tilted phone right.
+// Split hero: text left, scroll-driven 3D iPad right.
 export default function SplitHero({ onGetStarted, onLogin }) {
+  const sectionRef = useRef(null);
+
   return (
-    <div className="relative min-h-[90vh] flex items-center py-16">
+    <div ref={sectionRef} className="relative min-h-[90vh] flex items-center py-16">
       <div className="relative z-10 max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-[45%_55%] gap-10 md:gap-6 items-center w-full">
         {/* Left column */}
         <div className="text-center md:text-left order-2 md:order-1">
@@ -35,17 +37,10 @@ export default function SplitHero({ onGetStarted, onLogin }) {
           </ul>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center md:justify-start mt-8">
-            <Button
-              size="lg"
-              onClick={onGetStarted}
-            >
+            <Button size="lg" onClick={onGetStarted}>
               Get Started
             </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              onClick={onLogin}
-            >
+            <Button variant="outline" size="lg" onClick={onLogin}>
               Log in
             </Button>
           </div>
@@ -53,7 +48,7 @@ export default function SplitHero({ onGetStarted, onLogin }) {
 
         {/* Right column */}
         <div className="order-1 md:order-2">
-          <Phone3D />
+          <IPad3D triggerRef={sectionRef} />
         </div>
       </div>
     </div>
