@@ -23,8 +23,29 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
   const [aiCategory, setAiCategory] = useState(null); // { category, confidence, reason }
   const [chosenCategory, setChosenCategory] = useState(null);
   const [categoryError, setCategoryError] = useState("");
+  const [priceRec, setPriceRec] = useState(null);
+  const [priceRecLoading, setPriceRecLoading] = useState(false);
 
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
+
+  const fetchPriceRec = async () => {
+    if (!form.title.trim() || !form.description.trim()) return;
+    setPriceRecLoading(true);
+    try {
+      const res = await base44.functions.invoke("recommendPrice", {
+        title: form.title.trim(),
+        description: form.description.trim(),
+        priceModel: form.price_model,
+        state: form.state,
+      });
+      setPriceRec(res.data?.recommendation || null);
+    } catch {
+      setPriceRec(null);
+    } finally {
+      setPriceRecLoading(false);
+    }
+  };
+
   const priceError = Number(form.price) > MAX_UNIT_PRICE ? `Max ${MAX_UNIT_PRICE} per job` : "";
   const valid = form.title.trim().length >= 3 && Number(form.price) > 0 && !priceError && form.state && (!form.is_physical || form.address.trim());
   const { platform_fee, net_amount } = computeFees(Number(form.price) || 0);
@@ -274,6 +295,54 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
                   className="rounded-xl"
                 />
               </div>
+            </div>
+            {/* AI price recommendation */}
+            <div className="space-y-2">
+              {priceRec ? (
+                <div className="bg-primary/5 border border-primary/20 rounded-xl p-3 space-y-2">
+                  <div className="flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-primary" />
+                    <span className="text-xs font-bold text-primary">AI suggested price</span>
+                  </div>
+                  <div className="flex items-baseline justify-between">
+                    <span className="text-2xl font-bold text-foreground font-heading">
+                      {money(priceRec.recommended_price)}{form.price_model === "HOURLY" ? "/hr" : ""}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      Fair range: {money(priceRec.min_price)}–{money(priceRec.max_price)}{form.price_model === "HOURLY" ? "/hr" : ""}
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">{priceRec.reason}</p>
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="outline" className="flex-1" onClick={() => set("price", String(priceRec.recommended_price))}>
+                      Use {money(priceRec.recommended_price)}
+                    </Button>
+                    <Button size="sm" variant="ghost" className="flex-1" onClick={() => setPriceRec(null)}>
+                      Dismiss
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                  disabled={!form.title.trim() || !form.description.trim() || priceRecLoading}
+                  onClick={fetchPriceRec}
+                >
+                  {priceRecLoading ? (
+                    <>
+                      <div className="w-3.5 h-3.5 border-2 border-muted border-t-foreground rounded-full animate-spin" />
+                      Getting suggestion...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-3.5 h-3.5" />
+                      Get AI price suggestion
+                    </>
+                  )}
+                </Button>
+              )}
             </div>
             <div className="space-y-1.5">
               <Label>When (optional)</Label>
