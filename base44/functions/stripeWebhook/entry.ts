@@ -70,6 +70,35 @@ Deno.serve(async (req) => {
       }
     }
 
+    if (event.type === 'payment_intent.succeeded') {
+      const pi = event.data.object;
+      const bookingId = pi.metadata?.booking_id;
+      const jobPostId = pi.metadata?.job_post_id;
+
+      if (bookingId && pi.metadata?.start_payment === '1') {
+        const booking = await base44.asServiceRole.entities.Booking.get(bookingId);
+        if (booking && !booking.buyer_started_at) {
+          await recordBuyerStartAfterPayment(base44, booking, pi.id);
+          console.log(`Booking ${bookingId} buyer start recorded (PI ${pi.id})`);
+        }
+      } else if (bookingId) {
+        await base44.asServiceRole.entities.Booking.update(bookingId, {
+          payment_status: 'held',
+          stripe_payment_intent_id: pi.id,
+        });
+        console.log(`Booking ${bookingId} marked as held (PI ${pi.id})`);
+      }
+
+      if (jobPostId) {
+        await base44.asServiceRole.entities.JobPost.update(jobPostId, {
+          payment_status: 'held',
+          status: 'open',
+          stripe_payment_intent_id: pi.id,
+        });
+        console.log(`JobPost ${jobPostId} marked as held and published (PI ${pi.id})`);
+      }
+    }
+
     if (event.type === 'identity.verification_session.verified') {
       const session = event.data.object;
       const subject = session.metadata?.verification_subject;

@@ -15,6 +15,7 @@ import AlertParentButton from "@/components/grind/AlertParentButton";
 import PaymentStatusTracker from "@/components/grind/PaymentStatusTracker";
 import EarningsBreakdown from "@/components/grind/teen/EarningsBreakdown";
 import JobHandshakePanel from "@/components/grind/JobHandshakePanel";
+import ApplePayButton from "@/components/grind/ApplePayButton";
 import CheckInTimeline from "@/components/grind/parent/CheckInTimeline";
 
 export default function BookingDetail() {
@@ -231,6 +232,15 @@ export default function BookingDetail() {
           </Link>
         )}
 
+        {isBuyer && booking.status === "confirmed" && !booking.buyer_started_at && (booking.charge_amount ?? booking.price_total) > 0 && (
+          <ApplePayButton
+            bookingId={booking.id}
+            amount={booking.charge_amount ?? booking.price_total}
+            label={booking.listing_title || "Kickstart job"}
+            onSuccess={() => setTimeout(() => load(), 1500)}
+            onError={(msg) => setHandshakeError(msg)}
+          />
+        )}
         <JobHandshakePanel
           booking={booking}
           isTeen={isTeen}
