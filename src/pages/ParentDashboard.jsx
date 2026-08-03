@@ -59,9 +59,6 @@ export default function ParentDashboard() {
           <h1 className="text-2xl font-bold text-foreground">Parent dashboard</h1>
           <EmptyState icon={Users} title="No linked students yet" subtitle="Ask your teen for their parent code and link their account to see their jobs, income, and safety status here." />
           <LinkTeenCard onLinked={load} />
-          {connectStatus !== "active" && parentProfile && (
-            <ConnectBankCard profile={parentProfile} onUpdated={load} returnPath="/parent" />
-          )}
         </div>
       </PullToRefresh>
     );
@@ -75,7 +72,7 @@ export default function ParentDashboard() {
             <p className="text-sm text-muted-foreground mt-1">You'll see jobs to approve here once your teen gets their first request.</p>
           </div>
           <LinkTeenCard onLinked={load} />
-          {connectStatus !== "active" && parentProfile && (
+          {connectStatus !== "active" && parentProfile?.is_identity_verified && (
             <ConnectBankCard profile={parentProfile} onUpdated={load} returnPath="/parent" />
           )}
         </div>
@@ -141,7 +138,7 @@ export default function ParentDashboard() {
         );
       })}
 
-      {connectStatus !== "active" && parentProfile && (
+      {connectStatus !== "active" && parentProfile?.is_identity_verified && (
         <ConnectBankCard profile={parentProfile} onUpdated={load} returnPath="/parent" />
       )}
 
