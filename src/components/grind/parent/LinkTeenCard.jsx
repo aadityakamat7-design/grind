@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { AlertCircle, UserPlus } from "lucide-react";
+import { AlertCircle, UserPlus, CheckCircle2 } from "lucide-react";
 
 // Lets an already-onboarded parent link an additional teen at any time
 // (parent identity was already verified during onboarding; the server
@@ -14,6 +14,7 @@ export default function LinkTeenCard({ onLinked }) {
   const [tosAccepted, setTosAccepted] = useState(false);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   const link = async () => {
     setSaving(true);
@@ -28,6 +29,7 @@ export default function LinkTeenCard({ onLinked }) {
         setSaving(false);
         return;
       }
+      setSuccess(true);
       setCode("");
       setTosAccepted(false);
       setSaving(false);
@@ -37,6 +39,16 @@ export default function LinkTeenCard({ onLinked }) {
       setSaving(false);
     }
   };
+
+  if (success) {
+    return (
+      <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-5 text-center space-y-2">
+        <CheckCircle2 className="w-8 h-8 text-emerald-600 mx-auto" />
+        <p className="font-bold text-emerald-700">Account linked!</p>
+        <p className="text-xs text-emerald-600">Loading your dashboard…</p>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 space-y-3">

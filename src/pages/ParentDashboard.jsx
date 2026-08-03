@@ -10,6 +10,7 @@ import SafetyPanel from "@/components/grind/parent/SafetyPanel";
 import ActivityFeed from "@/components/grind/parent/ActivityFeed";
 import PayoutStatusCard from "@/components/grind/parent/PayoutStatusCard";
 import LinkTeenDialog from "@/components/grind/parent/LinkTeenDialog";
+import LinkTeenCard from "@/components/grind/parent/LinkTeenCard";
 import PullToRefresh from "@/components/PullToRefresh";
 
 export default function ParentDashboard() {
@@ -21,18 +22,22 @@ export default function ParentDashboard() {
   const [parentProfile, setParentProfile] = useState(null);
   const [notifications, setNotifications] = useState([]);
   const [selected, setSelected] = useState("all");
+  const [pendingLinks, setPendingLinks] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
-    const myLinks = await base44.entities.ParentTeenLink.filter({ parent_user_id: user.id, status: "confirmed" });
-    const teenIds = myLinks.map((l) => l.teen_user_id);
+    const allLinks = await base44.entities.ParentTeenLink.filter({ parent_user_id: user.id });
+    const confirmed = allLinks.filter((l) => l.status === "confirmed");
+    const pending = allLinks.filter((l) => l.status === "pending");
+    const teenIds = confirmed.map((l) => l.teen_user_id);
     const [b, r, profiles, notifs] = await Promise.all([
       teenIds.length ? base44.entities.Booking.filter({ teen_user_id: { $in: teenIds } }, "-created_date", 50) : [],
       teenIds.length ? base44.entities.EarningsRecord.filter({ teen_user_id: { $in: teenIds } }) : [],
       base44.entities.ParentProfile.filter({ user_id: user.id }),
       base44.entities.Notification.filter({ user_id: user.id }, "-created_date", 10),
     ]);
-    setLinks(myLinks);
+    setLinks(confirmed);
+    setPendingLinks(pending);
     setBookings(b);
     setRecords(r);
     setParentProfile(profiles[0] || null);
@@ -43,10 +48,11 @@ export default function ParentDashboard() {
 
   useEffect(() => { load(); }, [load]);
 
-  // Real-time: reload when any booking changes (new booking, status update, etc.)
+  // Real-time: reload when any booking or link changes
   useEffect(() => {
-    const unsub = base44.entities.Booking.subscribe(() => load());
-    return unsub;
+    const unsubBooking = base44.entities.Booking.subscribe(() => load());
+    const unsubLink = base44.entities.ParentTeenLink.subscribe(() => load());
+    return () => { unsubBooking(); unsubLink(); };
   }, [load]);
 
   if (user.app_role !== "parent") return <Navigate to="/" replace />;
@@ -54,12 +60,34 @@ export default function ParentDashboard() {
   if (loading)
     return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-muted border-t-foreground rounded-full animate-spin" /></div>;
 
-  if (links.length === 0)
+  if (links.length === 0 && pendingLinks.length === 0)
     return (
       <PullToRefresh onRefresh={load}>
         <div className="space-y-6">
           <h1 className="text-2xl font-bold text-foreground">Parent dashboard</h1>
-          <EmptyState icon={Users} title="No linked students yet" subtitle="Ask your teen for their parent code and link their account to see their jobs, income, and safety status here." />
+          <EmptyState icon={Users} title="No linked students yet" subtitle="Ask your teen for their parent code and enter it below to link their account." />
+          <LinkTeenCard onLinked={load} />
+        </div>
+      </PullToRefresh>
+    );
+
+  if (links.length === 0 && pendingLinks.length > 0)
+    return (
+      <PullToRefresh onRefresh={load}>
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Parent dashboard</h1>
+            <p className="text-sm text-muted-foreground mt-1">You're almost there — one more step to activate your teen's account.</p>
+          </div>
+          {pendingLinks.map((l) => (
+            <div key={l.id} className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
+              <p className="font-bold text-amber-700 text-sm">Linked with {l.teen_display_name} — pending activation</p>
+              <p className="text-xs text-amber-600 mt-1">Verify your government ID below to activate your teen's account and start approving their jobs.</p>
+            </div>
+          ))}
+          {parentProfile && (
+            <PayoutStatusCard profile={parentProfile} onUpdated={load} returnPath="/parent" />
+          )}
           <div className="pt-2">
             <LinkTeenDialog onLinked={load} />
           </div>
