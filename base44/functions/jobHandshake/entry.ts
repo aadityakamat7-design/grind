@@ -126,6 +126,6 @@ Deno.serve(async (req) => {
     return Response.json(result);
   } catch (error) {
     console.error('jobHandshake error:', error.message);
-    return Response.json({ error: error.message }, { status: 500 });
+    return Response.json({ error: 'Something went wrong' }, { status: 500 });
   }
 });

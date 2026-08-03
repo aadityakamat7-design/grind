@@ -21,7 +21,7 @@ Deno.serve(async (req) => {
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
     const { returnUrl, testMode } = await req.json();
-    const stripe = getStripe(testMode === true && user.role === 'admin');
+    const stripe = getStripe(testMode === true && user.app_role === 'admin');
 
     const profiles = await base44.entities.BuyerProfile.filter({ user_id: user.id });
     const profile = profiles[0];
@@ -51,6 +51,6 @@ Deno.serve(async (req) => {
     const friendly = /not set up to use Identity|identity\/use-cases|identity\/application/i.test(error.message || '')
       ? 'ID verification is temporarily unavailable — Stripe Identity has not been activated on the platform account yet. Please try again later.'
       : error.message;
-    return Response.json({ error: friendly }, { status: 500 });
+    return Response.json({ error: 'Something went wrong' }, { status: 500 });
   }
 });

@@ -10,7 +10,7 @@ Deno.serve(async (req) => {
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
     const body = await req.json().catch(() => ({}));
-    const stripe = getStripe(body.testMode === true && user.role === 'admin');
+    const stripe = getStripe(body.testMode === true && user.app_role === 'admin');
     const profiles = await base44.entities.TeenProfile.filter({ user_id: user.id });
     const profile = profiles[0];
     if (!profile) return Response.json({ status: 'unverified' });
@@ -48,6 +48,6 @@ Deno.serve(async (req) => {
     return Response.json({ status: result.status });
   } catch (error) {
     console.error('checkTeenIdentityStatus error:', error.message);
-    return Response.json({ error: error.message }, { status: 500 });
+    return Response.json({ error: 'Something went wrong' }, { status: 500 });
   }
 });

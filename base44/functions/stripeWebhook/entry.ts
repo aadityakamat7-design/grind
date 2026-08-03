@@ -139,6 +139,6 @@ Deno.serve(async (req) => {
     return Response.json({ received: true });
   } catch (error) {
     console.error('stripeWebhook error:', error.message);
-    return Response.json({ error: error.message }, { status: 400 });
+    return Response.json({ error: 'Something went wrong' }, { status: 400 });
   }
 });

@@ -125,6 +125,6 @@ Return your assessment as JSON matching this exact shape:
     return Response.json({ assessment: result });
   } catch (error) {
     console.error('checkLaborCompliance error:', error.message);
-    return Response.json({ error: error.message }, { status: 500 });
+    return Response.json({ error: 'Something went wrong' }, { status: 500 });
   }
 });

@@ -20,7 +20,7 @@ Deno.serve(async (req) => {
     const { returnUrl, testMode } = await req.json();
     // Live keys by default; test mode is admin-only for development, so real
     // users always verify against real government IDs.
-    const stripe = getStripe(testMode === true && user.role === 'admin');
+    const stripe = getStripe(testMode === true && user.app_role === 'admin');
 
     // Find or create the parent profile
     const profiles = await base44.entities.ParentProfile.filter({ user_id: user.id });
@@ -57,6 +57,6 @@ Deno.serve(async (req) => {
     const friendly = /not set up to use Identity|identity\/use-cases|identity\/application/i.test(error.message || '')
       ? 'ID verification is temporarily unavailable — Stripe Identity has not been activated on the platform account yet. Please try again later.'
       : error.message;
-    return Response.json({ error: friendly }, { status: 500 });
+    return Response.json({ error: 'Something went wrong' }, { status: 500 });
   }
 });

@@ -84,6 +84,6 @@ Deno.serve(async (req) => {
     return Response.json({ error: 'bookingId or jobId required' }, { status: 400 });
   } catch (error) {
     console.error('createPaymentIntent error:', error.message);
-    return Response.json({ error: error.message }, { status: 500 });
+    return Response.json({ error: 'Something went wrong' }, { status: 500 });
   }
 });

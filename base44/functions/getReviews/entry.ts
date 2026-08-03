@@ -31,7 +31,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'subject_id, booking_id, or author_id required' }, { status: 400 });
     }
 
-    const isAdmin = user.role === 'admin';
+    const isAdmin = user.app_role === 'admin';
     const visible = reviews.filter((r) => isAdmin || !r.hidden);
 
     const anonymized = visible.map((r) => {
@@ -59,6 +59,6 @@ Deno.serve(async (req) => {
     return Response.json({ reviews: anonymized });
   } catch (error) {
     console.error('getReviews error:', error.message);
-    return Response.json({ error: error.message }, { status: 500 });
+    return Response.json({ error: 'Something went wrong' }, { status: 500 });
   }
 });

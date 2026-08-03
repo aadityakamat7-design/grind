@@ -71,7 +71,9 @@ export async function applyVerifiedIdentity(base44, stripe, sessionId) {
 
   const extra = { id_type: report?.document?.type || 'unknown' };
   if (dob) extra.dob = dob;
-  if (vo.id_number) extra.id_number = vo.id_number;
+  // Do NOT store the raw government ID number — data minimization. Stripe
+  // already retains the full verification record, and the app only needs to
+  // know that verification passed (identity_status: 'verified').
 
   await markParentVerified(base44, userId, extra);
 

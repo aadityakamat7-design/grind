@@ -23,7 +23,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Payout was already transferred' }, { status: 400 });
     }
 
-    const isAdmin = user.role === 'admin';
+    const isAdmin = user.app_role === 'admin';
     const isParent = booking.parent_user_id === user.id;
 
     if (isAdmin) {
@@ -37,6 +37,6 @@ Deno.serve(async (req) => {
     return Response.json({ error: 'Forbidden' }, { status: 403 });
   } catch (error) {
     console.error('processPayout error:', error.message);
-    return Response.json({ error: error.message }, { status: 500 });
+    return Response.json({ error: 'Something went wrong' }, { status: 500 });
   }
 });

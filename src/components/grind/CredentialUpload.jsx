@@ -30,7 +30,18 @@ export default function CredentialUpload({ listingId, onChange }) {
 
   const handleFile = (e) => {
     const f = e.target.files?.[0];
-    if (f) setFile(f);
+    if (!f) return;
+    // Client-side validation (mirrored server-side in createCredential)
+    if (f.size > 10 * 1024 * 1024) {
+      alert("File is too large. Maximum size is 10MB.");
+      return;
+    }
+    const allowed = ["image/jpeg", "image/png", "image/gif", "image/webp", "application/pdf"];
+    if (!allowed.includes(f.type)) {
+      alert("Only images (JPG, PNG, GIF, WebP) and PDF files are allowed.");
+      return;
+    }
+    setFile(f);
   };
 
   return (

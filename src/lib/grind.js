@@ -112,8 +112,9 @@ export function calcAge(dobStr) {
 }
 
 export function genInviteCode() {
-  // 6-character code a parent enters to link to their teen
-  return Math.random().toString(36).slice(2, 8).toUpperCase();
+  // 8-character code a parent enters to link to their teen — long enough to
+  // resist brute-force even without rate limiting (36^8 ≈ 2.8 trillion).
+  return Math.random().toString(36).slice(2, 10).toUpperCase();
 }
 
 export const money = (n) => `$${Number(n || 0).toFixed(2)}`;

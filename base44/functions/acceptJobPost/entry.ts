@@ -25,7 +25,7 @@ Deno.serve(async (req) => {
 
     const [profiles, links, privateData, buyerProfiles] = await Promise.all([
       svc.TeenProfile.filter({ user_id: user.id }),
-      svc.ParentTeenLink.filter({ teen_user_id: user.id }),
+      svc.ParentTeenLink.filter({ teen_user_id: user.id, status: 'confirmed' }),
       svc.TeenPrivateData.filter({ user_id: user.id }),
       svc.BuyerProfile.filter({ user_id: job.buyer_user_id }),
     ]);
@@ -138,6 +138,6 @@ Deno.serve(async (req) => {
     return Response.json({ success: true, bookingId: booking.id, identityRequired });
   } catch (error) {
     console.error('acceptJobPost error:', error.message);
-    return Response.json({ error: error.message }, { status: 500 });
+    return Response.json({ error: 'Something went wrong' }, { status: 500 });
   }
 });

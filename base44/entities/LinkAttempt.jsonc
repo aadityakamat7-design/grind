@@ -1,0 +1,52 @@
+{
+  "name": "LinkAttempt",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "The user attempting to link"
+    },
+    "ip": {
+      "type": "string",
+      "description": "Client IP address"
+    },
+    "code": {
+      "type": "string",
+      "description": "The invite code that was attempted"
+    },
+    "teen_user_id": {
+      "type": "string",
+      "description": "The teen whose code was found (empty if code didn't match)"
+    },
+    "success": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "user_id",
+    "code"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

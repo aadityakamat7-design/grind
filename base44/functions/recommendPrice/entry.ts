@@ -49,6 +49,6 @@ Respond with:
     return Response.json({ recommendation: result });
   } catch (error) {
     console.error('recommendPrice error:', error.message);
-    return Response.json({ error: error.message }, { status: 500 });
+    return Response.json({ error: 'Something went wrong' }, { status: 500 });
   }
 });

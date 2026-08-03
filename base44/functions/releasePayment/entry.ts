@@ -56,6 +56,6 @@ Deno.serve(async (req) => {
     return Response.json({ success: true, teenGets });
   } catch (error) {
     console.error('releasePayment error:', error.message);
-    return Response.json({ error: error.message }, { status: 500 });
+    return Response.json({ error: 'Something went wrong' }, { status: 500 });
   }
 });

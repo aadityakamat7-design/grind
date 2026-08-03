@@ -31,6 +31,6 @@ Deno.serve(async (req) => {
     return Response.json({ replied: true });
   } catch (error) {
     console.error('replyToReview error:', error.message);
-    return Response.json({ error: error.message }, { status: 500 });
+    return Response.json({ error: 'Something went wrong' }, { status: 500 });
   }
 });

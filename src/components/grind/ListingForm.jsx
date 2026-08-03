@@ -55,14 +55,13 @@ export default function ListingForm({ open, onOpenChange, listing, profile, onSa
     if (credential?.file && credential.label && newListingId) {
       try {
         const uploadRes = await base44.integrations.Core.UploadFile({ file: credential.file });
-        await base44.entities.Credential.create({
-          teen_user_id: profile.user_id,
-          teen_display_name: profile.display_name,
-          listing_id: newListingId,
-          listing_title: form.title.trim(),
-          category: form.category,
+        await base44.functions.invoke("createCredential", {
+          listingId: newListingId,
           label: credential.label,
-          file_url: uploadRes.file_url,
+          fileUrl: uploadRes.file_url,
+          category: form.category,
+          teenDisplayName: profile.display_name,
+          listingTitle: form.title.trim(),
         });
       } catch (credErr) {
         console.error("credential upload failed:", credErr);

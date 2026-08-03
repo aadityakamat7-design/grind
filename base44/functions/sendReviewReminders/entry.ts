@@ -7,7 +7,7 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
-    if (!user || user.role !== 'admin') {
+    if (!user || user.app_role !== 'admin') {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
     const svc = base44.asServiceRole.entities;
@@ -50,6 +50,6 @@ Deno.serve(async (req) => {
     return Response.json({ success: true, reminded });
   } catch (error) {
     console.error('sendReviewReminders error:', error.message);
-    return Response.json({ error: error.message }, { status: 500 });
+    return Response.json({ error: 'Something went wrong' }, { status: 500 });
   }
 });

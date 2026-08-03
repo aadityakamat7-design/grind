@@ -123,6 +123,6 @@ Respond with:
     return Response.json({ job, screening: screen });
   } catch (error) {
     console.error('createJobPost error:', error.message);
-    return Response.json({ error: error.message }, { status: 500 });
+    return Response.json({ error: 'Something went wrong' }, { status: 500 });
   }
 });

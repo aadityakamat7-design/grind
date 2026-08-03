@@ -23,7 +23,7 @@ Deno.serve(async (req) => {
     const isTeen = user.id === booking.teen_user_id;
     const isBuyer = user.id === booking.buyer_user_id;
     const isParent = user.id === booking.parent_user_id;
-    const isAdmin = user.role === 'admin';
+    const isAdmin = user.app_role === 'admin';
 
     if (!isTeen && !isBuyer && !isParent && !isAdmin) {
       return Response.json({ error: 'Forbidden' }, { status: 403 });
@@ -42,6 +42,6 @@ Deno.serve(async (req) => {
     return Response.json({ booking: stripped });
   } catch (error) {
     console.error('getBookingDetail error:', error.message);
-    return Response.json({ error: error.message }, { status: 500 });
+    return Response.json({ error: 'Something went wrong' }, { status: 500 });
   }
 });

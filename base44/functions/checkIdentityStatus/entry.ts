@@ -10,7 +10,7 @@ Deno.serve(async (req) => {
 
     const body = await req.json().catch(() => ({}));
     // Admin-only test mode mirrors createIdentitySession's environment separation
-    const stripe = getStripe(body.testMode === true && user.role === 'admin');
+    const stripe = getStripe(body.testMode === true && user.app_role === 'admin');
     const profiles = await base44.entities.ParentProfile.filter({ user_id: user.id });
     const profile = profiles[0];
     if (!profile) return Response.json({ status: 'unverified' });
@@ -51,6 +51,6 @@ Deno.serve(async (req) => {
     return Response.json({ status: result.status });
   } catch (error) {
     console.error('checkIdentityStatus error:', error.message);
-    return Response.json({ error: error.message }, { status: 500 });
+    return Response.json({ error: 'Something went wrong' }, { status: 500 });
   }
 });
