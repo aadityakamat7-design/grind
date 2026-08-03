@@ -10,7 +10,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ShieldCheck, Lock, MessageCircle } from "lucide-react";
 import { computeFees, money } from "@/lib/grind";
 import SafetyAdvisorChat from "@/components/grind/SafetyAdvisorChat";
-import BuyerIdentityGate from "@/components/grind/buyer/BuyerIdentityGate";
 import SlideToConfirm from "@/components/grind/SlideToConfirm";
 
 export default function BookDialog({ open, onOpenChange, listing, buyer, buyerProfile }) {
@@ -23,7 +22,6 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [safetyOpen, setSafetyOpen] = useState(false);
-  const [buyerVerified, setBuyerVerified] = useState(buyerProfile?.id_verification_status === "verified");
 
   const total = listing.price_model === "HOURLY" ? Number(listing.price) * Number(hours || 1) : Number(listing.price);
   const { platform_fee, net_amount } = computeFees(total);
@@ -48,9 +46,6 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
     } catch (err) {
       const msg = err.response?.data?.error || "Couldn't create this booking. Please try again.";
       setError(msg);
-      if (err.response?.data?.needsVerification) {
-        setBuyerVerified(false);
-      }
     } finally {
       setSaving(false);
     }
@@ -63,13 +58,6 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
           <DialogTitle>Book {listing.teen_display_name}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
-          {!buyerVerified ? (
-            <BuyerIdentityGate
-              buyerProfile={buyerProfile}
-              onVerified={() => setBuyerVerified(true)}
-            />
-          ) : (
-          <>
           <div>
             <Label>Date & time</Label>
             <Input type="datetime-local" className="rounded-xl mt-1" value={when} onChange={(e) => setWhen(e.target.value)} />
@@ -133,8 +121,6 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
             disabled={!when || !address}
             onConfirm={book}
           />
-          </>
-          )}
         </div>
       </DialogContent>
 
