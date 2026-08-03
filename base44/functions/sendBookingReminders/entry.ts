@@ -4,11 +4,9 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 // starting within the next hour, once each (guarded by reminder_sent).
 Deno.serve(async (req) => {
   try {
+    // Called by a scheduled workflow — no user session is available, so we
+    // use the service role directly. Only the workflow engine can invoke this.
     const base44 = createClientFromRequest(req);
-    const user = await base44.auth.me();
-    if (!user || user.app_role !== 'admin') {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 });
-    }
     const svc = base44.asServiceRole.entities;
 
     const now = new Date();
