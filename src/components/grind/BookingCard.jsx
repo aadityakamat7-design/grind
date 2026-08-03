@@ -42,7 +42,9 @@ export default function BookingCard({ booking, perspective }) {
         </div>
       </div>
       <div className="text-right shrink-0">
-        <p className="font-bold text-foreground">{money(booking.price_total)}</p>
+        <p className="font-bold text-foreground">
+          {perspective === "buyer" ? money(booking.price_total) : money(booking.net_amount || 0)}
+        </p>
         <ChevronRight className="w-4 h-4 text-muted-foreground/50 ml-auto mt-1" />
       </div>
     </Link>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useOutletContext } from "react-router-dom";
+import { useOutletContext, Navigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Users, CalendarDays } from "lucide-react";
 import BookingCard from "@/components/grind/BookingCard";
@@ -49,6 +49,8 @@ export default function ParentDashboard() {
     return unsub;
   }, [load]);
 
+  if (user.app_role !== "parent") return <Navigate to="/" replace />;
+
   if (loading)
     return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-muted border-t-foreground rounded-full animate-spin" /></div>;
 
@@ -74,7 +76,7 @@ export default function ParentDashboard() {
             <p className="text-sm text-muted-foreground mt-1">You'll see jobs to approve here once your teen gets their first request.</p>
           </div>
           {parentProfile && (
-            <PayoutStatusCard profile={parentProfile} onUpdated={load} returnPath="/parent" />
+            <PayoutStatusCard profile={parentProfile} onUpdated={load} returnPath="/parent" locked />
           )}
           <div className="pt-2">
             <LinkTeenDialog onLinked={load} />

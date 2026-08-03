@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { ShieldCheck, CalendarDays, MapPin } from "lucide-react";
+import { ShieldCheck, CalendarDays, MapPin, AlertCircle } from "lucide-react";
 import { format } from "date-fns";
 import { money } from "@/lib/grind";
 import IdentityVerificationGate from "@/components/grind/parent/IdentityVerificationGate";
@@ -26,6 +26,12 @@ export default function ApprovalQueue({ pending, onDecided }) {
       <h2 className="font-bold text-foreground mb-3 flex items-center gap-1.5">
         <ShieldCheck className="w-4 h-4 text-muted-foreground" /> Approval queue
       </h2>
+      {pending.length > 0 && (!profile?.is_identity_verified || profile?.connect_status !== "active") && (
+        <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-700 mb-3">
+          <AlertCircle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+          <span>Complete identity verification and bank setup to approve jobs. Tap "Approve" on any job below to start the setup.</span>
+        </div>
+      )}
       {pending.length === 0 ? (
         <p className="text-sm text-muted-foreground">All clear — nothing is waiting for your approval.</p>
       ) : (
@@ -38,7 +44,7 @@ export default function ApprovalQueue({ pending, onDecided }) {
                     <p className="font-bold text-foreground text-sm">{b.listing_title}</p>
                     <p className="text-xs text-muted-foreground mt-0.5">{b.teen_display_name} · booked by {b.buyer_name}</p>
                   </div>
-                  <p className="font-extrabold text-foreground text-sm">{money(b.price_total)}</p>
+                  <p className="font-extrabold text-foreground text-sm">{money(b.net_amount || 0)}</p>
                 </div>
                 <div className="mt-2 space-y-1 text-xs text-muted-foreground">
                   {b.scheduled_start && (

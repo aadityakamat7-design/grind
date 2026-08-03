@@ -33,12 +33,12 @@ export default function BookingDetail() {
   const autoPromptedRef = useRef(false);
 
   const load = useCallback(async () => {
-    const [b, threads, reviewsRes] = await Promise.all([
-      base44.entities.Booking.get(bookingId),
+    const [bookingRes, threads, reviewsRes] = await Promise.all([
+      base44.functions.invoke("getBookingDetail", { bookingId }),
       base44.entities.MessageThread.filter({ booking_id: bookingId }),
       base44.functions.invoke("getReviews", { booking_id: bookingId }),
     ]);
-    setBooking(b);
+    setBooking(bookingRes.data?.booking || null);
     setThread(threads[0] || null);
     const allReviews = reviewsRes.data?.reviews || [];
     setReviews(allReviews);
@@ -153,11 +153,15 @@ export default function BookingDetail() {
               {booking.teen_display_name} · booked by {booking.buyer_name}
             </p>
           </div>
-          <p className="font-bold text-foreground text-lg">{money(booking.price_total)}</p>
+          <p className="font-bold text-foreground text-lg">
+            {isBuyer ? money(booking.price_total) : money(booking.net_amount || 0)}
+          </p>
         </div>
         <div className="flex items-center gap-2 mt-3 flex-wrap">
           <StatusBadge status={booking.status} />
-          <StatusBadge status={booking.payment_status} />
+          {!(["cancelled", "denied"].includes(booking.status) && booking.payment_status === "unpaid") && (
+            <StatusBadge status={booking.payment_status} />
+          )}
           {booking.is_recurring && (
             <span className="inline-flex items-center gap-1 rounded-full border border-border bg-secondary text-muted-foreground px-2.5 py-0.5 text-xs font-medium capitalize">
               <Repeat className="w-3 h-3" /> {booking.recurrence || "recurring"}

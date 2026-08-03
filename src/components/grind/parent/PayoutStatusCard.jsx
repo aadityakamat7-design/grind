@@ -1,17 +1,21 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ShieldCheck, Landmark, CheckCircle2, AlertCircle, ChevronRight } from "lucide-react";
+import { ShieldCheck, Landmark, CheckCircle2, AlertCircle, ChevronRight, Lock } from "lucide-react";
 import IdentityVerificationGate from "@/components/grind/parent/IdentityVerificationGate";
 
 // Persistent card on the parent dashboard showing the two-step payout setup
 // status: identity verification + Stripe Connect bank connection.
 // The "Manage" button opens the guided gate at whichever step is incomplete.
-export default function PayoutStatusCard({ profile, onUpdated, returnPath = "/parent" }) {
+export default function PayoutStatusCard({ profile, onUpdated, returnPath = "/parent", locked = false }) {
   const [gateOpen, setGateOpen] = useState(false);
 
   const identityDone = profile?.is_identity_verified;
   const bankDone = profile?.connect_status === "active";
   const initialStep = identityDone ? "bank" : "verify";
+  const setupComplete = identityDone && bankDone;
+  // Only show the locked state when setup is incomplete — once complete the
+  // card is always a permanent, manageable status card.
+  const isLocked = locked && !setupComplete;
 
   const handleVerified = () => {
     setGateOpen(false);
@@ -27,7 +31,7 @@ export default function PayoutStatusCard({ profile, onUpdated, returnPath = "/pa
         initialStep={initialStep}
       />
 
-      <div className="bg-card rounded-2xl border border-border shadow-soft p-5">
+      <div className={`bg-card rounded-2xl border border-border shadow-soft p-5 ${isLocked ? "opacity-50 pointer-events-none" : ""}`}>
         <h3 className="font-bold text-foreground text-sm mb-4">Payout setup</h3>
 
         {/* Step 1 — Identity */}
@@ -68,7 +72,16 @@ export default function PayoutStatusCard({ profile, onUpdated, returnPath = "/pa
           </div>
         </div>
 
-        {!identityDone || !bankDone ? (
+        {isLocked ? (
+          <>
+            <Button className="w-full rounded-xl mt-4" disabled>
+              <Lock className="w-4 h-4 mr-1.5" /> Complete setup
+            </Button>
+            <p className="text-xs text-muted-foreground text-center mt-2">
+              Unlocks when your teen requests their first job.
+            </p>
+          </>
+        ) : !identityDone || !bankDone ? (
           <Button className="w-full rounded-xl mt-4" onClick={() => setGateOpen(true)}>
             {identityDone ? "Connect bank account" : "Complete setup"}
             <ChevronRight className="w-4 h-4" />

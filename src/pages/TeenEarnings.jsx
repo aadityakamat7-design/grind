@@ -101,23 +101,20 @@ export default function TeenEarnings() {
   const navigate = useNavigate();
   const [records, setRecords] = useState([]);
   const [held, setHeld] = useState([]);
-  const [refunded, setRefunded] = useState([]);
   const [cashouts, setCashouts] = useState([]);
   const [releasedBookings, setReleasedBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [range, setRange] = useState("1M");
 
   const load = useCallback(async () => {
-    const [r, h, ref, c, rb] = await Promise.all([
+    const [r, h, c, rb] = await Promise.all([
       base44.entities.EarningsRecord.filter({ teen_user_id: user.id }, "-occurred_at"),
       base44.entities.Booking.filter({ teen_user_id: user.id, payment_status: "held" }),
-      base44.entities.Booking.filter({ teen_user_id: user.id, payment_status: "refunded" }),
       base44.entities.WalletTransaction.filter({ teen_user_id: user.id, type: "cashout" }, "-occurred_at"),
       base44.entities.Booking.filter({ teen_user_id: user.id, payment_status: "released" }),
     ]);
     setRecords(r);
     setHeld(h);
-    setRefunded(ref);
     setCashouts(c);
     setReleasedBookings(rb);
     setLoading(false);
@@ -142,7 +139,7 @@ export default function TeenEarnings() {
     .reduce((s, r) => s + (r.net_amount || 0), 0);
 
   const chartData = buildChartData(records, range);
-  const hasData = records.length > 0 || held.length > 0 || refunded.length > 0;
+  const hasData = records.length > 0 || held.length > 0;
   const payoutByBooking = Object.fromEntries(releasedBookings.map((b) => [b.id, b.payout_status]));
 
   const transactions = [
@@ -156,13 +153,7 @@ export default function TeenEarnings() {
       id: b.id, title: b.listing_title || "Job",
       date: b.scheduled_start ? format(new Date(b.scheduled_start), "MMM d, yyyy") : "Pending",
       rawDate: b.scheduled_start ? new Date(b.scheduled_start).getTime() : Date.now(),
-      amount: b.net_amount || b.price_total || 0, status: "pending", bookingId: b.id,
-    })),
-    ...refunded.map((b) => ({
-      id: b.id, title: b.listing_title || "Job",
-      date: b.updated_date ? format(new Date(b.updated_date), "MMM d, yyyy") : "",
-      rawDate: b.updated_date ? new Date(b.updated_date).getTime() : 0,
-      amount: b.price_total || 0, status: "refunded", bookingId: b.id,
+      amount: b.net_amount || 0, status: "pending", bookingId: b.id,
     })),
   ].sort((a, b) => b.rawDate - a.rawDate);
 
