@@ -11,14 +11,16 @@ Deno.serve(async (req) => {
 
     const svc = base44.asServiceRole.entities;
 
-    // Verify age from the teen's private data (DOB is stored there)
+    // Require a Stripe-verified DOB — the self-reported date_of_birth is
+    // user-writable and cannot be trusted for age-gating. verified_dob is
+    // admin-write-only (RLS), so only identity verification can set it.
     const privateRecords = await svc.TeenPrivateData.filter({ user_id: user.id });
     const privateData = privateRecords[0];
-    if (!privateData || !privateData.date_of_birth) {
-      return Response.json({ error: 'Date of birth required to verify age.' }, { status: 400 });
+    if (!privateData || !privateData.verified_dob) {
+      return Response.json({ error: 'Identity verification required to activate without a parent.' }, { status: 403 });
     }
 
-    const dob = new Date(privateData.date_of_birth);
+    const dob = new Date(privateData.verified_dob);
     const now = new Date();
     let age = now.getFullYear() - dob.getFullYear();
     const m = now.getMonth() - dob.getMonth();
