@@ -1,0 +1,94 @@
+{
+  "name": "Parent Setup Reminders",
+  "description": "When a teen accepts a job and the parent's payout setup is incomplete, sends reminder emails at 24h and 72h. Stops once setup is complete or the booking is resolved.",
+  "trigger": {
+    "config": {
+      "trigger_type": "entity",
+      "entity_name": "Booking",
+      "events": [
+        "create"
+      ]
+    },
+    "condition": "${ .trigger.data.status == \"pending_parent_approval\" }"
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "parent_setup_reminders",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "wait_24h": {
+          "wait": "PT24H",
+          "then": "first_reminder",
+          "x-base44": {
+            "title": "Wait 24 hours",
+            "description": "Before first reminder"
+          }
+        }
+      },
+      {
+        "first_reminder": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "sendSetupReminder",
+            "args": {
+              "bookingId": "${ .trigger.entity_id }"
+            }
+          },
+          "then": "check_first",
+          "x-base44": {
+            "title": "Send first reminder",
+            "description": "24h check"
+          }
+        }
+      },
+      {
+        "check_first": {
+          "switch": [
+            {
+              "when": "${ .first_reminder.done == true }",
+              "then": "end"
+            },
+            {
+              "when": "${ true }",
+              "then": "wait_48h"
+            }
+          ],
+          "x-base44": {
+            "title": "Check if setup done",
+            "description": "After first reminder"
+          }
+        }
+      },
+      {
+        "wait_48h": {
+          "wait": "PT48H",
+          "then": "second_reminder",
+          "x-base44": {
+            "title": "Wait 48 hours",
+            "description": "Before second reminder (72h total)"
+          }
+        }
+      },
+      {
+        "second_reminder": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "sendSetupReminder",
+            "args": {
+              "bookingId": "${ .trigger.entity_id }"
+            }
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Send final reminder",
+            "description": "72h check"
+          }
+        }
+      }
+    ]
+  }
+}

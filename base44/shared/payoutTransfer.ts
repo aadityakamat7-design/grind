@@ -1,5 +1,6 @@
 import { getStripe } from './stripeEnv.ts';
 import { notifyAdmins } from './notifyAdmins.ts';
+import { notifyParentPayoutSent } from './notifyParent.ts';
 
 const REVIEW_THRESHOLD = 100; // USD — payouts at/above this go to manual review
 const money = (n) => `$${Number(n || 0).toFixed(2)}`;
@@ -97,6 +98,13 @@ export async function attemptBookingPayout(base44, booking, { skipReview = false
       title: 'Payout on its way to your bank 🏦',
       body: `${money(amount)} from "${booking.listing_title}" was transferred to your bank ending in ${parent.bank_last4 || '••••'}. It typically arrives in 1–2 business days.`,
       link: '/parent/payouts',
+    });
+    await notifyParentPayoutSent(base44, {
+      parentUserId: booking.parent_user_id,
+      amount,
+      jobTitle: booking.listing_title,
+      bankLast4: parent.bank_last4,
+      origin: Deno.env.get('BASE44_APP_URL') || '',
     });
     return { status: 'transferred', transferId: transfer.id };
   } catch (err) {

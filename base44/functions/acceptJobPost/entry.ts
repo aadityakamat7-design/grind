@@ -1,5 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { getVerifiedAge } from '../../shared/teenAge.ts';
+import { notifyParentJobAccepted } from '../../shared/notifyParent.ts';
+import { getSafeOrigin } from '../../shared/safeOrigin.ts';
 
 // Runs the teen's "take this job" flow server-side, since JobPost.status is
 // locked to admin/service-role writes (so a buyer/teen can never flip a job
@@ -95,6 +97,21 @@ Deno.serve(async (req) => {
         body: `${profile?.display_name || 'Your teen'} wants to take "${job.title}" for ${job.buyer_name}.`,
         link: `/bookings/${booking.id}`,
         read: false,
+      });
+
+      // Email the parent about the accepted job. If their payout setup
+      // (identity verification + bank connection) is incomplete, the email
+      // guides them through the setup flow via a deep link.
+      const parentProfiles = await svc.ParentProfile.filter({ user_id: link.parent_user_id });
+      const pp = parentProfiles[0];
+      const setupNeeded = !pp?.is_identity_verified || pp?.connect_status !== 'active';
+      await notifyParentJobAccepted(base44.asServiceRole, {
+        teenName: profile?.display_name || 'Your teen',
+        jobTitle: job.title,
+        buyerName: job.buyer_name,
+        parentUserId: link.parent_user_id,
+        origin: getSafeOrigin(req),
+        setupNeeded,
       });
     }
     await svc.Notification.create({
