@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { LogOut, UserCircle, ShieldCheck } from "lucide-react";
 import DeleteAccountButton from "@/components/grind/DeleteAccountButton";
 
-const ROLE_LABELS = { TEEN: "Teen", PARENT: "Parent / Guardian", BUYER: "Neighbor", ADMIN: "Admin" };
+const ROLE_LABELS = { teen: "Teen", parent: "Parent / Guardian", buyer: "Neighbor", admin: "Admin" };
 
 export default function Account() {
   const { user } = useOutletContext();

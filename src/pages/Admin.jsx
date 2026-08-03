@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Navigate, useOutletContext } from "react-router-dom";
+import { useOutletContext } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Users, Search, CalendarDays, Wallet, Flag, BadgeCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -111,7 +111,7 @@ export default function Admin() {
         ) : (
           <div className="space-y-2.5">
             {teens.map((t) => (
-              <div key={t.id} className="flex items-center justify-between bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
+              <div key={t.id} className="flex items-center justify-between bg-card rounded-2xl border border-border shadow-soft p-4">
                 <div>
                   <p className="font-bold text-slate-900 text-sm">{t.display_name}</p>
                   <p className="text-xs text-slate-500">{t.resolved_city || t.state || "—"}</p>
@@ -145,7 +145,7 @@ export default function Admin() {
         ) : (
           <div className="space-y-2.5">
             {buyers.map((b) => (
-              <div key={b.id} className="flex items-center justify-between bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
+              <div key={b.id} className="flex items-center justify-between bg-card rounded-2xl border border-border shadow-soft p-4">
                 <div>
                   <p className="font-bold text-slate-900 text-sm">{b.full_name || "Neighbor"}</p>
                   <p className="text-xs text-slate-500">ZIP {b.zip || "—"}</p>

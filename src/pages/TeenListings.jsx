@@ -7,6 +7,17 @@ import ListingForm from "@/components/grind/ListingForm";
 import StatusBadge from "@/components/grind/StatusBadge";
 import EmptyState from "@/components/grind/EmptyState";
 import { CATEGORY_LABELS, money } from "@/lib/grind";
+import { toast } from "@/components/ui/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function TeenListings() {
   const { user } = useOutletContext();
@@ -15,6 +26,7 @@ export default function TeenListings() {
   const [loading, setLoading] = useState(true);
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   const load = useCallback(async () => {
     const [profiles, myListings] = await Promise.all([
@@ -29,13 +41,23 @@ export default function TeenListings() {
   useEffect(() => { load(); }, [load]);
 
   const togglePause = async (l) => {
-    await base44.entities.Listing.update(l.id, { status: l.status === "paused" ? "published" : "paused" });
-    load();
+    try {
+      await base44.entities.Listing.update(l.id, { status: l.status === "paused" ? "published" : "paused" });
+      load();
+    } catch (err) {
+      toast({ title: "Couldn't update listing", description: err.response?.data?.error || "Something went wrong.", variant: "destructive" });
+    }
   };
 
-  const remove = async (l) => {
-    await base44.entities.Listing.delete(l.id);
-    load();
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    try {
+      await base44.entities.Listing.delete(deleteTarget.id);
+      setDeleteTarget(null);
+      load();
+    } catch (err) {
+      toast({ title: "Couldn't delete listing", description: err.response?.data?.error || "Something went wrong.", variant: "destructive" });
+    }
   };
 
   if (loading)
@@ -84,7 +106,7 @@ export default function TeenListings() {
                   <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => togglePause(l)}>
                     {l.status === "paused" ? <Play className="w-4 h-4" /> : <Pause className="w-4 h-4" />}
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => remove(l)}>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => setDeleteTarget(l)}>
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 </div>
@@ -104,6 +126,26 @@ export default function TeenListings() {
           onSaved={load}
         />
       )}
+
+      <AlertDialog open={!!deleteTarget} onOpenChange={(v) => !v && setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this service?</AlertDialogTitle>
+            <AlertDialogDescription>
+              "{deleteTarget?.title}" will be permanently removed. This can't be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={confirmDelete}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

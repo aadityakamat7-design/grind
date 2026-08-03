@@ -6,6 +6,7 @@ import { Wallet, Clock, CheckCircle2, Landmark } from "lucide-react";
 import { format } from "date-fns";
 import EmptyState from "@/components/grind/EmptyState";
 import { money } from "@/lib/grind";
+import { toast } from "@/components/ui/use-toast";
 
 const PAYOUT_LABELS = {
   transferred: { text: "In your bank in 1–2 business days", cls: "text-emerald-600", icon: CheckCircle2 },
@@ -39,10 +40,23 @@ export default function ParentPayouts() {
 
   useEffect(() => { load(); }, [load]);
 
+  // Real-time: reload when bookings or earnings change
+  useEffect(() => {
+    const unsubBook = base44.entities.Booking.subscribe(() => load());
+    const unsubEarn = base44.entities.EarningsRecord.subscribe(() => load());
+    return () => { unsubBook(); unsubEarn(); };
+  }, [load]);
+
   const retryPayout = async (bookingId) => {
     setRetrying(bookingId);
-    const res = await base44.functions.invoke("processPayout", { bookingId });
-    if (res.data?.error) alert(res.data.error);
+    try {
+      const res = await base44.functions.invoke("processPayout", { bookingId });
+      if (res.data?.error) {
+        toast({ title: "Payout failed", description: res.data.error, variant: "destructive" });
+      }
+    } catch (err) {
+      toast({ title: "Payout failed", description: err.response?.data?.error || "Something went wrong.", variant: "destructive" });
+    }
     setRetrying(null);
     load();
   };
@@ -74,7 +88,7 @@ export default function ParentPayouts() {
             const Icon = info?.icon;
             const canRetry = booking?.payout_status === "awaiting_bank" && profile?.connect_status === "active";
             return (
-              <div key={r.id} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
+              <div key={r.id} className="bg-card rounded-2xl border border-border shadow-soft p-4">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-bold text-slate-900 text-sm">{r.listing_title}</p>

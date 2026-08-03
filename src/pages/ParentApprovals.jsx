@@ -31,6 +31,12 @@ export default function ParentApprovals() {
 
   useEffect(() => { load(); }, [load]);
 
+  // Real-time: reload when any booking changes so new approval requests appear instantly
+  useEffect(() => {
+    const unsub = base44.entities.Booking.subscribe(() => load());
+    return unsub;
+  }, [load]);
+
   const { gateOpen, setGateOpen, attempt, onVerified, acting, initialStep } = useApprovalWithVerification(profile, load);
 
   // Auto-open the setup gate when arriving via the ?setup=1 deep link from

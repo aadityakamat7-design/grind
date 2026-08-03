@@ -122,6 +122,13 @@ export default function TeenEarnings() {
 
   useEffect(() => { load(); }, [load]);
 
+  // Real-time: reload when earnings or bookings change
+  useEffect(() => {
+    const unsubEarn = base44.entities.EarningsRecord.subscribe(() => load());
+    const unsubBook = base44.entities.Booking.subscribe(() => load());
+    return () => { unsubEarn(); unsubBook(); };
+  }, [load]);
+
   if (loading)
     return (
       <Shell>

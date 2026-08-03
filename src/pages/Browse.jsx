@@ -37,6 +37,12 @@ export default function Browse() {
 
   useEffect(() => { load(); }, [load]);
 
+  // Real-time: reload when listings change (new publish, pause, delete)
+  useEffect(() => {
+    const unsub = base44.entities.Listing.subscribe(() => load());
+    return unsub;
+  }, [load]);
+
   if (loading)
     return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-muted border-t-foreground rounded-full animate-spin" /></div>;
 

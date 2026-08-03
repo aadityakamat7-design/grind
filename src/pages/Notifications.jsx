@@ -70,7 +70,7 @@ export default function Notifications() {
                 }`}
               >
                 <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${n.read ? "bg-muted text-muted-foreground" : "bg-foreground text-background"}`}>
-                  <Icon className="w-4.5 h-4.5 w-5 h-5" />
+                  <Icon className="w-5 h-5" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className={`text-sm ${n.read ? "font-medium text-muted-foreground" : "font-semibold text-foreground"}`}>{n.title}</p>

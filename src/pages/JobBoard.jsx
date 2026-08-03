@@ -8,6 +8,7 @@ import JobPostForm from "@/components/grind/jobs/JobPostForm";
 import AcceptJobButton from "@/components/grind/jobs/AcceptJobButton";
 import EmptyState from "@/components/grind/EmptyState";
 import PullToRefresh from "@/components/PullToRefresh";
+import { toast } from "@/components/ui/use-toast";
 
 export default function JobBoard() {
   const { user } = useOutletContext();
@@ -48,7 +49,7 @@ export default function JobBoard() {
     try {
       await base44.functions.invoke("cancelJobPost", { jobId: job.id });
     } catch (err) {
-      alert(err.response?.data?.error || "Couldn't cancel this job post.");
+      toast({ title: "Couldn't cancel", description: err.response?.data?.error || "Something went wrong.", variant: "destructive" });
     }
     load();
   };

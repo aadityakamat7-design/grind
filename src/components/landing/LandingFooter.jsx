@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Zap, Instagram, Twitter, Facebook } from "lucide-react";
+import { Zap } from "lucide-react";
 
 const COLS = [
   { title: "Product", links: [
@@ -33,13 +33,6 @@ export default function LandingFooter() {
             <p className="text-sm text-muted-foreground mt-3 max-w-xs leading-relaxed">
               The safe way for neighborhood teens to turn skills into cash — parent-approved, every step.
             </p>
-            <div className="flex gap-3 mt-5">
-              {[Instagram, Twitter, Facebook].map((Icon, i) => (
-                <a key={i} href="#" aria-label="Social link" className="w-9 h-9 rounded-lg bg-muted border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors">
-                  <Icon className="w-4 h-4" />
-                </a>
-              ))}
-            </div>
           </div>
           {COLS.map((col) => (
             <div key={col.title}>

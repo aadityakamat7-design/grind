@@ -1,18 +1,15 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useParams, useOutletContext, Link } from "react-router-dom";
+import { useParams, useOutletContext } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { Lock, MapPin, ShieldCheck, ArrowLeft } from "lucide-react";
+import { Lock, MapPin, Star } from "lucide-react";
 import RatingStars from "@/components/grind/RatingStars";
 import TrustBadge from "@/components/grind/TrustBadge";
-import BookDialog from "@/components/grind/BookDialog";
 import ReportButton from "@/components/grind/ReportButton";
 import BlockButton from "@/components/grind/BlockButton";
-import SaveTeenButton from "@/components/grind/SaveTeenButton";
 import ReviewCard from "@/components/grind/ReviewCard";
-import { CATEGORY_LABELS, money } from "@/lib/grind";
+import { CATEGORY_LABELS } from "@/lib/grind";
 import { categoryAverages } from "@/lib/ratings";
-import { Star } from "lucide-react";
 
 export default function BuyerPublicProfile() {
   const { buyerUserId } = useParams();
