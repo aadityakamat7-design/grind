@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 
 // Full-page falling money layer — sparse dollar bills with pseudo-3D flip,
 // scroll parallax by depth, and slight blur on bills closest to the camera.
-// Mint-tinted bills on a dark background.
+// Blue-tinted bills on a white background.
 export default function FallingMoney() {
   const canvasRef = useRef(null);
   const scrollRef = useRef(0);
@@ -57,22 +57,22 @@ export default function FallingMoney() {
         const bw = size, bh = size * 0.48, r = 3;
         const grad = ctx.createLinearGradient(-bw / 2, 0, bw / 2, 0);
         if (b.dark) {
-          grad.addColorStop(0, "#3FE29A");
-          grad.addColorStop(1, "#1E8A5E");
+          grad.addColorStop(0, "#2E6BE0");
+          grad.addColorStop(1, "#2558B8");
         } else {
-          grad.addColorStop(0, "#5FE9B0");
-          grad.addColorStop(1, "#33C285");
+          grad.addColorStop(0, "#5B8FE8");
+          grad.addColorStop(1, "#3A7AE0");
         }
         ctx.fillStyle = grad;
         ctx.beginPath();
         ctx.roundRect(-bw / 2, -bh / 2, bw, bh, r);
         ctx.fill();
 
-        ctx.strokeStyle = "rgba(63,226,154,0.2)";
+        ctx.strokeStyle = "rgba(46,107,224,0.2)";
         ctx.lineWidth = 1;
         ctx.strokeRect(-bw / 2 + 2.5, -bh / 2 + 2.5, bw - 5, bh - 5);
 
-        ctx.fillStyle = "rgba(63,226,154,0.4)";
+        ctx.fillStyle = "rgba(46,107,224,0.4)";
         ctx.font = `bold ${bh * 0.62}px sans-serif`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";

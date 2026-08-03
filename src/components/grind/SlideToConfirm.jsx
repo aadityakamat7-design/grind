@@ -1,7 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect } from "react";
 import { Check, Loader2, ChevronRight } from "lucide-react";
 
-// Slide-to-confirm gesture with a liquid-chrome visual treatment.
+// Kalshi-style circular slide-to-confirm.
 // Fires onConfirm only when dragged past 90% of the track width.
 // Snaps back with an overshoot-eased animation if released early.
 // Works with both mouse (desktop) and touch (mobile) via Pointer Events.
@@ -13,6 +13,7 @@ export default function SlideToConfirm({ onConfirm, label, disabled, loading, lo
   const trackRef = useRef(null);
   const startX = useRef(0);
   const baseX = useRef(0);
+  const dragXRef = useRef(0);
   const HANDLE_SIZE = 48;
   const PADDING = 4;
   const THRESHOLD = 0.9;
@@ -27,7 +28,7 @@ export default function SlideToConfirm({ onConfirm, label, disabled, loading, lo
     e.preventDefault();
     e.currentTarget.setPointerCapture(e.pointerId);
     startX.current = e.clientX;
-    baseX.current = dragX;
+    baseX.current = dragXRef.current;
     setDragging(true);
     setAnimating(false);
   };
@@ -37,23 +38,26 @@ export default function SlideToConfirm({ onConfirm, label, disabled, loading, lo
     const delta = e.clientX - startX.current;
     const max = getMaxDrag();
     const newX = Math.max(0, Math.min(baseX.current + delta, max));
+    dragXRef.current = newX;
     setDragX(newX);
   };
 
-  const handlePointerUp = (e) => {
+  const handlePointerUp = () => {
     if (!dragging) return;
     setDragging(false);
     setAnimating(true);
     const max = getMaxDrag();
-    if (dragX >= max * THRESHOLD) {
+    if (dragXRef.current >= max * THRESHOLD) {
       setDragX(max);
+      dragXRef.current = max;
       setCompleted(true);
       if (typeof navigator !== "undefined" && navigator.vibrate) {
         navigator.vibrate(30);
       }
-      setTimeout(() => onConfirm?.(), 380);
+      setTimeout(() => onConfirm?.(), 600);
     } else {
       setDragX(0);
+      dragXRef.current = 0;
     }
   };
 
@@ -63,6 +67,7 @@ export default function SlideToConfirm({ onConfirm, label, disabled, loading, lo
       const t = setTimeout(() => {
         setCompleted(false);
         setDragX(0);
+        dragXRef.current = 0;
         setAnimating(false);
       }, 500);
       return () => clearTimeout(t);
@@ -73,54 +78,61 @@ export default function SlideToConfirm({ onConfirm, label, disabled, loading, lo
   const progress = max > 0 ? dragX / max : 0;
   const textOpacity = Math.max(0, 1 - progress * 2);
   const ease = "cubic-bezier(0.34, 1.56, 0.64, 1)";
-  const transition = animating && !dragging ? `transform 0.45s ${ease}` : "none";
-  const fillTransition = animating && !dragging ? `width 0.45s ${ease}` : "none";
-  const shineTransition = animating && !dragging ? `opacity 0.45s ${ease}` : "none";
+  const transition = animating && !dragging ? `transform 0.35s ${ease}` : "none";
+  const fillTransition = animating && !dragging ? `width 0.35s ${ease}` : "none";
+  const textTransition = animating && !dragging ? `opacity 0.35s ${ease}` : "none";
+
+  const fillColor = completed ? "rgba(31,170,110,0.15)" : "rgba(46,107,224,0.15)";
+  const handleColor = completed ? "#1FAA6E" : "#2E6BE0";
 
   return (
     <div
       ref={trackRef}
-      className="relative w-full h-14 rounded-full chrome-track overflow-hidden select-none"
-      style={{ touchAction: "none" }}
+      className="relative w-full h-14 rounded-full overflow-hidden select-none"
+      style={{
+        touchAction: "none",
+        background: "#F7FAFE",
+        border: "1px solid #E3ECF7",
+      }}
     >
-      {/* Chrome fill that grows behind the handle */}
+      {/* Fill behind handle — width tied to handle position */}
       <div
-        className="absolute top-0 left-0 bottom-0 chrome-fill rounded-full overflow-hidden"
+        className="absolute top-0 left-0 bottom-0 rounded-full"
         style={{
           width: dragX + HANDLE_SIZE + PADDING,
+          background: fillColor,
           transition: fillTransition,
         }}
-      >
-        {/* Shine overlay — brightens with drag progress, recedes on snap-back */}
-        <div
-          className="absolute inset-0 chrome-fill-shine"
-          style={{ opacity: progress, transition: shineTransition }}
-        />
-      </div>
-      {/* Success light-flare sweep */}
-      {completed && (
-        <div
-          className="absolute top-0 bottom-0 chrome-flare chrome-flare-run pointer-events-none"
-          style={{ width: "60%" }}
-        />
-      )}
+      />
+      {/* Label text — fades as handle passes over */}
       {!completed && (
         <div
           className="absolute inset-0 flex items-center justify-center text-sm font-medium pointer-events-none"
           style={{
             opacity: textOpacity,
-            color: progress > 0.35 ? "hsl(var(--background))" : "hsl(var(--muted-foreground))",
+            color: "#5C7288",
+            transition: textTransition,
           }}
         >
           {loading ? loadingLabel || "Processing..." : label}
         </div>
       )}
+      {/* Success label */}
+      {completed && (
+        <div
+          className="absolute inset-0 flex items-center justify-center text-sm font-semibold pointer-events-none"
+          style={{ color: "#1FAA6E" }}
+        >
+          Confirmed
+        </div>
+      )}
+      {/* Handle — perfect circle, blue, white icon */}
       <div
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
-        className={`absolute flex items-center justify-center rounded-full chrome-handle text-foreground ${
+        className={`absolute flex items-center justify-center rounded-full ${
           disabled || loading ? "opacity-40 cursor-not-allowed" : "cursor-grab active:cursor-grabbing"
         }`}
         style={{
@@ -128,6 +140,9 @@ export default function SlideToConfirm({ onConfirm, label, disabled, loading, lo
           left: PADDING,
           width: HANDLE_SIZE,
           height: HANDLE_SIZE,
+          background: handleColor,
+          color: "#FFFFFF",
+          boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
           transform: `translateX(${dragX}px)`,
           transition,
           touchAction: "none",

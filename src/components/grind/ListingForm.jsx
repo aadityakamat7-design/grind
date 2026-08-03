@@ -9,6 +9,7 @@ import ResponsiveSelect from "@/components/grind/ResponsiveSelect";
 import { AlertTriangle } from "lucide-react";
 import { CATEGORIES, checkHazard, MAX_UNIT_PRICE, SKILL_CATEGORIES } from "@/lib/grind";
 import CredentialUpload from "@/components/grind/CredentialUpload";
+import SlideToConfirm from "@/components/grind/SlideToConfirm";
 
 export default function ListingForm({ open, onOpenChange, listing, profile, onSaved }) {
   const [form, setForm] = useState(
@@ -124,13 +125,13 @@ export default function ListingForm({ open, onOpenChange, listing, profile, onSa
           {SKILL_CATEGORIES.includes(form.category) && (
             <CredentialUpload listingId={listing?.id} onChange={setCredential} />
           )}
-          <Button
-            className="w-full rounded-xl"
-            disabled={!form.category || !form.title || !form.price || !!priceError || saving}
-            onClick={save}
-          >
-            {saving ? "Saving..." : listing ? "Save changes" : "Publish service"}
-          </Button>
+          <SlideToConfirm
+            label={listing ? "Slide to save changes" : "Slide to post"}
+            loadingLabel="Saving..."
+            loading={saving}
+            disabled={!form.category || !form.title || !form.price || !!priceError}
+            onConfirm={save}
+          />
         </div>
       </DialogContent>
     </Dialog>

@@ -9,6 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import ResponsiveSelect from "@/components/grind/ResponsiveSelect";
 import { ShieldCheck, ShieldX, Sparkles, Lock, Tag, AlertCircle } from "lucide-react";
 import { CATEGORIES, CATEGORY_LABELS, categoryMinimum, computeFees, money, MAX_UNIT_PRICE } from "@/lib/grind";
+import SlideToConfirm from "@/components/grind/SlideToConfirm";
 import { US_STATES } from "@/lib/jobScreen";
 
 export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, onPosted }) {
@@ -127,7 +128,7 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
             <p className="text-xs text-muted-foreground">
               Teen safety comes first on Kickstart. Try adjusting the task so it doesn't involve prohibited work, then post again.
             </p>
-            <Button variant="outline" className="w-full rounded-xl" onClick={() => setPhase("form")}>
+            <Button variant="outline" className="w-full" onClick={() => setPhase("form")}>
               Edit and try again
             </Button>
           </div>
@@ -149,7 +150,7 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
                 <p className="text-xs text-muted-foreground mt-2">{screening.state_law_notes}</p>
               )}
             </div>
-            <Button className="w-full rounded-xl" onClick={() => close(false)}>Done</Button>
+            <Button className="w-full" onClick={() => close(false)}>Done</Button>
           </div>
         )}
 
@@ -217,13 +218,16 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <Button variant="outline" className="rounded-xl" onClick={() => setPhase("form")}>
+            <div className="space-y-3">
+              <Button variant="outline" className="w-full" onClick={() => setPhase("form")}>
                 Back
               </Button>
-              <Button className="rounded-xl" disabled={belowMin} onClick={submit}>
-                Confirm & post
-              </Button>
+              <SlideToConfirm
+                label="Slide to post job"
+                loadingLabel="Posting..."
+                disabled={belowMin}
+                onConfirm={submit}
+              />
             </div>
           </div>
         )}
@@ -291,7 +295,7 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
                 </p>
               </div>
             )}
-            <Button className="w-full rounded-xl" disabled={!valid} onClick={reviewCategory}>
+            <Button className="w-full" disabled={!valid} onClick={reviewCategory}>
               Review & post
             </Button>
           </div>

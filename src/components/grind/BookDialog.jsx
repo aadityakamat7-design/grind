@@ -120,14 +120,14 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
           </div>
           <Button
             variant="outline"
-            className="w-full rounded-xl"
+            className="w-full"
             onClick={() => setSafetyOpen(true)}
           >
             <MessageCircle className="w-4 h-4 mr-2" /> Talk to Safety Advisor
           </Button>
           {error && <p className="text-xs text-rose-600 font-semibold text-center">{error}</p>}
           <SlideToConfirm
-            label="Slide to confirm booking"
+            label="Slide to book"
             loadingLabel="Booking..."
             loading={saving}
             disabled={!when || !address}

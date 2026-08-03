@@ -36,14 +36,14 @@ export default function SplitHero({ onGetStarted, onLogin }) {
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center md:justify-start mt-8">
             <Button
-              className="h-12 px-8 rounded-xl text-base font-medium"
+              size="lg"
               onClick={onGetStarted}
             >
               Get Started
             </Button>
             <Button
               variant="outline"
-              className="h-12 px-8 rounded-xl text-base font-medium bg-transparent border-border text-foreground hover:bg-accent"
+              size="lg"
               onClick={onLogin}
             >
               Log in

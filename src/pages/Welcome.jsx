@@ -58,7 +58,8 @@ export default function Welcome() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground overflow-x-hidden scroll-smooth dark">
+    <div className="min-h-screen bg-background text-foreground overflow-x-hidden scroll-smooth">
+      <div className="fixed inset-x-0 top-0 h-[60vh] pointer-events-none z-0" style={{ background: "radial-gradient(ellipse 70% 50% at 50% 0%, rgba(46,107,224,0.10), transparent 70%)" }} />
       <div className="opacity-40"><FallingMoney /></div>
 
       {/* Header */}
@@ -71,10 +72,10 @@ export default function Welcome() {
             <span className="font-bold text-xl tracking-tight">KickStart</span>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" className="text-muted-foreground hover:text-foreground hover:bg-accent rounded-xl font-medium" onClick={() => navigate("/login")}>
+            <Button variant="ghost" className="text-muted-foreground hover:text-foreground hover:bg-accent font-medium" onClick={() => navigate("/login")}>
               Log in
             </Button>
-            <Button className="rounded-xl font-medium" onClick={() => navigate("/register")}>
+            <Button className="font-medium" onClick={() => navigate("/register")}>
               Get Started
             </Button>
           </div>
@@ -131,14 +132,14 @@ export default function Welcome() {
           <p className="text-foreground/70 mt-3 max-w-md mx-auto">Join your local community now — thousands of teens and neighbors are already helping each other.</p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center mt-7">
             <Button
-              className="h-12 px-10 rounded-xl text-base font-medium"
+              size="lg"
               onClick={() => startSignup("teen")}
             >
               Start Earning Today
             </Button>
             <Button
               variant="outline"
-              className="h-12 px-10 rounded-xl text-base font-medium bg-transparent border-primary/40 text-foreground hover:bg-primary/10 hover:text-foreground"
+              size="lg"
               onClick={() => startSignup("buyer")}
             >
               Find Help Near You

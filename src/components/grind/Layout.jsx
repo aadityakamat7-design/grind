@@ -91,7 +91,7 @@ export default function Layout() {
             className={({ isActive }) =>
               `group flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all duration-200 ${
                 isActive
-                  ? "bg-foreground text-background shadow-soft"
+                  ? "bg-primary text-primary-foreground shadow-soft"
                   : "text-muted-foreground hover:bg-accent hover:text-foreground"
               }`
             }
@@ -110,8 +110,8 @@ export default function Layout() {
       <aside className="hidden lg:flex fixed inset-y-0 left-0 w-64 flex-col border-r border-border bg-card z-40">
         <div className="h-16 flex items-center px-6 border-b border-border">
           <Link to="/" className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-foreground flex items-center justify-center shadow-md">
-              <Zap className="w-5 h-5 text-background" />
+            <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-md">
+              <Zap className="w-5 h-5 text-primary-foreground" />
             </div>
             <span className="font-extrabold text-xl tracking-tight">KickStart</span>
           </Link>
@@ -151,8 +151,8 @@ export default function Layout() {
             </button>
           ) : (
             <Link to="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-foreground flex items-center justify-center shadow-md">
-                <Zap className="w-4.5 h-4.5 text-background" />
+              <div className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center shadow-md">
+                <Zap className="w-4.5 h-4.5 text-primary-foreground" />
               </div>
               <span className="font-extrabold text-lg tracking-tight">KickStart</span>
             </Link>
@@ -208,7 +208,7 @@ export default function Layout() {
                 }}
                 className={({ isActive }) =>
                   `flex flex-col items-center gap-0.5 py-2.5 px-3 text-[11px] font-medium transition-colors duration-200 ${
-                    isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+                    isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
                   }`
                 }
               >
