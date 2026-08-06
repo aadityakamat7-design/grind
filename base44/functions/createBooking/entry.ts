@@ -1,6 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 import { haversineMiles } from '../../shared/geo.ts';
 import { getVerifiedAge } from '../../shared/teenAge.ts';
+import { getMinAgeForCategory } from '../../shared/categoryAgeRules.ts';
 
 Deno.serve(async (req) => {
   try {
@@ -91,6 +92,16 @@ Deno.serve(async (req) => {
     // 13–17 teens require a linked, verified parent.
     const teenAge = getVerifiedAge(teenPrivateData) ?? 0;
     const needsParent = teenAge < 18;
+
+    // Re-validate that the teen is eligible for this listing's category in
+    // their state. Uses the verified age — a direct API call can't bypass this.
+    const categoryMinAge = getMinAgeForCategory(teenProfile.state, listing.category);
+    if (teenAge < categoryMinAge) {
+      return Response.json(
+        { error: `This teen is not old enough for this category in their state (requires ${categoryMinAge}+).` },
+        { status: 403 }
+      );
+    }
     let parentUserId = '';
     if (needsParent) {
       const links = await base44.asServiceRole.entities.ParentTeenLink.filter({

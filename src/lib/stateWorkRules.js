@@ -50,13 +50,14 @@ export function stateName(code) {
 }
 
 // Returns { status: "eligible" | "blocked" | "invalid", reason, age, minAge, needsParent }
-// 18+ teens use the platform independently (no parent needed).
-// 13–17 teens require a linked, verified parent. Under 13 is blocked.
+// 18–19 teens use the platform independently (no parent needed).
+// 13–17 teens require a linked, verified parent. Under 13 is blocked. 20+ is too old.
 export function checkEligibility(dateOfBirth, stateCode) {
   const age = calcAgeFrom(dateOfBirth);
   if (age === null || !stateCode) return { status: "invalid" };
   if (age < 13) return { status: "blocked", reason: "under_13", age, minAge: 13 };
-  // 18+ can join as independent teens — no parent approval required
+  if (age > 19) return { status: "blocked", reason: "over_19", age, minAge: 19 };
+  // 18–19 can join as independent teens — no parent approval required
   if (age >= 18) return { status: "eligible", age, minAge: 18, needsParent: false };
   // 13–17: check state minimum age, parent required
   const minAge = Math.max(13, STATE_MIN_AGES[stateCode] ?? 14);
@@ -68,5 +69,80 @@ export function blockedMessage(result, stateCode) {
   const st = stateName(stateCode);
   if (result.reason === "under_13")
     return "Kickstart is for teens 13 and older. We'd love to have you when you turn 13!";
+  if (result.reason === "over_19")
+    return "Kickstart is for teens 13–19. Thanks for growing with us!";
   return `In ${st}, teens need to be at least ${result.minAge} to do this kind of work. You're ${result.age} now — you'll be able to join Kickstart when you turn ${result.minAge}.`;
+}
+
+// ---------------------------------------------------------------------------
+// Per-state, per-category minimum age gating.
+// Mirrors base44/shared/categoryAgeRules.ts (server-side). Keep in sync.
+// Conservative default for unlisted pairs: 16 (fails safe — more restrictive).
+// ---------------------------------------------------------------------------
+
+export const CONSERVATIVE_DEFAULT_AGE = 16;
+
+const TIERS_AGE_13 = {
+  tutoring: 13, tech_help: 13, pet_sitting: 13, babysitting: 13,
+  lawn_care: 14, car_washing: 13, odd_jobs: 14,
+};
+const TIERS_AGE_14 = {
+  tutoring: 14, tech_help: 14, pet_sitting: 14, babysitting: 14,
+  lawn_care: 14, car_washing: 14, odd_jobs: 14,
+};
+const STATES_AGE_13 = new Set([
+  "AL","AK","AZ","AR","CO","FL","GA","ID","IN","IA","KS","KY",
+  "LA","MS","MT","NE","NV","NH","NM","NC","OK","SC","SD","TN",
+  "TX","UT","VA","WY",
+]);
+const STATES_AGE_14 = new Set([
+  "CA","CT","DE","DC","HI","IL","ME","MD","MA","MI","MN","MO",
+  "ND","NJ","NY","OH","OR","PA","RI","VT","WA","WV","WI",
+]);
+const STATE_CATEGORY_OVERRIDES = {};
+
+function buildCategoryTable() {
+  const table = {};
+  for (const state of [...STATES_AGE_13, ...STATES_AGE_14]) {
+    const base = STATES_AGE_13.has(state) ? TIERS_AGE_13 : TIERS_AGE_14;
+    table[state] = { ...base, ...(STATE_CATEGORY_OVERRIDES[state] || {}) };
+  }
+  return table;
+}
+export const CATEGORY_AGES = buildCategoryTable();
+
+// State full-name → code lookup, so getMinAgeForCategory works with either
+// "CA" or "California" (JobPost stores full names, TeenProfile stores codes).
+const STATE_NAME_TO_CODE = US_STATES.reduce((acc, s) => { acc[s.name] = s.code; return acc; }, {});
+
+function normalizeState(state) {
+  if (!state) return null;
+  const upper = state.toUpperCase();
+  if (upper.length === 2 && CATEGORY_AGES[upper]) return upper;
+  return STATE_NAME_TO_CODE[state] || upper;
+}
+
+export function getMinAgeForCategory(stateCode, category) {
+  if (!stateCode || !category) return CONSERVATIVE_DEFAULT_AGE;
+  const code = normalizeState(stateCode);
+  if (!code) return CONSERVATIVE_DEFAULT_AGE;
+  const stateTable = CATEGORY_AGES[code.toUpperCase()];
+  if (!stateTable) return CONSERVATIVE_DEFAULT_AGE;
+  const age = stateTable[category];
+  return typeof age === "number" ? age : CONSERVATIVE_DEFAULT_AGE;
+}
+
+export function isEligibleForCategory(age, stateCode, category) {
+  const minAge = getMinAgeForCategory(stateCode, category);
+  if (age == null) {
+    return { eligible: false, minAge, reason: "Identity verification required to verify your age." };
+  }
+  if (age < minAge) {
+    return {
+      eligible: false,
+      minAge,
+      reason: `Available at ${minAge}+ in your state — you'll be eligible when you turn ${minAge}.`,
+    };
+  }
+  return { eligible: true, minAge };
 }

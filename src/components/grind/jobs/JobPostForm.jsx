@@ -9,6 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import ResponsiveSelect from "@/components/grind/ResponsiveSelect";
 import { ShieldCheck, ShieldX, Sparkles, Lock, Tag, AlertCircle } from "lucide-react";
 import { CATEGORIES, CATEGORY_LABELS, categoryMinimum, computeFees, money, MAX_UNIT_PRICE } from "@/lib/grind";
+import { getMinAgeForCategory } from "@/lib/stateWorkRules";
 import SlideToConfirm from "@/components/grind/SlideToConfirm";
 import { US_STATES } from "@/lib/jobScreen";
 
@@ -76,6 +77,7 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
   const minFor = (cat) => categoryMinimum(cat, form.price_model);
   const currentMin = chosenCategory ? minFor(chosenCategory) : 0;
   const belowMin = Number(form.price) > 0 && Number(form.price) < currentMin;
+  const categoryAgeReq = chosenCategory && form.state ? getMinAgeForCategory(form.state, chosenCategory) : null;
 
   // Step 2: confirm the category (and fix price if below minimum), then run
   // the child labor law screening via createJobPost.
@@ -213,6 +215,15 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
                   <span className="font-bold text-foreground">{money(currentMin)}{form.price_model === "HOURLY" ? "/hr" : ""}</span>
                 </div>
               </div>
+
+              {categoryAgeReq != null && (
+                <div className="flex items-start gap-2 bg-primary/5 border border-primary/20 rounded-xl p-3 text-xs text-foreground">
+                  <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5 text-primary" />
+                  <span>
+                    Teens age <span className="font-bold text-primary">{categoryAgeReq}+</span> in {form.state} can accept this job — that's who will see it on the job board.
+                  </span>
+                </div>
+              )}
 
               <div className="space-y-1.5">
                 <Label>Your price ({form.price_model === "HOURLY" ? "per hour" : "flat"})</Label>

@@ -1,6 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 import { checkHazard } from '../../shared/hazardCheck.ts';
 import { getVerifiedAge } from '../../shared/teenAge.ts';
+import { getMinAgeForCategory } from '../../shared/categoryAgeRules.ts';
 
 const MAX_UNIT_PRICE = 500;
 const MIN_TITLE = 3;
@@ -47,6 +48,17 @@ Deno.serve(async (req) => {
     const hazard = checkHazard(`${title} ${body.description || ''}`, age);
     if (hazard.flagged) {
       return Response.json({ error: hazard.reason }, { status: 400 });
+    }
+
+    // Category age gate — reject any category the teen isn't old enough for
+    // in their state. Uses the verified age (Stripe DOB via getVerifiedAge),
+    // never the self-reported age. A direct API call can't bypass this.
+    const minAge = getMinAgeForCategory(teenProfiles[0].state, body.category);
+    if (age < minAge) {
+      return Response.json(
+        { error: `This category requires age ${minAge}+ in your state. You'll be eligible when you turn ${minAge}.` },
+        { status: 403 }
+      );
     }
 
     const data = {

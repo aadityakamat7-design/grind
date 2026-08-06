@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -7,9 +7,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import ResponsiveSelect from "@/components/grind/ResponsiveSelect";
 import { AlertTriangle } from "lucide-react";
-import { CATEGORIES, checkHazard, MAX_UNIT_PRICE, SKILL_CATEGORIES } from "@/lib/grind";
+import { checkHazard, MAX_UNIT_PRICE, SKILL_CATEGORIES } from "@/lib/grind";
+import { getMinAgeForCategory } from "@/lib/stateWorkRules";
 import CredentialUpload from "@/components/grind/CredentialUpload";
 import SlideToConfirm from "@/components/grind/SlideToConfirm";
+import CategoryPicker from "@/components/grind/CategoryPicker";
 
 export default function ListingForm({ open, onOpenChange, listing, profile, onSaved }) {
   const [form, setForm] = useState(
@@ -18,8 +20,30 @@ export default function ListingForm({ open, onOpenChange, listing, profile, onSa
   const [hazard, setHazard] = useState(null);
   const [saving, setSaving] = useState(false);
   const [credential, setCredential] = useState(null);
+  const [teenAge, setTeenAge] = useState(null);
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
   const priceError = Number(form.price) > MAX_UNIT_PRICE ? `Max ${MAX_UNIT_PRICE} per job` : "";
+
+  // Fetch the teen's verified age so we can show locked categories. The
+  // server re-checks with the verified DOB on save — this is just for UI.
+  useEffect(() => {
+    if (!open) return;
+    base44.entities.TeenPrivateData.filter({ user_id: profile?.user_id }).then((recs) => {
+      const pd = recs[0];
+      if (!pd) return;
+      const dob = pd.verified_dob || pd.date_of_birth;
+      if (!dob) return;
+      const birth = new Date(dob);
+      const now = new Date();
+      let age = now.getFullYear() - birth.getFullYear();
+      const m = now.getMonth() - birth.getMonth();
+      if (m < 0 || (m === 0 && now.getDate() < birth.getDate())) age--;
+      setTeenAge(age);
+    });
+  }, [open, profile?.user_id]);
+
+  const categoryMinAge = getMinAgeForCategory(profile?.state, form.category);
+  const categoryLocked = teenAge != null && teenAge < categoryMinAge;
 
   const save = async () => {
     if (priceError) return;
@@ -29,6 +53,10 @@ export default function ListingForm({ open, onOpenChange, listing, profile, onSa
       return;
     }
     setHazard(null);
+    if (categoryLocked) {
+      setHazard(`This category requires age ${categoryMinAge}+ in your state. You'll be eligible when you turn ${categoryMinAge}.`);
+      return;
+    }
     setSaving(true);
     let res;
     try {
@@ -81,13 +109,11 @@ export default function ListingForm({ open, onOpenChange, listing, profile, onSa
         <div className="space-y-4">
           <div>
             <Label>Category</Label>
-            <ResponsiveSelect
+            <CategoryPicker
               value={form.category}
-              onValueChange={(v) => set("category", v)}
-              options={CATEGORIES}
-              placeholder="Pick a category"
-              title="Category"
-              className="rounded-xl mt-1"
+              onChange={(v) => set("category", v)}
+              state={profile?.state}
+              age={teenAge}
             />
           </div>
           <div>
@@ -128,7 +154,7 @@ export default function ListingForm({ open, onOpenChange, listing, profile, onSa
             label={listing ? "Slide to save changes" : "Slide to post"}
             loadingLabel="Saving..."
             loading={saving}
-            disabled={!form.category || !form.title || !form.price || !!priceError}
+            disabled={!form.category || !form.title || !form.price || !!priceError || categoryLocked}
             onConfirm={save}
           />
         </div>

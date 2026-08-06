@@ -54,11 +54,11 @@ Deno.serve(async (req) => {
     // Server-side AI child labor law screening — the client can never bypass
     // this by calling createJobPost directly with ai_approved: true.
     const screen = await base44.integrations.Core.InvokeLLM({
-      prompt: `You are a strict child labor law compliance officer for "KickStart", a marketplace where teenagers aged 13-17 perform casual local jobs for neighbors (federal FLSA "casual employment" context — yard work, babysitting, tutoring, etc.).
+      prompt: `You are a strict child labor law compliance officer for "KickStart", a marketplace where teenagers aged 13-19 perform casual local jobs for neighbors (federal FLSA "casual employment" context — yard work, babysitting, tutoring, etc.). Ages 18-19 are legal adults who can perform most non-hazardous work without child-labor restrictions, but the platform still prohibits hazardous tasks for all ages.
 
 Evaluate whether the following job may legally and safely be performed by a teen worker in the U.S. state of ${body.state}. Apply BOTH:
-1. Federal FLSA rules, including the Hazardous Occupations Orders — always block: roofing or any work at height (ladders, scaffolding, trees above shoulder height), power-driven machinery (saws, wood chippers, meat slicers), driving a motor vehicle as part of the job, excavation/demolition, electrical or plumbing work, handling chemicals/pesticides/herbicides, work involving alcohol, tobacco, cannabis, firearms, or adult content, and anything sexualized, exploitative, dangerous, or illegal.
-2. ${body.state}-specific child labor law, including any stricter state rules on minimum ages for specific tasks (e.g., some states restrict power lawn mower use under 16), permitted hours, and supervision requirements.
+1. Federal FLSA rules, including the Hazardous Occupations Orders — always block for ALL ages: roofing or any work at height (ladders, scaffolding, trees above shoulder height), power-driven machinery (saws, wood chippers, meat slicers), driving a motor vehicle as part of the job, excavation/demolition, electrical or plumbing work, handling chemicals/pesticides/herbicides, work involving alcohol, tobacco, cannabis, firearms, or adult content, and anything sexualized, exploitative, dangerous, or illegal.
+2. ${body.state}-specific child labor law, including any stricter state rules on minimum ages for specific tasks (e.g., some states restrict power lawn mower use under 16), permitted hours, and supervision requirements. For ages 18-19, standard child labor laws do not apply, but the hazardous-occupations block above still applies.
 
 Job to evaluate:
 - Title: ${title}
@@ -67,8 +67,8 @@ Job to evaluate:
 - Pay: $${price}
 
 Respond with:
-- allowed: true only if a teen in some age range 13-17 may legally do this job in ${body.state}.
-- minimum_age: the minimum teen age (13-17) that may perform it under ${body.state} law. Omit or use 13 if unrestricted.
+- allowed: true only if a teen in some age range 13-19 may legally do this job in ${body.state}.
+- minimum_age: the minimum teen age (13-19) that may perform it under ${body.state} law. Use 13 if unrestricted. Use 18 only if the task requires adult status (e.g., power equipment restricted to 18+ in this state).
 - reason: if blocked, a clear, neighbor-friendly explanation citing the specific federal or ${body.state} rule that prohibits it. If allowed, a one-sentence confirmation.
 - state_law_notes: brief ${body.state}-specific conditions the neighbor should know (age limits, hour limits, supervision). Keep under 40 words.`,
       add_context_from_internet: true,

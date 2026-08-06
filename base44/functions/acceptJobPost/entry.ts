@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { getVerifiedAge } from '../../shared/teenAge.ts';
+import { getMinAgeForCategory } from '../../shared/categoryAgeRules.ts';
 import { notifyParentJobAccepted } from '../../shared/notifyParent.ts';
 import { getSafeOrigin } from '../../shared/safeOrigin.ts';
 
@@ -38,8 +39,25 @@ Deno.serve(async (req) => {
       return Response.json({ error: "Your account isn't live yet — your parent must verify their ID and confirm your link before you can take jobs." }, { status: 403 });
     }
     const teenAge = getVerifiedAge(teenPrivate);
+
+    // Category age gate — reject if the job's category exceeds the teen's
+    // eligible age for their state. Uses the verified age, never self-reported.
+    const categoryMinAge = getMinAgeForCategory(job.state, job.category);
+    if (teenAge != null && teenAge < categoryMinAge) {
+      return Response.json(
+        { error: `This category requires age ${categoryMinAge}+ in ${job.state}. You'll be eligible when you turn ${categoryMinAge}.` },
+        { status: 403 }
+      );
+    }
     if (job.ai_minimum_age && teenAge != null && teenAge < job.ai_minimum_age) {
       return Response.json({ error: `This job requires workers age ${job.ai_minimum_age}+ under ${job.state} law.` }, { status: 403 });
+    }
+
+    // 18+ teens are legal adults — no parent approval required, no parent
+    // link needed. 13–17 minors require a confirmed parent link.
+    const needsParent = teenAge == null || teenAge < 18;
+    if (needsParent && !link) {
+      return Response.json({ error: "Your parent must be linked and verified before you can take jobs." }, { status: 403 });
     }
 
     const gross = Number(job.price) || 0;
@@ -67,7 +85,7 @@ Deno.serve(async (req) => {
       listing_title: job.title,
       teen_user_id: user.id,
       teen_display_name: profile?.display_name || user.full_name,
-      parent_user_id: link?.parent_user_id,
+      parent_user_id: needsParent ? link?.parent_user_id : undefined,
       buyer_user_id: job.buyer_user_id,
       buyer_name: job.buyer_name,
       scheduled_start: job.scheduled_start || undefined,
@@ -79,14 +97,14 @@ Deno.serve(async (req) => {
       platform_fee: platformFee,
       net_amount: netAmount,
       payment_status: 'unpaid',
-      status: 'pending_parent_approval',
+      status: needsParent ? 'pending_parent_approval' : 'confirmed',
     });
 
     await svc.JobPost.update(job.id, { booking_id: booking.id });
 
     // The teen must verify their own identity the first time they accept a
-    // job. The booking is created in pending_parent_approval either way; the
-    // parent can only approve once the teen is verified.
+    // job. For minors, the parent can only approve once the teen is verified.
+    // For 18+ teens, the booking is already confirmed.
     const identityRequired = profile.identity_status !== 'verified';
 
     await svc.MessageThread.create({
@@ -96,12 +114,12 @@ Deno.serve(async (req) => {
       buyer_name: job.buyer_name,
       teen_user_id: user.id,
       teen_display_name: profile?.display_name || user.full_name,
-      parent_user_id: link?.parent_user_id,
-      participant_ids: [job.buyer_user_id, user.id, link?.parent_user_id].filter(Boolean),
-      is_confirmed: false,
+      parent_user_id: needsParent ? link?.parent_user_id : undefined,
+      participant_ids: [job.buyer_user_id, user.id, needsParent ? link?.parent_user_id : null].filter(Boolean),
+      is_confirmed: !needsParent,
     });
 
-    if (link?.parent_user_id) {
+    if (needsParent && link?.parent_user_id) {
       await svc.Notification.create({
         user_id: link.parent_user_id,
         type: 'approval',
@@ -130,7 +148,9 @@ Deno.serve(async (req) => {
       user_id: job.buyer_user_id,
       type: 'booking',
       title: 'A teen took your job!',
-      body: `${profile?.display_name || 'A teen'} accepted "${job.title}" — pending parent approval.`,
+      body: needsParent
+        ? `${profile?.display_name || 'A teen'} accepted "${job.title}" — pending parent approval.`
+        : `${profile?.display_name || 'A teen'} accepted "${job.title}" — confirmed!`,
       link: `/bookings/${booking.id}`,
       read: false,
     });
