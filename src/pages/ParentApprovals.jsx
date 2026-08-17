@@ -40,14 +40,22 @@ export default function ParentApprovals() {
   const { gateOpen, setGateOpen, attempt, onVerified, acting, initialStep } = useApprovalWithVerification(profile, load);
 
   // Auto-open the setup gate when arriving via the ?setup=1 deep link from
-  // the parent notification email, if setup is still incomplete.
+  // the parent notification email — but ONLY if there is an actual pending
+  // booking requiring approval. A parent with no pending bookings is
+  // redirected to the dashboard; the setup gate must never be reachable
+  // without a real booking to approve.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (params.get("setup") && profile && (!profile.is_identity_verified || profile.connect_status !== "active")) {
-      setGateOpen(true);
-      window.history.replaceState({}, "", window.location.pathname);
+    if (!params.get("setup")) return;
+    if (pending.length === 0) {
+      window.location.replace("/parent");
+      return;
     }
-  }, [profile]);
+    if (profile && (!profile.is_identity_verified || profile.connect_status !== "active")) {
+      setGateOpen(true);
+    }
+    window.history.replaceState({}, "", window.location.pathname);
+  }, [profile, pending]);
 
   if (loading)
     return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-muted border-t-foreground rounded-full animate-spin" /></div>;

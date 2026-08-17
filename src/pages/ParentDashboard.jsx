@@ -82,12 +82,9 @@ export default function ParentDashboard() {
           {pendingLinks.map((l) => (
             <div key={l.id} className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
               <p className="font-bold text-amber-700 text-sm">Linked with {l.teen_display_name} — pending activation</p>
-              <p className="text-xs text-amber-600 mt-1">Verify your government ID below to activate your teen's account and start approving their jobs.</p>
+              <p className="text-xs text-amber-600 mt-1">Verify your government ID to activate your teen's account. You'll be prompted when your teen gets their first job request.</p>
             </div>
           ))}
-          {parentProfile && (
-            <PayoutStatusCard profile={parentProfile} onUpdated={load} returnPath="/parent" />
-          )}
           <div className="pt-2">
             <LinkTeenDialog onLinked={load} />
           </div>
@@ -103,9 +100,6 @@ export default function ParentDashboard() {
             <h1 className="text-2xl font-bold text-foreground">Parent dashboard</h1>
             <p className="text-sm text-muted-foreground mt-1">You'll see jobs to approve here once your teen gets their first request.</p>
           </div>
-          {parentProfile && (
-            <PayoutStatusCard profile={parentProfile} onUpdated={load} returnPath="/parent" locked />
-          )}
           <div className="pt-2">
             <LinkTeenDialog onLinked={load} />
           </div>
@@ -133,7 +127,7 @@ export default function ParentDashboard() {
         <p className="text-sm text-muted-foreground mt-1">Full visibility into your student's activity.</p>
       </div>
 
-      {parentProfile && (
+      {parentProfile?.is_identity_verified && parentProfile?.connect_status === "active" && (
         <PayoutStatusCard profile={parentProfile} onUpdated={load} returnPath="/parent" />
       )}
 
