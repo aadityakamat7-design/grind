@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 import { haversineMiles } from '../../shared/geo.ts';
+import { isOnlineCategory } from '../../shared/deliveryMode.ts';
 
 // Server-side teen search. Reads the teen's exact coordinates from
 // TeenPrivateData (which the client can never access), computes distance,
@@ -45,7 +46,13 @@ Deno.serve(async (req) => {
         const priv = privateByUid[l.teen_user_id];
         let distance = null;
         let inArea = true;
-        if (hasBuyerLocation && priv?.latitude != null && priv?.longitude != null) {
+        const online = isOnlineCategory(l.category) || l.delivery_mode === 'online';
+        if (online) {
+          // Online listings (tutoring, tech help) match any teen in the same
+          // state — no distance check, but state-level eligibility still applies.
+          const sameState = teen.state && buyerState && teen.state === buyerState;
+          inArea = sameState;
+        } else if (hasBuyerLocation && priv?.latitude != null && priv?.longitude != null) {
           distance = haversineMiles(buyerLat, buyerLng, priv.latitude, priv.longitude);
           const sameState = teen.state && buyerState && teen.state === buyerState;
           inArea = sameState && distance <= (teen.service_radius_miles || 3);
@@ -55,6 +62,7 @@ Deno.serve(async (req) => {
           teen_user_id: l.teen_user_id,
           teen_display_name: l.teen_display_name,
           category: l.category,
+          delivery_mode: online ? 'online' : (l.delivery_mode || 'outdoor'),
           title: l.title,
           description: l.description,
           price: l.price,

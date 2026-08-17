@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import ResponsiveSelect from "@/components/grind/ResponsiveSelect";
 import { ShieldCheck, ShieldX, Sparkles, Lock, Tag, AlertCircle } from "lucide-react";
-import { CATEGORIES, CATEGORY_LABELS, categoryMinimum, computeFees, money, MAX_UNIT_PRICE } from "@/lib/grind";
+import { CATEGORIES, CATEGORY_LABELS, categoryMinimum, computeFees, money, MAX_UNIT_PRICE, isOnlineCategory } from "@/lib/grind";
 import { getMinAgeForCategory } from "@/lib/stateWorkRules";
 import SlideToConfirm from "@/components/grind/SlideToConfirm";
 import { US_STATES } from "@/lib/jobScreen";
@@ -48,7 +48,7 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
   };
 
   const priceError = Number(form.price) > MAX_UNIT_PRICE ? `Max ${MAX_UNIT_PRICE} per job` : "";
-  const valid = form.title.trim().length >= 3 && Number(form.price) > 0 && !priceError && form.state && (!form.is_physical || form.address.trim());
+  const valid = form.title.trim().length >= 3 && Number(form.price) > 0 && !priceError && form.state;
   const { platform_fee, net_amount } = computeFees(Number(form.price) || 0);
 
   // Step 1: run the AI category check, then show the category + minimum review.
@@ -95,8 +95,8 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
         price_model: form.price_model,
         zip: buyerProfile?.zip || "",
         state: form.state,
-        is_physical: form.is_physical,
-        address: form.is_physical ? form.address.trim() : "",
+        is_physical: !isOnlineCategory(chosenCategory),
+        address: isOnlineCategory(chosenCategory) ? "" : form.address.trim(),
         scheduledStart: form.scheduled_start || undefined,
       });
       job = res.data.job;
@@ -207,7 +207,24 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
                   title="Category"
                   className="rounded-xl"
                 />
+                <div className={`flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium ${isOnlineCategory(chosenCategory) ? "bg-primary/10 text-primary" : "bg-secondary text-muted-foreground"}`}>
+                  {isOnlineCategory(chosenCategory) ? (
+                    <>📡 Online — conducted via video, no in-person meeting</>
+                  ) : (
+                    <>🌳 Outdoor — work at the residence exterior, no home entry</>
+                  )}
+                </div>
               </div>
+
+              {!isOnlineCategory(chosenCategory) && (
+                <div className="space-y-1.5">
+                  <Label>Job address</Label>
+                  <Input className="rounded-xl" placeholder="Where will the job happen?" value={form.address} onChange={(e) => set("address", e.target.value)} />
+                  <p className="text-xs text-muted-foreground/70 mt-1 flex items-center gap-1">
+                    <Lock className="w-3 h-3" /> Only shared with the teen and their parent once a teen accepts and the parent approves.
+                  </p>
+                </div>
+              )}
 
               <div className="bg-secondary rounded-xl p-3 text-sm">
                 <div className="flex justify-between">
@@ -359,22 +376,6 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
               <Label>When (optional)</Label>
               <Input className="rounded-xl" type="datetime-local" value={form.scheduled_start} onChange={(e) => set("scheduled_start", e.target.value)} />
             </div>
-            <div className="flex items-center justify-between bg-secondary rounded-xl p-3">
-              <div>
-                <Label>Physical, in-person job?</Label>
-                <p className="text-xs text-muted-foreground mt-0.5">Turn off for remote tasks like tutoring or tech help online.</p>
-              </div>
-              <Switch checked={form.is_physical} onCheckedChange={(v) => set("is_physical", v)} />
-            </div>
-            {form.is_physical && (
-              <div className="space-y-1.5">
-                <Label>Job address</Label>
-                <Input className="rounded-xl" placeholder="Where will the job happen?" value={form.address} onChange={(e) => set("address", e.target.value)} />
-                <p className="text-xs text-muted-foreground/70 mt-1 flex items-center gap-1">
-                  <Lock className="w-3 h-3" /> Only shared with the teen and their parent once a teen accepts and the parent approves.
-                </p>
-              </div>
-            )}
             <Button className="w-full" disabled={!valid} onClick={reviewCategory}>
               Review & post
             </Button>

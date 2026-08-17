@@ -55,9 +55,12 @@ export default function Browse() {
         !search ||
         `${l.title} ${l.description} ${l.teen_display_name}`.toLowerCase().includes(search.toLowerCase())
     )
-    // In-service-area teens first, then by distance
+    // In-service-area teens first, then by distance. Online listings are
+    // always "in area" (statewide), so they sort with the in-area group.
     .sort((a, b) => {
-      if (a._inArea !== b._inArea) return a._inArea ? -1 : 1;
+      const aInArea = a.delivery_mode === "online" || a._inArea;
+      const bInArea = b.delivery_mode === "online" || b._inArea;
+      if (aInArea !== bInArea) return aInArea ? -1 : 1;
       if (a._distance != null && b._distance != null) return a._distance - b._distance;
       return 0;
     });
@@ -112,25 +115,29 @@ export default function Browse() {
         <EmptyState icon={Search} title="No services found" subtitle="Try a different search or category — or check back as more teens in your area join." />
       ) : (
         <div className="grid sm:grid-cols-2 gap-4">
-          {filtered.map((l) => (
-            <div key={l.id} className={`relative ${l._inArea ? "" : "opacity-50"}`}>
+          {filtered.map((l) => {
+            const isOnline = l.delivery_mode === "online";
+            const inArea = isOnline || l._inArea;
+            return (
+            <div key={l.id} className={`relative ${inArea ? "" : "opacity-50"}`}>
               <ListingCard
                 listing={l}
                 teen={{ avg_rating: l.teen_avg_rating, review_count: l.teen_review_count }}
                 to={`/teens/${l.teen_user_id}?listing=${l.id}`}
               />
-              {!l._inArea && (
+              {!inArea && (
                 <span className="absolute top-2 right-2 bg-foreground text-background text-[10px] font-medium px-2 py-1 rounded-full">
                   Outside service area
                 </span>
               )}
-              {l._distance != null && (
+              {!isOnline && l._distance != null && (
                 <span className="absolute top-2 left-2 bg-card/90 text-foreground text-[10px] font-medium px-2 py-1 rounded-full shadow-soft">
                   {l._distance < 1 ? "<1 mi" : `${Math.round(l._distance)} mi`}
                 </span>
               )}
             </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

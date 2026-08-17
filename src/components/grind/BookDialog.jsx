@@ -7,8 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ShieldCheck, Lock, MessageCircle } from "lucide-react";
-import { computeFees, money } from "@/lib/grind";
+import { ShieldCheck, Lock, MessageCircle, Video, Sun } from "lucide-react";
+import { computeFees, money, isOnlineCategory } from "@/lib/grind";
 import SafetyAdvisorChat from "@/components/grind/SafetyAdvisorChat";
 import SlideToConfirm from "@/components/grind/SlideToConfirm";
 
@@ -27,6 +27,7 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
   const { platform_fee, net_amount } = computeFees(total);
   const creditApplied = Math.min(Number(buyerProfile?.referral_credit || 0), total);
   const buyerPays = Math.round((total - creditApplied) * 100) / 100;
+  const isOnline = isOnlineCategory(listing.category) || listing.delivery_mode === "online";
 
   const book = async () => {
     setSaving(true);
@@ -35,7 +36,7 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
       const res = await base44.functions.invoke("createBooking", {
         listingId: listing.id,
         scheduledStart: when ? new Date(when).toISOString() : null,
-        address,
+        address: isOnline ? "" : address,
         notes,
         recurrence,
         hours,
@@ -58,6 +59,13 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
           <DialogTitle>Book {listing.teen_display_name}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
+          <div className={`flex items-center gap-2 rounded-xl p-3 text-xs font-medium ${isOnline ? "bg-primary/10 text-primary" : "bg-secondary text-muted-foreground"}`}>
+            {isOnline ? (
+              <><Video className="w-4 h-4" /> Online session — conducted via video, no in-person meeting</>
+            ) : (
+              <><Sun className="w-4 h-4" /> Outdoor work — at your residence exterior, no home entry</>
+            )}
+          </div>
           <div>
             <Label>Date & time</Label>
             <Input type="datetime-local" className="rounded-xl mt-1" value={when} onChange={(e) => setWhen(e.target.value)} />
@@ -80,13 +88,15 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
               <Input type="number" min="1" className="rounded-xl mt-1" value={hours} onChange={(e) => setHours(e.target.value)} />
             </div>
           )}
-          <div>
-            <Label>Job address</Label>
-            <Input className="rounded-xl mt-1" placeholder="Where will the job happen?" value={address} onChange={(e) => setAddress(e.target.value)} />
-            <p className="text-xs text-slate-400 mt-1 flex items-center gap-1">
-              <Lock className="w-3 h-3" /> Only shared after the parent approves.
-            </p>
-          </div>
+          {!isOnline && (
+            <div>
+              <Label>Job address</Label>
+              <Input className="rounded-xl mt-1" placeholder="Where will the job happen?" value={address} onChange={(e) => setAddress(e.target.value)} />
+              <p className="text-xs text-slate-400 mt-1 flex items-center gap-1">
+                <Lock className="w-3 h-3" /> Only shared after the parent approves.
+              </p>
+            </div>
+          )}
           <div>
             <Label>Notes (optional)</Label>
             <Textarea className="rounded-xl mt-1" placeholder="Anything the teen should know?" value={notes} onChange={(e) => setNotes(e.target.value)} />
@@ -118,7 +128,7 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
             label="Slide to book"
             loadingLabel="Booking..."
             loading={saving}
-            disabled={!when || !address}
+            disabled={!when || (!isOnline && !address)}
             onConfirm={book}
           />
         </div>

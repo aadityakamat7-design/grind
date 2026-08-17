@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useOutletContext, Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { CalendarDays, MapPin, Lock, MessageCircle, FileText, Repeat, Clock } from "lucide-react";
+import { CalendarDays, MapPin, Lock, MessageCircle, FileText, Repeat, Clock, Video, Sun } from "lucide-react";
 import { format } from "date-fns";
 import StatusBadge from "@/components/grind/StatusBadge";
 import TrustBadge from "@/components/grind/TrustBadge";
@@ -168,6 +168,15 @@ export default function BookingDetail() {
               <Repeat className="w-3 h-3" /> {booking.recurrence || "recurring"}
             </span>
           )}
+          {booking.delivery_mode === "online" ? (
+            <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 text-primary px-2.5 py-0.5 text-xs font-medium">
+              <Video className="w-3 h-3" /> Online
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1 rounded-full bg-secondary text-muted-foreground px-2.5 py-0.5 text-xs font-medium">
+              <Sun className="w-3 h-3" /> Outdoor
+            </span>
+          )}
           {booking.status === "in_progress" && <TrustBadge type="location_shared" />}
         </div>
 
@@ -189,7 +198,17 @@ export default function BookingDetail() {
               {format(new Date(booking.scheduled_start), "EEEE, MMM d 'at' h:mm a")}
             </p>
           )}
-          {booking.is_physical !== false && (
+          {booking.delivery_mode === "online" ? (
+            booking.session_link && confirmedPlus ? (
+              <a href={booking.session_link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-primary font-medium hover:underline">
+                <Video className="w-4 h-4" /> Join video session
+              </a>
+            ) : (
+              <p className="flex items-center gap-2">
+                <Video className="w-4 h-4 text-muted-foreground" /> Online session — link appears once confirmed
+              </p>
+            )
+          ) : (
             <p className="flex items-center gap-2">
               {addressVisible ? (
                 <><MapPin className="w-4 h-4 text-muted-foreground" /> {booking.address || "Address not provided"}</>

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { MapPin, AlertTriangle } from "lucide-react";
+import { MapPin, AlertTriangle, Video, Sun } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { Image } from "@/components/ui/image";
-import { CATEGORY_LABELS, money } from "@/lib/grind";
+import { CATEGORY_LABELS, money, isOnlineCategory } from "@/lib/grind";
 import TrustBadge from "@/components/grind/TrustBadge";
 import RatingStars from "@/components/grind/RatingStars";
 import VerifiedSkillBadge from "@/components/grind/VerifiedSkillBadge";
@@ -44,6 +44,16 @@ export default function ListingCard({ listing, teen, to }) {
           </div>
         </div>
         <div className="flex items-center gap-2 mt-3 flex-wrap">
+          {(listing.delivery_mode === "online" || isOnlineCategory(listing.category)) && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 text-primary px-2 py-0.5 text-[10px] font-medium">
+              <Video className="w-3 h-3" /> Online
+            </span>
+          )}
+          {listing.delivery_mode !== "online" && !isOnlineCategory(listing.category) && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-secondary text-muted-foreground px-2 py-0.5 text-[10px] font-medium">
+              <Sun className="w-3 h-3" /> Outdoor
+            </span>
+          )}
           <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
             <MapPin className="w-3.5 h-3.5" />
             {listing.service_area || listing.teen_zip || "Local"}

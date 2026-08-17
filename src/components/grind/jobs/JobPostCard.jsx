@@ -1,5 +1,5 @@
 import React from "react";
-import { MapPin, CalendarDays, ShieldCheck, Lock } from "lucide-react";
+import { MapPin, CalendarDays, ShieldCheck, Lock, Video, Sun } from "lucide-react";
 import { format } from "date-fns";
 import { CATEGORY_LABELS, money } from "@/lib/grind";
 import { getMinAgeForCategory } from "@/lib/stateWorkRules";
@@ -46,9 +46,14 @@ export default function JobPostCard({ job, footer, buyerRating, buyerReviewCount
             <MapPin className="w-3.5 h-3.5" /> {job.zip ? `ZIP ${job.zip}` : job.state}
           </span>
         )}
-        {job.is_physical === false && (
-          <span className="inline-flex items-center rounded-full bg-secondary text-muted-foreground px-2 py-0.5 text-[10px] font-medium">
-            Remote
+        {(job.delivery_mode === "online" || job.is_physical === false) && (
+          <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 text-primary px-2 py-0.5 text-[10px] font-medium">
+            <Video className="w-3 h-3" /> Online
+          </span>
+        )}
+        {job.delivery_mode === "outdoor" && job.is_physical !== false && (
+          <span className="inline-flex items-center gap-1 rounded-full bg-secondary text-muted-foreground px-2 py-0.5 text-[10px] font-medium">
+            <Sun className="w-3 h-3" /> Outdoor
           </span>
         )}
         {job.scheduled_start && (

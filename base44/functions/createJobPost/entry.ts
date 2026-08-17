@@ -12,7 +12,6 @@ const CATEGORY_MINIMUMS: Record<string, Record<string, number>> = {
   lawn_care:   { FIXED: 20, HOURLY: 15 },
   pet_sitting: { FIXED: 15, HOURLY: 12 },
   tech_help:   { FIXED: 15, HOURLY: 15 },
-  babysitting: { FIXED: 25, HOURLY: 12 },
   car_washing: { FIXED: 20, HOURLY: 15 },
   odd_jobs:    { FIXED: 15, HOURLY: 12 },
 };
