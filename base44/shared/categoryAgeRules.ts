@@ -4,27 +4,26 @@
 // US state to the minimum age a teen must be to create a listing or accept a
 // job in each category. It is auditable and correctable.
 //
-// Tier 1 (light indoor): tutoring, tech_help, pet_sitting — lowest threshold.
-// Tier 2 (childcare):    babysitting — slightly higher in most states.
-// Tier 3 (outdoor):      lawn_care, car_washing, odd_jobs — manual outdoor work.
+// Tier 1 (online):     tutoring, tech_help — remote video, lowest threshold.
+// Tier 2 (outdoor):    lawn_care, car_washing, odd_jobs, pet_sitting —
+//                     manual outdoor work (dog walking = doorstep pickup only).
+//
+// In-home categories (babysitting, childcare, house cleaning, elder care) are
+// REMOVED from the platform — teens never enter a client's home.
 //
 // Hazardous tasks (power equipment, ladders, chemicals) are handled separately
-// by hazardCheck.ts and are NOT gated by category alone — the hazard screening
-// catches those keywords regardless of category.
+// by hazardCheck.ts and are NOT gated by category alone.
 //
 // CONSERVATIVE DEFAULT: any state-category pair not explicitly listed defaults
-// to 16 (fails safe — more restrictive, not permissive). All 50 states + DC are
-// explicitly listed below, so the default only triggers for an unknown category
-// or a future category not yet added to the table.
+// to 16 (fails safe — more restrictive, not permissive).
 
 export const JOB_CATEGORIES = [
   'tutoring',
-  'lawn_care',
-  'pet_sitting',
   'tech_help',
-  'babysitting',
+  'lawn_care',
   'car_washing',
   'odd_jobs',
+  'pet_sitting',
 ] as const;
 
 export type JobCategory = typeof JOB_CATEGORIES[number];
@@ -56,7 +55,6 @@ function normalizeState(state: string | undefined): string | undefined {
 }
 
 // States where casual work is allowed from age 13 (casual-work exemption).
-// All categories follow the tier defaults below.
 const STATES_AGE_13 = new Set([
   'AL', 'AK', 'AZ', 'AR', 'CO', 'FL', 'GA', 'ID', 'IN', 'IA', 'KS', 'KY',
   'LA', 'MS', 'MT', 'NE', 'NV', 'NH', 'NM', 'NC', 'OK', 'SC', 'SD', 'TN',
@@ -74,7 +72,6 @@ const TIERS_AGE_13: Record<JobCategory, number> = {
   tutoring: 13,
   tech_help: 13,
   pet_sitting: 13,
-  babysitting: 13,
   lawn_care: 14,
   car_washing: 13,
   odd_jobs: 14,
@@ -85,22 +82,16 @@ const TIERS_AGE_14: Record<JobCategory, number> = {
   tutoring: 14,
   tech_help: 14,
   pet_sitting: 14,
-  babysitting: 14,
   lawn_care: 14,
   car_washing: 14,
   odd_jobs: 14,
 };
 
 // Explicit per-state overrides for categories that differ from the state's
-// tier defaults. Add entries here when a specific state has a category-specific
-// rule (e.g. babysitting requires 15 in some states).
-const STATE_CATEGORY_OVERRIDES: Record<string, Partial<Record<JobCategory, number>>> = {
-  // Illinois: babysitting requires 14 (already covered by TIERS_AGE_14).
-  // Add state-specific overrides here as they are verified by counsel.
-};
+// tier defaults.
+const STATE_CATEGORY_OVERRIDES: Record<string, Partial<Record<JobCategory, number>>> = {};
 
-// Build the full lookup table at module load — explicit, auditable, and
-// correctable. Each state maps to a { category: minAge } object.
+// Build the full lookup table at module load.
 function buildTable(): Record<string, Record<JobCategory, number>> {
   const table: Record<string, Record<JobCategory, number>> = {};
   const allStates = [...STATES_AGE_13, ...STATES_AGE_14];
@@ -114,9 +105,6 @@ function buildTable(): Record<string, Record<JobCategory, number>> {
 
 export const CATEGORY_AGES: Record<string, Record<JobCategory, number>> = buildTable();
 
-// Returns the minimum age for a given category in a given state.
-// Falls back to CONSERVATIVE_DEFAULT_AGE (16) for unknown state/category pairs
-// so the system fails safe (more restrictive) rather than permissive.
 export function getMinAgeForCategory(state: string | undefined, category: string): number {
   if (!state || !category) return CONSERVATIVE_DEFAULT_AGE;
   const code = normalizeState(state);
@@ -128,7 +116,6 @@ export function getMinAgeForCategory(state: string | undefined, category: string
   return age;
 }
 
-// Returns true if the teen is old enough for the category in their state.
 export function isEligibleForCategory(
   age: number | null,
   state: string | undefined,

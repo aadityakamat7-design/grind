@@ -1,7 +1,9 @@
 // Per-state minimum ages for casual minor work on Kickstart
-// (babysitting, tutoring, lawn care, pet sitting, tech help, car washing, odd jobs).
-// Casual/domestic work is exempt from many state child-labor rules, so most states
-// allow it from 13 (the platform floor). Stricter states are listed at 14.
+// (tutoring, tech help, lawn care, car washing, odd jobs, dog walking).
+// In-home categories (babysitting, house cleaning, elder care) are removed —
+// teens never enter a client's home. Casual/domestic work is exempt from many
+// state child-labor rules, so most states allow it from 13 (the platform floor).
+// Stricter states are listed at 14.
 // NOTE: reference table — have counsel verify before launch in a given state.
 
 export const US_STATES = [
@@ -83,11 +85,11 @@ export function blockedMessage(result, stateCode) {
 export const CONSERVATIVE_DEFAULT_AGE = 16;
 
 const TIERS_AGE_13 = {
-  tutoring: 13, tech_help: 13, pet_sitting: 13, babysitting: 13,
+  tutoring: 13, tech_help: 13, pet_sitting: 13,
   lawn_care: 14, car_washing: 13, odd_jobs: 14,
 };
 const TIERS_AGE_14 = {
-  tutoring: 14, tech_help: 14, pet_sitting: 14, babysitting: 14,
+  tutoring: 14, tech_help: 14, pet_sitting: 14,
   lawn_care: 14, car_washing: 14, odd_jobs: 14,
 };
 const STATES_AGE_13 = new Set([

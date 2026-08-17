@@ -1,6 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { getVerifiedAge } from '../../shared/teenAge.ts';
 import { getMinAgeForCategory } from '../../shared/categoryAgeRules.ts';
+import { isRemovedCategory, getDeliveryMode } from '../../shared/deliveryMode.ts';
 
 // Returns open job posts (with the physical address stripped) plus buyer
 // rating aggregates, so the teen job board never pulls addresses or
@@ -15,7 +16,9 @@ Deno.serve(async (req) => {
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
     const svc = base44.asServiceRole.entities;
-    const openJobs = await svc.JobPost.filter({ status: 'open' }, '-created_date', 50);
+    const allOpenJobs = await svc.JobPost.filter({ status: 'open' }, '-created_date', 50);
+    // Filter out removed categories (babysitting, etc.) — teens never enter a home.
+    const openJobs = allOpenJobs.filter((j) => !isRemovedCategory(j.category));
 
     // Fetch the teen's verified age so we can compute per-job eligibility
     // server-side. The age itself is never sent to the client.
@@ -43,8 +46,10 @@ Deno.serve(async (req) => {
       const { address, ...rest } = j;
       const categoryMinAge = getMinAgeForCategory(j.state, j.category);
       const eligible = teenAge == null ? true : teenAge >= categoryMinAge;
+      const deliveryMode = j.delivery_mode || getDeliveryMode(j.category) || 'outdoor';
       return {
         ...rest,
+        delivery_mode: deliveryMode,
         category_min_age: categoryMinAge,
         eligible_for_user: eligible,
         ineligible_reason: eligible ? null : `Requires age ${categoryMinAge}+ in ${j.state}`,

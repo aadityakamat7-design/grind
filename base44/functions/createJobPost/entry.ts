@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
+import { getDeliveryMode, isRemovedCategory } from '../../shared/deliveryMode.ts';
 
 const MAX_UNIT_PRICE = 500;
 const MIN_TITLE = 3;
@@ -38,6 +39,27 @@ Deno.serve(async (req) => {
       return Response.json({ error: `Price must be between $1 and $${MAX_UNIT_PRICE}.` }, { status: 400 });
     }
 
+    // Reject removed categories (babysitting, etc.) — teens never enter a home.
+    if (isRemovedCategory(body.category)) {
+      return Response.json({
+        error: 'This category is no longer available on Kickstart. All work is outdoor or online — teens do not enter clients\' homes.',
+      }, { status: 400 });
+    }
+
+    // Determine delivery mode from the category — the client can't spoof this.
+    const deliveryMode = getDeliveryMode(body.category);
+    if (!deliveryMode) {
+      return Response.json({ error: 'Invalid category.' }, { status: 400 });
+    }
+    const isOnline = deliveryMode === 'online';
+
+    // Online jobs never collect or store an address.
+    if (isOnline && body.address) {
+      return Response.json({
+        error: 'Online jobs do not require an address — the session is conducted via video.',
+      }, { status: 400 });
+    }
+
     // Server-side minimum-price enforcement per category + price model.
     const priceModel = body.price_model || 'FIXED';
     const mins = CATEGORY_MINIMUMS[body.category] || CATEGORY_MINIMUMS.odd_jobs;
@@ -54,10 +76,10 @@ Deno.serve(async (req) => {
     // Server-side AI child labor law screening — the client can never bypass
     // this by calling createJobPost directly with ai_approved: true.
     const screen = await base44.integrations.Core.InvokeLLM({
-      prompt: `You are a strict child labor law compliance officer for "KickStart", a marketplace where teenagers aged 13-19 perform casual local jobs for neighbors (federal FLSA "casual employment" context — yard work, babysitting, tutoring, etc.). Ages 18-19 are legal adults who can perform most non-hazardous work without child-labor restrictions, but the platform still prohibits hazardous tasks for all ages.
+      prompt: `You are a strict child labor law compliance officer for "KickStart", a marketplace where teenagers aged 13-19 perform casual local jobs for neighbors. All work is either OUTDOOR (lawn care, car washing, dog walking, yard work — performed outside the residence, never inside a home) or ONLINE (tutoring, remote tech help — conducted via video, no physical meeting). In-home work (babysitting, house cleaning, elder care, in-person tutoring) is PROHIBITED — teens never enter a client's home under any circumstance. Ages 18-19 are legal adults who can perform most non-hazardous work without child-labor restrictions, but the platform still prohibits hazardous tasks for all ages.
 
 Evaluate whether the following job may legally and safely be performed by a teen worker in the U.S. state of ${body.state}. Apply BOTH:
-1. Federal FLSA rules, including the Hazardous Occupations Orders — always block for ALL ages: roofing or any work at height (ladders, scaffolding, trees above shoulder height), power-driven machinery (saws, wood chippers, meat slicers), driving a motor vehicle as part of the job, excavation/demolition, electrical or plumbing work, handling chemicals/pesticides/herbicides, work involving alcohol, tobacco, cannabis, firearms, or adult content, and anything sexualized, exploitative, dangerous, or illegal.
+1. Federal FLSA rules, including the Hazardous Occupations Orders — always block for ALL ages: roofing or any work at height (ladders, scaffolding, trees above shoulder height), power-driven machinery (saws, wood chippers, meat slicers), driving a motor vehicle as part of the job, excavation/demolition, electrical or plumbing work, handling chemicals/pesticides/herbicides, work involving alcohol, tobacco, cannabis, firearms, or adult content, and anything sexualized, exploitative, dangerous, or illegal. Also block any job that requires the teen to enter a client's home or have unsupervised in-person one-on-one contact.
 2. ${body.state}-specific child labor law, including any stricter state rules on minimum ages for specific tasks (e.g., some states restrict power lawn mower use under 16), permitted hours, and supervision requirements. For ages 18-19, standard child labor laws do not apply, but the hazardous-occupations block above still applies.
 
 Job to evaluate:
@@ -104,12 +126,13 @@ Respond with:
       title,
       description: (body.description || '').trim().slice(0, MAX_DESC),
       category: body.category,
+      delivery_mode: deliveryMode,
       price,
       price_model: body.price_model || 'FIXED',
       zip: body.zip || '',
       state: body.state,
-      is_physical: body.is_physical !== false,
-      address: body.is_physical !== false ? (body.address || '').trim() : '',
+      is_physical: !isOnline,
+      address: isOnline ? '' : (body.address || '').trim(),
       scheduled_start: body.scheduledStart || undefined,
       ai_approved: true,
       ai_minimum_age: screen.minimum_age || 13,

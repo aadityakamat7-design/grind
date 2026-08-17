@@ -19,13 +19,20 @@
       "type": "string",
       "enum": [
         "tutoring",
-        "lawn_care",
-        "pet_sitting",
         "tech_help",
-        "babysitting",
+        "lawn_care",
         "car_washing",
-        "odd_jobs"
+        "odd_jobs",
+        "pet_sitting"
       ]
+    },
+    "delivery_mode": {
+      "type": "string",
+      "enum": [
+        "outdoor",
+        "online"
+      ],
+      "description": "outdoor = work at the residence exterior; online = remote video session. Set server-side from the category \u2014 teens never enter a client's home."
     },
     "title": {
       "type": "string",

@@ -1,6 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { getVerifiedAge } from '../../shared/teenAge.ts';
 import { getMinAgeForCategory } from '../../shared/categoryAgeRules.ts';
+import { getDeliveryMode, isRemovedCategory, generateSessionLink } from '../../shared/deliveryMode.ts';
 import { notifyParentJobAccepted } from '../../shared/notifyParent.ts';
 import { getSafeOrigin } from '../../shared/safeOrigin.ts';
 
@@ -23,6 +24,13 @@ Deno.serve(async (req) => {
     if (job.status !== 'open') {
       return Response.json({ error: 'This job is no longer available.' }, { status: 400 });
     }
+
+    // Reject removed categories (babysitting, etc.) — teens never enter a home.
+    if (isRemovedCategory(job.category)) {
+      return Response.json({ error: 'This category is no longer available on Kickstart.' }, { status: 400 });
+    }
+    const deliveryMode = job.delivery_mode || getDeliveryMode(job.category) || 'outdoor';
+    const isOnline = deliveryMode === 'online';
 
     const [profiles, links, privateData, buyerProfiles] = await Promise.all([
       svc.TeenProfile.filter({ user_id: user.id }),
@@ -89,9 +97,10 @@ Deno.serve(async (req) => {
       buyer_user_id: job.buyer_user_id,
       buyer_name: job.buyer_name,
       scheduled_start: job.scheduled_start || undefined,
+      delivery_mode: deliveryMode,
       notes: job.description,
-      address: job.is_physical ? job.address : '',
-      is_physical: job.is_physical !== false,
+      address: isOnline ? '' : (job.is_physical ? job.address : ''),
+      is_physical: !isOnline,
       price_total: job.price,
       charge_amount: job.charge_amount ?? job.price,
       platform_fee: platformFee,
@@ -101,6 +110,12 @@ Deno.serve(async (req) => {
     });
 
     await svc.JobPost.update(job.id, { booking_id: booking.id });
+
+    // For online jobs, generate the video session link now that we have the
+    // booking ID, and attach it to the booking.
+    if (isOnline) {
+      await svc.Booking.update(booking.id, { session_link: generateSessionLink(booking.id) });
+    }
 
     // The teen must verify their own identity the first time they accept a
     // job. For minors, the parent can only approve once the teen is verified.

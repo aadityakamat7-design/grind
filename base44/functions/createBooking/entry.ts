@@ -2,6 +2,7 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 import { haversineMiles } from '../../shared/geo.ts';
 import { getVerifiedAge } from '../../shared/teenAge.ts';
 import { getMinAgeForCategory } from '../../shared/categoryAgeRules.ts';
+import { getDeliveryMode, isRemovedCategory, generateSessionLink } from '../../shared/deliveryMode.ts';
 
 Deno.serve(async (req) => {
   try {
@@ -10,12 +11,24 @@ Deno.serve(async (req) => {
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
     const { listingId, scheduledStart, address, notes, recurrence, hours } = await req.json();
-    if (!listingId || !address) {
-      return Response.json({ error: 'listingId and address are required' }, { status: 400 });
+    if (!listingId) {
+      return Response.json({ error: 'listingId is required' }, { status: 400 });
     }
 
     const listing = await base44.asServiceRole.entities.Listing.get(listingId);
     if (!listing) return Response.json({ error: 'Listing not found' }, { status: 404 });
+
+    // Reject removed categories (babysitting, etc.) — teens never enter a home.
+    if (isRemovedCategory(listing.category)) {
+      return Response.json({ error: 'This category is no longer available on Kickstart.' }, { status: 400 });
+    }
+    const deliveryMode = listing.delivery_mode || getDeliveryMode(listing.category) || 'outdoor';
+    const isOnline = deliveryMode === 'online';
+
+    // Online jobs don't require an address; outdoor jobs do.
+    if (!isOnline && !address) {
+      return Response.json({ error: 'address is required for outdoor jobs' }, { status: 400 });
+    }
 
     const [teenProfiles, buyerProfiles, teenPrivate] = await Promise.all([
       base44.asServiceRole.entities.TeenProfile.filter({ user_id: listing.teen_user_id }),
@@ -31,14 +44,17 @@ Deno.serve(async (req) => {
     }
     if (!buyerProfile) return Response.json({ error: 'Please complete your profile first' }, { status: 400 });
 
-    if (
-      teenPrivateData?.latitude == null || teenPrivateData?.longitude == null ||
-      buyerProfile.latitude == null || buyerProfile.longitude == null
-    ) {
-      return Response.json(
-        { error: 'Location not verified for this teen or your profile yet. Please re-save your address.' },
-        { status: 400 }
-      );
+    // Location/distance matching only for outdoor jobs — online jobs skip this.
+    if (!isOnline) {
+      if (
+        teenPrivateData?.latitude == null || teenPrivateData?.longitude == null ||
+        buyerProfile.latitude == null || buyerProfile.longitude == null
+      ) {
+        return Response.json(
+          { error: 'Location not verified for this teen or your profile yet. Please re-save your address.' },
+          { status: 400 }
+        );
+      }
     }
 
     if (!teenProfile.state || !buyerProfile.state || teenProfile.state !== buyerProfile.state) {
@@ -57,16 +73,18 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'This booking cannot be created.' }, { status: 403 });
     }
 
-    const distance = haversineMiles(
-      buyerProfile.latitude, buyerProfile.longitude,
-      teenPrivateData.latitude, teenPrivateData.longitude
-    );
-    const radius = teenProfile.service_radius_miles || 3;
-    if (distance > radius) {
-      return Response.json(
-        { error: `You're ${distance.toFixed(1)} miles away — outside ${teenProfile.display_name || 'this teen'}'s ${radius}-mile service area.` },
-        { status: 400 }
+    if (!isOnline) {
+      const distance = haversineMiles(
+        buyerProfile.latitude, buyerProfile.longitude,
+        teenPrivateData.latitude, teenPrivateData.longitude
       );
+      const radius = teenProfile.service_radius_miles || 3;
+      if (distance > radius) {
+        return Response.json(
+          { error: `You're ${distance.toFixed(1)} miles away — outside ${teenProfile.display_name || 'this teen'}'s ${radius}-mile service area.` },
+          { status: 400 }
+        );
+      }
     }
 
     const hoursNum = Number(hours);
@@ -121,7 +139,9 @@ Deno.serve(async (req) => {
       buyer_user_id: user.id,
       buyer_name: buyerName,
       scheduled_start: scheduledStart ? new Date(scheduledStart).toISOString() : null,
-      address,
+      delivery_mode: deliveryMode,
+      address: isOnline ? '' : address,
+      is_physical: !isOnline,
       notes: notes || '',
       is_recurring: !!recurrence && recurrence !== 'none',
       recurrence: recurrence && recurrence !== 'none' ? recurrence : undefined,
@@ -131,6 +151,14 @@ Deno.serve(async (req) => {
       platform_fee,
       net_amount,
     });
+
+    // For online jobs, generate the video session link now that we have the
+    // booking ID, and attach it to the booking.
+    if (isOnline) {
+      await base44.asServiceRole.entities.Booking.update(booking.id, {
+        session_link: generateSessionLink(booking.id),
+      });
+    }
 
     if (creditApplied > 0) {
       await base44.asServiceRole.entities.BuyerProfile.update(buyerProfile.id, {

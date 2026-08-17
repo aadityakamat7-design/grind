@@ -30,9 +30,21 @@
       "type": "string",
       "format": "date-time"
     },
+    "delivery_mode": {
+      "type": "string",
+      "enum": [
+        "outdoor",
+        "online"
+      ],
+      "description": "outdoor = work at the residence exterior; online = remote video session. Set server-side from the listing category."
+    },
     "address": {
       "type": "string",
-      "description": "Buyer address, revealed only when confirmed"
+      "description": "Buyer address, revealed only when confirmed. Never set for online bookings."
+    },
+    "session_link": {
+      "type": "string",
+      "description": "Video call link for online bookings \u2014 generated server-side at booking creation, visible to both parties and the parent."
     },
     "is_physical": {
       "type": "boolean",

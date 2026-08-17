@@ -8,13 +8,12 @@ export const MAX_UNIT_PRICE = 500;   // per-job or per-hour rate (Listing, JobPo
 export const MAX_TOTAL_PRICE = 2000; // escrow total incl. multi-hour (Booking, JobPost.charge)
 
 export const CATEGORIES = [
-  { value: "tutoring", label: "Tutoring", icon: "GraduationCap" },
-  { value: "lawn_care", label: "Lawn Care", icon: "Sprout" },
-  { value: "pet_sitting", label: "Pet Sitting", icon: "Dog" },
-  { value: "tech_help", label: "Tech Help", icon: "Laptop" },
-  { value: "babysitting", label: "Babysitting", icon: "Baby" },
-  { value: "car_washing", label: "Car Washing", icon: "Car" },
-  { value: "odd_jobs", label: "Odd Jobs", icon: "Hammer" },
+  { value: "tutoring", label: "Online Tutoring", icon: "GraduationCap", deliveryMode: "online" },
+  { value: "tech_help", label: "Remote Tech Help", icon: "Laptop", deliveryMode: "online" },
+  { value: "lawn_care", label: "Lawn & Yard Care", icon: "Sprout", deliveryMode: "outdoor" },
+  { value: "car_washing", label: "Car Washing", icon: "Car", deliveryMode: "outdoor" },
+  { value: "odd_jobs", label: "Outdoor Odd Jobs", icon: "Hammer", deliveryMode: "outdoor" },
+  { value: "pet_sitting", label: "Dog Walking", icon: "Dog", deliveryMode: "outdoor" },
 ];
 
 export const CATEGORY_LABELS = CATEGORIES.reduce((acc, c) => {
@@ -22,17 +21,31 @@ export const CATEGORY_LABELS = CATEGORIES.reduce((acc, c) => {
   return acc;
 }, {});
 
+// Delivery mode mapping — outdoor (exterior work, no home entry) or online
+// (remote video session). Teens never enter a client's home.
+export const CATEGORY_DELIVERY_MODE = CATEGORIES.reduce((acc, c) => {
+  acc[c.value] = c.deliveryMode;
+  return acc;
+}, {});
+
+export function getDeliveryMode(category) {
+  return CATEGORY_DELIVERY_MODE[category] || null;
+}
+
+export function isOnlineCategory(category) {
+  return getDeliveryMode(category) === "online";
+}
+
 // Minimum price per category — enforced server-side, mirrored here for
 // immediate client-side feedback. Each category has a flat minimum and an
 // hourly minimum.
 export const CATEGORY_MINIMUMS = {
   tutoring:    { FIXED: 15, HOURLY: 15 },
-  lawn_care:   { FIXED: 20, HOURLY: 15 },
-  pet_sitting: { FIXED: 15, HOURLY: 12 },
   tech_help:   { FIXED: 15, HOURLY: 15 },
-  babysitting: { FIXED: 25, HOURLY: 12 },
+  lawn_care:   { FIXED: 20, HOURLY: 15 },
   car_washing: { FIXED: 20, HOURLY: 15 },
   odd_jobs:    { FIXED: 15, HOURLY: 12 },
+  pet_sitting: { FIXED: 15, HOURLY: 12 },
 };
 
 export function categoryMinimum(category, priceModel) {
@@ -47,8 +60,8 @@ export const SKILL_CATEGORIES = ["tutoring", "tech_help"];
 
 export const SKILL_SUGGESTIONS = [
   "Math", "Reading", "Coding", "Spanish", "Piano", "Mowing",
-  "Weeding", "Dog walking", "Cat care", "Phone setup", "Wi-Fi help",
-  "Babysitting", "Car detailing", "Moving boxes", "Yard cleanup",
+  "Weeding", "Dog walking", "Phone setup", "Wi-Fi help",
+  "Car detailing", "Moving boxes", "Yard cleanup", "Snow shoveling",
 ];
 
 // --- Task hazard safety check ---

@@ -35,13 +35,20 @@
       "type": "string",
       "enum": [
         "tutoring",
-        "lawn_care",
-        "pet_sitting",
         "tech_help",
-        "babysitting",
+        "lawn_care",
         "car_washing",
-        "odd_jobs"
+        "odd_jobs",
+        "pet_sitting"
       ]
+    },
+    "delivery_mode": {
+      "type": "string",
+      "enum": [
+        "outdoor",
+        "online"
+      ],
+      "description": "outdoor = work at the residence exterior; online = remote video session. Set server-side from the category \u2014 teens never enter a client's home."
     },
     "price": {
       "type": "number",
@@ -73,7 +80,7 @@
     },
     "address": {
       "type": "string",
-      "description": "Job site address \u2014 readable only by the buyer who owns the post and admins. Revealed to the teen and parent only after the booking is approved, via the Booking entity. Server functions strip this before sending open jobs to the client.",
+      "description": "Job site address \u2014 readable only by the buyer who owns the post and admins. Revealed to the teen and parent only after the booking is approved, via the Booking entity. Server functions strip this before sending open jobs to the client. Never set for online jobs.",
       "rls": {
         "read": {
           "$or": [

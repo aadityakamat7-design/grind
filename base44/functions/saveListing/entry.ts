@@ -2,6 +2,7 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 import { checkHazard } from '../../shared/hazardCheck.ts';
 import { getVerifiedAge } from '../../shared/teenAge.ts';
 import { getMinAgeForCategory } from '../../shared/categoryAgeRules.ts';
+import { getDeliveryMode, isRemovedCategory } from '../../shared/deliveryMode.ts';
 
 const MAX_UNIT_PRICE = 500;
 const MIN_TITLE = 3;
@@ -50,6 +51,20 @@ Deno.serve(async (req) => {
       return Response.json({ error: hazard.reason }, { status: 400 });
     }
 
+    // Reject removed categories (babysitting, etc.) — teens never enter a home.
+    if (isRemovedCategory(body.category)) {
+      return Response.json(
+        { error: 'This category is no longer available on Kickstart. All work is outdoor or online — teens do not enter clients\' homes.' },
+        { status: 400 }
+      );
+    }
+
+    // Determine delivery mode from the category — the client can't spoof this.
+    const deliveryMode = getDeliveryMode(body.category);
+    if (!deliveryMode) {
+      return Response.json({ error: 'Invalid category.' }, { status: 400 });
+    }
+
     // Category age gate — reject any category the teen isn't old enough for
     // in their state. Uses the verified age (Stripe DOB via getVerifiedAge),
     // never the self-reported age. A direct API call can't bypass this.
@@ -63,6 +78,7 @@ Deno.serve(async (req) => {
 
     const data = {
       category: body.category,
+      delivery_mode: deliveryMode,
       title,
       description: (body.description || '').trim().slice(0, MAX_DESC),
       price_model: body.price_model || 'FIXED',
