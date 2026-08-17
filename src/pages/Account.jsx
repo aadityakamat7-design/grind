@@ -3,24 +3,32 @@ import { useOutletContext } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { LogOut, UserCircle, ShieldCheck } from "lucide-react";
+import PageHeader from "@/components/grind/PageHeader";
 import DeleteAccountButton from "@/components/grind/DeleteAccountButton";
 
 const ROLE_LABELS = { teen: "Teen", parent: "Parent / Guardian", buyer: "Neighbor", admin: "Admin" };
 
 export default function Account() {
   const { user } = useOutletContext();
+  const initials = (user.full_name || user.email || "?")
+    .split(" ")
+    .map((p) => p[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
 
   return (
     <div className="space-y-5">
-      <h1 className="text-2xl font-bold text-foreground">Account</h1>
+      <PageHeader title="Account" subtitle="Your profile and account settings." />
+
       <div className="bg-card rounded-2xl border border-border shadow-soft p-5 flex items-center gap-4">
-        <div className="w-14 h-14 rounded-2xl bg-muted flex items-center justify-center">
-          <UserCircle className="w-8 h-8 text-muted-foreground" />
+        <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary font-bold text-xl shrink-0">
+          {initials}
         </div>
-        <div>
-          <p className="font-semibold text-foreground">{user.full_name || user.email}</p>
-          <p className="text-xs text-muted-foreground">{user.email}</p>
-          <span className="inline-flex items-center gap-1 mt-1.5 rounded-full bg-secondary text-muted-foreground px-2.5 py-0.5 text-xs font-medium">
+        <div className="min-w-0">
+          <p className="font-bold text-foreground text-[15px] truncate">{user.full_name || user.email}</p>
+          <p className="text-[13px] text-muted-foreground truncate">{user.email}</p>
+          <span className="inline-flex items-center gap-1 mt-2 rounded-full bg-secondary text-muted-foreground px-2.5 py-1 text-[11px] font-semibold">
             <ShieldCheck className="w-3 h-3" />
             {ROLE_LABELS[user.app_role] || "Member"}
           </span>
@@ -29,7 +37,7 @@ export default function Account() {
 
       <Button
         variant="outline"
-        className="w-full rounded-xl text-destructive border-destructive/20 hover:bg-destructive/10 hover:text-destructive"
+        className="w-full rounded-full h-12 text-destructive border-destructive/20 hover:bg-destructive/10 hover:text-destructive"
         onClick={() => base44.auth.logout("/")}
       >
         <LogOut className="w-4 h-4 mr-2" /> Log out

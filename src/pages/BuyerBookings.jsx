@@ -4,6 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { CalendarDays, Repeat } from "lucide-react";
 import BookingCard from "@/components/grind/BookingCard";
 import EmptyState from "@/components/grind/EmptyState";
+import PageHeader from "@/components/grind/PageHeader";
 
 export default function BuyerBookings() {
   const { user } = useOutletContext();
@@ -18,53 +19,61 @@ export default function BuyerBookings() {
 
   useEffect(() => { load(); }, [load]);
 
-  // Real-time: reload when any booking changes (new booking, status update, etc.)
   useEffect(() => {
     const unsub = base44.entities.Booking.subscribe(() => load());
     return unsub;
   }, [load]);
 
   if (loading)
-    return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin" /></div>;
+    return (
+      <div className="flex justify-center py-24">
+        <div className="w-8 h-8 border-[3px] border-muted border-t-primary rounded-full animate-spin" />
+      </div>
+    );
 
   const active = bookings.filter((b) => !["completed", "cancelled", "denied"].includes(b.status));
   const past = bookings.filter((b) => ["completed", "cancelled", "denied"].includes(b.status));
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-extrabold text-slate-900">My bookings</h1>
+      <PageHeader title="My bookings" subtitle="All your active and past appointments." />
+
       {bookings.length === 0 ? (
         <EmptyState
           icon={CalendarDays}
           title="No bookings yet"
           subtitle="Browse teens in your neighborhood and book your first job."
-          action={<Link to="/browse" className="text-sm font-bold text-blue-600 hover:text-blue-700">Browse services →</Link>}
+          action={<Link to="/browse" className="inline-flex items-center gap-1.5 bg-primary text-primary-foreground text-[13px] font-semibold rounded-full px-5 h-10 shadow-soft hover:opacity-90 transition-opacity">Browse services</Link>}
         />
       ) : (
         <>
           {active.length > 0 && (
-            <div className="space-y-3">
-              <h2 className="font-bold text-slate-900">Active</h2>
-              {active.map((b) => <BookingCard key={b.id} booking={b} perspective="buyer" />)}
-            </div>
+            <section>
+              <h2 className="text-[17px] font-bold text-foreground mb-3">Active</h2>
+              <div className="space-y-3">
+                {active.map((b) => <BookingCard key={b.id} booking={b} perspective="buyer" />)}
+              </div>
+            </section>
           )}
           {past.length > 0 && (
-            <div className="space-y-3">
-              <h2 className="font-bold text-slate-900">Past</h2>
-              {past.map((b) => (
-                <div key={b.id} className="space-y-1.5">
-                  <BookingCard booking={b} perspective="buyer" />
-                  {b.status === "completed" && (
-                    <Link
-                      to={`/teens/${b.teen_user_id}`}
-                      className="inline-flex items-center gap-1 text-xs font-bold text-blue-600 hover:text-blue-700 ml-1"
-                    >
-                      <Repeat className="w-3 h-3" /> Book {b.teen_display_name} again
-                    </Link>
-                  )}
-                </div>
-              ))}
-            </div>
+            <section>
+              <h2 className="text-[17px] font-bold text-foreground mb-3">Past</h2>
+              <div className="space-y-3">
+                {past.map((b) => (
+                  <div key={b.id} className="space-y-1.5">
+                    <BookingCard booking={b} perspective="buyer" />
+                    {b.status === "completed" && (
+                      <Link
+                        to={`/teens/${b.teen_user_id}`}
+                        className="inline-flex items-center gap-1 text-[13px] font-semibold text-primary hover:underline ml-1"
+                      >
+                        <Repeat className="w-3.5 h-3.5" /> Book {b.teen_display_name} again
+                      </Link>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </section>
           )}
         </>
       )}

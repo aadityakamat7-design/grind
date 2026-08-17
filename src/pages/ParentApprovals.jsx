@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ShieldCheck, MapPin, CalendarDays, FileText } from "lucide-react";
 import { format } from "date-fns";
 import EmptyState from "@/components/grind/EmptyState";
+import PageHeader from "@/components/grind/PageHeader";
 import { money } from "@/lib/grind";
 import IdentityVerificationGate from "@/components/grind/parent/IdentityVerificationGate";
 import { useApprovalWithVerification } from "@/hooks/useApprovalWithVerification";
@@ -13,7 +14,6 @@ export default function ParentApprovals() {
   const { user } = useOutletContext();
   const [pending, setPending] = useState([]);
   const [loading, setLoading] = useState(true);
-
   const [profile, setProfile] = useState(null);
 
   const load = useCallback(async () => {
@@ -31,7 +31,6 @@ export default function ParentApprovals() {
 
   useEffect(() => { load(); }, [load]);
 
-  // Real-time: reload when any booking changes so new approval requests appear instantly
   useEffect(() => {
     const unsub = base44.entities.Booking.subscribe(() => load());
     return unsub;
@@ -39,11 +38,6 @@ export default function ParentApprovals() {
 
   const { gateOpen, setGateOpen, attempt, onVerified, acting, initialStep } = useApprovalWithVerification(profile, load);
 
-  // Auto-open the setup gate when arriving via the ?setup=1 deep link from
-  // the parent notification email — but ONLY if there is an actual pending
-  // booking requiring approval. A parent with no pending bookings is
-  // redirected to the dashboard; the setup gate must never be reachable
-  // without a real booking to approve.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (!params.get("setup")) return;
@@ -58,16 +52,17 @@ export default function ParentApprovals() {
   }, [profile, pending]);
 
   if (loading)
-    return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-muted border-t-foreground rounded-full animate-spin" /></div>;
+    return (
+      <div className="flex justify-center py-24">
+        <div className="w-8 h-8 border-[3px] border-muted border-t-primary rounded-full animate-spin" />
+      </div>
+    );
 
   return (
     <div className="space-y-5">
       <IdentityVerificationGate open={gateOpen} onOpenChange={setGateOpen} onVerified={onVerified} initialStep={initialStep} />
 
-      <div>
-        <h1 className="text-2xl font-extrabold text-foreground">Approvals</h1>
-        <p className="text-sm text-muted-foreground mt-1">Every booking needs your OK before it's confirmed.</p>
-      </div>
+      <PageHeader title="Approvals" subtitle="Every booking needs your OK before it's confirmed." />
 
       {pending.length === 0 ? (
         <EmptyState icon={ShieldCheck} title="All clear" subtitle="No bookings are waiting for your approval." />
@@ -77,15 +72,15 @@ export default function ParentApprovals() {
             return (
               <div key={b.id} className="bg-card rounded-2xl border border-border shadow-soft p-5">
                 <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <h3 className="font-bold text-foreground">{b.listing_title}</h3>
-                    <p className="text-xs text-muted-foreground mt-0.5">
+                  <div className="min-w-0">
+                    <h3 className="font-bold text-foreground text-[15px]">{b.listing_title}</h3>
+                    <p className="text-[12px] text-muted-foreground mt-0.5">
                       {b.teen_display_name} · booked by {b.buyer_name}
                     </p>
                   </div>
-                  <p className="font-extrabold text-foreground">{money(b.price_total)}</p>
+                  <p className="font-extrabold text-foreground text-[16px] shrink-0">{money(b.price_total)}</p>
                 </div>
-                <div className="mt-3 space-y-1.5 text-sm text-muted-foreground">
+                <div className="mt-3 space-y-1.5 text-[13px] text-muted-foreground">
                   {b.scheduled_start && (
                     <p className="flex items-center gap-2">
                       <CalendarDays className="w-4 h-4 text-muted-foreground/60" />
@@ -106,11 +101,11 @@ export default function ParentApprovals() {
                   )}
                 </div>
 
-                <p className="text-xs text-muted-foreground/70 mt-3">
+                <p className="text-[12px] text-muted-foreground/70 mt-3">
                   No payment yet — the neighbor pays when both sides start the job. Denying cancels the booking.
                 </p>
                 {(!profile?.is_identity_verified || profile?.connect_status !== "active") && (
-                  <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-700 mt-3">
+                  <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-xl p-3 text-[12px] text-amber-700 mt-3">
                     <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5" />
                     <span>
                       <strong className="font-semibold">Complete setup to approve this job.</strong>
@@ -122,13 +117,13 @@ export default function ParentApprovals() {
                 <div className="grid grid-cols-2 gap-3 mt-4">
                   <Button
                     variant="outline"
-                    className="rounded-xl"
+                    className="rounded-full h-11"
                     disabled={acting === b.id}
                     onClick={() => attempt(b, false)}
                   >
                     Deny & refund
                   </Button>
-                  <Button className="rounded-xl" disabled={acting === b.id} onClick={() => attempt(b, true)}>
+                  <Button className="rounded-full h-11" disabled={acting === b.id} onClick={() => attempt(b, true)}>
                     Approve
                   </Button>
                 </div>

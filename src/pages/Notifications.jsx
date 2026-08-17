@@ -6,6 +6,7 @@ import { Bell, ShieldCheck, ShieldAlert, CalendarDays, Wallet, MessageCircle, St
 import { formatDistanceToNow } from "date-fns";
 import { parseUTC } from "@/lib/grind";
 import EmptyState from "@/components/grind/EmptyState";
+import PageHeader from "@/components/grind/PageHeader";
 
 const TYPE_ICONS = {
   approval: ShieldCheck,
@@ -42,18 +43,21 @@ export default function Notifications() {
   };
 
   if (loading)
-    return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-muted border-t-foreground rounded-full animate-spin" /></div>;
+    return (
+      <div className="flex justify-center py-24">
+        <div className="w-8 h-8 border-[3px] border-muted border-t-primary rounded-full animate-spin" />
+      </div>
+    );
 
   const hasUnread = items.some((n) => !n.read);
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-foreground">Notifications</h1>
+      <PageHeader title="Notifications" subtitle="Approvals, bookings, payments, and messages.">
         {hasUnread && (
-          <Button variant="outline" className="rounded-xl" onClick={markAllRead}>Mark all read</Button>
+          <Button variant="outline" className="rounded-full" onClick={markAllRead}>Mark all read</Button>
         )}
-      </div>
+      </PageHeader>
 
       {items.length === 0 ? (
         <EmptyState icon={Bell} title="Nothing yet" subtitle="Approvals, bookings, payments, and messages will show up here." />
@@ -69,17 +73,17 @@ export default function Notifications() {
                   n.read ? "bg-card border-border" : "bg-secondary border-border"
                 }`}
               >
-                <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${n.read ? "bg-muted text-muted-foreground" : "bg-foreground text-background"}`}>
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${n.read ? "bg-muted text-muted-foreground" : "bg-primary text-primary-foreground"}`}>
                   <Icon className="w-5 h-5" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className={`text-sm ${n.read ? "font-medium text-muted-foreground" : "font-semibold text-foreground"}`}>{n.title}</p>
-                  {n.body && <p className="text-xs text-muted-foreground mt-0.5">{n.body}</p>}
+                  <p className={`text-[14px] ${n.read ? "font-medium text-muted-foreground" : "font-bold text-foreground"}`}>{n.title}</p>
+                  {n.body && <p className="text-[12px] text-muted-foreground mt-0.5">{n.body}</p>}
                   <p className="text-[11px] text-muted-foreground mt-1">
                     {n.created_date ? formatDistanceToNow(parseUTC(n.created_date), { addSuffix: true }) : ""}
                   </p>
                 </div>
-                {!n.read && <span className="w-2 h-2 rounded-full bg-foreground mt-1.5 shrink-0" />}
+                {!n.read && <span className="w-2 h-2 rounded-full bg-primary mt-1.5 shrink-0" />}
               </button>
             );
           })}

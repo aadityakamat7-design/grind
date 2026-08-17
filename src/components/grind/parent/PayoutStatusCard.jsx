@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Landmark, CheckCircle2, AlertCircle, ChevronRight } from "lucide-react";
+import { CheckCircle2, AlertCircle, ChevronRight } from "lucide-react";
 import IdentityVerificationGate from "@/components/grind/parent/IdentityVerificationGate";
 
 // Status card shown on the parent dashboard ONLY after setup is complete

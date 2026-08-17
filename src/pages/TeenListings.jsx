@@ -6,6 +6,7 @@ import { Plus, List, Pause, Play, Pencil, Trash2 } from "lucide-react";
 import ListingForm from "@/components/grind/ListingForm";
 import StatusBadge from "@/components/grind/StatusBadge";
 import EmptyState from "@/components/grind/EmptyState";
+import PageHeader from "@/components/grind/PageHeader";
 import { CATEGORY_LABELS, money } from "@/lib/grind";
 import { toast } from "@/components/ui/use-toast";
 import {
@@ -61,23 +62,26 @@ export default function TeenListings() {
   };
 
   if (loading)
-    return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-muted border-t-foreground rounded-full animate-spin" /></div>;
+    return (
+      <div className="flex justify-center py-24">
+        <div className="w-8 h-8 border-[3px] border-muted border-t-primary rounded-full animate-spin" />
+      </div>
+    );
 
   const canPublish = profile?.status === "active";
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-foreground">My services</h1>
-        <Button className="rounded-xl" disabled={!canPublish} onClick={() => { setEditing(null); setFormOpen(true); }}>
+      <PageHeader title="My services" subtitle="Manage the skills you offer to neighbors.">
+        <Button className="rounded-full" disabled={!canPublish} onClick={() => { setEditing(null); setFormOpen(true); }}>
           <Plus className="w-4 h-4 mr-1.5" /> New
         </Button>
-      </div>
+      </PageHeader>
 
       {!canPublish && (
-        <p className="text-sm text-muted-foreground bg-secondary border border-border rounded-xl p-3">
+        <div className="bg-secondary border border-border rounded-xl p-3.5 text-[13px] text-muted-foreground">
           You can create services once your parent approves your account.
-        </p>
+        </div>
       )}
 
       {listings.length === 0 ? (
@@ -87,26 +91,26 @@ export default function TeenListings() {
           {listings.map((l) => (
             <div key={l.id} className="bg-card rounded-2xl border border-border shadow-soft p-4">
               <div className="flex items-start justify-between gap-2">
-                <div>
-                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{CATEGORY_LABELS[l.category]}</p>
-                  <h3 className="font-semibold text-foreground mt-0.5">{l.title}</h3>
+                <div className="min-w-0">
+                  <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wide">{CATEGORY_LABELS[l.category]}</p>
+                  <h3 className="font-bold text-foreground mt-0.5 text-[15px]">{l.title}</h3>
                 </div>
-                <p className="font-bold text-foreground shrink-0">
+                <p className="font-extrabold text-foreground shrink-0 text-[15px]">
                   {money(l.price)}
                   <span className="text-[11px] text-muted-foreground font-medium">{l.price_model === "HOURLY" ? "/hr" : ""}</span>
                 </p>
               </div>
-              <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{l.description}</p>
-              <div className="flex items-center justify-between mt-3">
+              <p className="text-[13px] text-muted-foreground mt-1.5 line-clamp-2">{l.description}</p>
+              <div className="flex items-center justify-between mt-3.5">
                 <StatusBadge status={l.status} />
                 <div className="flex items-center gap-1">
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => { setEditing(l); setFormOpen(true); }}>
+                  <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground hover:text-foreground" onClick={() => { setEditing(l); setFormOpen(true); }}>
                     <Pencil className="w-4 h-4" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => togglePause(l)}>
+                  <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground hover:text-foreground" onClick={() => togglePause(l)}>
                     {l.status === "paused" ? <Play className="w-4 h-4" /> : <Pause className="w-4 h-4" />}
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => setDeleteTarget(l)}>
+                  <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground hover:text-destructive" onClick={() => setDeleteTarget(l)}>
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 </div>

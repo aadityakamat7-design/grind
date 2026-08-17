@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Wallet, Clock, CheckCircle2, Landmark } from "lucide-react";
 import { format } from "date-fns";
 import EmptyState from "@/components/grind/EmptyState";
+import PageHeader from "@/components/grind/PageHeader";
 import { money } from "@/lib/grind";
 import { toast } from "@/components/ui/use-toast";
 
@@ -40,7 +41,6 @@ export default function ParentPayouts() {
 
   useEffect(() => { load(); }, [load]);
 
-  // Real-time: reload when bookings or earnings change
   useEffect(() => {
     const unsubBook = base44.entities.Booking.subscribe(() => load());
     const unsubEarn = base44.entities.EarningsRecord.subscribe(() => load());
@@ -62,20 +62,21 @@ export default function ParentPayouts() {
   };
 
   if (loading)
-    return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin" /></div>;
+    return (
+      <div className="flex justify-center py-24">
+        <div className="w-8 h-8 border-[3px] border-muted border-t-primary rounded-full animate-spin" />
+      </div>
+    );
 
   const total = records.reduce((s, r) => s + (r.net_amount || 0), 0);
 
   return (
     <div className="space-y-5">
-      <div>
-        <h1 className="text-2xl font-extrabold text-slate-900">Payouts</h1>
-        <p className="text-sm text-slate-500 mt-1">All teen earnings pay out to your bank — never directly to your teen.</p>
-      </div>
+      <PageHeader title="Payouts" subtitle="All teen earnings pay out to your bank — never directly to your teen." />
 
-      <div className="bg-gradient-to-br from-blue-950 via-blue-800 to-blue-600 rounded-2xl p-6 text-white shadow-lg shadow-blue-200">
-        <p className="text-sm opacity-80">Total released to you</p>
-        <p className="text-4xl font-extrabold mt-1">{money(total)}</p>
+      <div className="bg-gradient-to-br from-foreground to-primary rounded-2xl p-6 text-primary-foreground shadow-card">
+        <p className="text-[13px] opacity-80">Total released to you</p>
+        <p className="text-[40px] font-extrabold mt-1.5 tracking-tight">{money(total)}</p>
       </div>
 
       {records.length === 0 ? (
@@ -90,21 +91,21 @@ export default function ParentPayouts() {
             return (
               <div key={r.id} className="bg-card rounded-2xl border border-border shadow-soft p-4">
                 <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-bold text-slate-900 text-sm">{r.listing_title}</p>
-                    <p className="text-xs text-slate-500 mt-0.5">
+                  <div className="min-w-0">
+                    <p className="font-bold text-foreground text-[14px] truncate">{r.listing_title}</p>
+                    <p className="text-[12px] text-muted-foreground mt-0.5">
                       {r.occurred_at ? format(new Date(r.occurred_at), "MMM d, yyyy") : ""}
                     </p>
                   </div>
-                  <p className="font-extrabold text-emerald-600">+{money(r.net_amount)}</p>
+                  <p className="font-extrabold text-emerald-600 shrink-0">+{money(r.net_amount)}</p>
                 </div>
                 {info && (
-                  <p className={`flex items-center gap-1.5 text-xs font-semibold mt-2 ${info.cls}`}>
+                  <p className={`flex items-center gap-1.5 text-[12px] font-semibold mt-2.5 ${info.cls}`}>
                     <Icon className="w-3.5 h-3.5" /> {info.text}
                   </p>
                 )}
                 {canRetry && (
-                  <Button size="sm" variant="outline" className="rounded-xl mt-2" disabled={retrying === booking.id} onClick={() => retryPayout(booking.id)}>
+                  <Button size="sm" variant="outline" className="rounded-full mt-2.5" disabled={retrying === booking.id} onClick={() => retryPayout(booking.id)}>
                     {retrying === booking.id ? "Sending..." : "Send to my bank"}
                   </Button>
                 )}

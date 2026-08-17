@@ -1,6 +1,6 @@
 import React from "react";
 import { Outlet, NavLink, Navigate, Link, useLocation, useNavigate } from "react-router-dom";
-import { Home, List, CalendarDays, MessageCircle, Wallet, LayoutDashboard, ShieldCheck, Search, Zap, UserCircle, Briefcase, ArrowLeft, LifeBuoy } from "lucide-react";
+import { Home, List, CalendarDays, MessageCircle, Wallet, LayoutDashboard, ShieldCheck, Search, Zap, UserCircle, Briefcase, ArrowLeft, LifeBuoy, Bell } from "lucide-react";
 import { useAppUser } from "@/lib/useAppUser";
 import NotificationBell from "@/components/grind/NotificationBell";
 import SiteFooter from "@/components/SiteFooter";
@@ -8,7 +8,7 @@ import SiteFooter from "@/components/SiteFooter";
 const TABS = {
   teen: [
     { to: "/teen", label: "Home", icon: Home, end: true },
-    { to: "/teen/listings", label: "My Services", icon: List },
+    { to: "/teen/listings", label: "Services", icon: List },
     { to: "/jobs", label: "Jobs", icon: Briefcase },
     { to: "/teen/bookings", label: "Bookings", icon: CalendarDays },
     { to: "/messages", label: "Messages", icon: MessageCircle },
@@ -54,19 +54,21 @@ export default function Layout() {
   const { user, loading, reload } = useAppUser();
   const location = useLocation();
   const navigate = useNavigate();
-  const isChildPage = /^\/(bookings|messages|teens)\/.+/.test(location.pathname);
+  const isChildPage = /^\/(bookings|messages|teens|neighbors)\/.+/.test(location.pathname);
 
   if (loading) {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-background">
-        <div className="w-8 h-8 border-4 border-muted border-t-foreground rounded-full animate-spin" />
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 border-[3px] border-muted border-t-primary rounded-full animate-spin" />
+        </div>
       </div>
     );
   }
   if (!user) return <Navigate to="/" replace />;
   if (!user.app_role || !user.onboarded) return <Navigate to="/onboarding" replace />;
 
-  // Block cross-role access: a teen can't open /parent, a parent can't open /teen, etc.
+  // Block cross-role access
   const blocked = RESTRICTED_PREFIXES.find(({ prefix }) =>
     location.pathname === prefix || location.pathname.startsWith(prefix + "/")
   );
@@ -76,106 +78,109 @@ export default function Layout() {
 
   const tabs = TABS[user.app_role] || TABS.buyer;
   const roleLabel = ROLE_LABELS[user.app_role] || "Member";
-
-  const NavItems = () => (
-    <nav className="flex flex-col gap-1">
-      {tabs.map((tab) => {
-        const Icon = tab.icon;
-        return (
-          <NavLink
-            key={tab.to}
-            to={tab.to}
-            end={tab.end}
-            onClick={() => {
-              if (location.pathname === tab.to) window.scrollTo({ top: 0, behavior: "smooth" });
-            }}
-            className={({ isActive }) =>
-              `group flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all duration-200 ${
-                isActive
-                  ? "bg-primary text-primary-foreground shadow-soft"
-                  : "text-muted-foreground hover:bg-accent hover:text-foreground"
-              }`
-            }
-          >
-            <Icon className="w-[18px] h-[18px] shrink-0" />
-            <span>{tab.label}</span>
-          </NavLink>
-        );
-      })}
-    </nav>
-  );
+  const initials = (user.full_name || user.email || "?")
+    .split(" ")
+    .map((p) => p[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
 
   return (
     <div className="min-h-screen bg-background">
       {/* Desktop sidebar */}
-      <aside className="hidden lg:flex fixed inset-y-0 left-0 w-64 flex-col border-r border-border bg-card z-40">
-        <div className="h-16 flex items-center px-6 border-b border-border">
+      <aside className="hidden lg:flex fixed inset-y-0 left-0 w-[260px] flex-col border-r border-border bg-card z-40">
+        <div className="h-[68px] flex items-center px-6 border-b border-border">
           <Link to="/" className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-md">
+            <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-soft">
               <Zap className="w-5 h-5 text-primary-foreground" />
             </div>
-            <span className="font-extrabold text-xl tracking-tight">KickStart</span>
+            <span className="font-extrabold text-[19px] tracking-tight text-foreground">KickStart</span>
           </Link>
         </div>
-        <div className="flex-1 overflow-y-auto px-3 py-5">
-          <p className="px-3.5 mb-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+        <div className="flex-1 overflow-y-auto px-3.5 py-5">
+          <p className="px-3 mb-2.5 text-[10px] font-bold uppercase tracking-[0.08em] text-muted-foreground/70">
             {roleLabel}
           </p>
-          <NavItems />
+          <nav className="flex flex-col gap-1">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              return (
+                <NavLink
+                  key={tab.to}
+                  to={tab.to}
+                  end={tab.end}
+                  onClick={() => {
+                    if (location.pathname === tab.to) window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                  className={({ isActive }) =>
+                    `group flex items-center gap-3 rounded-xl px-3.5 py-[11px] text-[14px] font-semibold transition-all duration-200 ${
+                      isActive
+                        ? "bg-primary text-primary-foreground shadow-soft"
+                        : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                    }`
+                  }
+                >
+                  <Icon className="w-[18px] h-[18px] shrink-0" strokeWidth={2.2} />
+                  <span>{tab.label}</span>
+                </NavLink>
+              );
+            })}
+          </nav>
         </div>
         <div className="border-t border-border p-3">
-          <Link to="/account" className="flex items-center gap-3 rounded-xl px-3.5 py-2.5 hover:bg-accent transition-colors">
-            <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center shrink-0">
-              <UserCircle className="w-5 h-5 text-muted-foreground" />
+          <Link to="/account" className="flex items-center gap-3 rounded-xl px-3 py-2.5 hover:bg-accent transition-colors">
+            <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0 text-primary font-bold text-sm">
+              {initials}
             </div>
-            <div className="min-w-0">
-              <p className="text-sm font-semibold truncate">{user.full_name || user.email}</p>
-              <p className="text-xs text-muted-foreground truncate">{roleLabel}</p>
+            <div className="min-w-0 flex-1">
+              <p className="text-[13px] font-semibold truncate text-foreground">{user.full_name || user.email}</p>
+              <p className="text-[11px] text-muted-foreground truncate">{roleLabel}</p>
             </div>
           </Link>
-          <Link to="/support" className="flex items-center gap-3 rounded-xl px-3.5 py-2 mt-1 text-xs font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors">
+          <Link to="/support" className="flex items-center gap-3 rounded-xl px-3 py-2 mt-1 text-[13px] font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors">
             <LifeBuoy className="w-4 h-4 shrink-0" /> Support
           </Link>
         </div>
       </aside>
 
       {/* Mobile top bar */}
-      <header className="lg:hidden sticky top-0 z-40 bg-card/90 backdrop-blur-md border-b border-border pt-[env(safe-area-inset-top)]">
+      <header className="lg:hidden sticky top-0 z-40 bg-card/90 backdrop-blur-xl border-b border-border pt-[env(safe-area-inset-top)]">
         <div className="px-4 h-14 flex items-center justify-between">
           {isChildPage ? (
             <button
               onClick={() => navigate(-1)}
-              className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors font-semibold text-sm"
+              className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors font-semibold text-[15px]"
             >
               <ArrowLeft className="w-5 h-5" />
               Back
             </button>
           ) : (
             <Link to="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center shadow-md">
-                <Zap className="w-4.5 h-4.5 text-primary-foreground" />
+              <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shadow-soft">
+                <Zap className="w-4 h-4 text-primary-foreground" />
               </div>
-              <span className="font-extrabold text-lg tracking-tight">KickStart</span>
+              <span className="font-extrabold text-[17px] tracking-tight text-foreground">KickStart</span>
             </Link>
           )}
           <div className="flex items-center gap-3">
             <NotificationBell userId={user.id} />
-            <Link to="/support" className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">Help</Link>
             <Link to="/account" className="text-muted-foreground hover:text-foreground transition-colors">
-              <UserCircle className="w-6 h-6" />
+              <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-[11px]">
+                {initials}
+              </div>
             </Link>
           </div>
         </div>
       </header>
 
       {/* Main content */}
-      <div className="lg:pl-64">
+      <div className="lg:pl-[260px]">
         {/* Desktop top bar */}
-        <header className="hidden lg:flex sticky top-0 z-30 h-16 items-center justify-end px-8 bg-card/80 backdrop-blur-md border-b border-border">
+        <header className="hidden lg:flex sticky top-0 z-30 h-[68px] items-center justify-end px-8 bg-card/80 backdrop-blur-xl border-b border-border">
           {isChildPage && (
             <button
               onClick={() => navigate(-1)}
-              className="mr-auto flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors font-semibold text-sm"
+              className="mr-auto flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors font-semibold text-[14px]"
             >
               <ArrowLeft className="w-5 h-5" />
               Back
@@ -184,7 +189,9 @@ export default function Layout() {
           <div className="flex items-center gap-3">
             <NotificationBell userId={user.id} />
             <Link to="/account" className="text-muted-foreground hover:text-foreground transition-colors">
-              <UserCircle className="w-6 h-6" />
+              <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-[13px]">
+                {initials}
+              </div>
             </Link>
           </div>
         </header>
@@ -196,7 +203,7 @@ export default function Layout() {
       </div>
 
       {/* Mobile bottom bar */}
-      <nav className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-card/95 backdrop-blur-lg border-t border-border pb-[env(safe-area-inset-bottom)]">
+      <nav className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-card/95 backdrop-blur-xl border-t border-border pb-[env(safe-area-inset-bottom)]">
         <div className="max-w-3xl mx-auto flex items-stretch justify-around">
           {tabs.map((tab) => {
             const Icon = tab.icon;
@@ -209,12 +216,12 @@ export default function Layout() {
                   if (location.pathname === tab.to) window.scrollTo({ top: 0, behavior: "smooth" });
                 }}
                 className={({ isActive }) =>
-                  `flex flex-col items-center gap-0.5 py-2.5 px-3 text-[11px] font-medium transition-colors duration-200 ${
+                  `flex flex-col items-center justify-center gap-1 py-2.5 px-2 text-[10px] font-semibold transition-colors duration-200 min-w-[44px] min-h-[44px] ${
                     isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
                   }`
                 }
               >
-                <Icon className="w-5 h-5" />
+                <Icon className="w-[22px] h-[22px]" strokeWidth={2.2} />
                 {tab.label}
               </NavLink>
             );

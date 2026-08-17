@@ -7,6 +7,7 @@ import JobPostCard from "@/components/grind/jobs/JobPostCard";
 import JobPostForm from "@/components/grind/jobs/JobPostForm";
 import AcceptJobButton from "@/components/grind/jobs/AcceptJobButton";
 import EmptyState from "@/components/grind/EmptyState";
+import PageHeader from "@/components/grind/PageHeader";
 import PullToRefresh from "@/components/PullToRefresh";
 import { toast } from "@/components/ui/use-toast";
 
@@ -28,8 +29,6 @@ export default function JobBoard() {
       setJobs(mine);
       setBuyerProfile(profiles[0] || null);
     } else {
-      // Fetch open jobs + buyer ratings via a server function that strips
-      // the physical address and never pulls buyer coordinates to the client.
       const res = await base44.functions.invoke("getJobBoard", {});
       setJobs(res.data.jobs);
       setBuyerRatings(res.data.ratings);
@@ -39,7 +38,6 @@ export default function JobBoard() {
 
   useEffect(() => { load(); }, [load]);
 
-  // Realtime: refresh the board when any job post changes (new post, taken, re-listed)
   useEffect(() => {
     const unsub = base44.entities.JobPost.subscribe(() => load());
     return unsub;
@@ -55,77 +53,78 @@ export default function JobBoard() {
   };
 
   if (loading)
-    return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-muted border-t-foreground rounded-full animate-spin" /></div>;
+    return (
+      <div className="flex justify-center py-24">
+        <div className="w-8 h-8 border-[3px] border-muted border-t-primary rounded-full animate-spin" />
+      </div>
+    );
 
   return (
     <PullToRefresh onRefresh={load}>
-    <div className="space-y-5">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">{isBuyer ? "My job posts" : "Job board"}</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            {isBuyer
-              ? "Post tasks for local teens — every job is AI-screened against your state's child labor laws."
-              : "Jobs posted by neighbors near you. Every one passed an AI child labor law safety check."}
-          </p>
-        </div>
-        {isBuyer && (
-          <Button className="rounded-xl shrink-0" onClick={() => setPostOpen(true)}>
-            <Plus className="w-4 h-4 mr-1.5" /> Post a job
-          </Button>
-        )}
-      </div>
-
-      {jobs.length === 0 ? (
-        <EmptyState
-          icon={Briefcase}
-          title={isBuyer ? "No job posts yet" : "No open jobs right now"}
-          subtitle={isBuyer ? "Post your first task and let a local teen take it on." : "Check back soon — neighbors post new tasks all the time."}
-          action={isBuyer && (
-            <Button className="rounded-xl" onClick={() => setPostOpen(true)}>
+      <div className="space-y-5">
+        <PageHeader
+          title={isBuyer ? "My job posts" : "Job board"}
+          subtitle={isBuyer
+            ? "Post tasks for local teens — every job is AI-screened against your state's child labor laws."
+            : "Jobs posted by neighbors near you. Every one passed an AI child labor law safety check."}
+        >
+          {isBuyer && (
+            <Button className="rounded-full shrink-0" onClick={() => setPostOpen(true)}>
               <Plus className="w-4 h-4 mr-1.5" /> Post a job
             </Button>
           )}
-        />
-      ) : (
-        <div className="space-y-3">
-          {jobs.map((job) => (
-            <JobPostCard
-              key={job.id}
-              job={job}
-              buyerRating={buyerRatings[job.buyer_user_id]?.avg}
-              buyerReviewCount={buyerRatings[job.buyer_user_id]?.count}
-              footer={
-                isBuyer ? (
-                  job.status === "open" && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="rounded-xl text-destructive border-destructive/20 hover:bg-destructive/10 hover:text-destructive"
-                      onClick={() => cancelJob(job)}
-                    >
-                      Cancel post
-                    </Button>
-                  )
-                ) : (
-                  <AcceptJobButton job={job} teen={user} onAccepted={load} />
-                )
-              }
-            />
-          ))}
-        </div>
-      )}
+        </PageHeader>
 
-      {postOpen && (
-        <JobPostForm
-          open={postOpen}
-          onOpenChange={setPostOpen}
-          buyer={user}
-          buyerProfile={buyerProfile}
-          onPosted={load}
-        />
-      )}
-    </div>
+        {jobs.length === 0 ? (
+          <EmptyState
+            icon={Briefcase}
+            title={isBuyer ? "No job posts yet" : "No open jobs right now"}
+            subtitle={isBuyer ? "Post your first task and let a local teen take it on." : "Check back soon — neighbors post new tasks all the time."}
+            action={isBuyer && (
+              <Button className="rounded-full" onClick={() => setPostOpen(true)}>
+                <Plus className="w-4 h-4 mr-1.5" /> Post a job
+              </Button>
+            )}
+          />
+        ) : (
+          <div className="space-y-3">
+            {jobs.map((job) => (
+              <JobPostCard
+                key={job.id}
+                job={job}
+                buyerRating={buyerRatings[job.buyer_user_id]?.avg}
+                buyerReviewCount={buyerRatings[job.buyer_user_id]?.count}
+                footer={
+                  isBuyer ? (
+                    job.status === "open" && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="rounded-full text-destructive border-destructive/20 hover:bg-destructive/10 hover:text-destructive"
+                        onClick={() => cancelJob(job)}
+                      >
+                        Cancel post
+                      </Button>
+                    )
+                  ) : (
+                    <AcceptJobButton job={job} teen={user} onAccepted={load} />
+                  )
+                }
+              />
+            ))}
+          </div>
+        )}
+
+        {postOpen && (
+          <JobPostForm
+            open={postOpen}
+            onOpenChange={setPostOpen}
+            buyer={user}
+            buyerProfile={buyerProfile}
+            onPosted={load}
+          />
+        )}
+      </div>
     </PullToRefresh>
   );
 }

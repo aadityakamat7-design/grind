@@ -3,6 +3,7 @@ import { useOutletContext } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Users, Search, CalendarDays, Wallet, Flag, BadgeCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import PageHeader from "@/components/grind/PageHeader";
 import MetricCard from "@/components/grind/admin/MetricCard";
 import ReportRow from "@/components/grind/admin/ReportRow";
 import PayoutReviewQueue from "@/components/grind/admin/PayoutReviewQueue";
@@ -41,9 +42,12 @@ export default function Admin() {
 
   if (user?.app_role !== "admin") {
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-center">
-        <p className="text-lg font-semibold text-foreground">Admins only</p>
-        <p className="text-sm text-muted-foreground mt-1">You don't have access to this page.</p>
+      <div className="flex flex-col items-center justify-center py-24 text-center">
+        <div className="w-14 h-14 rounded-2xl bg-muted flex items-center justify-center mb-4">
+          <Users className="w-7 h-7 text-muted-foreground" />
+        </div>
+        <p className="text-lg font-bold text-foreground">Admins only</p>
+        <p className="text-[14px] text-muted-foreground mt-1">You don't have access to this page.</p>
       </div>
     );
   }
@@ -64,7 +68,11 @@ export default function Admin() {
   };
 
   if (loading)
-    return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin" /></div>;
+    return (
+      <div className="flex justify-center py-24">
+        <div className="w-8 h-8 border-[3px] border-muted border-t-primary rounded-full animate-spin" />
+      </div>
+    );
 
   const gmv = bookings
     .filter((b) => !["cancelled", "denied"].includes(b.status))
@@ -73,53 +81,54 @@ export default function Admin() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-extrabold text-slate-900">Admin console</h1>
-        <p className="text-sm text-slate-500 mt-1">Marketplace health, moderation, and verifications.</p>
-      </div>
+      <PageHeader title="Admin console" subtitle="Marketplace health, moderation, and verifications." />
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <MetricCard icon={Users} label="Teens" value={teens.length} />
-        <MetricCard icon={Search} label="Neighbors" value={buyers.length} accent="text-sky-500" />
-        <MetricCard icon={CalendarDays} label="Bookings" value={bookings.length} accent="text-emerald-500" />
-        <MetricCard icon={Wallet} label="GMV" value={money(gmv)} accent="text-amber-500" />
+        <MetricCard icon={Search} label="Neighbors" value={buyers.length} accent="text-primary" />
+        <MetricCard icon={CalendarDays} label="Bookings" value={bookings.length} accent="text-emerald-600" />
+        <MetricCard icon={Wallet} label="GMV" value={money(gmv)} accent="text-amber-600" />
       </div>
 
       <PayoutReviewQueue bookings={bookings} onDone={load} />
 
       <CredentialReviewQueue credentials={credentials} onDone={load} />
 
-      <div>
-        <h2 className="font-bold text-slate-900 mb-3 flex items-center gap-2">
-          <Flag className="w-4 h-4 text-rose-500" /> Reports {openReports.length > 0 && `(${openReports.length} open)`}
+      <section>
+        <h2 className="text-[17px] font-bold text-foreground mb-3 flex items-center gap-2">
+          <Flag className="w-[18px] h-[18px] text-rose-500" /> Reports {openReports.length > 0 && `(${openReports.length} open)`}
         </h2>
         {reports.length === 0 ? (
-          <p className="text-sm text-slate-400">No reports filed.</p>
+          <div className="bg-card rounded-2xl border border-border p-6 text-center">
+            <p className="text-[14px] text-muted-foreground">No reports filed.</p>
+          </div>
         ) : (
           <div className="space-y-3">
             {reports.map((r) => <ReportRow key={r.id} report={r} onResolve={resolve} onHideReview={hideReview} acting={acting} />)}
           </div>
         )}
-      </div>
+      </section>
 
-      <div>
-        <h2 className="font-bold text-slate-900 mb-3 flex items-center gap-2">
-          <Users className="w-4 h-4" /> Teen management
+      <section>
+        <h2 className="text-[17px] font-bold text-foreground mb-3 flex items-center gap-2">
+          <Users className="w-[18px] h-[18px]" /> Teen management
         </h2>
         {teens.length === 0 ? (
-          <p className="text-sm text-slate-400">No teens yet.</p>
+          <div className="bg-card rounded-2xl border border-border p-6 text-center">
+            <p className="text-[14px] text-muted-foreground">No teens yet.</p>
+          </div>
         ) : (
           <div className="space-y-2.5">
             {teens.map((t) => (
               <div key={t.id} className="flex items-center justify-between bg-card rounded-2xl border border-border shadow-soft p-4">
-                <div>
-                  <p className="font-bold text-slate-900 text-sm">{t.display_name}</p>
-                  <p className="text-xs text-slate-500">{t.resolved_city || t.state || "—"}</p>
+                <div className="min-w-0">
+                  <p className="font-bold text-foreground text-[14px] truncate">{t.display_name}</p>
+                  <p className="text-[12px] text-muted-foreground mt-0.5">{t.resolved_city || t.state || "—"}</p>
                 </div>
                 <Button
                   variant="outline"
                   size="sm"
-                  className="rounded-xl"
+                  className="rounded-full"
                   disabled={acting}
                   onClick={async () => {
                     setActing(true);
@@ -134,28 +143,30 @@ export default function Admin() {
             ))}
           </div>
         )}
-      </div>
+      </section>
 
-      <div>
-        <h2 className="font-bold text-slate-900 mb-3 flex items-center gap-2">
-          <BadgeCheck className="w-4 h-4 text-blue-500" /> Neighbor verifications
+      <section>
+        <h2 className="text-[17px] font-bold text-foreground mb-3 flex items-center gap-2">
+          <BadgeCheck className="w-[18px] h-[18px] text-primary" /> Neighbor verifications
         </h2>
         {buyers.length === 0 ? (
-          <p className="text-sm text-slate-400">No neighbors yet.</p>
+          <div className="bg-card rounded-2xl border border-border p-6 text-center">
+            <p className="text-[14px] text-muted-foreground">No neighbors yet.</p>
+          </div>
         ) : (
           <div className="space-y-2.5">
             {buyers.map((b) => (
               <div key={b.id} className="flex items-center justify-between bg-card rounded-2xl border border-border shadow-soft p-4">
-                <div>
-                  <p className="font-bold text-slate-900 text-sm">{b.full_name || "Neighbor"}</p>
-                  <p className="text-xs text-slate-500">ZIP {b.zip || "—"}</p>
+                <div className="min-w-0">
+                  <p className="font-bold text-foreground text-[14px] truncate">{b.full_name || "Neighbor"}</p>
+                  <p className="text-[12px] text-muted-foreground mt-0.5">ZIP {b.zip || "—"}</p>
                 </div>
                 <StatusBadge status={b.id_verification_status === "verified" ? "active" : "pending"} />
               </div>
             ))}
           </div>
         )}
-      </div>
+      </section>
     </div>
   );
 }

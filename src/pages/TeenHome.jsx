@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Link, useOutletContext } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { Plus } from "lucide-react";
+import { Plus, Wallet, TrendingUp, Clock, Sparkles, ChevronRight, CalendarDays, MessageCircle, Star, Briefcase } from "lucide-react";
 import BookingCard from "@/components/grind/BookingCard";
-import TeenChecklist from "@/components/grind/TeenChecklist";
+import PageHeader from "@/components/grind/PageHeader";
+import EmptyState from "@/components/grind/EmptyState";
 import AvailabilityToggle from "@/components/grind/AvailabilityToggle";
-import UpcomingCalendar from "@/components/grind/UpcomingCalendar";
 import AlertParentButton from "@/components/grind/AlertParentButton";
 import EarningsSummary from "@/components/grind/teen/EarningsSummary";
 import ProfileStatsWidget from "@/components/grind/teen/ProfileStatsWidget";
@@ -35,9 +35,6 @@ export default function TeenHome() {
       base44.entities.MessageThread.filter({ teen_user_id: user.id }, "-last_message_at", 5),
     ]);
     let p = profiles[0] || null;
-    // Self-heal: if the teen is onboarded but has no profile (e.g. from a
-    // partial onboarding), create a minimal one with an invite code so they
-    // can link their parent immediately.
     if (!p) {
       const code = genInviteCode();
       p = await base44.entities.TeenProfile.create({
@@ -46,7 +43,6 @@ export default function TeenHome() {
         invite_code: code,
       });
     }
-    // Self-heal: ensure the profile has an invite code
     if (!p.invite_code) {
       const code = genInviteCode();
       await base44.entities.TeenProfile.update(p.id, { invite_code: code });
@@ -63,14 +59,17 @@ export default function TeenHome() {
 
   useEffect(() => { load(); }, [load]);
 
-  // Real-time: reload when any booking changes (new booking, status update, etc.)
   useEffect(() => {
     const unsub = base44.entities.Booking.subscribe(() => load());
     return unsub;
   }, [load]);
 
   if (loading)
-    return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-muted border-t-foreground rounded-full animate-spin" /></div>;
+    return (
+      <div className="flex justify-center py-24">
+        <div className="w-8 h-8 border-[3px] border-muted border-t-primary rounded-full animate-spin" />
+      </div>
+    );
 
   const activeJobs = bookings.filter((b) => b.status === "in_progress");
   const upcoming = bookings.filter((b) => ["confirmed", "in_progress"].includes(b.status));
@@ -81,77 +80,80 @@ export default function TeenHome() {
 
   return (
     <PullToRefresh onRefresh={load}>
-    <div className="space-y-6">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Hey, {profile?.display_name?.split(" ")[0]} 👋</h1>
-          <p className="text-sm text-muted-foreground mt-1">Here's what's happening with your hustle.</p>
-        </div>
-        <Link to="/teen/listings" className="flex items-center gap-1 shrink-0 bg-foreground hover:bg-foreground/90 text-background text-xs font-medium rounded-xl px-3 py-2 transition-colors">
-          <Plus className="w-3.5 h-3.5" /> Create service
-        </Link>
-      </div>
+      <div className="space-y-6">
+        <PageHeader title={`Hey, ${profile?.display_name?.split(" ")[0] || "there"} 👋`} subtitle="Here's what's happening with your hustle.">
+          <Link to="/teen/listings" className="inline-flex items-center gap-1.5 bg-primary text-primary-foreground text-[13px] font-semibold rounded-full px-4 h-10 shadow-soft hover:opacity-90 transition-opacity">
+            <Plus className="w-4 h-4" /> New service
+          </Link>
+        </PageHeader>
 
-      <InviteCodeCard profile={profile} onUpdated={load} />
+        <InviteCodeCard profile={profile} onUpdated={load} />
 
-      <EarningsSummary
-        balance={wallet?.balance || 0}
-        week={weekEarned}
-        pending={pendingEscrow}
-        onCashOut={() => setCashOutOpen(true)}
-      />
+        <EarningsSummary
+          balance={wallet?.balance || 0}
+          week={weekEarned}
+          pending={pendingEscrow}
+          onCashOut={() => setCashOutOpen(true)}
+        />
 
-      {profile && <AvailabilityToggle profile={profile} onChanged={load} />}
+        {profile && <AvailabilityToggle profile={profile} onChanged={load} />}
 
-      {activeJobs.length > 0 && (
-        <div>
-          <h2 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-            Job in progress
-            <span className="w-2 h-2 rounded-full bg-foreground animate-pulse" />
-          </h2>
-          <div className="space-y-3">
-            {activeJobs.map((b) => (
-              <div key={b.id} className="space-y-3">
-                <BookingCard booking={b} perspective="teen" />
-                <AlertParentButton booking={b} />
-              </div>
-            ))}
+        {activeJobs.length > 0 && (
+          <section>
+            <div className="flex items-center gap-2 mb-3">
+              <h2 className="text-[17px] font-bold text-foreground">Job in progress</h2>
+              <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+            </div>
+            <div className="space-y-3">
+              {activeJobs.map((b) => (
+                <div key={b.id} className="space-y-3">
+                  <BookingCard booking={b} perspective="teen" />
+                  <AlertParentButton booking={b} />
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {pendingApproval.length > 0 && (
+          <section>
+            <h2 className="text-[17px] font-bold text-foreground mb-3">Waiting on parent approval</h2>
+            <div className="space-y-3">
+              {pendingApproval.map((b) => <BookingCard key={b.id} booking={b} perspective="teen" />)}
+            </div>
+          </section>
+        )}
+
+        <section>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-[17px] font-bold text-foreground flex items-center gap-2">
+              <CalendarDays className="w-[18px] h-[18px] text-muted-foreground" /> Upcoming jobs
+            </h2>
+            <Link to="/teen/bookings" className="text-[13px] font-semibold text-primary hover:underline">See all</Link>
           </div>
-        </div>
-      )}
+          {upcoming.length === 0 ? (
+            <div className="bg-card rounded-2xl border border-border p-6 text-center">
+              <p className="text-[14px] text-muted-foreground">
+                {profile?.status === "active"
+                  ? "No jobs booked yet — publish a service so neighbors can find you."
+                  : "Once your parent approves your account, you can start taking jobs."}
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {upcoming.slice(0, 3).map((b) => <BookingCard key={b.id} booking={b} perspective="teen" />)}
+            </div>
+          )}
+        </section>
 
-      <TeenChecklist profile={profile} bookings={bookings} />
+        {profile && <ProfileStatsWidget profile={profile} />}
 
-      {profile && <ProfileStatsWidget profile={profile} />}
+        <MessagesWidget threads={threads} />
 
-      {pendingApproval.length > 0 && (
-        <div>
-          <h2 className="font-semibold text-foreground mb-3">Waiting on parent approval</h2>
-          <div className="space-y-3">
-            {pendingApproval.map((b) => <BookingCard key={b.id} booking={b} perspective="teen" />)}
-          </div>
-        </div>
-      )}
-
-      <div>
-        <h2 className="font-semibold text-foreground mb-3">Upcoming jobs</h2>
-        {upcoming.length === 0 ? (
-          <p className="text-sm text-slate-400">
-            {profile?.status === "active"
-              ? "No jobs booked yet — publish a service so neighbors can find you."
-              : "Once your parent approves your account, you can start taking jobs."}
-          </p>
-        ) : (
-          <UpcomingCalendar bookings={upcoming} />
+        {cashOutOpen && wallet && (
+          <CashOutDialog open={cashOutOpen} onOpenChange={setCashOutOpen} wallet={wallet} onDone={load} />
         )}
       </div>
-
-      <MessagesWidget threads={threads} />
-
-      {cashOutOpen && wallet && (
-        <CashOutDialog open={cashOutOpen} onOpenChange={setCashOutOpen} wallet={wallet} onDone={load} />
-      )}
-    </div>
     </PullToRefresh>
   );
 }

@@ -4,6 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { CalendarDays } from "lucide-react";
 import BookingCard from "@/components/grind/BookingCard";
 import EmptyState from "@/components/grind/EmptyState";
+import PageHeader from "@/components/grind/PageHeader";
 
 export default function TeenBookings() {
   const { user } = useOutletContext();
@@ -18,36 +19,44 @@ export default function TeenBookings() {
 
   useEffect(() => { load(); }, [load]);
 
-  // Real-time: reload when any booking changes (new booking, status update, etc.)
   useEffect(() => {
     const unsub = base44.entities.Booking.subscribe(() => load());
     return unsub;
   }, [load]);
 
   if (loading)
-    return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin" /></div>;
+    return (
+      <div className="flex justify-center py-24">
+        <div className="w-8 h-8 border-[3px] border-muted border-t-primary rounded-full animate-spin" />
+      </div>
+    );
 
   const active = bookings.filter((b) => !["completed", "cancelled", "denied"].includes(b.status));
   const past = bookings.filter((b) => ["completed", "cancelled", "denied"].includes(b.status));
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-extrabold text-slate-900">Bookings</h1>
+      <PageHeader title="Bookings" subtitle="All your active and past jobs." />
+
       {bookings.length === 0 ? (
         <EmptyState icon={CalendarDays} title="No bookings yet" subtitle="When a neighbor books one of your services, it'll show up here." />
       ) : (
         <>
           {active.length > 0 && (
-            <div className="space-y-3">
-              <h2 className="font-bold text-slate-900">Active</h2>
-              {active.map((b) => <BookingCard key={b.id} booking={b} perspective="teen" />)}
-            </div>
+            <section>
+              <h2 className="text-[17px] font-bold text-foreground mb-3">Active</h2>
+              <div className="space-y-3">
+                {active.map((b) => <BookingCard key={b.id} booking={b} perspective="teen" />)}
+              </div>
+            </section>
           )}
           {past.length > 0 && (
-            <div className="space-y-3">
-              <h2 className="font-bold text-slate-900">Past</h2>
-              {past.map((b) => <BookingCard key={b.id} booking={b} perspective="teen" />)}
-            </div>
+            <section>
+              <h2 className="text-[17px] font-bold text-foreground mb-3">Past</h2>
+              <div className="space-y-3">
+                {past.map((b) => <BookingCard key={b.id} booking={b} perspective="teen" />)}
+              </div>
+            </section>
           )}
         </>
       )}
