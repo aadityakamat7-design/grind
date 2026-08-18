@@ -19,15 +19,20 @@ export default function BuyerHome() {
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
-    const [b, s, profiles] = await Promise.all([
-      base44.entities.Booking.filter({ buyer_user_id: user.id }, "-created_date", 50),
-      base44.entities.SavedTeen.filter({ buyer_user_id: user.id }),
-      base44.entities.BuyerProfile.filter({ user_id: user.id }),
-    ]);
-    setBookings(b);
-    setSaved(s);
-    setProfile(profiles[0] || null);
-    setLoading(false);
+    try {
+      const [b, s, profiles] = await Promise.all([
+        base44.entities.Booking.filter({ buyer_user_id: user.id }, "-created_date", 50),
+        base44.entities.SavedTeen.filter({ buyer_user_id: user.id }),
+        base44.entities.BuyerProfile.filter({ user_id: user.id }),
+      ]);
+      setBookings(b);
+      setSaved(s);
+      setProfile(profiles[0] || null);
+    } catch (err) {
+      console.error("BuyerHome load failed:", err);
+    } finally {
+      setLoading(false);
+    }
   }, [user.id]);
 
   useEffect(() => { load(); }, [load]);

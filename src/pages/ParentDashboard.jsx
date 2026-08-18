@@ -27,24 +27,29 @@ export default function ParentDashboard() {
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
-    const allLinks = await base44.entities.ParentTeenLink.filter({ parent_user_id: user.id });
-    const confirmed = allLinks.filter((l) => l.status === "confirmed");
-    const pending = allLinks.filter((l) => l.status === "pending");
-    const teenIds = confirmed.map((l) => l.teen_user_id);
-    const [b, r, profiles, notifs] = await Promise.all([
-      teenIds.length ? base44.entities.Booking.filter({ teen_user_id: { $in: teenIds } }, "-created_date", 50) : [],
-      teenIds.length ? base44.entities.EarningsRecord.filter({ teen_user_id: { $in: teenIds } }) : [],
-      base44.entities.ParentProfile.filter({ user_id: user.id }),
-      base44.entities.Notification.filter({ user_id: user.id }, "-created_date", 10),
-    ]);
-    setLinks(confirmed);
-    setPendingLinks(pending);
-    setBookings(b);
-    setRecords(r);
-    setParentProfile(profiles[0] || null);
-    setConnectStatus(profiles[0]?.connect_status || "not_setup");
-    setNotifications(notifs);
-    setLoading(false);
+    try {
+      const allLinks = await base44.entities.ParentTeenLink.filter({ parent_user_id: user.id });
+      const confirmed = allLinks.filter((l) => l.status === "confirmed");
+      const pending = allLinks.filter((l) => l.status === "pending");
+      const teenIds = confirmed.map((l) => l.teen_user_id);
+      const [b, r, profiles, notifs] = await Promise.all([
+        teenIds.length ? base44.entities.Booking.filter({ teen_user_id: { $in: teenIds } }, "-created_date", 50) : [],
+        teenIds.length ? base44.entities.EarningsRecord.filter({ teen_user_id: { $in: teenIds } }) : [],
+        base44.entities.ParentProfile.filter({ user_id: user.id }),
+        base44.entities.Notification.filter({ user_id: user.id }, "-created_date", 10),
+      ]);
+      setLinks(confirmed);
+      setPendingLinks(pending);
+      setBookings(b);
+      setRecords(r);
+      setParentProfile(profiles[0] || null);
+      setConnectStatus(profiles[0]?.connect_status || "not_setup");
+      setNotifications(notifs);
+    } catch (err) {
+      console.error("ParentDashboard load failed:", err);
+    } finally {
+      setLoading(false);
+    }
   }, [user.id]);
 
   useEffect(() => { load(); }, [load]);

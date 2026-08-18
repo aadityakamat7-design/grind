@@ -27,34 +27,39 @@ export default function TeenHome() {
   const [cashOutOpen, setCashOutOpen] = useState(false);
 
   const load = useCallback(async () => {
-    const [profiles, myBookings, w, txns, myThreads] = await Promise.all([
-      base44.entities.TeenProfile.filter({ user_id: user.id }),
-      base44.entities.Booking.filter({ teen_user_id: user.id }, "-created_date", 50),
-      getOrCreateWallet(user.id),
-      base44.entities.WalletTransaction.filter({ teen_user_id: user.id, type: "earning" }, "-occurred_at", 50),
-      base44.entities.MessageThread.filter({ teen_user_id: user.id }, "-last_message_at", 5),
-    ]);
-    let p = profiles[0] || null;
-    if (!p) {
-      const code = genInviteCode();
-      p = await base44.entities.TeenProfile.create({
-        user_id: user.id,
-        display_name: (user.full_name || user.email?.split("@")[0] || "Teen").slice(0, 50),
-        invite_code: code,
-      });
+    try {
+      const [profiles, myBookings, w, txns, myThreads] = await Promise.all([
+        base44.entities.TeenProfile.filter({ user_id: user.id }),
+        base44.entities.Booking.filter({ teen_user_id: user.id }, "-created_date", 50),
+        getOrCreateWallet(user.id),
+        base44.entities.WalletTransaction.filter({ teen_user_id: user.id, type: "earning" }, "-occurred_at", 50),
+        base44.entities.MessageThread.filter({ teen_user_id: user.id }, "-last_message_at", 5),
+      ]);
+      let p = profiles[0] || null;
+      if (!p) {
+        const code = genInviteCode();
+        p = await base44.entities.TeenProfile.create({
+          user_id: user.id,
+          display_name: (user.full_name || user.email?.split("@")[0] || "Teen").slice(0, 50),
+          invite_code: code,
+        });
+      }
+      if (!p.invite_code) {
+        const code = genInviteCode();
+        await base44.entities.TeenProfile.update(p.id, { invite_code: code });
+        p = { ...p, invite_code: code };
+      }
+      const weekAgo = Date.now() - 7 * 86400000;
+      setProfile(p);
+      setBookings(myBookings);
+      setWallet(w);
+      setWeekEarned(txns.filter((t) => t.occurred_at && new Date(t.occurred_at) > weekAgo).reduce((s, t) => s + t.amount, 0));
+      setThreads(myThreads);
+    } catch (err) {
+      console.error("TeenHome load failed:", err);
+    } finally {
+      setLoading(false);
     }
-    if (!p.invite_code) {
-      const code = genInviteCode();
-      await base44.entities.TeenProfile.update(p.id, { invite_code: code });
-      p = { ...p, invite_code: code };
-    }
-    const weekAgo = Date.now() - 7 * 86400000;
-    setProfile(p);
-    setBookings(myBookings);
-    setWallet(w);
-    setWeekEarned(txns.filter((t) => t.occurred_at && new Date(t.occurred_at) > weekAgo).reduce((s, t) => s + t.amount, 0));
-    setThreads(myThreads);
-    setLoading(false);
   }, [user.id]);
 
   useEffect(() => { load(); }, [load]);
