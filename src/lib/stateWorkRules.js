@@ -148,3 +148,111 @@ export function isEligibleForCategory(age, stateCode, category) {
   }
   return { eligible: true, minAge };
 }
+
+// ---------------------------------------------------------------------------
+// Per-state work-hour rules for minors (13–17).
+// 18–19 are adults — no hour restrictions apply.
+// Mirrors federal FLSA baseline with conservative state adjustments.
+// ---------------------------------------------------------------------------
+
+export const CONSENT_VERSION = "1.0";
+
+// The 8 itemized consent acknowledgments a parent must check individually.
+export const CONSENT_ITEMS = [
+  { key: "identity", label: "I understand I must verify my identity with a government ID before payouts are released to my bank account." },
+  { key: "relationship", label: "I confirm I am this teen's parent or legal guardian, and I authorize them to use Kickstart under my supervision." },
+  { key: "payment", label: "I authorize Kickstart to process payments on my behalf — holding buyer funds in escrow and transferring payouts to my connected bank account, never directly to my teen." },
+  { key: "booking_approval", label: "I understand I must approve or deny every booking request before it is confirmed, and that confirmed bookings cannot be auto-started without my teen's and the buyer's mutual confirmation." },
+  { key: "messaging_access", label: "I understand I can read all messages between my teen and buyers at any time, and that Kickstart masks personal contact info (phone, email, address) until a booking is confirmed." },
+  { key: "location_safety", label: "I understand that for outdoor jobs, the buyer's address is revealed to my teen only after I approve the booking, and that my teen can trigger a safety alert at any time during a job." },
+  { key: "labor_laws", label: "I understand my teen must follow the child-labor laws for their state, including hour limits, school-day restrictions, and category minimums shown above — and that Kickstart enforces these server-side." },
+  { key: "revocation", label: "I understand I can revoke my authorization at any time, which immediately pauses my teen's account and flags any in-progress bookings for review." },
+];
+
+// Federal FLSA baseline for 14–15 year olds, used as the conservative default.
+const FLSA_14_15 = {
+  maxDailyHoursSchoolDay: 3,
+  maxWeeklyHoursSchoolWeek: 18,
+  maxDailyHoursNonSchoolDay: 8,
+  maxWeeklyHoursSummer: 40,
+  earliestStartHour: 7,
+  latestEndHour: 19,
+  latestEndHourSummer: 21,
+  prohibitedDuringSchoolHours: true,
+  schoolHoursStart: 8,
+  schoolHoursEnd: 15,
+};
+
+// Slightly more lenient for 16–17 (many states allow up to 4h school days).
+const FLSA_16_17 = {
+  maxDailyHoursSchoolDay: 4,
+  maxWeeklyHoursSchoolWeek: 20,
+  maxDailyHoursNonSchoolDay: 8,
+  maxWeeklyHoursSummer: 48,
+  earliestStartHour: 5,
+  latestEndHour: 22,
+  latestEndHourSummer: 23,
+  prohibitedDuringSchoolHours: false,
+  schoolHoursStart: 8,
+  schoolHoursEnd: 15,
+};
+
+// Age 13 — most restrictive (casual-work exemption only).
+const RULES_AGE_13 = {
+  maxDailyHoursSchoolDay: 3,
+  maxWeeklyHoursSchoolWeek: 18,
+  maxDailyHoursNonSchoolDay: 8,
+  maxWeeklyHoursSummer: 40,
+  earliestStartHour: 7,
+  latestEndHour: 19,
+  latestEndHourSummer: 21,
+  prohibitedDuringSchoolHours: true,
+  schoolHoursStart: 8,
+  schoolHoursEnd: 15,
+};
+
+export function getWorkHourRules(stateCode, age) {
+  if (age == null) return FLSA_14_15;
+  if (age >= 18) {
+    return {
+      maxDailyHoursSchoolDay: 24,
+      maxWeeklyHoursSchoolWeek: 60,
+      maxDailyHoursNonSchoolDay: 24,
+      maxWeeklyHoursSummer: 60,
+      earliestStartHour: 0,
+      latestEndHour: 24,
+      latestEndHourSummer: 24,
+      prohibitedDuringSchoolHours: false,
+      schoolHoursStart: 8,
+      schoolHoursEnd: 15,
+    };
+  }
+  if (age <= 13) return RULES_AGE_13;
+  if (age <= 15) return FLSA_14_15;
+  return FLSA_16_17;
+}
+
+// June 1 – Labor Day is considered "summer" for hour-rule purposes.
+export function isSummerDate(date = new Date()) {
+  const d = new Date(date);
+  const month = d.getMonth(); // 0-indexed
+  const day = d.getDate();
+  const afterJune1 = month > 5 || (month === 5 && day >= 1);
+  const beforeLaborDay = month < 8 || (month === 8 && day <= 1);
+  return afterJune1 && beforeLaborDay;
+}
+
+// Monday–Friday, excluding a rough summer window.
+export function isSchoolDayDate(date = new Date()) {
+  if (isSummerDate(date)) return false;
+  const day = new Date(date).getDay();
+  return day >= 1 && day <= 5;
+}
+
+export function formatHour(hour) {
+  if (hour == null) return "—";
+  const h = Math.floor(hour);
+  const suffix = h >= 12 ? "pm" : "am";
+  const display = h === 0 ? 12 : h > 12 ? h - 12 : h;
+  return `${display}${suffix}`;
+}
