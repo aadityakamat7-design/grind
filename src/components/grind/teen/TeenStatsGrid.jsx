@@ -1,5 +1,4 @@
 import React from "react";
-import { Link } from "react-router-dom";
 import StatCard from "@/components/grind/StatCard";
 import { Wallet, TrendingUp, CalendarDays, Star, Briefcase, CheckCircle2, PlayCircle, Clock } from "lucide-react";
 import { money } from "@/lib/grind";

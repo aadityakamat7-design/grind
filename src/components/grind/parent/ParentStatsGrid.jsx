@@ -1,6 +1,6 @@
 import React from "react";
 import StatCard from "@/components/grind/StatCard";
-import { Wallet, TrendingUp, CalendarDays, Star, CheckCircle2, Clock, Users, ShieldCheck } from "lucide-react";
+import { Wallet, TrendingUp, Star, CheckCircle2, Clock, Users, ShieldCheck } from "lucide-react";
 import { money } from "@/lib/grind";
 
 export default function ParentStatsGrid({ records, bookings, links, teenProfiles, pendingApprovals }) {

@@ -4,7 +4,6 @@ import { base44 } from "@/api/base44Client";
 import { format, subDays, subWeeks, subMonths, isAfter } from "date-fns";
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip } from "recharts";
 import { Download, Wallet } from "lucide-react";
-import ErrorRetry from "@/components/grind/ErrorRetry";
 
 const fmt = (n) => `$${Number(n || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 const fmtChange = (n) => `${n >= 0 ? "+" : "\u2212"}$${Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;

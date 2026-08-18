@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Link, useOutletContext } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { Plus, CalendarDays, MessageCircle, BarChart3 } from "lucide-react";
+import { Plus, CalendarDays, BarChart3 } from "lucide-react";
 import BookingCard from "@/components/grind/BookingCard";
 import PageHeader from "@/components/grind/PageHeader";
 import AvailabilityToggle from "@/components/grind/AvailabilityToggle";

@@ -4,7 +4,6 @@ import { base44 } from "@/api/base44Client";
 import { Users, Search, CalendarDays, Wallet, Flag, BadgeCheck, TrendingUp, CheckCircle2, AlertTriangle, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/grind/PageHeader";
-import MetricCard from "@/components/grind/admin/MetricCard";
 import ReportRow from "@/components/grind/admin/ReportRow";
 import PayoutReviewQueue from "@/components/grind/admin/PayoutReviewQueue";
 import CredentialReviewQueue from "@/components/grind/admin/CredentialReviewQueue";
