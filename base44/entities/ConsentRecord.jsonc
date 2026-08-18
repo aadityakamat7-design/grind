@@ -1,0 +1,142 @@
+{
+  "name": "ConsentRecord",
+  "type": "object",
+  "properties": {
+    "parent_user_id": {
+      "type": "string",
+      "description": "The parent who granted consent"
+    },
+    "teen_user_id": {
+      "type": "string",
+      "description": "The teen the consent applies to"
+    },
+    "parent_teen_link_id": {
+      "type": "string",
+      "description": "The ParentTeenLink this consent record belongs to"
+    },
+    "consent_version": {
+      "type": "string",
+      "description": "Version of the consent terms the parent agreed to (e.g. '1.0'). When terms change, version increments and re-consent is required."
+    },
+    "consents": {
+      "type": "array",
+      "description": "Each itemized consent acknowledgment, recorded separately with its own timestamp",
+      "items": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "Machine-readable key for this consent item"
+          },
+          "label": {
+            "type": "string",
+            "description": "The full consent text the parent acknowledged"
+          },
+          "accepted": {
+            "type": "boolean"
+          },
+          "accepted_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    "state_rules_shown": {
+      "type": "string",
+      "description": "JSON snapshot of the exact state child-labor rules displayed to the parent at consent time \u2014 for audit trail"
+    },
+    "state_rules_acknowledged": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the parent acknowledged the specific state rules shown"
+    },
+    "teen_state": {
+      "type": "string",
+      "description": "Teen's state at time of consent"
+    },
+    "teen_verified_age": {
+      "type": "number",
+      "description": "Teen's verified age at time of consent"
+    },
+    "ip": {
+      "type": "string",
+      "description": "Parent's IP address at time of consent \u2014 audit trail"
+    },
+    "user_agent": {
+      "type": "string",
+      "description": "Parent's user agent at time of consent \u2014 audit trail"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "revoked"
+      ],
+      "default": "active",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "revoked_at": {
+      "type": "string",
+      "format": "date-time",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "revoked_reason": {
+      "type": "string",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "parent_user_id",
+    "teen_user_id",
+    "consent_version",
+    "consents"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "$or": [
+        {
+          "data.parent_user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
