@@ -5,16 +5,25 @@ import { CalendarDays, Repeat } from "lucide-react";
 import BookingCard from "@/components/grind/BookingCard";
 import EmptyState from "@/components/grind/EmptyState";
 import PageHeader from "@/components/grind/PageHeader";
+import ErrorRetry from "@/components/grind/ErrorRetry";
 
 export default function BuyerBookings() {
   const { user } = useOutletContext();
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   const load = useCallback(async () => {
-    const data = await base44.entities.Booking.filter({ buyer_user_id: user.id }, "-created_date");
-    setBookings(data);
-    setLoading(false);
+    try {
+      setError(false);
+      const data = await base44.entities.Booking.filter({ buyer_user_id: user.id }, "-created_date");
+      setBookings(data);
+    } catch (err) {
+      console.error("BuyerBookings load failed:", err);
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
   }, [user.id]);
 
   useEffect(() => { load(); }, [load]);
@@ -26,10 +35,11 @@ export default function BuyerBookings() {
 
   if (loading)
     return (
-      <div className="flex justify-center py-24">
-        <div className="w-8 h-8 border-[3px] border-muted border-t-primary rounded-full animate-spin" />
+      <div className="space-y-3">
+        {Array.from({ length: 4 }).map((_, i) => <div key={i} className="bg-card rounded-2xl border border-border p-4 h-20 skeleton-shimmer" />)}
       </div>
     );
+  if (error) return <ErrorRetry onRetry={load} />;
 
   const active = bookings.filter((b) => !["completed", "cancelled", "denied"].includes(b.status));
   const past = bookings.filter((b) => ["completed", "cancelled", "denied"].includes(b.status));

@@ -1,17 +1,19 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Link, useOutletContext } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { Plus, Wallet, TrendingUp, Clock, Sparkles, ChevronRight, CalendarDays, MessageCircle, Star, Briefcase } from "lucide-react";
+import { Plus, CalendarDays, MessageCircle, BarChart3 } from "lucide-react";
 import BookingCard from "@/components/grind/BookingCard";
 import PageHeader from "@/components/grind/PageHeader";
-import EmptyState from "@/components/grind/EmptyState";
 import AvailabilityToggle from "@/components/grind/AvailabilityToggle";
 import AlertParentButton from "@/components/grind/AlertParentButton";
-import EarningsSummary from "@/components/grind/teen/EarningsSummary";
-import ProfileStatsWidget from "@/components/grind/teen/ProfileStatsWidget";
-import MessagesWidget from "@/components/grind/teen/MessagesWidget";
 import InviteCodeCard from "@/components/grind/teen/InviteCodeCard";
+import MessagesWidget from "@/components/grind/teen/MessagesWidget";
 import CashOutDialog from "@/components/grind/wallet/CashOutDialog";
+import TeenStatsGrid from "@/components/grind/teen/TeenStatsGrid";
+import CategoryBreakdown from "@/components/grind/teen/CategoryBreakdown";
+import ProfileCompleteness from "@/components/grind/teen/ProfileCompleteness";
+import { EarningsAreaChart } from "@/components/grind/TimeRangeChart";
+import ErrorRetry from "@/components/grind/ErrorRetry";
 import { getOrCreateWallet } from "@/lib/wallet";
 import { genInviteCode } from "@/lib/grind";
 import PullToRefresh from "@/components/PullToRefresh";
@@ -20,19 +22,23 @@ export default function TeenHome() {
   const { user } = useOutletContext();
   const [profile, setProfile] = useState(null);
   const [bookings, setBookings] = useState([]);
+  const [listings, setListings] = useState([]);
   const [wallet, setWallet] = useState(null);
-  const [weekEarned, setWeekEarned] = useState(0);
+  const [records, setRecords] = useState([]);
   const [threads, setThreads] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [cashOutOpen, setCashOutOpen] = useState(false);
 
   const load = useCallback(async () => {
     try {
-      const [profiles, myBookings, w, txns, myThreads] = await Promise.all([
+      setError(false);
+      const [profiles, myBookings, myListings, w, txns, myThreads] = await Promise.all([
         base44.entities.TeenProfile.filter({ user_id: user.id }),
-        base44.entities.Booking.filter({ teen_user_id: user.id }, "-created_date", 50),
+        base44.entities.Booking.filter({ teen_user_id: user.id }, "-created_date", 100),
+        base44.entities.Listing.filter({ teen_user_id: user.id }, "-created_date"),
         getOrCreateWallet(user.id),
-        base44.entities.WalletTransaction.filter({ teen_user_id: user.id, type: "earning" }, "-occurred_at", 50),
+        base44.entities.EarningsRecord.filter({ teen_user_id: user.id }, "-occurred_at", 200),
         base44.entities.MessageThread.filter({ teen_user_id: user.id }, "-last_message_at", 5),
       ]);
       let p = profiles[0] || null;
@@ -49,14 +55,15 @@ export default function TeenHome() {
         await base44.entities.TeenProfile.update(p.id, { invite_code: code });
         p = { ...p, invite_code: code };
       }
-      const weekAgo = Date.now() - 7 * 86400000;
       setProfile(p);
       setBookings(myBookings);
+      setListings(myListings);
       setWallet(w);
-      setWeekEarned(txns.filter((t) => t.occurred_at && new Date(t.occurred_at) > weekAgo).reduce((s, t) => s + t.amount, 0));
+      setRecords(txns);
       setThreads(myThreads);
     } catch (err) {
       console.error("TeenHome load failed:", err);
+      setError(true);
     } finally {
       setLoading(false);
     }
@@ -65,23 +72,27 @@ export default function TeenHome() {
   useEffect(() => { load(); }, [load]);
 
   useEffect(() => {
-    const unsub = base44.entities.Booking.subscribe(() => load());
-    return unsub;
+    const unsubBooking = base44.entities.Booking.subscribe(() => load());
+    const unsubEarn = base44.entities.EarningsRecord.subscribe(() => load());
+    return () => { unsubBooking(); unsubEarn(); };
   }, [load]);
 
   if (loading)
     return (
-      <div className="flex justify-center py-24">
-        <div className="w-8 h-8 border-[3px] border-muted border-t-primary rounded-full animate-spin" />
+      <div className="space-y-5">
+        <div className="h-8 w-56 rounded-lg bg-muted skeleton-shimmer" />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          {Array.from({ length: 8 }).map((_, i) => <div key={i} className="bg-card rounded-2xl border border-border p-4 h-24 skeleton-shimmer" />)}
+        </div>
+        <div className="bg-card rounded-2xl border border-border h-48 skeleton-shimmer" />
       </div>
     );
+  if (error) return <ErrorRetry onRetry={load} />;
 
   const activeJobs = bookings.filter((b) => b.status === "in_progress");
   const upcoming = bookings.filter((b) => ["confirmed", "in_progress"].includes(b.status));
   const pendingApproval = bookings.filter((b) => b.status === "pending_parent_approval");
-  const pendingEscrow = bookings
-    .filter((b) => b.payment_status === "held" && ["confirmed", "in_progress", "completed"].includes(b.status))
-    .reduce((s, b) => s + (b.net_amount || 0), 0);
+  const unreadCount = threads.filter((t) => !t.last_read_by_teen).length;
 
   return (
     <PullToRefresh onRefresh={load}>
@@ -92,14 +103,20 @@ export default function TeenHome() {
           </Link>
         </PageHeader>
 
-        <InviteCodeCard profile={profile} onUpdated={load} />
+        <TeenStatsGrid records={records} bookings={bookings} profile={profile} />
 
-        <EarningsSummary
-          balance={wallet?.balance || 0}
-          week={weekEarned}
-          pending={pendingEscrow}
-          onCashOut={() => setCashOutOpen(true)}
-        />
+        <div>
+          <h2 className="text-[17px] font-bold text-foreground mb-3 flex items-center gap-2">
+            <BarChart3 className="w-[18px] h-[18px] text-muted-foreground" /> Earnings over time
+          </h2>
+          <EarningsAreaChart data={records} valueKey="net_amount" dateKey="occurred_at" color="#2E6BE0" height={180} />
+        </div>
+
+        <CategoryBreakdown bookings={bookings} listings={listings} />
+
+        <ProfileCompleteness profile={profile} />
+
+        <InviteCodeCard profile={profile} onUpdated={load} />
 
         {profile && <AvailabilityToggle profile={profile} onChanged={load} />}
 
@@ -143,6 +160,11 @@ export default function TeenHome() {
                   ? "No jobs booked yet — publish a service so neighbors can find you."
                   : "Once your parent approves your account, you can start taking jobs."}
               </p>
+              {profile?.status === "active" && (
+                <Link to="/teen/listings" className="inline-flex items-center gap-1.5 mt-4 bg-primary text-primary-foreground text-[13px] font-semibold rounded-full px-5 h-10 shadow-soft hover:opacity-90 transition-opacity">
+                  <Plus className="w-4 h-4" /> Create a service
+                </Link>
+              )}
             </div>
           ) : (
             <div className="space-y-3">
@@ -151,9 +173,7 @@ export default function TeenHome() {
           )}
         </section>
 
-        {profile && <ProfileStatsWidget profile={profile} />}
-
-        <MessagesWidget threads={threads} />
+        <MessagesWidget threads={threads} unreadCount={unreadCount} />
 
         {cashOutOpen && wallet && (
           <CashOutDialog open={cashOutOpen} onOpenChange={setCashOutOpen} wallet={wallet} onDone={load} />

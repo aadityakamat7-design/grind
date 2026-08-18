@@ -4,11 +4,14 @@ import { MessageCircle } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { parseUTC } from "@/lib/grind";
 
-export default function MessagesWidget({ threads }) {
+export default function MessagesWidget({ threads, unreadCount = 0 }) {
   return (
     <div>
       <div className="flex items-center justify-between mb-3">
-        <h2 className="font-bold text-slate-900">Messages</h2>
+        <h2 className="font-bold text-slate-900 flex items-center gap-2">
+          Messages
+          {unreadCount > 0 && <span className="bg-primary text-primary-foreground text-[10px] font-bold rounded-full px-2 py-0.5 min-w-[20px] text-center">{unreadCount}</span>}
+        </h2>
         <Link to="/messages" className="text-xs font-bold text-blue-600 hover:text-blue-700">See all →</Link>
       </div>
       {threads.length === 0 ? (

@@ -9,6 +9,7 @@ import EmptyState from "@/components/grind/EmptyState";
 import PageHeader from "@/components/grind/PageHeader";
 import { CATEGORY_LABELS, money } from "@/lib/grind";
 import { toast } from "@/components/ui/use-toast";
+import ErrorRetry from "@/components/grind/ErrorRetry";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,18 +26,26 @@ export default function TeenListings() {
   const [profile, setProfile] = useState(null);
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
 
   const load = useCallback(async () => {
-    const [profiles, myListings] = await Promise.all([
-      base44.entities.TeenProfile.filter({ user_id: user.id }),
-      base44.entities.Listing.filter({ teen_user_id: user.id }, "-created_date"),
-    ]);
-    setProfile(profiles[0] || null);
-    setListings(myListings);
-    setLoading(false);
+    try {
+      setError(false);
+      const [profiles, myListings] = await Promise.all([
+        base44.entities.TeenProfile.filter({ user_id: user.id }),
+        base44.entities.Listing.filter({ teen_user_id: user.id }, "-created_date"),
+      ]);
+      setProfile(profiles[0] || null);
+      setListings(myListings);
+    } catch (err) {
+      console.error("TeenListings load failed:", err);
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
   }, [user.id]);
 
   useEffect(() => { load(); }, [load]);
@@ -63,10 +72,17 @@ export default function TeenListings() {
 
   if (loading)
     return (
-      <div className="flex justify-center py-24">
-        <div className="w-8 h-8 border-[3px] border-muted border-t-primary rounded-full animate-spin" />
+      <div className="space-y-5">
+        <div className="h-8 w-48 rounded-lg bg-muted skeleton-shimmer" />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          {Array.from({ length: 4 }).map((_, i) => <div key={i} className="bg-card rounded-2xl border border-border p-4 h-24 skeleton-shimmer" />)}
+        </div>
+        <div className="space-y-3">
+          {Array.from({ length: 3 }).map((_, i) => <div key={i} className="bg-card rounded-2xl border border-border p-4 h-20 skeleton-shimmer" />)}
+        </div>
       </div>
     );
+  if (error) return <ErrorRetry onRetry={load} />;
 
   const canPublish = profile?.status === "active";
 

@@ -8,30 +8,45 @@ import { money } from "@/lib/grind";
 import TransactionList from "@/components/grind/wallet/TransactionList";
 import CashOutDialog from "@/components/grind/wallet/CashOutDialog";
 import PageHeader from "@/components/grind/PageHeader";
+import ErrorRetry from "@/components/grind/ErrorRetry";
 
 export default function TeenWallet() {
   const { user } = useOutletContext();
   const [wallet, setWallet] = useState(null);
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [cashOutOpen, setCashOutOpen] = useState(false);
 
   const load = useCallback(async () => {
-    const w = await getOrCreateWallet(user.id);
-    const txns = await base44.entities.WalletTransaction.filter({ teen_user_id: user.id }, "-occurred_at", 30);
-    setWallet(w);
-    setTransactions(txns);
-    setLoading(false);
+    try {
+      setError(false);
+      const w = await getOrCreateWallet(user.id);
+      const txns = await base44.entities.WalletTransaction.filter({ teen_user_id: user.id }, "-occurred_at", 30);
+      setWallet(w);
+      setTransactions(txns);
+    } catch (err) {
+      console.error("TeenWallet load failed:", err);
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
   }, [user.id]);
 
   useEffect(() => { load(); }, [load]);
 
   if (loading)
     return (
-      <div className="flex justify-center py-24">
-        <div className="w-8 h-8 border-[3px] border-muted border-t-primary rounded-full animate-spin" />
+      <div className="space-y-6">
+        <div className="h-8 w-48 rounded-lg bg-muted skeleton-shimmer" />
+        <div className="bg-card rounded-2xl border border-border h-32 skeleton-shimmer" />
+        <div className="grid grid-cols-2 gap-3">
+          <div className="bg-card rounded-2xl border border-border h-12 skeleton-shimmer" />
+          <div className="bg-card rounded-2xl border border-border h-12 skeleton-shimmer" />
+        </div>
       </div>
     );
+  if (error) return <ErrorRetry onRetry={load} />;
 
   return (
     <div className="space-y-6">

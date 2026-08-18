@@ -17,6 +17,7 @@ import EarningsBreakdown from "@/components/grind/teen/EarningsBreakdown";
 import JobHandshakePanel from "@/components/grind/JobHandshakePanel";
 import ApplePayButton from "@/components/grind/ApplePayButton";
 import CheckInTimeline from "@/components/grind/parent/CheckInTimeline";
+import ErrorRetry from "@/components/grind/ErrorRetry";
 
 export default function BookingDetail() {
   const { bookingId } = useParams();
@@ -26,6 +27,7 @@ export default function BookingDetail() {
   const [myReview, setMyReview] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [acting, setActing] = useState(false);
   const [reviewOpen, setReviewOpen] = useState(false);
   const [tipOpen, setTipOpen] = useState(false);
@@ -34,17 +36,24 @@ export default function BookingDetail() {
   const autoPromptedRef = useRef(false);
 
   const load = useCallback(async () => {
-    const [bookingRes, threads, reviewsRes] = await Promise.all([
-      base44.functions.invoke("getBookingDetail", { bookingId }),
-      base44.entities.MessageThread.filter({ booking_id: bookingId }),
-      base44.functions.invoke("getReviews", { booking_id: bookingId }),
-    ]);
-    setBooking(bookingRes.data?.booking || null);
-    setThread(threads[0] || null);
-    const allReviews = reviewsRes.data?.reviews || [];
-    setReviews(allReviews);
-    setMyReview(allReviews.find((r) => r.is_mine) || null);
-    setLoading(false);
+    try {
+      setError(false);
+      const [bookingRes, threads, reviewsRes] = await Promise.all([
+        base44.functions.invoke("getBookingDetail", { bookingId }),
+        base44.entities.MessageThread.filter({ booking_id: bookingId }),
+        base44.functions.invoke("getReviews", { booking_id: bookingId }),
+      ]);
+      setBooking(bookingRes.data?.booking || null);
+      setThread(threads[0] || null);
+      const allReviews = reviewsRes.data?.reviews || [];
+      setReviews(allReviews);
+      setMyReview(allReviews.find((r) => r.is_mine) || null);
+    } catch (err) {
+      console.error("BookingDetail load failed:", err);
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
   }, [bookingId, user.id]);
 
   useEffect(() => { load(); }, [load]);
@@ -61,7 +70,15 @@ export default function BookingDetail() {
   }, [booking, myReview, user]);
 
   if (loading)
-    return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-muted border-t-foreground rounded-full animate-spin" /></div>;
+    return (
+      <div className="space-y-4">
+        <div className="bg-card rounded-2xl border border-border p-6 h-48 skeleton-shimmer" />
+        <div className="space-y-3">
+          {Array.from({ length: 3 }).map((_, i) => <div key={i} className="bg-card rounded-2xl border border-border h-12 skeleton-shimmer" />)}
+        </div>
+      </div>
+    );
+  if (error) return <ErrorRetry onRetry={load} />;
   if (!booking) return <p className="text-center text-muted-foreground py-20">Booking not found.</p>;
 
   const isTeen = user.id === booking.teen_user_id;

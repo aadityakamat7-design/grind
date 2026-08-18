@@ -9,24 +9,33 @@ import PageHeader from "@/components/grind/PageHeader";
 import { money } from "@/lib/grind";
 import IdentityVerificationGate from "@/components/grind/parent/IdentityVerificationGate";
 import { useApprovalWithVerification } from "@/hooks/useApprovalWithVerification";
+import ErrorRetry from "@/components/grind/ErrorRetry";
 
 export default function ParentApprovals() {
   const { user } = useOutletContext();
   const [pending, setPending] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [profile, setProfile] = useState(null);
 
   const load = useCallback(async () => {
-    const [data, profiles] = await Promise.all([
-      base44.entities.Booking.filter(
-        { parent_user_id: user.id, status: "pending_parent_approval" },
-        "-created_date"
-      ),
-      base44.entities.ParentProfile.filter({ user_id: user.id }),
-    ]);
-    setPending(data);
-    setProfile(profiles[0] || null);
-    setLoading(false);
+    try {
+      setError(false);
+      const [data, profiles] = await Promise.all([
+        base44.entities.Booking.filter(
+          { parent_user_id: user.id, status: "pending_parent_approval" },
+          "-created_date"
+        ),
+        base44.entities.ParentProfile.filter({ user_id: user.id }),
+      ]);
+      setPending(data);
+      setProfile(profiles[0] || null);
+    } catch (err) {
+      console.error("ParentApprovals load failed:", err);
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
   }, [user.id]);
 
   useEffect(() => { load(); }, [load]);
@@ -53,10 +62,11 @@ export default function ParentApprovals() {
 
   if (loading)
     return (
-      <div className="flex justify-center py-24">
-        <div className="w-8 h-8 border-[3px] border-muted border-t-primary rounded-full animate-spin" />
+      <div className="space-y-4">
+        {Array.from({ length: 3 }).map((_, i) => <div key={i} className="bg-card rounded-2xl border border-border p-5 h-32 skeleton-shimmer" />)}
       </div>
     );
+  if (error) return <ErrorRetry onRetry={load} />;
 
   return (
     <div className="space-y-5">

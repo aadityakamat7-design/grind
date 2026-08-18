@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Link, useOutletContext } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { Search, CalendarDays, Repeat, ChevronRight } from "lucide-react";
+import { Search, CalendarDays, Repeat, ChevronRight, Star } from "lucide-react";
 import AppointmentCard from "@/components/grind/buyer/AppointmentCard";
 import SavedWorkers from "@/components/grind/buyer/SavedWorkers";
 import RecommendedTeens from "@/components/grind/buyer/RecommendedTeens";
@@ -9,6 +9,8 @@ import BookingCard from "@/components/grind/BookingCard";
 import ReferralCard from "@/components/grind/ReferralCard";
 import ReviewNudge from "@/components/grind/ReviewNudge";
 import PageHeader from "@/components/grind/PageHeader";
+import BuyerStatsGrid from "@/components/grind/buyer/BuyerStatsGrid";
+import ErrorRetry from "@/components/grind/ErrorRetry";
 import PullToRefresh from "@/components/PullToRefresh";
 
 export default function BuyerHome() {
@@ -17,11 +19,13 @@ export default function BuyerHome() {
   const [saved, setSaved] = useState([]);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   const load = useCallback(async () => {
     try {
+      setError(false);
       const [b, s, profiles] = await Promise.all([
-        base44.entities.Booking.filter({ buyer_user_id: user.id }, "-created_date", 50),
+        base44.entities.Booking.filter({ buyer_user_id: user.id }, "-created_date", 100),
         base44.entities.SavedTeen.filter({ buyer_user_id: user.id }),
         base44.entities.BuyerProfile.filter({ user_id: user.id }),
       ]);
@@ -30,6 +34,7 @@ export default function BuyerHome() {
       setProfile(profiles[0] || null);
     } catch (err) {
       console.error("BuyerHome load failed:", err);
+      setError(true);
     } finally {
       setLoading(false);
     }
@@ -44,10 +49,15 @@ export default function BuyerHome() {
 
   if (loading)
     return (
-      <div className="flex justify-center py-24">
-        <div className="w-8 h-8 border-[3px] border-muted border-t-primary rounded-full animate-spin" />
+      <div className="space-y-5">
+        <div className="h-8 w-56 rounded-lg bg-muted skeleton-shimmer" />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          {Array.from({ length: 6 }).map((_, i) => <div key={i} className="bg-card rounded-2xl border border-border p-4 h-24 skeleton-shimmer" />)}
+        </div>
+        <div className="bg-card rounded-2xl border border-border h-32 skeleton-shimmer" />
       </div>
     );
+  if (error) return <ErrorRetry onRetry={load} />;
 
   const active = bookings.filter((b) => b.status === "in_progress");
   const upcoming = bookings
@@ -59,6 +69,8 @@ export default function BuyerHome() {
     <PullToRefresh onRefresh={load}>
       <div className="space-y-6">
         <PageHeader title={`Hi, ${(user.full_name || "neighbor").split(" ")[0]} 👋`} subtitle="Trusted teen help, right in your neighborhood." />
+
+        <BuyerStatsGrid bookings={bookings} profile={profile} />
 
         <Link to="/browse" className="flex items-center gap-4 bg-primary rounded-2xl p-5 text-primary-foreground shadow-soft hover:opacity-95 active:scale-[0.99] transition-all">
           <div className="w-12 h-12 rounded-xl bg-primary-foreground/20 flex items-center justify-center shrink-0">
@@ -102,6 +114,18 @@ export default function BuyerHome() {
         </section>
 
         <ReviewNudge user={user} bookings={bookings} />
+
+        {profile?.avg_rating > 0 && (
+          <div className="bg-card rounded-2xl border border-border shadow-soft p-4 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center shrink-0">
+              <Star className="w-5 h-5 text-amber-500" />
+            </div>
+            <div>
+              <p className="font-bold text-foreground text-[14px]">{profile.avg_rating.toFixed(1)} ★ from teens</p>
+              <p className="text-[12px] text-muted-foreground">{profile.review_count || 0} review{(profile.review_count || 0) !== 1 ? "s" : ""}</p>
+            </div>
+          </div>
+        )}
 
         <ReferralCard profile={profile} />
 

@@ -9,28 +9,37 @@ import SavedTeensRow from "@/components/grind/SavedTeensRow";
 import PageHeader from "@/components/grind/PageHeader";
 import { CATEGORIES } from "@/lib/grind";
 import PullToRefresh from "@/components/PullToRefresh";
+import ErrorRetry from "@/components/grind/ErrorRetry";
 
 export default function Browse() {
   const { user } = useOutletContext();
   const [listings, setListings] = useState([]);
   const [buyerProfile, setBuyerProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
 
   const load = useCallback(async () => {
-    const [res, profiles] = await Promise.all([
-      base44.functions.invoke("searchTeens", {}),
-      base44.entities.BuyerProfile.filter({ user_id: user.id }),
-    ]);
-    const raw = res.data?.listings || [];
-    setListings(raw.map((l) => ({
-      ...l,
-      service_area: l.teen_resolved_city || "Local",
-      teen_zip: "",
-    })));
-    setBuyerProfile(profiles[0] || null);
-    setLoading(false);
+    try {
+      setError(false);
+      const [res, profiles] = await Promise.all([
+        base44.functions.invoke("searchTeens", {}),
+        base44.entities.BuyerProfile.filter({ user_id: user.id }),
+      ]);
+      const raw = res.data?.listings || [];
+      setListings(raw.map((l) => ({
+        ...l,
+        service_area: l.teen_resolved_city || "Local",
+        teen_zip: "",
+      })));
+      setBuyerProfile(profiles[0] || null);
+    } catch (err) {
+      console.error("Browse load failed:", err);
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
   }, [user.id]);
 
   useEffect(() => { load(); }, [load]);
@@ -42,10 +51,15 @@ export default function Browse() {
 
   if (loading)
     return (
-      <div className="flex justify-center py-24">
-        <div className="w-8 h-8 border-[3px] border-muted border-t-primary rounded-full animate-spin" />
+      <div className="space-y-5">
+        <div className="h-8 w-48 rounded-lg bg-muted skeleton-shimmer" />
+        <div className="h-12 rounded-full bg-muted skeleton-shimmer" />
+        <div className="grid sm:grid-cols-2 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => <div key={i} className="bg-card rounded-2xl border border-border h-40 skeleton-shimmer" />)}
+        </div>
       </div>
     );
+  if (error) return <ErrorRetry onRetry={load} />;
 
   const myZip = buyerProfile?.zip;
 

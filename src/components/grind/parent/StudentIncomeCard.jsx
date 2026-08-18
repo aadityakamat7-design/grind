@@ -1,9 +1,9 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Wallet, ArrowUpRight } from "lucide-react";
+import { Wallet, ArrowUpRight, Star, Briefcase } from "lucide-react";
 import { money } from "@/lib/grind";
 
-export default function StudentIncomeCard({ name, total, week, pending, connectStatus }) {
+export default function StudentIncomeCard({ name, total, week, pending, connectStatus, rating, reviewCount, jobsCompleted }) {
   const navigate = useNavigate();
   return (
     <div
@@ -32,7 +32,15 @@ export default function StudentIncomeCard({ name, total, week, pending, connectS
           <p className="text-[11px] text-slate-500">Pending escrow</p>
         </div>
       </div>
-      <p className={`text-[11px] font-semibold mt-3 ${connectStatus === "active" ? "text-emerald-600" : "text-amber-600"}`}>
+      <div className="flex items-center gap-4 mt-3 text-[11px] text-slate-500">
+        <span className="flex items-center gap-1">
+          <Star className="w-3 h-3 text-amber-500" /> {rating ? `${rating.toFixed(1)} (${reviewCount || 0})` : "No ratings"}
+        </span>
+        <span className="flex items-center gap-1">
+          <Briefcase className="w-3 h-3 text-slate-400" /> {jobsCompleted || 0} jobs
+        </span>
+      </div>
+      <p className={`text-[11px] font-semibold mt-2 ${connectStatus === "active" ? "text-emerald-600" : "text-amber-600"}`}>
         {connectStatus === "active" ? "● Payout account active — cash-outs land in your account" : "● Payout account not set up yet"}
       </p>
     </div>

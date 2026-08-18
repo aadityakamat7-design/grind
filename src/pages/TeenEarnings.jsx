@@ -4,6 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { format, subDays, subWeeks, subMonths, isAfter } from "date-fns";
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip } from "recharts";
 import { Download, Wallet } from "lucide-react";
+import ErrorRetry from "@/components/grind/ErrorRetry";
 
 const fmt = (n) => `$${Number(n || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 const fmtChange = (n) => `${n >= 0 ? "+" : "\u2212"}$${Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -104,20 +105,28 @@ export default function TeenEarnings() {
   const [cashouts, setCashouts] = useState([]);
   const [releasedBookings, setReleasedBookings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [range, setRange] = useState("1M");
 
   const load = useCallback(async () => {
-    const [r, h, c, rb] = await Promise.all([
-      base44.entities.EarningsRecord.filter({ teen_user_id: user.id }, "-occurred_at"),
-      base44.entities.Booking.filter({ teen_user_id: user.id, payment_status: "held" }),
-      base44.entities.WalletTransaction.filter({ teen_user_id: user.id, type: "cashout" }, "-occurred_at"),
-      base44.entities.Booking.filter({ teen_user_id: user.id, payment_status: "released" }),
-    ]);
-    setRecords(r);
-    setHeld(h);
-    setCashouts(c);
-    setReleasedBookings(rb);
-    setLoading(false);
+    try {
+      setError(false);
+      const [r, h, c, rb] = await Promise.all([
+        base44.entities.EarningsRecord.filter({ teen_user_id: user.id }, "-occurred_at"),
+        base44.entities.Booking.filter({ teen_user_id: user.id, payment_status: "held" }),
+        base44.entities.WalletTransaction.filter({ teen_user_id: user.id, type: "cashout" }, "-occurred_at"),
+        base44.entities.Booking.filter({ teen_user_id: user.id, payment_status: "released" }),
+      ]);
+      setRecords(r);
+      setHeld(h);
+      setCashouts(c);
+      setReleasedBookings(rb);
+    } catch (err) {
+      console.error("TeenEarnings load failed:", err);
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
   }, [user.id]);
 
   useEffect(() => { load(); }, [load]);
@@ -135,6 +144,14 @@ export default function TeenEarnings() {
         <div className="flex justify-center items-center" style={{ minHeight: "60vh" }}>
           <div className="w-8 h-8 border-4 rounded-full animate-spin" style={{ borderColor: "rgba(255,255,255,0.08)", borderTopColor: "#2D9CDB" }} />
         </div>
+      </Shell>
+    );
+  if (error)
+    return (
+      <Shell>
+        <button onClick={load} className="flex flex-col items-center gap-3 py-20 w-full">
+          <p className="text-sm font-medium" style={{ color: "#FF6B6B" }}>Couldn't load — tap to retry</p>
+        </button>
       </Shell>
     );
 

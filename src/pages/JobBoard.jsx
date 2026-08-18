@@ -10,6 +10,7 @@ import EmptyState from "@/components/grind/EmptyState";
 import PageHeader from "@/components/grind/PageHeader";
 import PullToRefresh from "@/components/PullToRefresh";
 import { toast } from "@/components/ui/use-toast";
+import ErrorRetry from "@/components/grind/ErrorRetry";
 
 export default function JobBoard() {
   const { user } = useOutletContext();
@@ -18,22 +19,30 @@ export default function JobBoard() {
   const [buyerProfile, setBuyerProfile] = useState(null);
   const [buyerRatings, setBuyerRatings] = useState({});
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [postOpen, setPostOpen] = useState(false);
 
   const load = useCallback(async () => {
-    if (isBuyer) {
-      const [mine, profiles] = await Promise.all([
-        base44.entities.JobPost.filter({ buyer_user_id: user.id }, "-created_date", 50),
-        base44.entities.BuyerProfile.filter({ user_id: user.id }),
-      ]);
-      setJobs(mine);
-      setBuyerProfile(profiles[0] || null);
-    } else {
-      const res = await base44.functions.invoke("getJobBoard", {});
-      setJobs(res.data.jobs);
-      setBuyerRatings(res.data.ratings);
+    try {
+      setError(false);
+      if (isBuyer) {
+        const [mine, profiles] = await Promise.all([
+          base44.entities.JobPost.filter({ buyer_user_id: user.id }, "-created_date", 50),
+          base44.entities.BuyerProfile.filter({ user_id: user.id }),
+        ]);
+        setJobs(mine);
+        setBuyerProfile(profiles[0] || null);
+      } else {
+        const res = await base44.functions.invoke("getJobBoard", {});
+        setJobs(res.data.jobs);
+        setBuyerRatings(res.data.ratings);
+      }
+    } catch (err) {
+      console.error("JobBoard load failed:", err);
+      setError(true);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }, [user.id, isBuyer]);
 
   useEffect(() => { load(); }, [load]);
@@ -54,10 +63,11 @@ export default function JobBoard() {
 
   if (loading)
     return (
-      <div className="flex justify-center py-24">
-        <div className="w-8 h-8 border-[3px] border-muted border-t-primary rounded-full animate-spin" />
+      <div className="space-y-3">
+        {Array.from({ length: 4 }).map((_, i) => <div key={i} className="bg-card rounded-2xl border border-border p-4 h-24 skeleton-shimmer" />)}
       </div>
     );
+  if (error) return <ErrorRetry onRetry={load} />;
 
   return (
     <PullToRefresh onRefresh={load}>

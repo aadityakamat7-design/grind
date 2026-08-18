@@ -8,6 +8,7 @@ import EmptyState from "@/components/grind/EmptyState";
 import PageHeader from "@/components/grind/PageHeader";
 import { money } from "@/lib/grind";
 import { toast } from "@/components/ui/use-toast";
+import ErrorRetry from "@/components/grind/ErrorRetry";
 
 const PAYOUT_LABELS = {
   transferred: { text: "In your bank in 1–2 business days", cls: "text-emerald-600", icon: CheckCircle2 },
@@ -21,22 +22,30 @@ export default function ParentPayouts() {
   const [records, setRecords] = useState([]);
   const [payoutByBooking, setPayoutByBooking] = useState({});
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [retrying, setRetrying] = useState(null);
 
   const load = useCallback(async () => {
-    const [profiles, links, released] = await Promise.all([
-      base44.entities.ParentProfile.filter({ user_id: user.id }),
-      base44.entities.ParentTeenLink.filter({ parent_user_id: user.id, status: "confirmed" }),
-      base44.entities.Booking.filter({ parent_user_id: user.id, payment_status: "released" }),
-    ]);
-    const teenIds = links.map((l) => l.teen_user_id);
-    const earnings = teenIds.length
-      ? await base44.entities.EarningsRecord.filter({ teen_user_id: { $in: teenIds } }, "-occurred_at")
-      : [];
-    setProfile(profiles[0] || null);
-    setRecords(earnings);
-    setPayoutByBooking(Object.fromEntries(released.map((b) => [b.id, b])));
-    setLoading(false);
+    try {
+      setError(false);
+      const [profiles, links, released] = await Promise.all([
+        base44.entities.ParentProfile.filter({ user_id: user.id }),
+        base44.entities.ParentTeenLink.filter({ parent_user_id: user.id, status: "confirmed" }),
+        base44.entities.Booking.filter({ parent_user_id: user.id, payment_status: "released" }),
+      ]);
+      const teenIds = links.map((l) => l.teen_user_id);
+      const earnings = teenIds.length
+        ? await base44.entities.EarningsRecord.filter({ teen_user_id: { $in: teenIds } }, "-occurred_at")
+        : [];
+      setProfile(profiles[0] || null);
+      setRecords(earnings);
+      setPayoutByBooking(Object.fromEntries(released.map((b) => [b.id, b])));
+    } catch (err) {
+      console.error("ParentPayouts load failed:", err);
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
   }, [user.id]);
 
   useEffect(() => { load(); }, [load]);
@@ -63,10 +72,15 @@ export default function ParentPayouts() {
 
   if (loading)
     return (
-      <div className="flex justify-center py-24">
-        <div className="w-8 h-8 border-[3px] border-muted border-t-primary rounded-full animate-spin" />
+      <div className="space-y-5">
+        <div className="h-8 w-40 rounded-lg bg-muted skeleton-shimmer" />
+        <div className="bg-card rounded-2xl border border-border h-32 skeleton-shimmer" />
+        <div className="space-y-3">
+          {Array.from({ length: 3 }).map((_, i) => <div key={i} className="bg-card rounded-2xl border border-border h-20 skeleton-shimmer" />)}
+        </div>
       </div>
     );
+  if (error) return <ErrorRetry onRetry={load} />;
 
   const total = records.reduce((s, r) => s + (r.net_amount || 0), 0);
 

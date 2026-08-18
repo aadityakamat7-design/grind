@@ -2,7 +2,7 @@ import React from "react";
 import { useOutletContext } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { LogOut, UserCircle, ShieldCheck } from "lucide-react";
+import { LogOut, ShieldCheck } from "lucide-react";
 import PageHeader from "@/components/grind/PageHeader";
 import DeleteAccountButton from "@/components/grind/DeleteAccountButton";
 
