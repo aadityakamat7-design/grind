@@ -21,13 +21,13 @@ const ROLE_HOME = { teen: "/teen", parent: "/parent", buyer: "/buyer", admin: "/
 
 function Section({ id, eyebrow, title, subtitle, children, className = "" }) {
   return (
-    <section id={id} className={`relative z-10 max-w-6xl mx-auto px-6 py-20 sm:py-24 ${className}`}>
+    <section id={id} className={`relative z-10 max-w-6xl mx-auto px-6 py-12 sm:py-16 ${className}`}>
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 16 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-60px" }}
-        transition={{ duration: 0.6 }}
-        className="text-center mb-12"
+        transition={{ duration: 0.5 }}
+        className="text-center mb-8"
       >
         {eyebrow && <p className="text-xs font-semibold text-muted-foreground uppercase tracking-[0.2em] mb-3">{eyebrow}</p>}
         <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">{title}</h2>
@@ -120,13 +120,13 @@ export default function Welcome() {
       </Section>
 
       {/* Final CTA */}
-      <section className="relative z-10 max-w-4xl mx-auto px-6 pb-24">
+      <section className="relative z-10 max-w-4xl mx-auto px-6 pb-16">
         <motion.div
           initial={{ opacity: 0, scale: 0.97 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="relative overflow-hidden bg-card rounded-3xl p-10 sm:p-14 text-center shadow-elevated"
+          transition={{ duration: 0.5 }}
+          className="relative overflow-hidden bg-card rounded-3xl p-8 sm:p-12 text-center shadow-elevated"
         >
           <div className="absolute -top-20 -right-20 w-64 h-64 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">Ready to Get Started?</h2>

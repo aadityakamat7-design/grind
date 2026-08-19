@@ -8,7 +8,7 @@ import EmptyState from "@/components/grind/EmptyState";
 import StudentIncomeCard from "@/components/grind/parent/StudentIncomeCard";
 import ApprovalQueue from "@/components/grind/parent/ApprovalQueue";
 import SafetyPanel from "@/components/grind/parent/SafetyPanel";
-import ActivityFeed from "@/components/grind/parent/ActivityFeed";
+
 import PayoutStatusCard from "@/components/grind/parent/PayoutStatusCard";
 import LinkTeenDialog from "@/components/grind/parent/LinkTeenDialog";
 import LinkTeenCard from "@/components/grind/parent/LinkTeenCard";
@@ -203,8 +203,6 @@ export default function ParentDashboard() {
             </div>
           )}
         </section>
-
-        <ActivityFeed notifications={notifications} />
 
         <div className="pt-2">
           <LinkTeenDialog onLinked={load} />

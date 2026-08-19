@@ -12,7 +12,7 @@ const TRUST_POINTS = [
 // Split hero: text left, floating 3D-tilted phone right.
 export default function SplitHero({ onGetStarted, onLogin }) {
   return (
-    <div className="relative min-h-[90vh] flex items-center py-16">
+    <div className="relative min-h-[70vh] flex items-center py-10">
       <div className="relative z-10 max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-[45%_55%] gap-10 md:gap-6 items-center w-full">
         {/* Left column */}
         <div className="text-center md:text-left order-2 md:order-1">
