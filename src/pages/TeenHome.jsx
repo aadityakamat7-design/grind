@@ -7,6 +7,7 @@ import PageHeader from "@/components/grind/PageHeader";
 import AvailabilityToggle from "@/components/grind/AvailabilityToggle";
 import AlertParentButton from "@/components/grind/AlertParentButton";
 import InviteCodeCard from "@/components/grind/teen/InviteCodeCard";
+import RedeemReferralCard from "@/components/grind/teen/RedeemReferralCard";
 import MessagesWidget from "@/components/grind/teen/MessagesWidget";
 import CashOutDialog from "@/components/grind/wallet/CashOutDialog";
 import TeenStatsGrid from "@/components/grind/teen/TeenStatsGrid";
@@ -117,6 +118,8 @@ export default function TeenHome() {
         <ProfileCompleteness profile={profile} />
 
         <InviteCodeCard profile={profile} onUpdated={load} />
+
+        <RedeemReferralCard profile={profile} />
 
         {profile && <AvailabilityToggle profile={profile} onChanged={load} />}
 
