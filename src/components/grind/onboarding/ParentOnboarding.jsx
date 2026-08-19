@@ -74,6 +74,7 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
     try {
       const res = await base44.functions.invoke("confirmParentLink", {
         inviteCode: code.trim().toUpperCase(),
+        attestRelationship: consents.relationship === true,
         consents,
         stateRulesAcknowledged: stateRulesAck,
         userAgent: navigator.userAgent,
