@@ -38,6 +38,9 @@ const getAppParams = () => {
 	if (getAppParamValue("clear_access_token") === 'true') {
 		storage.removeItem('base44_access_token');
 		storage.removeItem('token');
+		// Clear the persisted flag so it doesn't wipe the token on every future
+		// load — without this, a single logout permanently breaks new sessions.
+		storage.removeItem('base44_clear_access_token');
 	}
 	return {
 		appId: getAppParamValue("app_id", { defaultValue: import.meta.env.VITE_BASE44_APP_ID }),
