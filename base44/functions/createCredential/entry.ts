@@ -9,6 +9,22 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const ALLOWED_CONTENT_TYPES = [
   'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf',
 ];
+// Trusted storage hosts — only these may be fetched server-side for HEAD
+// validation. Prevents SSRF via user-supplied fileUrl pointing at internal
+// services, loopback, or cloud metadata endpoints.
+const ALLOWED_HOSTS = ['media.base44.com', 'static.wixstatic.com'];
+
+function isAllowedFileUrl(rawUrl) {
+  let parsed;
+  try {
+    parsed = new URL(rawUrl);
+  } catch {
+    return false;
+  }
+  if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') return false;
+  const host = parsed.hostname.toLowerCase();
+  return ALLOWED_HOSTS.some((h) => host === h || host.endsWith('.' + h));
+}
 
 Deno.serve(async (req) => {
   try {
@@ -23,11 +39,17 @@ Deno.serve(async (req) => {
 
     // --- Server-side file validation ---
 
-    // 1. Extension check
+    // 1. URL + extension check (SSRF guard: only trusted storage hosts)
     let ext = '';
     try {
-      const urlPath = new URL(fileUrl).pathname.toLowerCase();
-      ext = urlPath.substring(urlPath.lastIndexOf('.'));
+      const parsed = new URL(fileUrl);
+      if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') {
+        return Response.json({ error: 'Invalid file URL.' }, { status: 400 });
+      }
+      if (!isAllowedFileUrl(fileUrl)) {
+        return Response.json({ error: 'File URL must point to KickStart storage.' }, { status: 400 });
+      }
+      ext = parsed.pathname.toLowerCase().substring(parsed.pathname.lastIndexOf('.'));
     } catch {
       return Response.json({ error: 'Invalid file URL.' }, { status: 400 });
     }
