@@ -117,11 +117,6 @@ Deno.serve(async (req) => {
       await svc.Booking.update(booking.id, { session_link: generateSessionLink(booking.id) });
     }
 
-    // The teen must verify their own identity the first time they accept a
-    // job. For minors, the parent can only approve once the teen is verified.
-    // For 18+ teens, the booking is already confirmed.
-    const identityRequired = profile.identity_status !== 'verified';
-
     await svc.MessageThread.create({
       booking_id: booking.id,
       listing_title: job.title,
@@ -170,7 +165,7 @@ Deno.serve(async (req) => {
       read: false,
     });
 
-    return Response.json({ success: true, bookingId: booking.id, identityRequired });
+    return Response.json({ success: true, bookingId: booking.id });
   } catch (error) {
     console.error('acceptJobPost error:', error.message);
     return Response.json({ error: 'Something went wrong' }, { status: 500 });

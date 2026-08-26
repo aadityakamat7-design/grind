@@ -1,7 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 import { getStripe } from '../../shared/stripeEnv.ts';
 import { applyVerifiedIdentity } from '../../shared/identityVerification.ts';
-import { applyTeenVerifiedIdentity } from '../../shared/teenIdentityVerification.ts';
 import { applyBuyerVerifiedIdentity } from '../../shared/buyerIdentityVerification.ts';
 import { recordFinish, recordBuyerStartAfterPayment } from '../../shared/jobHandshake.ts';
 
@@ -103,9 +102,7 @@ Deno.serve(async (req) => {
       const session = event.data.object;
       const subject = session.metadata?.verification_subject;
       let result;
-      if (subject === 'teen') {
-        result = await applyTeenVerifiedIdentity(base44, stripe, session.id);
-      } else if (subject === 'buyer') {
+      if (subject === 'buyer') {
         result = await applyBuyerVerifiedIdentity(base44, stripe, session.id);
       } else {
         result = await applyVerifiedIdentity(base44, stripe, session.id);
@@ -117,12 +114,7 @@ Deno.serve(async (req) => {
       const session = event.data.object;
       const reason = session.last_error?.reason || 'Verification needs to be retried';
       const subject = session.metadata?.verification_subject;
-      if (subject === 'teen') {
-        const profiles = await base44.asServiceRole.entities.TeenProfile.filter({ identity_session_id: session.id });
-        if (profiles[0]) {
-          await base44.asServiceRole.entities.TeenProfile.update(profiles[0].id, { identity_status: 'failed' });
-        }
-      } else if (subject === 'buyer') {
+      if (subject === 'buyer') {
         const profiles = await base44.asServiceRole.entities.BuyerProfile.filter({ identity_session_id: session.id });
         if (profiles[0]) {
           await base44.asServiceRole.entities.BuyerProfile.update(profiles[0].id, { id_verification_status: 'failed' });

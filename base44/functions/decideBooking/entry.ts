@@ -31,13 +31,6 @@ Deno.serve(async (req) => {
       if (profiles[0]?.connect_status !== 'active') {
         return Response.json({ error: 'You need to connect your bank account before approving bookings. Complete payout setup in your dashboard.' }, { status: 403 });
       }
-      // The teen must have completed their own identity verification before
-      // the parent can approve their first job. Once verified, this check
-      // passes for all future jobs.
-      const teenProfiles = await base44.asServiceRole.entities.TeenProfile.filter({ user_id: booking.teen_user_id });
-      if (teenProfiles[0]?.identity_status !== 'verified') {
-        return Response.json({ error: "Your teen hasn't completed their identity verification yet. They need to verify before this job can be approved." }, { status: 403 });
-      }
       await base44.asServiceRole.entities.Booking.update(booking.id, { status: 'confirmed' });
       const threads = await base44.asServiceRole.entities.MessageThread.filter({ booking_id: booking.id });
       if (threads[0]) {

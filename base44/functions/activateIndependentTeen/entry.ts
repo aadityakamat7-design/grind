@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
+import { getVerifiedAge } from '../../shared/teenAge.ts';
 
 // Activates a teen profile without a parent link — only allowed for users 18+.
 // The TeenProfile.status field is admin-write-only (RLS), so this server
@@ -11,22 +12,10 @@ Deno.serve(async (req) => {
 
     const svc = base44.asServiceRole.entities;
 
-    // Require a Stripe-verified DOB — the self-reported date_of_birth is
-    // user-writable and cannot be trusted for age-gating. verified_dob is
-    // admin-write-only (RLS), so only identity verification can set it.
     const privateRecords = await svc.TeenPrivateData.filter({ user_id: user.id });
     const privateData = privateRecords[0];
-    if (!privateData || !privateData.verified_dob) {
-      return Response.json({ error: 'Identity verification required to activate without a parent.' }, { status: 403 });
-    }
-
-    const dob = new Date(privateData.verified_dob);
-    const now = new Date();
-    let age = now.getFullYear() - dob.getFullYear();
-    const m = now.getMonth() - dob.getMonth();
-    if (m < 0 || (m === 0 && now.getDate() < dob.getDate())) age--;
-
-    if (age < 18) {
+    const age = getVerifiedAge(privateData);
+    if (age == null || age < 18) {
       return Response.json({ error: 'Only users 18 and older can activate without a parent.' }, { status: 403 });
     }
 
