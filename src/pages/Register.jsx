@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { UserPlus, Mail, Lock, Loader2 } from "lucide-react";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import { Checkbox } from "@/components/ui/checkbox";
 import AuthLayout from "@/components/AuthLayout";
 import GoogleIcon from "@/components/GoogleIcon";
 import RolePicker from "@/components/grind/onboarding/RolePicker";
@@ -27,6 +28,7 @@ export default function Register() {
   const [showOtp, setShowOtp] = useState(false);
   const [legalModal, setLegalModal] = useState(null);
   const [otpCode, setOtpCode] = useState("");
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -299,7 +301,21 @@ export default function Register() {
             />
           </div>
         </div>
-        <Button type="submit" className="w-full h-12 font-medium" disabled={loading}>
+        <div className="flex items-start gap-2">
+          <Checkbox
+            id="agree"
+            checked={agreedToTerms}
+            onCheckedChange={(v) => setAgreedToTerms(!!v)}
+            className="mt-0.5"
+          />
+          <Label htmlFor="agree" className="text-xs font-normal text-muted-foreground cursor-pointer leading-relaxed">
+            I agree to the{" "}
+            <button type="button" onClick={() => setLegalModal("terms")} className="text-foreground font-medium hover:underline">Terms of Service</button>
+            {" "}and{" "}
+            <button type="button" onClick={() => setLegalModal("privacy")} className="text-foreground font-medium hover:underline">Privacy Policy</button>.
+          </Label>
+        </div>
+        <Button type="submit" className="w-full h-12 font-medium" disabled={loading || !agreedToTerms}>
           {loading ? (
             <>
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -309,12 +325,6 @@ export default function Register() {
             "Create account"
           )}
         </Button>
-        <p className="text-center text-xs text-muted-foreground mt-4">
-          By creating an account, you agree to our{" "}
-          <button type="button" onClick={() => setLegalModal("terms")} className="text-foreground font-medium hover:underline">Terms of Service</button>
-          {" "}and{" "}
-          <button type="button" onClick={() => setLegalModal("privacy")} className="text-foreground font-medium hover:underline">Privacy Policy</button>.
-        </p>
       </form>
       <LegalModal type={legalModal} open={!!legalModal} onOpenChange={(v) => !v && setLegalModal(null)} />
     </AuthLayout>
