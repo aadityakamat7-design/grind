@@ -1,0 +1,149 @@
+{
+  "auth": "oauth",
+  "tools": {
+    "functions": [
+      {
+        "name": "search_teens",
+        "title": "Search available teens",
+        "description": "Find teen service listings near the signed-in neighbor, filtered by distance and category eligibility. Returns listings with teen display name, category, price, rating, and distance — never raw coordinates. Call when the user asks to browse or find local teens for a job.",
+        "input_schema": { "type": "object", "properties": {} },
+        "handler": "searchTeens",
+        "annotations": { "read_only_hint": true, "destructive_hint": false, "idempotent_hint": true }
+      },
+      {
+        "name": "get_job_board",
+        "title": "List open jobs",
+        "description": "Returns open job posts the signed-in teen can accept, with physical addresses stripped and per-job age eligibility computed. Call when a teen wants to see available work.",
+        "input_schema": { "type": "object", "properties": {} },
+        "handler": "getJobBoard",
+        "annotations": { "read_only_hint": true, "destructive_hint": false, "idempotent_hint": true }
+      },
+      {
+        "name": "get_booking_detail",
+        "title": "Get booking details",
+        "description": "Returns a single booking with financial fields stripped based on the viewer's role (teen, buyer, parent, or admin). Call to check the status, schedule, or payment state of a specific job.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "bookingId": { "type": "string", "description": "The booking record id" }
+          },
+          "required": ["bookingId"]
+        },
+        "handler": "getBookingDetail",
+        "annotations": { "read_only_hint": true, "destructive_hint": false, "idempotent_hint": true }
+      },
+      {
+        "name": "get_reviews",
+        "title": "Get reviews",
+        "description": "Returns anonymized reviews for a user (by subject_id) or a booking (by booking_id). Author names are hidden; only admins see full data. Pass exactly one of subject_id or booking_id.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "subject_id": { "type": "string", "description": "User id to fetch reviews about (mutually exclusive with booking_id)" },
+            "booking_id": { "type": "string", "description": "Booking id to fetch reviews for (mutually exclusive with subject_id)" }
+          }
+        },
+        "handler": "getReviews",
+        "annotations": { "read_only_hint": true, "destructive_hint": false, "idempotent_hint": true }
+      },
+      {
+        "name": "send_message",
+        "title": "Send chat message",
+        "description": "Sends a message in a booking conversation thread. PII and off-platform contact info are masked server-side; flagged messages notify admins and the teen's parent. Only the teen or buyer on the thread can send.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "threadId": { "type": "string", "description": "The conversation thread id" },
+            "body": { "type": "string", "description": "The message text (max ~1000 chars)" }
+          },
+          "required": ["threadId", "body"]
+        },
+        "handler": "sendMessage",
+        "annotations": { "read_only_hint": false, "destructive_hint": false, "idempotent_hint": false }
+      },
+      {
+        "name": "create_booking",
+        "title": "Book a teen",
+        "description": "Creates a booking from a listing. For outdoor jobs, address is required and must be within the teen's service radius and same state. For hourly listings, pass hours. Returns the new booking id.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "listingId": { "type": "string", "description": "The listing to book" },
+            "scheduledStart": { "type": "string", "description": "ISO date-time for the job start" },
+            "address": { "type": "string", "description": "Job site address (required for outdoor jobs, omitted for online)" },
+            "notes": { "type": "string", "description": "Optional notes for the teen" },
+            "recurrence": { "type": "string", "description": "Optional recurrence: weekly, biweekly, or monthly", "enum": ["weekly", "biweekly", "monthly"] },
+            "hours": { "type": "number", "description": "Number of hours (required for HOURLY listings, 0–24)" }
+          },
+          "required": ["listingId"]
+        },
+        "handler": "createBooking",
+        "annotations": { "read_only_hint": false, "destructive_hint": false, "idempotent_hint": false }
+      },
+      {
+        "name": "accept_job",
+        "title": "Accept a job post",
+        "description": "A teen claims an open job post, creating a booking. Enforces age, category, and parent-link requirements. Returns the new booking id.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "jobId": { "type": "string", "description": "The open job post id to accept" }
+          },
+          "required": ["jobId"]
+        },
+        "handler": "acceptJobPost",
+        "annotations": { "read_only_hint": false, "destructive_hint": false, "idempotent_hint": false }
+      },
+      {
+        "name": "job_handshake",
+        "title": "Advance job state",
+        "description": "Drives the photo-proof job completion flow. Action 'start' confirms the job has begun (buyer pays escrow on start). 'finish' (teen only) marks the job done with completion photos. 'confirm' (buyer only) releases escrow to the teen. 'dispute' (buyer only) holds escrow for admin review.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "bookingId": { "type": "string", "description": "The booking id" },
+            "action": { "type": "string", "description": "One of: start, finish, confirm, dispute", "enum": ["start", "finish", "confirm", "dispute"] },
+            "completionPhotos": { "type": "array", "items": { "type": "string" }, "description": "Photo URLs (required for finish action, at least one)" },
+            "tipAmount": { "type": "number", "description": "Tip in dollars (optional for confirm action, 0–200)" },
+            "disputeReason": { "type": "string", "description": "Explanation of the problem (required for dispute action)" }
+          },
+          "required": ["bookingId", "action"]
+        },
+        "handler": "jobHandshake",
+        "annotations": { "read_only_hint": false, "destructive_hint": false, "idempotent_hint": false }
+      },
+      {
+        "name": "submit_review",
+        "title": "Leave a review",
+        "description": "Submits a 1–5 star review after a completed booking. The buyer reviews the teen (buyer_to_teen) or the teen reviews the buyer (teen_to_buyer). Only the correct party on the booking can review.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "bookingId": { "type": "string", "description": "The completed booking id" },
+            "direction": { "type": "string", "description": "Who is being reviewed", "enum": ["buyer_to_teen", "teen_to_buyer"] },
+            "rating": { "type": "number", "description": "Whole-number rating from 1 to 5" },
+            "text": { "type": "string", "description": "Review text (max 500 chars)" },
+            "tags": { "type": "array", "items": { "type": "string" }, "description": "Optional quick-tag chips" }
+          },
+          "required": ["bookingId", "direction", "rating"]
+        },
+        "handler": "submitReview",
+        "annotations": { "read_only_hint": false, "destructive_hint": false, "idempotent_hint": false }
+      },
+      {
+        "name": "alert_parent",
+        "title": "Send safety alert",
+        "description": "Instantly notifies the teen's linked parent about a safety concern on a booking. Only the teen on the booking can trigger this.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "bookingId": { "type": "string", "description": "The booking where the teen feels unsafe" }
+          },
+          "required": ["bookingId"]
+        },
+        "handler": "alertParent",
+        "annotations": { "read_only_hint": false, "destructive_hint": false, "idempotent_hint": true }
+      }
+    ]
+  }
+}

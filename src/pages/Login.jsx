@@ -9,6 +9,7 @@ import AuthLayout from "@/components/AuthLayout";
 import GoogleIcon from "@/components/GoogleIcon";
 import { Checkbox } from "@/components/ui/checkbox";
 import VerifyEmailForm from "@/components/VerifyEmailForm";
+import { safeReturnTo } from "@/lib/authReturnTo";
 
 export default function Login() {
   const [email, setEmail] = useState(() => localStorage.getItem("grind_remembered_email") || "");
@@ -29,7 +30,7 @@ export default function Login() {
       } else {
         localStorage.removeItem("grind_remembered_email");
       }
-      window.location.href = "/onboarding";
+      window.location.href = safeReturnTo();
     } catch (err) {
       const msg = err?.data?.detail || err?.response?.data?.detail || err?.message || "";
       const status = err?.status || err?.response?.status;
@@ -55,7 +56,7 @@ export default function Login() {
   useEffect(() => {
     const wantsGoogle = new URLSearchParams(window.location.search).get("google") === "1";
     if (wantsGoogle && window.self === window.top) {
-      base44.auth.loginWithProvider("google", "/onboarding");
+      base44.auth.loginWithProvider("google", safeReturnTo());
     }
   }, []);
 
@@ -64,7 +65,7 @@ export default function Login() {
       setError("Google sign-in isn't available inside the preview. Use email and password here, or open the published app to use Google.");
       return;
     }
-    base44.auth.loginWithProvider("google", "/onboarding");
+    base44.auth.loginWithProvider("google", safeReturnTo());
   };
 
   if (needsVerification) {

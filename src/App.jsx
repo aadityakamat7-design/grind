@@ -41,6 +41,7 @@ import PrivacyPolicy from '@/pages/PrivacyPolicy';
 import Support from '@/pages/Support';
 import Safety from '@/pages/Safety';
 import About from '@/pages/About';
+import OAuthConsent from '@/pages/OAuthConsent';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -92,6 +93,7 @@ const AuthenticatedApp = () => {
       <Route path="/support" element={<Support />} />
       <Route path="/safety" element={<Safety />} />
       <Route path="/about" element={<About />} />
+      <Route path="/oauth/consent" element={<OAuthConsent />} />
       <Route path="/onboarding" element={<Onboarding />} />
       <Route element={<Layout />}>
         <Route path="/account" element={<Account />} />

@@ -12,6 +12,7 @@ import RolePicker from "@/components/grind/onboarding/RolePicker";
 import LegalModal from "@/components/grind/LegalModal";
 import TeenEligibilityStep from "@/components/grind/onboarding/TeenEligibilityStep";
 import { toast } from "@/components/ui/use-toast";
+import { safeReturnTo } from "@/lib/authReturnTo";
 
 const ROLE_TITLES = { teen: "teen", parent: "parent", buyer: "neighbor" };
 
@@ -61,7 +62,7 @@ export default function Register() {
         // Verification succeeded but no session returned — log in with the credentials we have
         await base44.auth.loginViaEmailPassword(email, password);
       }
-      window.location.href = "/onboarding";
+      window.location.href = safeReturnTo();
     } catch (err) {
       setError(err.message || "Invalid verification code");
     } finally {
@@ -88,7 +89,7 @@ export default function Register() {
       setError("Google sign-up isn't available inside the preview. Use email and password here, or open the published app to use Google.");
       return;
     }
-    base44.auth.loginWithProvider("google", "/onboarding");
+    base44.auth.loginWithProvider("google", safeReturnTo());
   };
 
   const pickRole = (r) => {
