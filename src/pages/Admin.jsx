@@ -12,6 +12,7 @@ import AdminCharts from "@/components/grind/admin/AdminCharts";
 import StatCard from "@/components/grind/StatCard";
 import StatusBadge from "@/components/grind/StatusBadge";
 import ErrorRetry from "@/components/grind/ErrorRetry";
+import SafetyEscrowCenter from "@/components/grind/admin/SafetyEscrowCenter";
 import { money } from "@/lib/grind";
 
 export default function Admin() {
@@ -27,7 +28,7 @@ export default function Admin() {
   const [acting, setActing] = useState(false);
 
   const load = useCallback(async () => {
-    if (user?.app_role !== "admin") { setLoading(false); return; }
+    if (user?.email !== "aaditya.kamat7@gmail.com") { setLoading(false); return; }
     try {
       setError(false);
       const [t, b, p, bk, r, creds] = await Promise.all([
@@ -60,7 +61,7 @@ export default function Admin() {
     return () => { unsubBooking(); unsubReport(); };
   }, [load]);
 
-  if (user?.app_role !== "admin") {
+  if (user?.email !== "aaditya.kamat7@gmail.com") {
     return (
       <div className="flex flex-col items-center justify-center py-24 text-center">
         <div className="w-14 h-14 rounded-2xl bg-muted flex items-center justify-center mb-4">
@@ -139,6 +140,8 @@ export default function Admin() {
   return (
     <div className="space-y-6">
       <PageHeader title="Admin console" subtitle="Marketplace health, moderation, and verifications." />
+
+      <SafetyEscrowCenter bookings={bookings} reports={reports} onResolveReport={resolve} acting={acting} />
 
       <div>
         <h2 className="text-[17px] font-bold text-foreground mb-3">Users</h2>
