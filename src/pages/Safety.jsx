@@ -1,9 +1,14 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { ShieldCheck, ArrowLeft, IdCard, Landmark, Lock, Eye, MessageSquare, AlertTriangle, Users } from "lucide-react";
+import { ShieldCheck, ArrowLeft, IdCard, Landmark, Lock, Eye, MessageSquare, AlertTriangle, Users, Home } from "lucide-react";
 import SiteFooter from "@/components/SiteFooter";
 
 const PILLARS = [
+  {
+    icon: Home,
+    title: "No home entry — ever",
+    body: "Teens never enter a client's home under any circumstances. All in-person work is performed outdoors on the exterior of the property, and all tutoring and tech help is conducted remotely over video. Requesting or permitting a teen to enter a residence is a material violation of our terms and grounds for immediate account termination.",
+  },
   {
     icon: IdCard,
     title: "Identity verification for everyone",
@@ -55,7 +60,7 @@ export default function Safety() {
           <h1 className="text-2xl font-bold text-foreground">Safety at KickStart</h1>
         </div>
         <p className="text-sm text-muted-foreground leading-relaxed mb-8">
-          Safety isn't a feature — it's the foundation of everything we built. KickStart connects neighborhood teens with local work, but only inside a system designed to protect young people and give parents confidence. Here's how every layer works.
+          Safety isn't a feature — it's the foundation of everything we built. KickStart connects neighborhood teens with outdoor tasks and online tutoring, but only inside a system designed to protect young people and give parents confidence. Teens never enter a client's home — all in-person work happens outdoors, and all tutoring happens over video. Here's how every layer works.
         </p>
         <div className="space-y-4">
           {PILLARS.map((p) => {
