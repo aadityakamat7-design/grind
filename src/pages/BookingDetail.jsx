@@ -15,6 +15,8 @@ import AlertParentButton from "@/components/grind/AlertParentButton";
 import PaymentStatusTracker from "@/components/grind/PaymentStatusTracker";
 import EarningsBreakdown from "@/components/grind/teen/EarningsBreakdown";
 import JobHandshakePanel from "@/components/grind/JobHandshakePanel";
+import CompletionPhotoUpload from "@/components/grind/CompletionPhotoUpload";
+import DisputeDialog from "@/components/grind/DisputeDialog";
 import ApplePayButton from "@/components/grind/ApplePayButton";
 import CheckInTimeline from "@/components/grind/parent/CheckInTimeline";
 import ErrorRetry from "@/components/grind/ErrorRetry";
@@ -32,6 +34,8 @@ export default function BookingDetail() {
   const [reviewOpen, setReviewOpen] = useState(false);
   const [tipOpen, setTipOpen] = useState(false);
   const [reschedOpen, setReschedOpen] = useState(false);
+  const [photoUploadOpen, setPhotoUploadOpen] = useState(false);
+  const [disputeOpen, setDisputeOpen] = useState(false);
   const [handshakeError, setHandshakeError] = useState("");
   const autoPromptedRef = useRef(false);
 
@@ -84,7 +88,7 @@ export default function BookingDetail() {
   const isTeen = user.id === booking.teen_user_id;
   const isBuyer = user.id === booking.buyer_user_id;
   const isParent = user.id === booking.parent_user_id;
-  const confirmedPlus = ["confirmed", "in_progress", "completed"].includes(booking.status);
+  const confirmedPlus = ["confirmed", "in_progress", "completed", "disputed"].includes(booking.status);
   const addressVisible = isBuyer || isParent || (isTeen && confirmedPlus);
 
   const cancelBooking = async () => {
@@ -117,8 +121,8 @@ export default function BookingDetail() {
 
   const canReview = booking.status === "completed" && !myReview && (isTeen || isBuyer);
 
-  // Both sides must confirm — the server decides when the job actually
-  // starts, completes, and when the escrowed payment is released.
+  // The server controls all state transitions — start, finish (with photos),
+  // confirm, dispute, and escrow release.
   const startJob = async () => {
     setActing(true);
     setHandshakeError("");
@@ -142,24 +146,9 @@ export default function BookingDetail() {
     load();
   };
 
-  const finishJob = async () => {
-    // The neighbor finishes through the tip dialog so they can add a tip.
-    if (isBuyer) {
-      setTipOpen(true);
-      return;
-    }
-    setActing(true);
-    setHandshakeError("");
-    try {
-      await base44.functions.invoke("jobHandshake", { bookingId: booking.id, action: "finish" });
-    } catch (err) {
-      setHandshakeError(err.response?.data?.error || "Couldn't finish the job. Please try again.");
-      setActing(false);
-      return;
-    }
-    setActing(false);
-    load();
-  };
+  const finishJob = () => setPhotoUploadOpen(true);
+  const confirmJob = () => setTipOpen(true);
+  const disputeJob = () => setDisputeOpen(true);
 
   return (
     <div className="space-y-5">
@@ -284,6 +273,8 @@ export default function BookingDetail() {
           acting={acting}
           onStart={startJob}
           onFinish={finishJob}
+          onConfirm={confirmJob}
+          onDispute={disputeJob}
         />
         {handshakeError && <p className="text-xs text-destructive font-medium text-center">{handshakeError}</p>}
         {isTeen && booking.status === "in_progress" && <AlertParentButton booking={booking} />}
@@ -378,6 +369,22 @@ export default function BookingDetail() {
           booking={booking}
           author={user}
           direction={isBuyer ? "buyer_to_teen" : "teen_to_buyer"}
+          onDone={load}
+        />
+      )}
+      {photoUploadOpen && (
+        <CompletionPhotoUpload
+          open={photoUploadOpen}
+          onOpenChange={setPhotoUploadOpen}
+          booking={booking}
+          onDone={load}
+        />
+      )}
+      {disputeOpen && (
+        <DisputeDialog
+          open={disputeOpen}
+          onOpenChange={setDisputeOpen}
+          booking={booking}
           onDone={load}
         />
       )}

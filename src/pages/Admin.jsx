@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/grind/PageHeader";
 import ReportRow from "@/components/grind/admin/ReportRow";
 import PayoutReviewQueue from "@/components/grind/admin/PayoutReviewQueue";
+import DisputeReviewQueue from "@/components/grind/admin/DisputeReviewQueue";
 import CredentialReviewQueue from "@/components/grind/admin/CredentialReviewQueue";
 import AdminCharts from "@/components/grind/admin/AdminCharts";
 import StatCard from "@/components/grind/StatCard";
@@ -175,6 +176,8 @@ export default function Admin() {
       </div>
 
       <PayoutReviewQueue bookings={bookings} onDone={load} />
+
+      <DisputeReviewQueue bookings={bookings} onDone={load} />
 
       <CredentialReviewQueue credentials={credentials} onDone={load} />
 

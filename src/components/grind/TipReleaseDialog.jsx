@@ -8,19 +8,19 @@ import { money } from "@/lib/grind";
 
 const PRESETS = [0, 2, 5, 10];
 
+// Buyer confirms the job is done correctly and optionally adds a tip. Payment
+// is released to the teen's parent immediately (or after the tip clears Stripe).
 export default function TipReleaseDialog({ open, onOpenChange, booking, onReleased }) {
   const [tip, setTip] = useState("0");
   const [saving, setSaving] = useState(false);
   const tipAmt = Math.max(0, Number(tip) || 0);
-  const teenGets = booking.net_amount + tipAmt;
+  const teenGets = (booking.net_amount || 0) + tipAmt;
 
-  const release = async () => {
+  const confirm = async () => {
     setSaving(true);
-    // Records the buyer's "finish". Payment only releases once the teen has
-    // finished too — all of it server-side. A tip clears Stripe first.
     const res = await base44.functions.invoke("jobHandshake", {
       bookingId: booking.id,
-      action: "finish",
+      action: "confirm",
       tipAmount: tipAmt,
     });
     if (res.data?.url) {
@@ -41,9 +41,10 @@ export default function TipReleaseDialog({ open, onOpenChange, booking, onReleas
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="rounded-2xl max-w-sm">
         <DialogHeader>
-          <DialogTitle>Finish job & pay {booking.teen_display_name}</DialogTitle>
+          <DialogTitle>Confirm job done & pay {booking.teen_display_name}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
+          <p className="text-sm text-muted-foreground">The work is done! Add a tip if you'd like — 100% goes to the teen.</p>
           <div>
             <Label>Add a tip? (optional)</Label>
             <div className="grid grid-cols-4 gap-2 mt-1.5">
@@ -52,7 +53,7 @@ export default function TipReleaseDialog({ open, onOpenChange, booking, onReleas
                   key={p}
                   onClick={() => setTip(String(p))}
                   className={`rounded-xl border py-2 text-sm font-bold transition-colors ${
-                    Number(tip) === p ? "bg-blue-600 text-white border-blue-600" : "bg-white text-slate-600 border-slate-200 hover:border-blue-300"
+                    Number(tip) === p ? "bg-primary text-primary-foreground border-primary" : "bg-card text-foreground border-border hover:border-primary/30"
                   }`}
                 >
                   {p === 0 ? "None" : `$${p}`}
@@ -60,18 +61,17 @@ export default function TipReleaseDialog({ open, onOpenChange, booking, onReleas
               ))}
             </div>
             <Input type="number" min="0" className="rounded-xl mt-2" placeholder="Custom amount" value={tip} onChange={(e) => setTip(e.target.value)} />
-            <p className="text-xs text-slate-400 mt-1.5">100% of the tip goes straight into the teen's Kickstart Wallet.</p>
           </div>
-          <div className="bg-slate-50 rounded-xl p-4 text-sm space-y-1.5">
-            <div className="flex justify-between text-xs text-slate-400"><span>Job payment (escrow)</span><span>{money(booking.net_amount)}</span></div>
+          <div className="bg-secondary rounded-xl p-4 text-sm space-y-1.5">
+            <div className="flex justify-between text-xs text-muted-foreground"><span>Job payment (escrow)</span><span>{money(booking.net_amount)}</span></div>
             {tipAmt > 0 && <div className="flex justify-between text-xs text-emerald-600 font-semibold"><span>Tip</span><span>+{money(tipAmt)}</span></div>}
-            <div className="flex justify-between font-bold text-slate-900"><span>{booking.teen_display_name} receives</span><span>{money(teenGets)}</span></div>
+            <div className="flex justify-between font-bold text-foreground"><span>{booking.teen_display_name} receives</span><span>{money(teenGets)}</span></div>
           </div>
-          <Button className="w-full rounded-xl" disabled={saving} onClick={release}>
-            {saving ? "Confirming..." : `Finish job & release ${money(teenGets)}`}
+          <Button className="w-full rounded-xl" disabled={saving} onClick={confirm}>
+            {saving ? "Confirming..." : `Confirm & release ${money(teenGets)}`}
           </Button>
-          <p className="text-xs text-center text-slate-400">
-            Payment is released once {booking.teen_display_name} also marks the job finished.
+          <p className="text-xs text-center text-muted-foreground">
+            Payment is released to {booking.teen_display_name}'s parent immediately.
           </p>
         </div>
       </DialogContent>

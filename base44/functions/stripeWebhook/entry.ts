@@ -2,7 +2,7 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 import { getStripe } from '../../shared/stripeEnv.ts';
 import { applyVerifiedIdentity } from '../../shared/identityVerification.ts';
 import { applyBuyerVerifiedIdentity } from '../../shared/buyerIdentityVerification.ts';
-import { recordFinish, recordBuyerStartAfterPayment } from '../../shared/jobHandshake.ts';
+import { recordBuyerConfirm, recordBuyerStartAfterPayment } from '../../shared/jobHandshake.ts';
 
 Deno.serve(async (req) => {
   try {
@@ -30,13 +30,13 @@ Deno.serve(async (req) => {
       const session = event.data.object;
       const tipBookingId = session.metadata?.tip_booking_id;
       if (tipBookingId) {
-        // The buyer's tip cleared Stripe — now record their "finish" and, if the
-        // teen has also finished, complete the job and release escrow + tip.
+        // The buyer's tip cleared Stripe — now record their confirmation and
+        // release escrow + tip to the parent.
         const booking = await base44.asServiceRole.entities.Booking.get(tipBookingId);
-        if (booking && booking.payment_status === 'held') {
+        if (booking && booking.payment_status === 'held' && !booking.buyer_finished_at) {
           const tip = Number(session.metadata?.tip_amount) || 0;
-          const result = await recordFinish(base44, booking, 'buyer', tip);
-          console.log(`Booking ${tipBookingId} buyer finish recorded with tip ${tip}:`, JSON.stringify(result));
+          const result = await recordBuyerConfirm(base44, booking, tip);
+          console.log(`Booking ${tipBookingId} buyer confirm recorded with tip ${tip}:`, JSON.stringify(result));
         }
       }
       const bookingId = session.metadata?.booking_id;

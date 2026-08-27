@@ -1,19 +1,21 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 import { getStripe } from '../../shared/stripeEnv.ts';
 import { getSafeOrigin } from '../../shared/safeOrigin.ts';
-import { roleFor, recordStart, recordFinish, recordBuyerStartAfterPayment } from '../../shared/jobHandshake.ts';
+import { roleFor, recordStart, recordTeenFinish, recordBuyerConfirm, recordBuyerDispute, recordBuyerStartAfterPayment } from '../../shared/jobHandshake.ts';
 
-// The single entry point for the two-sided start/finish handshake.
-// Only the teen and the neighbor on the booking can call it, and the booking
-// only advances when BOTH have confirmed the same step.
+// The single entry point for the photo-proof job completion flow.
+//   start   — both teen and buyer confirm start (buyer pays escrow on start)
+//   finish  — teen marks the job done and uploads completion photos
+//   confirm — buyer confirms the work is done correctly → releases escrow
+//   dispute — buyer reports the teen didn't do the job → holds escrow for admin
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { bookingId, action, tipAmount } = await req.json();
-    if (!bookingId || !['start', 'finish'].includes(action)) {
+    const { bookingId, action, completionPhotos, tipAmount, disputeReason } = await req.json();
+    if (!bookingId || !['start', 'finish', 'confirm', 'dispute'].includes(action)) {
       return Response.json({ error: 'bookingId and a valid action are required' }, { status: 400 });
     }
 
@@ -65,7 +67,7 @@ Deno.serve(async (req) => {
             currency: 'usd',
             product_data: {
               name: booking.listing_title || 'Kickstart job',
-              description: 'Held in escrow until both sides confirm the job is complete.',
+              description: 'Held in escrow until the neighbor confirms the job is complete.',
             },
             unit_amount: cents,
           },
@@ -84,46 +86,86 @@ Deno.serve(async (req) => {
       return Response.json({ url: session.url });
     }
 
-    // action === 'finish'
-    if (booking.status !== 'in_progress') {
-      return Response.json({ error: 'The job has to be in progress before it can be finished.' }, { status: 400 });
+    // action === 'finish' — teen marks the job done with completion photos
+    if (action === 'finish') {
+      if (role !== 'teen') return Response.json({ error: 'Only the teen can mark the job finished.' }, { status: 403 });
+      if (booking.status !== 'in_progress') {
+        return Response.json({ error: 'The job has to be in progress before it can be finished.' }, { status: 400 });
+      }
+      if (booking.teen_finished_at) return Response.json({ alreadyDone: true });
+
+      const photos = Array.isArray(completionPhotos) ? completionPhotos : [];
+      if (photos.length === 0) {
+        return Response.json({ error: 'Please upload at least one photo showing the completed work.' }, { status: 400 });
+      }
+      const result = await recordTeenFinish(base44, booking, photos);
+      return Response.json(result);
     }
 
-    const tip = role === 'buyer' ? Math.max(0, Math.round((Number(tipAmount) || 0) * 100) / 100) : 0;
+    // action === 'confirm' — buyer confirms the work is done correctly
+    if (action === 'confirm') {
+      if (role !== 'buyer') return Response.json({ error: 'Only the neighbor can confirm the job is done.' }, { status: 403 });
+      if (booking.status !== 'in_progress' || !booking.teen_finished_at) {
+        return Response.json({ error: 'The teen must finish the job before you can confirm it.' }, { status: 400 });
+      }
+      if (booking.buyer_finished_at || booking.buyer_disputed_at) {
+        return Response.json({ alreadyDone: true });
+      }
 
-    // A tip is real money — it must clear Stripe before we record the buyer's
-    // finish. The webhook records the finish and releases once payment succeeds.
-    if (tip > 0 && !booking.buyer_finished_at) {
-      const stripe = getStripe();
-      const origin = getSafeOrigin(req);
-      const session = await stripe.checkout.sessions.create({
-        mode: 'payment',
-        line_items: [
-          {
-            price_data: {
-              currency: 'usd',
-              product_data: {
-                name: `Tip for ${booking.teen_display_name || 'your local teen'}`,
-                description: `Tip for "${booking.listing_title}" — 100% goes to the teen.`,
+      const tip = Math.max(0, Math.round((Number(tipAmount) || 0) * 100) / 100);
+
+      // A tip is real money — it must clear Stripe before we record the buyer's
+      // confirmation. The webhook records the confirmation and releases once
+      // the tip payment succeeds.
+      if (tip > 0) {
+        const stripe = getStripe();
+        const origin = getSafeOrigin(req);
+        const session = await stripe.checkout.sessions.create({
+          mode: 'payment',
+          line_items: [
+            {
+              price_data: {
+                currency: 'usd',
+                product_data: {
+                  name: `Tip for ${booking.teen_display_name || 'your local teen'}`,
+                  description: `Tip for "${booking.listing_title}" — 100% goes to the teen.`,
+                },
+                unit_amount: Math.round(tip * 100),
               },
-              unit_amount: Math.round(tip * 100),
+              quantity: 1,
             },
-            quantity: 1,
+          ],
+          success_url: `${origin}/bookings/${booking.id}?paid=1`,
+          cancel_url: `${origin}/bookings/${booking.id}`,
+          metadata: {
+            base44_app_id: Deno.env.get('BASE44_APP_ID'),
+            tip_booking_id: booking.id,
+            tip_amount: String(tip),
           },
-        ],
-        success_url: `${origin}/bookings/${booking.id}?paid=1`,
-        cancel_url: `${origin}/bookings/${booking.id}`,
-        metadata: {
-          base44_app_id: Deno.env.get('BASE44_APP_ID'),
-          tip_booking_id: booking.id,
-          tip_amount: String(tip),
-        },
-      });
-      return Response.json({ url: session.url });
+        });
+        return Response.json({ url: session.url });
+      }
+
+      const result = await recordBuyerConfirm(base44, booking, 0);
+      return Response.json(result);
     }
 
-    const result = await recordFinish(base44, booking, role, 0);
-    return Response.json(result);
+    // action === 'dispute' — buyer reports the teen didn't do the job
+    if (action === 'dispute') {
+      if (role !== 'buyer') return Response.json({ error: 'Only the neighbor can report a problem.' }, { status: 403 });
+      if (booking.status !== 'in_progress' || !booking.teen_finished_at) {
+        return Response.json({ error: 'The teen must finish the job before you can report a problem.' }, { status: 400 });
+      }
+      if (booking.buyer_finished_at || booking.buyer_disputed_at) {
+        return Response.json({ alreadyDone: true });
+      }
+      const reason = String(disputeReason || '').trim();
+      if (!reason) {
+        return Response.json({ error: 'Please explain what was wrong with the work.' }, { status: 400 });
+      }
+      const result = await recordBuyerDispute(base44, booking, reason);
+      return Response.json(result);
+    }
   } catch (error) {
     console.error('jobHandshake error:', error.message);
     return Response.json({ error: 'Something went wrong' }, { status: 500 });

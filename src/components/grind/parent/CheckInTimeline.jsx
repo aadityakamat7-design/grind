@@ -11,16 +11,16 @@ export default function CheckInTimeline({ booking }) {
   const buyerName = booking.buyer_name || "Neighbor";
 
   const events = [
-    { label: "Job accepted", ts: null, done: ["confirmed", "in_progress", "completed"].includes(booking.status) },
-    { label: `${teenName} checked in`, ts: booking.teen_started_at, done: !!booking.teen_started_at },
-    { label: `${buyerName} checked in`, ts: booking.buyer_started_at, done: !!booking.buyer_started_at },
-    { label: `${teenName} checked out`, ts: booking.teen_finished_at, done: !!booking.teen_finished_at },
-    { label: `${buyerName} checked out`, ts: booking.buyer_finished_at, done: !!booking.buyer_finished_at },
+    { label: "Job accepted", ts: null, done: ["confirmed", "in_progress", "completed", "disputed"].includes(booking.status) },
+    { label: `${teenName} started`, ts: booking.teen_started_at, done: !!booking.teen_started_at },
+    { label: `${buyerName} started`, ts: booking.buyer_started_at, done: !!booking.buyer_started_at },
+    { label: `${teenName} finished`, ts: booking.teen_finished_at, done: !!booking.teen_finished_at },
+    { label: `${buyerName} confirmed`, ts: booking.buyer_finished_at, done: !!booking.buyer_finished_at },
   ];
 
   // Only render once the job has been accepted or has any check-in activity.
   const hasActivity = events.slice(1).some((e) => e.done);
-  if (!hasActivity && !["confirmed", "in_progress", "completed"].includes(booking.status)) return null;
+  if (!hasActivity && !["confirmed", "in_progress", "completed", "disputed"].includes(booking.status)) return null;
 
   return (
     <div className="mt-5 pt-4 border-t border-border">

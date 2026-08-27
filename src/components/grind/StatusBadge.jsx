@@ -18,6 +18,7 @@ const STYLES = {
   denied: "bg-destructive/10 text-destructive border-destructive/20",
   refunded: "bg-destructive/10 text-destructive border-destructive/20",
   suspended: "bg-destructive/10 text-destructive border-destructive/20",
+  disputed: "bg-amber-100 text-amber-700 border-amber-200",
 };
 
 const LABELS = {
@@ -27,6 +28,7 @@ const LABELS = {
   held: "Payment held",
   unpaid: "Payment pending",
   released: "Paid out",
+  disputed: "Under review",
 };
 
 export default function StatusBadge({ status, className = "" }) {

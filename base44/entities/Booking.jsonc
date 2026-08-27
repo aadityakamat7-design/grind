@@ -94,7 +94,21 @@
     "teen_finished_at": {
       "type": "string",
       "format": "date-time",
-      "description": "When the teen confirmed Finish job \u2014 payment only releases once both sides confirm (server-set only)",
+      "description": "When the teen marked the job finished and uploaded completion photos \u2014 starts the 12-hour buyer confirmation window (server-set only)",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "completion_photos": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Photos the teen uploaded as proof the work was done \u2014 shown to the buyer for confirmation and to admins during dispute review (server-set only)",
       "rls": {
         "write": {
           "user_condition": {
@@ -106,7 +120,48 @@
     "buyer_finished_at": {
       "type": "string",
       "format": "date-time",
-      "description": "When the neighbor confirmed Finish job \u2014 payment only releases once both sides confirm (server-set only)",
+      "description": "When the neighbor confirmed the job was done correctly \u2014 triggers payment release (server-set only)",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "buyer_disputed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the neighbor reported the teen did not do the job \u2014 holds escrow pending admin review (server-set only)",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "dispute_reason": {
+      "type": "string",
+      "maxLength": 500,
+      "description": "The neighbor's explanation of why the work was not done correctly (server-set only)",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "admin_resolution": {
+      "type": "string",
+      "enum": [
+        "none",
+        "released",
+        "refunded"
+      ],
+      "default": "none",
+      "description": "Admin's decision on a disputed booking: released = teen did the work, refunded = neighbor gets their money back (server-set only)",
       "rls": {
         "write": {
           "user_condition": {
@@ -136,10 +191,11 @@
         "in_progress",
         "completed",
         "cancelled",
-        "denied"
+        "denied",
+        "disputed"
       ],
       "default": "pending_parent_approval",
-      "description": "Advanced to in_progress/completed only by the server once both sides confirm",
+      "description": "Advanced to in_progress/completed only by the server. disputed = neighbor reported the work wasn't done, pending admin review.",
       "rls": {
         "write": {
           "user_condition": {
@@ -294,7 +350,7 @@
     "dispute_flagged_at": {
       "type": "string",
       "format": "date-time",
-      "description": "Set when a one-sided completion is flagged for review after the timeout window",
+      "description": "Legacy field \u2014 set when a one-sided completion was flagged for review after the timeout window",
       "rls": {
         "write": {
           "user_condition": {

@@ -16,15 +16,15 @@
           },
           "then": "end",
           "x-base44": {
-            "title": "Flag stale one-sided completions",
-            "description": "Bookings where one side finished but the other didn't within 24h"
+            "title": "Auto-release stale completions",
+            "description": "Auto-releases escrow for jobs where the teen finished and uploaded photos but the neighbor didn't respond within 12 hours"
           }
         }
       }
     ]
   },
   "name": "Dispute Review",
-  "description": "Every hour, flags one-sided job completions for review so held escrow is never auto-released on a single confirmation.",
+  "description": "Every hour, auto-releases escrow for jobs where the teen finished and uploaded photos but the neighbor didn't respond within 12 hours.",
   "trigger": {
     "condition": null,
     "config": {

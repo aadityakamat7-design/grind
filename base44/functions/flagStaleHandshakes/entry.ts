@@ -1,10 +1,11 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
-import { notifyAdmins } from '../../shared/notifyAdmins.ts';
+import { recordBuyerConfirm } from '../../shared/jobHandshake.ts';
 
-// Flags one-sided completions for review. A job is "stale" when one side has
-// tapped Finish but the other hasn't within 24 hours — the funds stay held and
-// are NOT released. Our team reviews the dispute before any payout.
-const STALE_HOURS = 24;
+// Auto-confirms and releases payment for jobs where the teen finished and
+// uploaded photos but the neighbor didn't respond within 12 hours. This is
+// standard escrow practice — the work is presumed done if the neighbor is
+// silent. The funds are released to the parent (auto-pay).
+const CONFIRM_HOURS = 12;
 
 Deno.serve(async (_req) => {
   try {
@@ -12,42 +13,27 @@ Deno.serve(async (_req) => {
     // use the service role directly. Only the workflow engine can invoke this.
     const base44 = createClientFromRequest(_req);
     const svc = base44.asServiceRole.entities;
-    const cutoff = new Date(Date.now() - STALE_HOURS * 60 * 60 * 1000);
+    const cutoff = new Date(Date.now() - CONFIRM_HOURS * 60 * 60 * 1000);
 
     const bookings = await svc.Booking.filter({ status: 'in_progress' }, '-updated_date', 200);
     const stale = bookings.filter((b) => {
-      if (b.dispute_flagged_at) return false;
-      const teenDone = !!b.teen_finished_at;
-      const buyerDone = !!b.buyer_finished_at;
-      if (teenDone === buyerDone) return false; // both done or neither — not one-sided
-      const finishedAt = teenDone ? b.teen_finished_at : b.buyer_finished_at;
-      return new Date(finishedAt) < cutoff;
+      // Teen must have finished (with photos) but buyer hasn't confirmed or disputed
+      if (!b.teen_finished_at) return false;
+      if (b.buyer_finished_at || b.buyer_disputed_at) return false;
+      return new Date(b.teen_finished_at) < cutoff;
     });
 
+    let released = 0;
     for (const b of stale) {
-      await svc.Booking.update(b.id, {
-        dispute_flagged_at: new Date().toISOString(),
-        payout_status: 'pending_review',
-        payout_review_reason: 'One-sided completion — other side did not confirm within 24h',
-      });
-      for (const uid of [b.teen_user_id, b.buyer_user_id, b.parent_user_id].filter(Boolean)) {
-        await svc.Notification.create({
-          user_id: uid,
-          type: 'booking',
-          title: 'Job flagged for review',
-          body: `"${b.listing_title}" has a one-sided completion. Our team is reviewing it before any payment is released.`,
-          link: `/bookings/${b.id}`,
-        });
+      try {
+        const result = await recordBuyerConfirm(base44, b, 0);
+        if (result.released) released++;
+      } catch (err) {
+        console.error(`Auto-confirm failed for booking ${b.id}:`, err.message);
       }
-      await notifyAdmins(base44, {
-        type: 'booking',
-        title: 'One-sided completion needs review',
-        body: `"${b.listing_title}" — only one side confirmed finish within 24h. Payment is held pending review.`,
-        link: '/admin',
-      });
     }
 
-    return Response.json({ flagged: stale.length });
+    return Response.json({ checked: stale.length, released });
   } catch (error) {
     console.error('flagStaleHandshakes error:', error.message);
     return Response.json({ error: 'Something went wrong' }, { status: 500 });
