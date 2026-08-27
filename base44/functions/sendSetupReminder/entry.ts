@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { getSafeOrigin } from '../../shared/safeOrigin.ts';
+import { verifyWorkflowCall } from '../../shared/workflowAuth.ts';
 
 // Called by the Setup Reminders workflow at 24h and 72h after a teen accepts
 // their first job. Checks whether the parent's payout setup is still incomplete
@@ -9,7 +10,10 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const svc = base44.asServiceRole.entities;
-    const { bookingId } = await req.json();
+    const body = await req.json();
+    const authError = verifyWorkflowCall(body);
+    if (authError) return authError;
+    const { bookingId } = body;
     if (!bookingId) return Response.json({ error: 'bookingId required' }, { status: 400 });
 
     const booking = await svc.Booking.get(bookingId).catch(() => null);

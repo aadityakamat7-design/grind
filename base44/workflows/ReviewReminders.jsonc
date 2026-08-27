@@ -12,7 +12,9 @@
           "call": "invoke_backend_function",
           "with": {
             "function_name": "sendReviewReminders",
-            "args": {}
+            "args": {
+              "_workflowSecret": "ks_wf_8f3a7b2c5e8d1a4f6b9c3e7a2d5f8b1e"
+            }
           },
           "then": "end",
           "x-base44": {

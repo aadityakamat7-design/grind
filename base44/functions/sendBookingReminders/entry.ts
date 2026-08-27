@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
+import { verifyWorkflowCall } from '../../shared/workflowAuth.ts';
 
 // Called on a schedule. Notifies the teen and buyer of confirmed bookings
 // starting within the next hour, once each (guarded by reminder_sent).
@@ -6,6 +7,10 @@ Deno.serve(async (req) => {
   try {
     // Called by a scheduled workflow — no user session is available, so we
     // use the service role directly. Only the workflow engine can invoke this.
+    const body = await req.json();
+    const authError = verifyWorkflowCall(body);
+    if (authError) return authError;
+
     const base44 = createClientFromRequest(req);
     const svc = base44.asServiceRole.entities;
 
