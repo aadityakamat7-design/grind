@@ -217,6 +217,8 @@ Deno.serve(async (req) => {
       read: false,
     });
 
+    base44.analytics.track({ eventName: 'booking_created' });
+
     return Response.json({ bookingId: booking.id });
   } catch (error) {
     console.error('createBooking error:', error.message);

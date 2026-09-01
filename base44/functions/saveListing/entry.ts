@@ -113,6 +113,7 @@ Deno.serve(async (req) => {
         teen_profile_id: body.teenProfileId,
         teen_display_name: teenDisplayName,
       });
+      base44.analytics.track({ eventName: 'listing_published' });
     }
 
     return Response.json({ listing });
