@@ -93,6 +93,7 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
         terms_version: TERMS_VERSION,
         payment_auth_acknowledged_at: new Date().toISOString(),
       });
+      localStorage.removeItem("grind_invite_code");
       setSaving(false);
       window.location.href = "/parent";
     } catch (err) {
