@@ -11,7 +11,10 @@ import Phone3D from "./Phone3D";
 // (framer-motion whileInView) in the page, never blocking scroll.
 export default function SplitHero({ onGetStarted, onLogin }) {
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden bg-brand-dark">
+    <section
+      className="relative min-h-screen flex items-center overflow-hidden"
+      style={{ backgroundColor: "hsl(var(--brand-dark))" }}
+    >
       {/* Soft brand glow for depth */}
       <div
         className="absolute inset-0 pointer-events-none"
