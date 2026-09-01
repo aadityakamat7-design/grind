@@ -100,15 +100,6 @@
         }
       }
     },
-    "referral_code": {
-      "type": "string",
-      "description": "This neighbor's shareable referral code"
-    },
-    "referral_credit": {
-      "type": "number",
-      "default": 0,
-      "description": "Credit balance auto-applied to the next booking"
-    },
     "avg_rating": {
       "type": "number",
       "default": 0,

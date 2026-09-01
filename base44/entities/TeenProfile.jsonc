@@ -72,10 +72,6 @@
         }
       }
     },
-    "referral_code": {
-      "type": "string",
-      "description": "This teen's shareable referral code \u2014 rewards land in their Blockwork Wallet"
-    },
     "is_available": {
       "type": "boolean",
       "default": true,

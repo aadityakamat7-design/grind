@@ -104,8 +104,7 @@ Deno.serve(async (req) => {
     }
     const platform_fee = Math.round(total * 0.15 * 100) / 100;
     const net_amount = Math.round((total - platform_fee) * 100) / 100;
-    const creditApplied = Math.min(Number(buyerProfile.referral_credit || 0), total);
-    const buyerPays = Math.round((total - creditApplied) * 100) / 100;
+    const buyerPays = total;
 
     // 18+ teens use the platform independently — no parent approval needed.
     // 13–17 teens require a linked, verified parent.
@@ -175,12 +174,6 @@ Deno.serve(async (req) => {
     if (isOnline) {
       await base44.asServiceRole.entities.Booking.update(booking.id, {
         session_link: generateSessionLink(booking.id),
-      });
-    }
-
-    if (creditApplied > 0) {
-      await base44.asServiceRole.entities.BuyerProfile.update(buyerProfile.id, {
-        referral_credit: Math.round(((buyerProfile.referral_credit || 0) - creditApplied) * 100) / 100,
       });
     }
 

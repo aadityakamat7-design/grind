@@ -6,7 +6,6 @@ import AppointmentCard from "@/components/grind/buyer/AppointmentCard";
 import SavedWorkers from "@/components/grind/buyer/SavedWorkers";
 import RecommendedTeens from "@/components/grind/buyer/RecommendedTeens";
 import BookingCard from "@/components/grind/BookingCard";
-import ReferralCard from "@/components/grind/ReferralCard";
 import ReviewNudge from "@/components/grind/ReviewNudge";
 import PageHeader from "@/components/grind/PageHeader";
 import BuyerStatsGrid from "@/components/grind/buyer/BuyerStatsGrid";
@@ -126,8 +125,6 @@ export default function BuyerHome() {
             </div>
           </div>
         )}
-
-        <ReferralCard profile={profile} />
 
         <SavedWorkers saved={saved} />
 

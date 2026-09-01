@@ -4,8 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { genInviteCode, calcAge } from "@/lib/grind";
-import { redeemReferralCode } from "@/lib/referrals";
+import { calcAge } from "@/lib/grind";
 import LegalModal from "@/components/grind/LegalModal";
 
 const TERMS_VERSION = "2026-07";
@@ -14,7 +13,6 @@ export default function BuyerOnboarding({ user }) {
   const [address, setAddress] = useState("");
   const [zip, setZip] = useState("");
   const [dob, setDob] = useState("");
-  const [refCode, setRefCode] = useState("");
   const [tosAccepted, setTosAccepted] = useState(false);
   const [saving, setSaving] = useState(false);
   const [geoError, setGeoError] = useState("");
@@ -54,9 +52,7 @@ export default function BuyerOnboarding({ user }) {
         longitude: geo.lng,
         resolved_city: geo.city,
         state: geo.state,
-        referral_code: genInviteCode(),
       });
-      if (refCode.trim()) await redeemReferralCode(refCode, user);
     }
     await base44.auth.updateMe({
       app_role: "buyer",
@@ -85,11 +81,6 @@ export default function BuyerOnboarding({ user }) {
         <Label>Date of birth</Label>
         <Input type="date" className="rounded-xl mt-1" value={dob} onChange={(e) => setDob(e.target.value)} />
         <p className="text-xs text-muted-foreground mt-1">You must be 18 or older to hire on Blockwork.</p>
-      </div>
-      <div>
-        <Label>Referral code (optional)</Label>
-        <Input className="rounded-xl mt-1" placeholder="Got a code from a friend?" value={refCode} onChange={(e) => setRefCode(e.target.value)} />
-        <p className="text-xs text-muted-foreground mt-1">You'll both get $10 booking credit after your first completed booking.</p>
       </div>
       {ageError && <p className="text-xs text-destructive font-medium">{ageError}</p>}
       {geoError && <p className="text-xs text-destructive font-medium">{geoError}</p>}
