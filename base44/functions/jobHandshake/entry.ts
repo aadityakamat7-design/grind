@@ -1,7 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 import { getStripeContext, getStripeForApp } from '../../shared/stripeEnv.ts';
 import { getSafeOrigin } from '../../shared/safeOrigin.ts';
-import { roleFor, recordStart, recordTeenFinish, recordBuyerConfirm, recordBuyerDispute, recordBuyerStartAfterPayment } from '../../shared/jobHandshake.ts';
+import { roleFor, recordStart, recordParentStart, recordTeenFinish, recordBuyerConfirm, recordBuyerDispute, recordBuyerStartAfterPayment } from '../../shared/jobHandshake.ts';
 
 // The single entry point for the photo-proof job completion flow.
 //   start   — both teen and buyer confirm start (buyer pays escrow on start)
@@ -34,7 +34,7 @@ Deno.serve(async (req) => {
       if (booking.status !== 'confirmed') {
         return Response.json({ error: 'This job must be approved by the parent before it can start.' }, { status: 400 });
       }
-      if (booking.teen_started_at && booking.buyer_started_at) {
+      if (booking.teen_started_at && booking.parent_started_at) {
         return Response.json({ alreadyDone: true, started: true });
       }
 
@@ -42,6 +42,14 @@ Deno.serve(async (req) => {
       if (role === 'teen') {
         if (booking.teen_started_at) return Response.json({ alreadyDone: true });
         const result = await recordStart(base44, booking);
+        return Response.json(result);
+      }
+
+      // Parent start: the parent confirms the teen is beginning the work. The
+      // job goes in_progress once both the parent and the teen have confirmed.
+      if (role === 'parent') {
+        if (booking.parent_started_at) return Response.json({ alreadyDone: true });
+        const result = await recordParentStart(base44, booking);
         return Response.json(result);
       }
 

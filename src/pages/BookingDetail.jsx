@@ -259,6 +259,7 @@ export default function BookingDetail() {
           booking={booking}
           isTeen={isTeen}
           isBuyer={isBuyer}
+          isParent={isParent}
           acting={acting}
           onStart={startJob}
           onFinish={finishJob}

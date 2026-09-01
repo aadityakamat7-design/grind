@@ -7,27 +7,58 @@ import { Image } from "@/components/ui/image";
 //   confirmed    → both sides press Start (buyer pays escrow)
 //   in_progress   → teen finishes with photos, buyer confirms or disputes
 //   disputed     → shows the dispute status (under admin review)
-export default function JobHandshakePanel({ booking, isTeen, isBuyer, acting, onStart, onFinish, onConfirm, onDispute }) {
-  if (!isTeen && !isBuyer) return null;
+export default function JobHandshakePanel({ booking, isTeen, isBuyer, isParent, acting, onStart, onFinish, onConfirm, onDispute }) {
+  if (!isTeen && !isBuyer && !isParent) return null;
 
   const teenFinished = !!booking.teen_finished_at;
   const otherName = isTeen ? booking.buyer_name : booking.teen_display_name;
 
   if (booking.status === "confirmed") {
     const amount = booking.charge_amount ?? booking.price_total;
-    const mineStarted = isTeen ? !!booking.teen_started_at : !!booking.buyer_started_at;
-    const theirsStarted = isTeen ? !!booking.buyer_started_at : !!booking.teen_started_at;
+    const teenStarted = !!booking.teen_started_at;
+    const parentStarted = !!booking.parent_started_at;
+    const buyerStarted = !!booking.buyer_started_at;
+    const gatingDone = teenStarted && parentStarted;
+
+    // Parent and teen are the gating pair — each taps Start to confirm.
+    if (isTeen || isParent) {
+      const mineStarted = isTeen ? teenStarted : parentStarted;
+      const otherRole = isTeen ? "parent" : "teen";
+      const otherStarted = isTeen ? parentStarted : teenStarted;
+      return (
+        <div className="space-y-2">
+          <Button className="w-full rounded-xl" disabled={acting || mineStarted} onClick={onStart}>
+            <Play className="w-4 h-4 mr-2" />
+            {mineStarted ? "You confirmed start" : "Start job"}
+          </Button>
+          <p className="text-xs text-center text-slate-500 font-medium">
+            {gatingDone
+              ? "Both confirmed — job is in progress."
+              : mineStarted
+                ? `Waiting for your ${otherRole} to confirm start.`
+                : otherStarted
+                  ? `Your ${otherRole} confirmed — tap to confirm start.`
+                  : `Both you and your ${otherRole} must confirm to start.`}
+          </p>
+        </div>
+      );
+    }
+
+    // Buyer pays the escrow separately — payment is held, but the job only
+    // starts once the parent and teen both confirm.
     return (
       <div className="space-y-2">
-        <Button className="w-full rounded-xl" disabled={acting || mineStarted} onClick={onStart}>
+        <Button className="w-full rounded-xl" disabled={acting || buyerStarted} onClick={onStart}>
           <Play className="w-4 h-4 mr-2" />
-          {mineStarted
-            ? "You're ready to start"
-            : isBuyer
-              ? `Start job & pay $${Number(amount || 0).toFixed(2)}`
-              : "Start job"}
+          {buyerStarted
+            ? "Payment held"
+            : `Start job & pay $${Number(amount || 0).toFixed(2)}`}
         </Button>
-        <WaitingLine mineDone={mineStarted} theirsDone={theirsStarted} otherName={otherName} verb="start" isBuyer={isBuyer} />
+        <p className="text-xs text-center text-slate-500 font-medium">
+          {buyerStarted
+            ? (gatingDone ? "Job is in progress." : "Payment held — waiting for the teen and parent to confirm start.")
+            : "Pay to hold the escrow. The job starts once the teen and parent both confirm."}
+        </p>
       </div>
     );
   }
