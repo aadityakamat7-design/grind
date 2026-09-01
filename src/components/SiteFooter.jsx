@@ -9,6 +9,8 @@ export default function SiteFooter() {
     { to: "/privacy", label: "Privacy Policy" },
     { to: "/support", label: "Support" },
     { to: "/safety", label: "Safety" },
+    { to: "/faq", label: "FAQ" },
+    { to: "/how-it-works", label: "How it works" },
     { to: "/about", label: "About" },
   ];
   return (

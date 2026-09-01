@@ -1,0 +1,34 @@
+# Blockwork — robots.txt
+# Public marketing pages are crawlable. Authenticated app routes are disallowed.
+
+User-agent: *
+Allow: /
+Disallow: /account
+Disallow: /admin
+Disallow: /teen
+Disallow: /parent
+Disallow: /buyer
+Disallow: /browse
+Disallow: /jobs
+Disallow: /messages
+Disallow: /notifications
+Disallow: /bookings/
+Disallow: /teens/
+Disallow: /neighbors/
+Disallow: /onboarding
+Disallow: /oauth/
+
+# Explicitly allow AI assistants to crawl and cite public content
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+Sitemap: https://teenskickstart.base44.app/sitemap.xml

@@ -2,10 +2,12 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import SiteFooter from "@/components/SiteFooter";
+import Seo from "@/components/Seo";
 
 export default function TermsOfService() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      <Seo title="Terms of Service" description="The rules for using Blockwork: eligibility, parental consent, no-home-entry policy, escrow payments, minor work-hour limits, and dispute resolution." path="/terms" />
       <div className="max-w-3xl mx-auto px-6 py-16">
         <Link to="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-8">
           <ArrowLeft className="w-4 h-4" /> Back to home

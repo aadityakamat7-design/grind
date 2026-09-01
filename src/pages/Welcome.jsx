@@ -15,7 +15,7 @@ import SafetyGrid from "@/components/landing/SafetyGrid";
 import FaqSection from "@/components/landing/FaqSection";
 import LandingFooter from "@/components/landing/LandingFooter";
 import SiteFooter from "@/components/SiteFooter";
-import SeoStructuredData from "@/components/landing/SeoStructuredData";
+import Seo from "@/components/Seo";
 
 const ROLE_HOME = { teen: "/teen", parent: "/parent", buyer: "/buyer", admin: "/admin" };
 
@@ -60,7 +60,47 @@ export default function Welcome() {
 
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden scroll-smooth">
-      <SeoStructuredData />
+      <Seo
+        title="Local teen jobs, parent-approved"
+        description="Parent-approved local marketplace where teens earn real paychecks doing lawn care, yard work, and online tutoring. Hire a teen or start earning."
+        path="/"
+        jsonLd={[
+          {
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            name: "Blockwork",
+            url: "https://teenskickstart.base44.app",
+            description: "A parent-approved local marketplace where neighborhood teens earn real paychecks doing outdoor work and online tutoring.",
+            areaServed: "US",
+            contactPoint: {
+              "@type": "ContactPoint",
+              contactType: "customer support",
+              email: "blockwork@teenskickstart.base44.app",
+              availableLanguage: "English",
+            },
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            name: "Blockwork",
+            url: "https://teenskickstart.base44.app",
+            potentialAction: {
+              "@type": "SearchAction",
+              target: "https://teenskickstart.base44.app/browse?q={search_term_string}",
+              "query-input": "required name=search_term_string",
+            },
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "Service",
+            name: "Blockwork teen jobs marketplace",
+            serviceType: "Local teen jobs marketplace",
+            provider: { "@type": "Organization", name: "Blockwork", url: "https://teenskickstart.base44.app" },
+            areaServed: "US",
+            description: "Teens offer lawn care, car washing, pet sitting, tech help, tutoring, and odd jobs to neighbors — with a parent approving every booking and escrow-protected payments.",
+          },
+        ]}
+      />
       {/* Header */}
       <header className="sticky top-0 inset-x-0 z-30 bg-background/80 backdrop-blur-md border-b border-border pt-[env(safe-area-inset-top)]">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">

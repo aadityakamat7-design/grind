@@ -2,10 +2,12 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { LifeBuoy, Mail, ArrowLeft, ShieldAlert } from "lucide-react";
 import SiteFooter from "@/components/SiteFooter";
+import Seo from "@/components/Seo";
 
 export default function Support() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      <Seo title="Support" description="Get help with bookings, payments, or safety concerns on Blockwork. Email our team or use in-app alert and report tools for urgent issues." path="/support" />
       <div className="max-w-2xl mx-auto px-4 py-12 lg:py-20">
         <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-8">
           <ArrowLeft className="w-4 h-4" /> Back to Blockwork

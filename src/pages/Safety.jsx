@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { ShieldCheck, ArrowLeft, IdCard, Landmark, Lock, Eye, MessageSquare, AlertTriangle, Users, Home, Clock } from "lucide-react";
 import SiteFooter from "@/components/SiteFooter";
+import Seo from "@/components/Seo";
 
 const PILLARS = [
   {
@@ -54,6 +55,7 @@ const PILLARS = [
 export default function Safety() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      <Seo title="Safety" description="How Blockwork keeps teens safe: parent approval, ID verification, escrow payments, enforced minor work-hour limits, and a strict no-home-entry policy." path="/safety" />
       <div className="flex-1 max-w-3xl mx-auto px-4 py-12 lg:py-20 w-full">
         <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-8">
           <ArrowLeft className="w-4 h-4" /> Back to Blockwork

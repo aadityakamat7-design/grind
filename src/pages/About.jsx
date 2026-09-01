@@ -2,10 +2,12 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Zap, ArrowLeft, Heart, Target, Users } from "lucide-react";
 import SiteFooter from "@/components/SiteFooter";
+import Seo from "@/components/Seo";
 
 export default function About() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      <Seo title="About" description="A secure, parent-monitored marketplace where neighborhood teens find local work and adults get reliable help with outdoor tasks and online tutoring." path="/about" />
       <div className="flex-1 max-w-3xl mx-auto px-4 py-12 lg:py-20 w-full">
         <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-8">
           <ArrowLeft className="w-4 h-4" /> Back to Blockwork
