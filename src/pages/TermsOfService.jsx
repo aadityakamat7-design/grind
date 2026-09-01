@@ -164,7 +164,7 @@ export default function TermsOfService() {
             <strong>Emergencies first.</strong> In any emergency — injury, dangerous situation, or threat to safety — contact emergency services (911) immediately before doing anything else on the platform.
           </p>
           <p>
-            <strong>How to report an incident.</strong> After ensuring safety, report any injury, safety incident, or emergency through the platform: use the "Alert parent" button in the booking for immediate parental notification, or the "Report" button for any safety concern, inappropriate behavior, or off-platform attempt. You can also email us at <a href="mailto:kickstart@teenskickstart.base44.app" className="text-foreground font-medium hover:underline">kickstart@teenskickstart.base44.app</a>.
+            <strong>How to report an incident.</strong> After ensuring safety, report any injury, safety incident, or emergency through the platform: use the "Alert parent" button in the booking for immediate parental notification, or the "Report" button for any safety concern, inappropriate behavior, or off-platform attempt. You can also email us at <a href="mailto:blockwork@teenskickstart.base44.app" className="text-foreground font-medium hover:underline">blockwork@teenskickstart.base44.app</a>.
           </p>
           <p>
             <strong>Reporting window.</strong> You must report any incident within 48 hours of becoming aware of it. Reports made after 48 hours may still be reviewed, but timely reporting helps us respond effectively.
@@ -218,7 +218,7 @@ export default function TermsOfService() {
 
           <h2>20. Contact</h2>
           <p>
-            Questions about these terms? Contact us through the in-app support or at <a href="mailto:kickstart@teenskickstart.base44.app" className="text-foreground font-medium hover:underline">kickstart@teenskickstart.base44.app</a>.
+            Questions about these terms? Contact us through the in-app support or at <a href="mailto:blockwork@teenskickstart.base44.app" className="text-foreground font-medium hover:underline">blockwork@teenskickstart.base44.app</a>.
           </p>
         </div>
       </div>

@@ -25,7 +25,7 @@ export default function Support() {
             <div>
               <p className="text-sm font-semibold text-foreground">Email us</p>
               <p className="text-sm text-muted-foreground mt-0.5">
-                <a href="mailto:kickstart@teenskickstart.base44.app" className="text-foreground font-medium hover:underline">kickstart@teenskickstart.base44.app</a>
+                <a href="mailto:blockwork@teenskickstart.base44.app" className="text-foreground font-medium hover:underline">blockwork@teenskickstart.base44.app</a>
               </p>
             </div>
           </div>
