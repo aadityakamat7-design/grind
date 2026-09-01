@@ -15,6 +15,7 @@ import SafetyGrid from "@/components/landing/SafetyGrid";
 import FaqSection from "@/components/landing/FaqSection";
 import LandingFooter from "@/components/landing/LandingFooter";
 import SiteFooter from "@/components/SiteFooter";
+import SeoStructuredData from "@/components/landing/SeoStructuredData";
 
 const ROLE_HOME = { teen: "/teen", parent: "/parent", buyer: "/buyer", admin: "/admin" };
 
@@ -59,6 +60,7 @@ export default function Welcome() {
 
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden scroll-smooth">
+      <SeoStructuredData />
       {/* Header */}
       <header className="sticky top-0 inset-x-0 z-30 bg-background/80 backdrop-blur-md border-b border-border pt-[env(safe-area-inset-top)]">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">

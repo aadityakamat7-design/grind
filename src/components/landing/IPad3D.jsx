@@ -203,7 +203,7 @@ export default function IPad3D({ triggerRef }) {
 
                 {/* Centered hero content */}
                 <div className="flex-1 flex flex-col items-center justify-center text-center px-4">
-                  <h1
+                  <div
                     style={{
                       fontFamily: "'Instrument Serif', serif",
                       color: "#fff",
@@ -213,7 +213,7 @@ export default function IPad3D({ triggerRef }) {
                     }}
                   >
                     Teens earn. Neighbors get things done.
-                  </h1>
+                  </div>
                   <p
                     style={{
                       color: "#8A8F98",
