@@ -1,4 +1,4 @@
-import { getStripe } from './stripeEnv.ts';
+import { getStripeForApp } from './stripeEnv.ts';
 import { notifyAdmins } from './notifyAdmins.ts';
 import { notifyParentPayoutSent } from './notifyParent.ts';
 
@@ -64,7 +64,7 @@ export async function attemptBookingPayout(base44, booking, { skipReview = false
     }
   }
 
-  const stripe = getStripe();
+  const stripe = await getStripeForApp(base44);
   try {
     // Tie the transfer to the original charge when possible so it doesn't
     // depend on settled platform balance. The platform fee simply stays behind.

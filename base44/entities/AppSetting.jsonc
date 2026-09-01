@@ -1,0 +1,48 @@
+{
+  "name": "AppSetting",
+  "type": "object",
+  "properties": {
+    "key": {
+      "type": "string",
+      "description": "Setting key, e.g. 'stripe_test_mode'"
+    },
+    "value": {
+      "type": "string",
+      "description": "Setting value as a string ('true' / 'false')"
+    },
+    "label": {
+      "type": "string",
+      "description": "Human-readable label shown in the admin console"
+    },
+    "updated_by_id": {
+      "type": "string",
+      "description": "Id of the admin who last changed this setting"
+    }
+  },
+  "required": [
+    "key",
+    "value"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

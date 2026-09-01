@@ -57,7 +57,7 @@ Deno.serve(async (req) => {
       return Response.json({ success: true, disputed: true });
     }
 
-    await refundHeldPayment(booking);
+    await refundHeldPayment(base44, booking);
 
     await base44.asServiceRole.entities.Booking.update(booking.id, {
       status: 'cancelled',

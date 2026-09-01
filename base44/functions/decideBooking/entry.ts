@@ -54,7 +54,7 @@ Deno.serve(async (req) => {
       });
     } else {
       // Refund the escrowed Stripe payment before marking the booking denied
-      const refunded = await refundHeldPayment(booking);
+      const refunded = await refundHeldPayment(base44, booking);
       await base44.asServiceRole.entities.Booking.update(booking.id, {
         status: 'denied',
         payment_status: refunded ? 'refunded' : booking.payment_status,

@@ -7,16 +7,24 @@ import { recordBuyerConfirm, recordBuyerStartAfterPayment } from '../../shared/j
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    // Live-mode Stripe + the live webhook signing secret (STRIPE_WEBHOOK_SECRET)
-    const stripe = getStripe();
     const signature = req.headers.get('stripe-signature');
     const body = await req.text();
 
-    const event = await stripe.webhooks.constructEventAsync(
-      body,
-      signature,
-      Deno.env.get('STRIPE_WEBHOOK_SECRET'),
-    );
+    // Verify with the live signing secret first; if that fails, retry with the
+    // test signing secret so test-mode events (signed with STRIPE_TEST_WEBHOOK_SECRET)
+    // are accepted regardless of the admin toggle state.
+    const liveSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET');
+    const testSecret = Deno.env.get('STRIPE_TEST_WEBHOOK_SECRET');
+    let event;
+    let isTestEvent = false;
+    try {
+      event = await getStripe(false).webhooks.constructEventAsync(body, signature, liveSecret);
+    } catch (liveErr) {
+      if (!testSecret) throw liveErr;
+      event = await getStripe(true).webhooks.constructEventAsync(body, signature, testSecret);
+      isTestEvent = true;
+    }
+    const stripe = isTestEvent ? getStripe(true) : getStripe(false);
 
     // Dedupe by event id — Stripe retries webhooks, so a retried event must
     // never double-process a booking or create a duplicate transfer.
@@ -46,7 +54,7 @@ Deno.serve(async (req) => {
           // advance to in_progress if the teen has already started.
           const booking = await base44.asServiceRole.entities.Booking.get(bookingId);
           if (booking && !booking.buyer_started_at) {
-            await recordBuyerStartAfterPayment(base44, booking, session.payment_intent);
+            await recordBuyerStartAfterPayment(base44, booking, session.payment_intent, { isTestMode: isTestEvent });
             console.log(`Booking ${bookingId} buyer start recorded (payment ${session.payment_intent})`);
           }
         } else {
@@ -54,6 +62,7 @@ Deno.serve(async (req) => {
           await base44.asServiceRole.entities.Booking.update(bookingId, {
             payment_status: 'held',
             stripe_payment_intent_id: session.payment_intent,
+            is_test_mode: isTestEvent,
           });
           console.log(`Booking ${bookingId} marked as held (payment ${session.payment_intent})`);
         }
@@ -68,13 +77,14 @@ Deno.serve(async (req) => {
       if (bookingId && pi.metadata?.start_payment === '1') {
         const booking = await base44.asServiceRole.entities.Booking.get(bookingId);
         if (booking && !booking.buyer_started_at) {
-          await recordBuyerStartAfterPayment(base44, booking, pi.id);
+          await recordBuyerStartAfterPayment(base44, booking, pi.id, { isTestMode: isTestEvent });
           console.log(`Booking ${bookingId} buyer start recorded (PI ${pi.id})`);
         }
       } else if (bookingId) {
         await base44.asServiceRole.entities.Booking.update(bookingId, {
           payment_status: 'held',
           stripe_payment_intent_id: pi.id,
+          is_test_mode: isTestEvent,
         });
         console.log(`Booking ${bookingId} marked as held (PI ${pi.id})`);
       }

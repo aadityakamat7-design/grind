@@ -13,6 +13,7 @@ import StatCard from "@/components/grind/StatCard";
 import StatusBadge from "@/components/grind/StatusBadge";
 import ErrorRetry from "@/components/grind/ErrorRetry";
 import SafetyEscrowCenter from "@/components/grind/admin/SafetyEscrowCenter";
+import StripeTestModeCard from "@/components/grind/admin/StripeTestModeCard";
 import { money } from "@/lib/grind";
 
 export default function Admin() {
@@ -140,6 +141,8 @@ export default function Admin() {
   return (
     <div className="space-y-6">
       <PageHeader title="Admin console" subtitle="Marketplace health, moderation, and verifications." />
+
+      <StripeTestModeCard />
 
       <SafetyEscrowCenter bookings={bookings} reports={reports} onResolveReport={resolve} acting={acting} />
 

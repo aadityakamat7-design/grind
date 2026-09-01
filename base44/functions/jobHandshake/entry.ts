@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
-import { getStripe } from '../../shared/stripeEnv.ts';
+import { getStripeContext, getStripeForApp } from '../../shared/stripeEnv.ts';
 import { getSafeOrigin } from '../../shared/safeOrigin.ts';
 import { roleFor, recordStart, recordTeenFinish, recordBuyerConfirm, recordBuyerDispute, recordBuyerStartAfterPayment } from '../../shared/jobHandshake.ts';
 
@@ -58,7 +58,7 @@ Deno.serve(async (req) => {
         return Response.json(result);
       }
 
-      const stripe = getStripe();
+      const { stripe, testMode } = await getStripeContext(base44);
       const origin = getSafeOrigin(req);
       const session = await stripe.checkout.sessions.create({
         mode: 'payment',
@@ -82,7 +82,7 @@ Deno.serve(async (req) => {
         },
         payment_intent_data: { metadata: { booking_id: booking.id, start_payment: '1' } },
       });
-      await base44.asServiceRole.entities.Booking.update(booking.id, { stripe_session_id: session.id });
+      await base44.asServiceRole.entities.Booking.update(booking.id, { stripe_session_id: session.id, is_test_mode: testMode });
       return Response.json({ url: session.url });
     }
 
@@ -118,7 +118,7 @@ Deno.serve(async (req) => {
       // confirmation. The webhook records the confirmation and releases once
       // the tip payment succeeds.
       if (tip > 0) {
-        const stripe = getStripe();
+        const stripe = await getStripeForApp(base44);
         const origin = getSafeOrigin(req);
         const session = await stripe.checkout.sessions.create({
           mode: 'payment',

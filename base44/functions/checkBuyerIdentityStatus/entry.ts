@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
-import { getStripe } from '../../shared/stripeEnv.ts';
+import { getStripeForApp } from '../../shared/stripeEnv.ts';
 import { applyBuyerVerifiedIdentity } from '../../shared/buyerIdentityVerification.ts';
 
 // Polls the buyer's Stripe Identity session and persists the result.
@@ -11,7 +11,7 @@ Deno.serve(async (req) => {
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
     const body = await req.json().catch(() => ({}));
-    const stripe = getStripe(body.testMode === true && user.app_role === 'admin');
+    const stripe = await getStripeForApp(base44);
     const profiles = await base44.entities.BuyerProfile.filter({ user_id: user.id });
     const profile = profiles[0];
     if (!profile) return Response.json({ status: 'unverified' });

@@ -7,6 +7,7 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ScrollToTop from './components/ScrollToTop';
+import TestModeBanner from "@/components/TestModeBanner";
 // Add page imports here
 import Login from '@/pages/Login';
 import Register from '@/pages/Register';
@@ -132,6 +133,7 @@ function App() {
       <QueryClientProvider client={queryClientInstance}>
         <Router>
           <ScrollToTop />
+          <TestModeBanner />
           <AuthenticatedApp />
         </Router>
         <Toaster />

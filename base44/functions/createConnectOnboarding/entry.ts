@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
-import { getStripe } from '../../shared/stripeEnv.ts';
+import { getStripeForApp } from '../../shared/stripeEnv.ts';
 import { getSafeOrigin } from '../../shared/safeOrigin.ts';
 
 // Starts Stripe Connect Express hosted onboarding for a payout account.
@@ -40,7 +40,7 @@ Deno.serve(async (req) => {
 
     const profile = isParent ? parentProfiles[0] : teenProfiles[0];
     const updateEntity = isParent ? svc.ParentProfile : svc.TeenProfile;
-    const stripe = getStripe();
+    const stripe = await getStripeForApp(base44);
 
     let accountId = profile.stripe_connect_account_id;
     if (!accountId) {

@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
-import { getStripe } from '../../shared/stripeEnv.ts';
+import { getStripeForApp } from '../../shared/stripeEnv.ts';
 
 // Syncs the Stripe Connect account status for a parent or an independent
 // 18+ teen. Only stores the status and masked bank info returned by Stripe —
@@ -20,7 +20,7 @@ Deno.serve(async (req) => {
     const profile = isParent ? parentProfiles[0] : teenProfiles[0];
     if (!profile?.stripe_connect_account_id) return Response.json({ status: 'not_setup' });
 
-    const stripe = getStripe();
+    const stripe = await getStripeForApp(base44);
     const account = await stripe.accounts.retrieve(profile.stripe_connect_account_id);
 
     let status = 'pending';

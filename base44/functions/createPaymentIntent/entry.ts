@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
-import { getStripe } from '../../shared/stripeEnv.ts';
+import { getStripeForApp, getPublishableKeyForApp } from '../../shared/stripeEnv.ts';
 
 // Creates a Stripe PaymentIntent for in-app Apple Pay / Google Pay via the
 // Payment Request Button. This is an alternative to the Stripe Checkout
@@ -18,7 +18,7 @@ Deno.serve(async (req) => {
     const { bookingId, jobId, getKeyOnly } = await req.json();
 
     if (getKeyOnly) {
-      return Response.json({ publishable_key: Deno.env.get('STRIPE_PUBLISHABLE_KEY') });
+      return Response.json({ publishable_key: await getPublishableKeyForApp(base44) });
     }
 
     if (bookingId) {
@@ -32,7 +32,7 @@ Deno.serve(async (req) => {
       const cents = Math.round(Number(chargeAmount) * 100);
       if (cents <= 0) return Response.json({ error: 'No charge needed' }, { status: 400 });
 
-      const stripe = getStripe();
+      const stripe = await getStripeForApp(base44);
       const paymentIntent = await stripe.paymentIntents.create({
         amount: cents,
         currency: 'usd',
@@ -50,7 +50,7 @@ Deno.serve(async (req) => {
 
       return Response.json({
         client_secret: paymentIntent.client_secret,
-        publishable_key: Deno.env.get('STRIPE_PUBLISHABLE_KEY'),
+        publishable_key: await getPublishableKeyForApp(base44),
       });
     }
 
@@ -64,7 +64,7 @@ Deno.serve(async (req) => {
       const cents = Math.round(gross * 100);
       if (cents <= 0) return Response.json({ error: 'No charge needed' }, { status: 400 });
 
-      const stripe = getStripe();
+      const stripe = await getStripeForApp(base44);
       const paymentIntent = await stripe.paymentIntents.create({
         amount: cents,
         currency: 'usd',
@@ -77,7 +77,7 @@ Deno.serve(async (req) => {
 
       return Response.json({
         client_secret: paymentIntent.client_secret,
-        publishable_key: Deno.env.get('STRIPE_PUBLISHABLE_KEY'),
+        publishable_key: await getPublishableKeyForApp(base44),
       });
     }
 

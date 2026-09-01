@@ -70,7 +70,7 @@ Deno.serve(async (req) => {
     }
 
     // decision === 'refund' — refund the neighbor
-    await refundHeldPayment(booking);
+    await refundHeldPayment(base44, booking);
     await svc.Booking.update(booking.id, {
       status: 'cancelled',
       payment_status: 'refunded',

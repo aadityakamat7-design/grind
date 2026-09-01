@@ -267,6 +267,18 @@
         }
       }
     },
+    "is_test_mode": {
+      "type": "boolean",
+      "default": false,
+      "description": "True when this booking's charge was created under Stripe test mode (admin toggle). Test-mode bookings never involve real money and are marked so they can't be confused with real transactions later.",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
     "payout_status": {
       "type": "string",
       "enum": [

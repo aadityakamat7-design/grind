@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
-import { getStripe } from '../../shared/stripeEnv.ts';
+import { getStripeForApp } from '../../shared/stripeEnv.ts';
 import { getSafeOrigin } from '../../shared/safeOrigin.ts';
 
 // Only allow relative paths (starting with a single "/") as the return URL to
@@ -20,7 +20,7 @@ Deno.serve(async (req) => {
     const { returnUrl, testMode } = await req.json();
     // Live keys by default; test mode is admin-only for development, so real
     // users always verify against real government IDs.
-    const stripe = getStripe(testMode === true && user.app_role === 'admin');
+    const stripe = await getStripeForApp(base44);
 
     // Find or create the parent profile
     const profiles = await base44.entities.ParentProfile.filter({ user_id: user.id });

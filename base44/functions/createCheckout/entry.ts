@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
-import { getStripe } from '../../shared/stripeEnv.ts';
+import { getStripeContext } from '../../shared/stripeEnv.ts';
 import { getSafeOrigin } from '../../shared/safeOrigin.ts';
 
 Deno.serve(async (req) => {
@@ -25,7 +25,7 @@ Deno.serve(async (req) => {
       return Response.json({ paid: true });
     }
 
-    const stripe = getStripe();
+    const { stripe, testMode } = await getStripeContext(base44);
     const origin = getSafeOrigin(req);
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
@@ -50,7 +50,7 @@ Deno.serve(async (req) => {
       payment_intent_data: { metadata: { booking_id: booking.id } },
     });
 
-    await base44.asServiceRole.entities.Booking.update(booking.id, { stripe_session_id: session.id });
+    await base44.asServiceRole.entities.Booking.update(booking.id, { stripe_session_id: session.id, is_test_mode: testMode });
     return Response.json({ url: session.url });
   } catch (error) {
     console.error('createCheckout error:', error.message);

@@ -71,7 +71,7 @@ export async function recordStart(base44, booking) {
 // Called by the webhook once the buyer's start payment clears Stripe. Records
 // buyer_started_at, marks payment held, and advances to in_progress if the
 // teen has already started.
-export async function recordBuyerStartAfterPayment(base44, booking, paymentIntentId) {
+export async function recordBuyerStartAfterPayment(base44, booking, paymentIntentId, opts = {}) {
   const svc = base44.asServiceRole.entities;
   if (booking.buyer_started_at) return { alreadyDone: true, started: bothStarted(booking) };
 
@@ -79,6 +79,7 @@ export async function recordBuyerStartAfterPayment(base44, booking, paymentInten
     buyer_started_at: new Date().toISOString(),
     payment_status: 'held',
     stripe_payment_intent_id: paymentIntentId,
+    ...(opts.isTestMode !== undefined ? { is_test_mode: opts.isTestMode } : {}),
   };
   const next = { ...booking, ...patch };
   const nowStarted = bothStarted(next);
