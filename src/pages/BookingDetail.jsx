@@ -19,6 +19,7 @@ import CompletionPhotoUpload from "@/components/grind/CompletionPhotoUpload";
 import DisputeDialog from "@/components/grind/DisputeDialog";
 import ApplePayButton from "@/components/grind/ApplePayButton";
 import CheckInTimeline from "@/components/grind/parent/CheckInTimeline";
+import VideoSessionPanel from "@/components/grind/VideoSessionPanel";
 import ErrorRetry from "@/components/grind/ErrorRetry";
 
 export default function BookingDetail() {
@@ -205,15 +206,7 @@ export default function BookingDetail() {
             </p>
           )}
           {booking.delivery_mode === "online" ? (
-            booking.session_link && confirmedPlus ? (
-              <a href={booking.session_link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-primary font-medium hover:underline">
-                <Video className="w-4 h-4" /> Join video session
-              </a>
-            ) : (
-              <p className="flex items-center gap-2">
-                <Video className="w-4 h-4 text-muted-foreground" /> Online session — link appears once confirmed
-              </p>
-            )
+            <VideoSessionPanel booking={booking} confirmedPlus={confirmedPlus} />
           ) : (
             <p className="flex items-center gap-2">
               {addressVisible ? (
