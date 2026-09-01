@@ -1,7 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 import { getStripe } from '../../shared/stripeEnv.ts';
 import { applyVerifiedIdentity } from '../../shared/identityVerification.ts';
-import { applyBuyerVerifiedIdentity } from '../../shared/buyerIdentityVerification.ts';
 import { recordBuyerConfirm, recordBuyerStartAfterPayment } from '../../shared/jobHandshake.ts';
 
 Deno.serve(async (req) => {
@@ -94,32 +93,18 @@ Deno.serve(async (req) => {
 
     if (event.type === 'identity.verification_session.verified') {
       const session = event.data.object;
-      const subject = session.metadata?.verification_subject;
-      let result;
-      if (subject === 'buyer') {
-        result = await applyBuyerVerifiedIdentity(base44, stripe, session.id);
-      } else {
-        result = await applyVerifiedIdentity(base44, stripe, session.id);
-      }
-      console.log(`Identity session ${session.id} (${subject || 'parent'}) processed:`, JSON.stringify(result));
+      const result = await applyVerifiedIdentity(base44, stripe, session.id);
+      console.log(`Identity session ${session.id} processed:`, JSON.stringify(result));
     }
 
     if (event.type === 'identity.verification_session.requires_input') {
       const session = event.data.object;
       const reason = session.last_error?.reason || 'Verification needs to be retried';
-      const subject = session.metadata?.verification_subject;
-      if (subject === 'buyer') {
-        const profiles = await base44.asServiceRole.entities.BuyerProfile.filter({ identity_session_id: session.id });
-        if (profiles[0]) {
-          await base44.asServiceRole.entities.BuyerProfile.update(profiles[0].id, { id_verification_status: 'failed' });
-        }
-      } else {
-        const profiles = await base44.asServiceRole.entities.ParentProfile.filter({ identity_session_id: session.id });
-        if (profiles[0]) {
-          await base44.asServiceRole.entities.ParentProfile.update(profiles[0].id, { identity_status: 'failed' });
-        }
+      const profiles = await base44.asServiceRole.entities.ParentProfile.filter({ identity_session_id: session.id });
+      if (profiles[0]) {
+        await base44.asServiceRole.entities.ParentProfile.update(profiles[0].id, { identity_status: 'failed' });
       }
-      console.log(`Identity session ${session.id} (${subject || 'parent'}) requires input: ${reason}`);
+      console.log(`Identity session ${session.id} requires input: ${reason}`);
     }
 
     return Response.json({ received: true });

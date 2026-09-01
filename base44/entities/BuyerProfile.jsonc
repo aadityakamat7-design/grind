@@ -73,33 +73,6 @@
       "type": "string",
       "description": "City resolved from geocoding"
     },
-    "id_verification_status": {
-      "type": "string",
-      "enum": [
-        "pending",
-        "verified",
-        "failed"
-      ],
-      "default": "pending",
-      "rls": {
-        "write": {
-          "user_condition": {
-            "role": "admin"
-          }
-        }
-      }
-    },
-    "identity_session_id": {
-      "type": "string",
-      "description": "Stripe Identity verification session id for the buyer",
-      "rls": {
-        "write": {
-          "user_condition": {
-            "role": "admin"
-          }
-        }
-      }
-    },
     "avg_rating": {
       "type": "number",
       "default": 0,

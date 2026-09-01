@@ -4,7 +4,6 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Lock, MapPin, Star } from "lucide-react";
 import RatingStars from "@/components/grind/RatingStars";
-import TrustBadge from "@/components/grind/TrustBadge";
 import ReportButton from "@/components/grind/ReportButton";
 import BlockButton from "@/components/grind/BlockButton";
 import ReviewCard from "@/components/grind/ReviewCard";
@@ -76,9 +75,6 @@ export default function BuyerPublicProfile() {
             <p className="text-2xl font-bold text-foreground">{profile.review_count || 0}</p>
             <p className="text-xs text-muted-foreground">Reviews</p>
           </div>
-        </div>
-        <div className="flex justify-center gap-2 mt-3 flex-wrap">
-          {profile.id_verification_status === "verified" && <TrustBadge type="id_verified" />}
         </div>
         <p className="text-[11px] text-muted-foreground mt-3 flex items-center justify-center gap-1">
           <Lock className="w-3 h-3" /> Address and contact info stay hidden until a booking is confirmed.

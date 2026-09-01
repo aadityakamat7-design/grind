@@ -3,7 +3,7 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 // Returns a buyer's public profile data. BuyerProfile RLS restricts reads
 // to owner+admin, so this function is the only way for a teen to see a
 // neighbor's reputation before accepting a job. Sensitive fields (address,
-// zip, coordinates, identity session, referral data) are never exposed.
+// zip, coordinates) are never exposed.
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -25,7 +25,6 @@ Deno.serve(async (req) => {
         avg_rating: p.avg_rating || 0,
         review_count: p.review_count || 0,
         jobs_completed: p.jobs_completed || 0,
-        id_verification_status: p.id_verification_status || 'pending',
         resolved_city: p.resolved_city || '',
       },
     });

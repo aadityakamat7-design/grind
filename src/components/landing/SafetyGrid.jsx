@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { ShieldCheck, BadgeCheck, Lock, Home } from "lucide-react";
+import { ShieldCheck, Star, Lock, Home } from "lucide-react";
 
 // Trust section — bento layout with varied card sizes, all on white.
 // Parent-approved is the hero card (wide, serif headline). ID-verified is tall
@@ -31,7 +31,7 @@ export default function SafetyGrid() {
         </div>
       </motion.div>
 
-      {/* ID-verified — tall, row-span-2 */}
+      {/* Rated & reviewed — tall, row-span-2 */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -41,18 +41,18 @@ export default function SafetyGrid() {
       >
         <div
           className="w-12 h-12 rounded-2xl flex items-center justify-center mb-5"
-          style={{ backgroundColor: "hsl(219 74% 53% / 0.1)" }}
+          style={{ backgroundColor: "hsl(38 92% 50% / 0.12)" }}
         >
-          <BadgeCheck className="w-6 h-6 text-primary" />
+          <Star className="w-6 h-6 text-amber-500" />
         </div>
-        <h3 className="font-semibold text-lg text-foreground">ID-verified neighbors</h3>
+        <h3 className="font-semibold text-lg text-foreground">Rated & reviewed</h3>
         <p className="text-muted-foreground mt-2 text-[15px] leading-relaxed flex-1">
-          Every adult passes a government ID + selfie check before they can hire anyone. No anonymous accounts, no exceptions.
+          Every teen builds a public reputation from real neighbor reviews, and neighbors earn ratings too — so trust goes both ways before anyone books.
         </p>
         <div className="mt-6 pt-6 border-t border-border">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Lock className="w-4 h-4" />
-            <span>Stripe Identity verification</span>
+            <Star className="w-4 h-4" />
+            <span>Two-sided reviews</span>
           </div>
         </div>
       </motion.div>
