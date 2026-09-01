@@ -16,7 +16,7 @@ export default function BuyerStatsGrid({ bookings, profile }) {
   const active = bookings.filter((b) => b.status === "in_progress");
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+    <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
       <StatCard icon={Wallet} label="Total spent" value={money(totalSpent)} subtitle="all time" to="/buyer/bookings" accent="text-primary" />
       <StatCard icon={TrendingUp} label="This month" value={money(monthSpent)} subtitle="last 30 days" to="/buyer/bookings" accent="text-emerald-600" />
       <StatCard icon={CalendarDays} label="Upcoming" value={upcoming.length + active.length} subtitle={`${active.length} active now`} to="/buyer/bookings" accent="text-primary" />

@@ -19,7 +19,7 @@ export default function TeenStatsGrid({ records, bookings, profile }) {
   const upcoming = bookings.filter((b) => b.status === "confirmed");
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+    <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
       <StatCard icon={Wallet} label="Total earned" value={money(totalEarned)} subtitle="all time" to="/teen/earnings" accent="text-primary" />
       <StatCard icon={TrendingUp} label="This week" value={money(weekEarned)} subtitle="last 7 days" to="/teen/earnings" accent="text-emerald-600" />
       <StatCard icon={CalendarDays} label="This month" value={money(monthEarned)} subtitle="last 30 days" to="/teen/earnings" accent="text-primary" />
