@@ -1,4 +1,4 @@
-const DEFAULT_ORIGIN = 'https://grind-local-link.base44.app';
+const DEFAULT_ORIGIN = 'https://teenskickstart.base44.app';
 
 // Only redirect back to trusted app domains — never to an attacker-supplied Origin header.
 export function getSafeOrigin(req: Request): string {
