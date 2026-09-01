@@ -66,12 +66,29 @@ export async function attemptBookingPayout(base44, booking, { skipReview = false
     // depend on settled platform balance. The platform fee simply stays behind.
     let sourceTransaction;
     const chargeAmount = booking.charge_amount ?? booking.price_total;
-    if (booking.stripe_payment_intent_id && amount <= Number(chargeAmount || 0)) {
+    let availableNet = amount; // default to the intended payout if we can't read the charge
+    if (booking.stripe_payment_intent_id) {
       const pi = await stripe.paymentIntents.retrieve(booking.stripe_payment_intent_id);
       sourceTransaction = typeof pi.latest_charge === 'string' ? pi.latest_charge : pi.latest_charge?.id;
+      // Read the actual net left after Stripe's processing fees from the charge's
+      // balance transaction. On small charges Stripe's ~2.9% + 30¢ fee eats most of
+      // the dollar, so the 85% net can exceed what's actually transferable — cap the
+      // transfer to the real available amount so it goes through instead of failing.
+      if (sourceTransaction) {
+        try {
+          const charge = await stripe.charges.retrieve(sourceTransaction, { expand: ['balance_transaction'] });
+          const bt = charge.balance_transaction;
+          if (bt && typeof bt.net === 'number') {
+            availableNet = Math.min(amount, Math.max(0, bt.net / 100));
+          }
+        } catch (e) {
+          console.error('Could not read charge balance transaction:', e.message);
+        }
+      }
     }
+    const transferAmount = availableNet;
     const transfer = await stripe.transfers.create({
-      amount: Math.round(amount * 100),
+      amount: Math.round(transferAmount * 100),
       currency: 'usd',
       destination: dest.stripe_connect_account_id,
       ...(sourceTransaction ? { source_transaction: sourceTransaction } : {}),
@@ -92,12 +109,13 @@ export async function attemptBookingPayout(base44, booking, { skipReview = false
       stripe_transfer_id: transfer.id,
       transferred_at: new Date().toISOString(),
       payout_review_reason: '',
+      ...(transferAmount < amount ? { net_amount: Math.round((transferAmount - (booking.tip_amount || 0)) * 100) / 100 } : {}),
     });
     await svc.Notification.create({
       user_id: destUserId,
       type: 'payment',
       title: 'Payout on its way to your bank 🏦',
-      body: `${money(amount)} from "${booking.listing_title}" was transferred to your bank ending in ${dest.bank_last4 || '••••'}. It typically arrives in 1–2 business days.`,
+      body: `${money(transferAmount)} from "${booking.listing_title}" was transferred to your bank ending in ${dest.bank_last4 || '••••'}. It typically arrives in 1–2 business days.`,
       link: returnLink,
     });
     // Email the parent only when there is one (minors). Independent teens get
@@ -105,7 +123,7 @@ export async function attemptBookingPayout(base44, booking, { skipReview = false
     if (booking.parent_user_id) {
       await notifyParentPayoutSent(base44, {
         parentUserId: booking.parent_user_id,
-        amount,
+        amount: transferAmount,
         jobTitle: booking.listing_title,
         bankLast4: dest.bank_last4,
         origin: Deno.env.get('BASE44_APP_URL') || '',
