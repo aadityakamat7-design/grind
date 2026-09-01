@@ -17,10 +17,10 @@ export default function SplitHero({ onGetStarted, onLogin }) {
         {/* Left column */}
         <div className="text-center md:text-left order-2 md:order-1">
           <h1 className="text-4xl sm:text-5xl md:text-[3.2rem] font-bold tracking-tight leading-[1.05] text-foreground">
-            Teens earn. Neighbors get things done.
+            Neighborhood work. Neighborhood teens.
           </h1>
           <p className="text-muted-foreground text-lg mt-5 max-w-md mx-auto md:mx-0 leading-relaxed">
-            Blockwork connects local teens with neighbors who need a hand — real paychecks for teens, reliable help for neighbors, with a parent approving every step.
+            Blockwork is the neighborhood marketplace where local teens earn real paychecks and neighbors get reliable help — with a parent approving every step.
           </p>
 
           <ul className="mt-7 space-y-3 flex flex-col items-center md:items-start">
