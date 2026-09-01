@@ -70,7 +70,7 @@
     "teen_started_at": {
       "type": "string",
       "format": "date-time",
-      "description": "When the teen confirmed Start job \u2014 the job only starts once both sides confirm (server-set only)",
+      "description": "When the teen confirmed Start job \u2014 the job goes in_progress once both the parent and the teen have confirmed (server-set only)",
       "rls": {
         "write": {
           "user_condition": {
@@ -82,7 +82,19 @@
     "buyer_started_at": {
       "type": "string",
       "format": "date-time",
-      "description": "When the neighbor confirmed Start job \u2014 the job only starts once both sides confirm (server-set only)",
+      "description": "When the neighbor paid the escrow on Start job (server-set only). The buyer's payment no longer gates in_progress \u2014 the parent + teen do.",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "parent_started_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the parent confirmed Start job \u2014 the job goes in_progress once both the parent and the teen have confirmed (server-set only)",
       "rls": {
         "write": {
           "user_condition": {

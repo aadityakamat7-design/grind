@@ -28,7 +28,7 @@ Deno.serve(async (req) => {
     if (!booking) return Response.json({ error: 'Booking not found' }, { status: 404 });
 
     const role = roleFor(booking, user.id);
-    if (!role) return Response.json({ error: 'Only the teen and the neighbor on this job can do that.' }, { status: 403 });
+    if (!role) return Response.json({ error: 'Only the people on this job can do that.' }, { status: 403 });
 
     if (action === 'start') {
       if (booking.status !== 'confirmed') {
