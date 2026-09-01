@@ -35,7 +35,8 @@ export default function LinkTeenCard({ onLinked }) {
       setSaving(false);
       onLinked?.();
     } catch (err) {
-      setError(err.response?.data?.error || "Something went wrong. Please try again.");
+      const msg = err?.response?.data?.error || err?.data?.error || err?.message || "Something went wrong. Please try again.";
+      setError(msg);
       setSaving(false);
     }
   };
@@ -60,10 +61,10 @@ export default function LinkTeenCard({ onLinked }) {
         <Label>Teen's parent code</Label>
         <Input
           className="rounded-xl mt-1 uppercase tracking-widest font-bold text-center text-lg"
-          placeholder="ABC123"
+          placeholder="ABCD1234"
           value={code}
           onChange={(e) => setCode(e.target.value)}
-          maxLength={6}
+          maxLength={8}
         />
       </div>
       <label className="flex items-start gap-2.5 text-xs text-slate-600 cursor-pointer">

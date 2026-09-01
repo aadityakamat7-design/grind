@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Badge } from "@/components/ui/badge";
 import { ShieldCheck, ShieldX, ChevronDown, ChevronRight, FileText, Globe, Monitor } from "lucide-react";
-import { CONSENT_ITEMS } from "@/lib/stateWorkRules";
 
 // Admin viewer for the full auditable consent record per parent-teen pair.
 // Shows each itemized consent acknowledgment with timestamps, IP, user agent,

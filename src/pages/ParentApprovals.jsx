@@ -50,6 +50,7 @@ export default function ParentApprovals() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (!params.get("setup")) return;
+    if (loading) return; // Wait for data before checking pending
     if (pending.length === 0) {
       window.location.replace("/parent");
       return;
@@ -58,7 +59,7 @@ export default function ParentApprovals() {
       setGateOpen(true);
     }
     window.history.replaceState({}, "", window.location.pathname);
-  }, [profile, pending]);
+  }, [profile, pending, loading]);
 
   if (loading)
     return (

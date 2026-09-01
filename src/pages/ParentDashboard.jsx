@@ -10,6 +10,7 @@ import ApprovalQueue from "@/components/grind/parent/ApprovalQueue";
 import SafetyPanel from "@/components/grind/parent/SafetyPanel";
 
 import PayoutStatusCard from "@/components/grind/parent/PayoutStatusCard";
+import LockedSetupCard from "@/components/grind/parent/LockedSetupCard";
 import LinkTeenDialog from "@/components/grind/parent/LinkTeenDialog";
 import LinkTeenCard from "@/components/grind/parent/LinkTeenCard";
 import ParentStatsGrid from "@/components/grind/parent/ParentStatsGrid";
@@ -133,6 +134,9 @@ export default function ParentDashboard() {
 
         {parentProfile?.is_identity_verified && parentProfile?.connect_status === "active" && (
           <PayoutStatusCard profile={parentProfile} onUpdated={load} returnPath="/parent" />
+        )}
+        {!(parentProfile?.is_identity_verified && parentProfile?.connect_status === "active") && (
+          <LockedSetupCard profile={parentProfile} hasJobRequests={bookings.length > 0} />
         )}
 
         <ParentStatsGrid records={records} bookings={bookings} links={links} teenProfiles={teenProfiles} pendingApprovals={bookings.filter((b) => b.status === "pending_parent_approval").length} />

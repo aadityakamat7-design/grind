@@ -120,10 +120,10 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
           <Label className="text-foreground">Enter your teen's connection code</Label>
           <Input
             className="rounded-xl mt-1 uppercase tracking-widest font-medium text-center text-lg"
-            placeholder="ABC123"
+            placeholder="ABCD1234"
             value={code}
             onChange={(e) => setCode(e.target.value)}
-            maxLength={6}
+            maxLength={8}
           />
         </div>
         <div>
