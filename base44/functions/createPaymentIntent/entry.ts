@@ -36,6 +36,7 @@ Deno.serve(async (req) => {
       const paymentIntent = await stripe.paymentIntents.create({
         amount: cents,
         currency: 'usd',
+        automatic_payment_methods: { enabled: true },
         metadata: {
           base44_app_id: Deno.env.get('BASE44_APP_ID'),
           booking_id: booking.id,
@@ -68,6 +69,7 @@ Deno.serve(async (req) => {
       const paymentIntent = await stripe.paymentIntents.create({
         amount: cents,
         currency: 'usd',
+        automatic_payment_methods: { enabled: true },
         metadata: {
           base44_app_id: Deno.env.get('BASE44_APP_ID'),
           job_post_id: job.id,

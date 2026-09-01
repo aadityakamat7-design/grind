@@ -52,22 +52,31 @@ export default function JobHandshakePanel({ booking, isTeen, isBuyer, isParent, 
       );
     }
 
-    // Buyer pays the escrow — the job starts once both the teen and buyer confirm.
-    return (
-      <div className="space-y-2">
-        <Button className="w-full rounded-xl" disabled={acting || buyerStarted} onClick={onStart}>
-          <Play className="w-4 h-4 mr-2" />
-          {buyerStarted
-            ? "Payment held"
-            : `Start job & pay $${Number(amount || 0).toFixed(2)}`}
-        </Button>
+    // Buyer has already paid — show status message only
+    if (buyerStarted) {
+      return (
         <p className="text-xs text-center text-slate-500 font-medium">
-          {buyerStarted
-            ? (gatingDone ? "Job is in progress." : "Payment held — waiting for the teen to confirm start.")
-            : "Pay to hold the escrow. The job starts once the teen confirms too."}
+          {gatingDone ? "Job is in progress." : "Payment held — waiting for the teen to confirm start."}
         </p>
-      </div>
-    );
+      );
+    }
+
+    // No charge needed (referral credit or free job) — show start button
+    if (amount <= 0) {
+      return (
+        <div className="space-y-2">
+          <Button className="w-full rounded-xl" disabled={acting} onClick={onStart}>
+            <Play className="w-4 h-4 mr-2" /> Start job
+          </Button>
+          <p className="text-xs text-center text-slate-500 font-medium">
+            Confirm start — the job begins once the teen confirms too.
+          </p>
+        </div>
+      );
+    }
+
+    // Express checkout handles the payment — no button here
+    return null;
   }
 
   if (booking.status === "in_progress") {

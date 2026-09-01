@@ -17,7 +17,7 @@ import EarningsBreakdown from "@/components/grind/teen/EarningsBreakdown";
 import JobHandshakePanel from "@/components/grind/JobHandshakePanel";
 import CompletionPhotoUpload from "@/components/grind/CompletionPhotoUpload";
 import DisputeDialog from "@/components/grind/DisputeDialog";
-import ApplePayButton from "@/components/grind/ApplePayButton";
+import ExpressCheckout from "@/components/grind/ExpressCheckout";
 import CheckInTimeline from "@/components/grind/parent/CheckInTimeline";
 import VideoSessionPanel from "@/components/grind/VideoSessionPanel";
 import ErrorRetry from "@/components/grind/ErrorRetry";
@@ -247,7 +247,7 @@ export default function BookingDetail() {
         )}
 
         {isBuyer && booking.status === "confirmed" && !booking.buyer_started_at && (booking.charge_amount ?? booking.price_total) > 0 && (
-          <ApplePayButton
+          <ExpressCheckout
             bookingId={booking.id}
             amount={booking.charge_amount ?? booking.price_total}
             label={booking.listing_title || "Blockwork job"}
