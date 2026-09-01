@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { Video, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -28,11 +29,11 @@ export default function VideoSessionPanel({ booking, confirmedPlus }) {
             <ExternalLink className="w-4 h-4 mr-2" /> Start on Zoom
           </Button>
         </a>
-        <a href={booking.session_link} target="_blank" rel="noopener noreferrer">
+        <Link to={`/bookings/${booking.id}/video`}>
           <Button className="w-full rounded-xl">
             <Video className="w-4 h-4 mr-2" /> Blockwork video room
           </Button>
-        </a>
+        </Link>
       </div>
     </div>
   );

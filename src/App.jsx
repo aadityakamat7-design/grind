@@ -32,6 +32,7 @@ import TeenPublicProfile from '@/pages/TeenPublicProfile';
 import BuyerPublicProfile from '@/pages/BuyerPublicProfile';
 import BuyerBookings from '@/pages/BuyerBookings';
 import BookingDetail from '@/pages/BookingDetail';
+import VideoRoom from '@/pages/VideoRoom';
 import Messages from '@/pages/Messages';
 import ChatThread from '@/pages/ChatThread';
 import Notifications from '@/pages/Notifications';
@@ -117,6 +118,7 @@ const AuthenticatedApp = () => {
         <Route path="/neighbors/:buyerUserId" element={<BuyerPublicProfile />} />
         <Route path="/buyer/bookings" element={<BuyerBookings />} />
         <Route path="/bookings/:bookingId" element={<BookingDetail />} />
+        <Route path="/bookings/:bookingId/video" element={<VideoRoom />} />
         <Route path="/messages" element={<Messages />} />
         <Route path="/messages/:threadId" element={<ChatThread />} />
         <Route path="/notifications" element={<Notifications />} />
