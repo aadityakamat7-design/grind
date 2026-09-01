@@ -20,7 +20,7 @@ Deno.serve(async (req) => {
 
     // Reject removed categories (babysitting, etc.) — teens never enter a home.
     if (isRemovedCategory(listing.category)) {
-      return Response.json({ error: 'This category is no longer available on Kickstart.' }, { status: 400 });
+      return Response.json({ error: 'This category is no longer available on Blockwork.' }, { status: 400 });
     }
     const deliveryMode = listing.delivery_mode || getDeliveryMode(listing.category) || 'outdoor';
     const isOnline = deliveryMode === 'online';

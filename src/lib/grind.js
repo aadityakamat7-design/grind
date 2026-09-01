@@ -1,4 +1,4 @@
-// Shared constants, helpers, and safety logic for Kickstart
+// Shared constants, helpers, and safety logic for Blockwork
 
 export const PLATFORM_FEE_RATE = 0.15;
 

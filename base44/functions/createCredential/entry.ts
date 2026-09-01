@@ -47,7 +47,7 @@ Deno.serve(async (req) => {
         return Response.json({ error: 'Invalid file URL.' }, { status: 400 });
       }
       if (!isAllowedFileUrl(fileUrl)) {
-        return Response.json({ error: 'File URL must point to KickStart storage.' }, { status: 400 });
+        return Response.json({ error: 'File URL must point to Blockwork storage.' }, { status: 400 });
       }
       ext = parsed.pathname.toLowerCase().substring(parsed.pathname.lastIndexOf('.'));
     } catch {

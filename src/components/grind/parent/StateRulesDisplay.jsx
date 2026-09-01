@@ -92,7 +92,7 @@ export default function StateRulesDisplay({ stateRules, teenName }) {
       </div>
 
       <p className="text-[10px] text-slate-500 italic">
-        These rules are from Kickstart's maintained per-state lookup table. Verify your state's labor department publications for the most current requirements.
+        These rules are from Blockwork's maintained per-state lookup table. Verify your state's labor department publications for the most current requirements.
       </p>
     </div>
   );

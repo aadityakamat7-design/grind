@@ -261,7 +261,7 @@ export default function BookingDetail() {
           <ApplePayButton
             bookingId={booking.id}
             amount={booking.charge_amount ?? booking.price_total}
-            label={booking.listing_title || "Kickstart job"}
+            label={booking.listing_title || "Blockwork job"}
             onSuccess={() => setTimeout(() => load(), 1500)}
             onError={(msg) => setHandshakeError(msg)}
           />

@@ -14,7 +14,7 @@ export async function notifyParentPayoutSent(base44, opts) {
         `${money(amount)} from "${jobTitle}" was transferred to your bank account${bankLast4 ? ` ending in ${bankLast4}` : ''}. ` +
         `It typically arrives in 1–2 business days.\n\n` +
         `View your payout history: ${opts.origin || ''}/parent/payouts\n\n` +
-        `— The KickStart team`,
+        `— The Blockwork team`,
     });
   } catch (err) {
     console.error('notifyParentPayoutSent error:', err.message);
@@ -49,11 +49,11 @@ export async function notifyParentJobAccepted(base44, opts) {
         `2. Connect your bank account for payouts (directly with Stripe)\n\n` +
         `The booking is safely waiting — it won't be approved or cancelled until you're ready.\n\n` +
         `Complete setup here: ${deepLink}\n\n` +
-        `— The KickStart team`
+        `— The Blockwork team`
       : `Hi ${parent.full_name || ''},\n\n${teenName} accepted "${jobTitle}" from ${buyerName}. ` +
         `The booking is waiting for your approval.\n\n` +
         `Review and approve it here: ${deepLink}\n\n` +
-        `— The KickStart team`;
+        `— The Blockwork team`;
 
     await base44.asServiceRole.integrations.Core.SendEmail({
       to: parent.email,

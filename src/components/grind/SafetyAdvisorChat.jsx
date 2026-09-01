@@ -167,7 +167,7 @@ export default function SafetyAdvisorChat({ listing, onClose }) {
             </div>
             <p className="font-semibold text-foreground">Safety Advisor</p>
             <p className="text-sm text-muted-foreground mt-1 max-w-xs mx-auto">
-              Ask me anything about how Kickstart keeps you and the teen safe before you book.
+              Ask me anything about how Blockwork keeps you and the teen safe before you book.
             </p>
           </div>
         )}

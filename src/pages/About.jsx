@@ -8,17 +8,17 @@ export default function About() {
     <div className="min-h-screen bg-background flex flex-col">
       <div className="flex-1 max-w-3xl mx-auto px-4 py-12 lg:py-20 w-full">
         <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-8">
-          <ArrowLeft className="w-4 h-4" /> Back to KickStart
+          <ArrowLeft className="w-4 h-4" /> Back to Blockwork
         </Link>
         <div className="flex items-center gap-3 mb-6">
           <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center shadow-md">
             <Zap className="w-6 h-6 text-primary-foreground" />
           </div>
-          <h1 className="text-2xl font-bold text-foreground">About KickStart</h1>
+          <h1 className="text-2xl font-bold text-foreground">About Blockwork</h1>
         </div>
 
         <p className="text-base text-foreground leading-relaxed mb-6">
-          KickStart is a secure, parent-monitored marketplace where neighborhood teens find local work and adults get reliable help. We believe a first job should teach responsibility, build confidence, and put real money in a teen's pocket — all inside a system that keeps them safe.
+          Blockwork is a secure, parent-monitored marketplace where neighborhood teens find local work and adults get reliable help. We believe a first job should teach responsibility, build confidence, and put real money in a teen's pocket — all inside a system that keeps them safe.
         </p>
 
         <div className="space-y-4 mb-8">
@@ -58,7 +58,7 @@ export default function About() {
               <div>
                 <h2 className="font-bold text-foreground text-sm">How it works</h2>
                 <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
-                  Teens create listings for services they offer. Neighbors post jobs or browse teen profiles. When a teen accepts a job, their parent approves it. Payment is held in escrow until the job is done, then released to the parent's connected bank account. The teen earns money in their Kickstart Wallet.
+                  Teens create listings for services they offer. Neighbors post jobs or browse teen profiles. When a teen accepts a job, their parent approves it. Payment is held in escrow until the job is done, then released to the parent's connected bank account. The teen earns money in their Blockwork Wallet.
                 </p>
               </div>
             </div>

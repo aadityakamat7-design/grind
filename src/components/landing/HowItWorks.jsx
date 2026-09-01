@@ -89,7 +89,7 @@ function PaySecureMock() {
   return (
     <div className="rounded-xl bg-muted border border-border p-3 space-y-2">
       <div className="flex items-center gap-1.5 text-[9px] text-muted-foreground">
-        <Lock className="w-3 h-3" /> Paid to KickStart — held securely
+        <Lock className="w-3 h-3" /> Paid to Blockwork — held securely
       </div>
       <div className="flex items-center justify-between">
         <span className="text-[10px] font-semibold text-foreground">Lawn mowing</span>
@@ -106,12 +106,12 @@ const FLOWS = {
   teen: [
     { n: "1", title: "Create Your Profile", desc: "Add your skills and availability — a parent approves the account.", Mock: ProfileMock },
     { n: "2", title: "Get Hired", desc: "Neighbors browse your profile or post jobs right in your area.", Mock: HiredMock },
-    { n: "3", title: "Get Paid", desc: "Finish the job and KickStart pays you — automatically, no chasing.", Mock: PaidMock },
+    { n: "3", title: "Get Paid", desc: "Finish the job and Blockwork pays you — automatically, no chasing.", Mock: PaidMock },
   ],
   neighbor: [
     { n: "1", title: "Browse Local Teens", desc: "See verified teens in your neighborhood, filtered by service.", Mock: BrowseMock },
     { n: "2", title: "Choose & Book", desc: "Pick based on ratings, skills, and reviews from real neighbors.", Mock: ChooseMock },
-    { n: "3", title: "Pay Securely", desc: "You pay KickStart up front — we pay the teen once the job is done.", Mock: PaySecureMock },
+    { n: "3", title: "Pay Securely", desc: "You pay Blockwork up front — we pay the teen once the job is done.", Mock: PaySecureMock },
   ],
 };
 

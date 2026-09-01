@@ -28,7 +28,7 @@ export default function LandingFooter() {
               <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
                 <Zap className="w-4 h-4 text-primary-foreground" />
               </div>
-              <span className="font-bold text-lg text-foreground">KickStart</span>
+              <span className="font-bold text-lg text-foreground">Blockwork</span>
             </div>
             <p className="text-sm text-muted-foreground mt-3 max-w-xs leading-relaxed">
               The safe way for neighborhood teens to turn skills into cash — parent-approved, every step.
@@ -52,7 +52,7 @@ export default function LandingFooter() {
           ))}
         </div>
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mt-12 pt-6 border-t border-border">
-          <p className="text-xs text-muted-foreground">© {new Date().getFullYear()} KickStart. All rights reserved.</p>
+          <p className="text-xs text-muted-foreground">© {new Date().getFullYear()} Blockwork. All rights reserved.</p>
           <Link to="/register" className="text-xs font-medium text-foreground hover:underline">Start earning →</Link>
         </div>
       </div>

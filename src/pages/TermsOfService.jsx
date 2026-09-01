@@ -16,12 +16,12 @@ export default function TermsOfService() {
 
         <div className="prose prose-sm max-w-none text-muted-foreground [&_h2]:text-foreground [&_h2]:font-heading [&_h2]:font-semibold [&_h2]:mt-8 [&_h2]:mb-3 [&_p]:leading-relaxed [&_li]:leading-relaxed [&_strong]:text-foreground">
           <p className="text-base text-foreground bg-muted rounded-xl p-4 border border-border">
-            <strong>Plain-language summary:</strong> KickStart is a marketplace where adult neighbors hire local teens for outdoor tasks (like lawn care and car washing) performed outside the residence, and for online tutoring and tech help conducted over video. Every teen account is linked to a verified parent or guardian who approves each job and receives the earnings. Teens never enter a client's home — all in-person work happens outdoors, and all tutoring happens remotely. We hold your payment in escrow until the teen uploads photo proof of completion and the neighbor confirms the work. We are a venue — not a party to the work itself. These terms explain the rules for using KickStart.
+            <strong>Plain-language summary:</strong> Blockwork is a marketplace where adult neighbors hire local teens for outdoor tasks (like lawn care and car washing) performed outside the residence, and for online tutoring and tech help conducted over video. Every teen account is linked to a verified parent or guardian who approves each job and receives the earnings. Teens never enter a client's home — all in-person work happens outdoors, and all tutoring happens remotely. We hold your payment in escrow until the teen uploads photo proof of completion and the neighbor confirms the work. We are a venue — not a party to the work itself. These terms explain the rules for using Blockwork.
           </p>
 
           <h2>1. Eligibility and Age Requirements</h2>
           <p>
-            <strong>Minimum age.</strong> You must be at least 13 years old to use KickStart. Users under 13 are not permitted.
+            <strong>Minimum age.</strong> You must be at least 13 years old to use Blockwork. Users under 13 are not permitted.
           </p>
           <p>
             <strong>Teen users (ages 13–17).</strong> Teens may register and create a profile only with verifiable parent or guardian consent. At signup, a teen provides their date of birth and state. A parent or guardian must then link to the teen's account, verify their own identity, and explicitly attest the relationship before the teen can accept jobs or receive payments. The parent is the legal and financial account holder.
@@ -42,7 +42,7 @@ export default function TermsOfService() {
           </p>
           <ul>
             <li><strong>Guardianship authority</strong> — "I am the parent or legal guardian of this teen and have the legal authority to make decisions on their behalf."</li>
-            <li><strong>Work authorization</strong> — "I authorize my teen to perform the types of outdoor tasks and online tutoring offered on KickStart."</li>
+            <li><strong>Work authorization</strong> — "I authorize my teen to perform the types of outdoor tasks and online tutoring offered on Blockwork."</li>
             <li><strong>Per-job approval</strong> — "I understand that I must approve each booking before it is confirmed, and that I can deny any booking."</li>
             <li><strong>Permitted work types</strong> — "I understand that my teen may only perform outdoor tasks outside a client's residence and online tutoring over video, and will never enter a client's home."</li>
             <li><strong>Age accuracy</strong> — "I confirm that the date of birth provided for my teen is accurate."</li>
@@ -56,10 +56,10 @@ export default function TermsOfService() {
 
           <h2>3. Our Role — Marketplace Venue</h2>
           <p>
-            KickStart provides a technology platform that connects neighbors with teens and their parents. We are <strong>not</strong> a party to any agreement between a neighbor and a teen (or their parent). We do not employ teens, do not contract with teens, do not supervise or direct how work is performed, and are not a staffing agency, employer, or joint employer of any teen. Any work agreement is solely between the neighbor and the teen's parent or guardian.
+            Blockwork provides a technology platform that connects neighbors with teens and their parents. We are <strong>not</strong> a party to any agreement between a neighbor and a teen (or their parent). We do not employ teens, do not contract with teens, do not supervise or direct how work is performed, and are not a staffing agency, employer, or joint employer of any teen. Any work agreement is solely between the neighbor and the teen's parent or guardian.
           </p>
           <p>
-            Our safety features — including parent approval, identity verification, hazard screening, photo-proof completion, and in-app messaging — are risk-reduction measures. They do not constitute supervision of any job, do not guarantee that any user is safe or trustworthy, and do not guarantee that any job will be completed satisfactorily or without incident. You use KickStart at your own risk.
+            Our safety features — including parent approval, identity verification, hazard screening, photo-proof completion, and in-app messaging — are risk-reduction measures. They do not constitute supervision of any job, do not guarantee that any user is safe or trustworthy, and do not guarantee that any job will be completed satisfactorily or without incident. You use Blockwork at your own risk.
           </p>
 
           <h2>4. No-Home-Entry Policy</h2>
@@ -72,14 +72,14 @@ export default function TermsOfService() {
 
           <h2>5. Permitted and Prohibited Services</h2>
           <p>
-            <strong>Permitted services.</strong> KickStart permits only two categories of work:
+            <strong>Permitted services.</strong> Blockwork permits only two categories of work:
           </p>
           <ul>
             <li><strong>Outdoor tasks</strong> — performed entirely outside the residence, such as lawn mowing, leaf raking, yard cleanup, car washing, snow shoveling, and similar light outdoor odd jobs.</li>
             <li><strong>Online tutoring and tech help</strong> — conducted entirely over a remote video session, such as academic tutoring, homework help, and basic technology guidance.</li>
           </ul>
           <p>
-            <strong>Prohibited services.</strong> The following are not permitted on KickStart: any service that requires entering a client's home; in-home pet sitting or animal care inside a residence; babysitting or childcare; any service involving heavy machinery, power tools restricted to adults, firearms, adult content, medical or personal care requiring certification; transportation of people; and any service that violates child-labor laws in the teen's state.
+            <strong>Prohibited services.</strong> The following are not permitted on Blockwork: any service that requires entering a client's home; in-home pet sitting or animal care inside a residence; babysitting or childcare; any service involving heavy machinery, power tools restricted to adults, firearms, adult content, medical or personal care requiring certification; transportation of people; and any service that violates child-labor laws in the teen's state.
           </p>
           <p>
             We screen listings and job posts for safety hazards and may reject or remove any posting that violates these rules or that we determine is inappropriate for a teen.
@@ -93,12 +93,12 @@ export default function TermsOfService() {
             <strong>Conduct rules.</strong> All participants in a video session must be appropriately dressed, must not record the session without the other party's consent, and must not engage in any inappropriate or harassing conduct. The teen's parent may join or monitor any session involving their teen. Any violation should be reported through the platform immediately.
           </p>
           <p>
-            <strong>Recording.</strong> KickStart does not record, store, or transcribe video sessions. Session metadata (start time, duration, and participant IDs) is logged for safety and dispute resolution. See the Privacy Policy for details.
+            <strong>Recording.</strong> Blockwork does not record, store, or transcribe video sessions. Session metadata (start time, duration, and participant IDs) is logged for safety and dispute resolution. See the Privacy Policy for details.
           </p>
 
           <h2>7. Fees and Payments</h2>
           <p>
-            <strong>Platform fee.</strong> KickStart charges a service fee on each completed booking. The fee is deducted from the teen's earnings before payout to the parent. The current fee rate is shown at checkout and on the earnings screen.
+            <strong>Platform fee.</strong> Blockwork charges a service fee on each completed booking. The fee is deducted from the teen's earnings before payout to the parent. The current fee rate is shown at checkout and on the earnings screen.
           </p>
           <p>
             <strong>Escrow.</strong> When a job starts, the neighbor's payment (including any tip) is charged through Stripe and held in escrow. The teen uploads photo proof that the work is complete. The neighbor then has 12 hours to confirm the work or report a problem. If the neighbor confirms, the funds are released to the teen's parent. If the neighbor does not respond within 12 hours, the funds are automatically released. If the neighbor reports a problem, the funds are held pending review.
@@ -139,7 +139,7 @@ export default function TermsOfService() {
             <strong>Parent's responsibility.</strong> The parent is responsible for assessing whether each job is suitable for their teen, for supervising their teen's participation as appropriate, and for ensuring compliance with state child-labor laws including hour restrictions and permitted work types.
           </p>
           <p>
-            <strong>Platform's role.</strong> KickStart does not supervise, direct, or control how any work is performed. We do not inspect job sites, verify the safety of any property, or guarantee the competence of any teen. Our safety features are risk-reduction measures, not supervision.
+            <strong>Platform's role.</strong> Blockwork does not supervise, direct, or control how any work is performed. We do not inspect job sites, verify the safety of any property, or guarantee the competence of any teen. Our safety features are risk-reduction measures, not supervision.
           </p>
           <p className="bg-muted rounded-xl p-4 border border-border text-foreground">
             <strong>[PENDING LEGAL REVIEW]</strong> The assumption-of-risk and waiver language as applied to minors requires review by legal counsel. Parental pre-injury waivers on behalf of minors are of limited or no enforceability in many states, including California. No binding waiver language is in effect until counsel approves it. The acknowledgments above describe responsibilities and awareness of risk, not a waiver of claims.
@@ -161,7 +161,7 @@ export default function TermsOfService() {
 
           <h2>12. Content and Intellectual Property</h2>
           <p>
-            You retain ownership of content you post (listings, photos, messages, completion photos). You grant KickStart a limited license to display that content on the platform for the purpose of operating the service, including showing completion photos to the neighbor and to administrators during dispute review. You agree not to post content that infringes another's intellectual property rights.
+            You retain ownership of content you post (listings, photos, messages, completion photos). You grant Blockwork a limited license to display that content on the platform for the purpose of operating the service, including showing completion photos to the neighbor and to administrators during dispute review. You agree not to post content that infringes another's intellectual property rights.
           </p>
 
           <h2>13. Termination</h2>
@@ -171,7 +171,7 @@ export default function TermsOfService() {
 
           <h2>14. Disclaimers</h2>
           <p>
-            KickStart is provided "as is" without warranties of any kind. We do not guarantee that every job will be completed, that every user is who they claim to be, that any outdoor work site is safe, or that the platform will be uninterrupted. You are responsible for evaluating the suitability of any match and the safety of any work environment.
+            Blockwork is provided "as is" without warranties of any kind. We do not guarantee that every job will be completed, that every user is who they claim to be, that any outdoor work site is safe, or that the platform will be uninterrupted. You are responsible for evaluating the suitability of any match and the safety of any work environment.
           </p>
 
           <h2>15. Limitation of Liability</h2>
@@ -186,7 +186,7 @@ export default function TermsOfService() {
 
           <h2>17. Insurance</h2>
           <p className="bg-muted rounded-xl p-4 border border-border text-foreground">
-            <strong>[PENDING LEGAL REVIEW]</strong> Whether KickStart should carry general liability, errors-and-omissions, or other insurance, and whether users should be required to carry their own insurance, requires review by legal counsel and a determination of business needs. No insurance representation or requirement is in effect until counsel approves it.
+            <strong>[PENDING LEGAL REVIEW]</strong> Whether Blockwork should carry general liability, errors-and-omissions, or other insurance, and whether users should be required to carry their own insurance, requires review by legal counsel and a determination of business needs. No insurance representation or requirement is in effect until counsel approves it.
           </p>
 
           <h2>18. Dispute Resolution and Governing Law</h2>

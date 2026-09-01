@@ -10,7 +10,7 @@ import TrustBar from "@/components/landing/TrustBar";
 import HowItWorks from "@/components/landing/HowItWorks";
 import ServicesGrid from "@/components/landing/ServicesGrid";
 import MarketplacePreview from "@/components/landing/MarketplacePreview";
-import WhyKickstart from "@/components/landing/WhyKickstart";
+import WhyBlockwork from "@/components/landing/WhyBlockwork";
 import EarningsCalculator from "@/components/landing/EarningsCalculator";
 import SafetyGrid from "@/components/landing/SafetyGrid";
 import FaqSection from "@/components/landing/FaqSection";
@@ -70,7 +70,7 @@ export default function Welcome() {
             <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-card">
               <Zap className="w-5 h-5 text-primary-foreground" />
             </div>
-            <span className="font-bold text-xl tracking-tight">KickStart</span>
+            <span className="font-bold text-xl tracking-tight">Blockwork</span>
           </div>
           <div className="flex items-center gap-2">
             <Button variant="ghost" className="text-muted-foreground hover:text-foreground hover:bg-accent font-medium" onClick={() => navigate("/login")}>
@@ -91,7 +91,7 @@ export default function Welcome() {
         <TrustBar />
       </section>
 
-      <Section id="how-it-works" eyebrow="How it works" title="Simple for teens. Simple for neighbors." subtitle="Whichever side you're on, everything happens safely inside KickStart.">
+      <Section id="how-it-works" eyebrow="How it works" title="Simple for teens. Simple for neighbors." subtitle="Whichever side you're on, everything happens safely inside Blockwork.">
         <HowItWorks />
       </Section>
 
@@ -103,15 +103,15 @@ export default function Welcome() {
         <MarketplacePreview />
       </Section>
 
-      <Section id="why" eyebrow="Why KickStart" title="Better than a paper route" subtitle="Everything a first job should be — without the downsides.">
-        <WhyKickstart />
+      <Section id="why" eyebrow="Why Blockwork" title="Better than a paper route" subtitle="Everything a first job should be — without the downsides.">
+        <WhyBlockwork />
       </Section>
 
       <Section eyebrow="Earnings" title="See what you could make" subtitle="Teens earn real money at fair rates — neighbors pay a fraction of what pro services charge. Everyone wins.">
         <EarningsCalculator />
       </Section>
 
-      <Section id="safety" eyebrow="Safety" title="Safety isn't a feature. It's the foundation." subtitle="Every layer of KickStart is built to protect teens and reassure parents.">
+      <Section id="safety" eyebrow="Safety" title="Safety isn't a feature. It's the foundation." subtitle="Every layer of Blockwork is built to protect teens and reassure parents.">
         <SafetyGrid />
       </Section>
 

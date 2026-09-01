@@ -62,7 +62,7 @@ export default function TeenPublicProfile() {
             <RatingStars rating={profile.avg_rating} count={profile.review_count} />
           ) : (
             <span className="inline-flex items-center gap-1 rounded-full bg-secondary text-muted-foreground border border-border px-2.5 py-0.5 text-xs font-medium">
-              ✨ New to Kickstart
+              ✨ New to Blockwork
             </span>
           )}
         </div>

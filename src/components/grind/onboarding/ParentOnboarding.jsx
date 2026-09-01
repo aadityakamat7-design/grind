@@ -42,7 +42,7 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
     setError("");
     const age = calcAge(dob);
     if (age === null || age < 18) {
-      setError("You must be at least 18 years old to be a parent or guardian on Kickstart.");
+      setError("You must be at least 18 years old to be a parent or guardian on Blockwork.");
       return;
     }
     if (code.length < 4) {
@@ -204,7 +204,7 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
 
       <label className="flex items-start gap-2.5 text-sm text-muted-foreground cursor-pointer">
         <Checkbox checked={paymentAuth} onCheckedChange={setPaymentAuth} className="mt-0.5" />
-        <span>I authorize Kickstart to process payments on my behalf, including holding funds in escrow and transferring payouts to my connected bank account.</span>
+        <span>I authorize Blockwork to process payments on my behalf, including holding funds in escrow and transferring payouts to my connected bank account.</span>
       </label>
 
       {error && (

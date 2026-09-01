@@ -8,7 +8,7 @@ export default function Support() {
     <div className="min-h-screen bg-background flex flex-col">
       <div className="max-w-2xl mx-auto px-4 py-12 lg:py-20">
         <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-8">
-          <ArrowLeft className="w-4 h-4" /> Back to KickStart
+          <ArrowLeft className="w-4 h-4" /> Back to Blockwork
         </Link>
         <div className="flex items-center gap-3 mb-6">
           <div className="w-12 h-12 rounded-2xl bg-foreground flex items-center justify-center">

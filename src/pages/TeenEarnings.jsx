@@ -191,7 +191,7 @@ export default function TeenEarnings() {
     const csv = rows.map((row) => row.map((c) => `"${String(c ?? "").replace(/"/g, '""')}"`).join(",")).join("\n");
     const a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
-    a.download = "kickstart-earnings.csv";
+    a.download = "blockwork-earnings.csv";
     a.click();
   };
 

@@ -20,7 +20,7 @@ export default function SplitHero({ onGetStarted, onLogin }) {
             Teens earn. Neighbors get things done.
           </h1>
           <p className="text-muted-foreground text-lg mt-5 max-w-md mx-auto md:mx-0 leading-relaxed">
-            Kickstart connects local teens with neighbors who need a hand — real paychecks for teens, reliable help for neighbors, with a parent approving every step.
+            Blockwork connects local teens with neighbors who need a hand — real paychecks for teens, reliable help for neighbors, with a parent approving every step.
           </p>
 
           <ul className="mt-7 space-y-3 flex flex-col items-center md:items-start">

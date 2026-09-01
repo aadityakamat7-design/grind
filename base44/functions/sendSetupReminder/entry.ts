@@ -46,7 +46,7 @@ Deno.serve(async (req) => {
         `This is a friendly reminder: ${teenName} accepted "${booking.listing_title}" and it's still waiting for your approval.\n\n` +
         `To approve this job, complete your identity verification and connect your bank account:\n${deepLink}\n\n` +
         `The booking is safely waiting — it won't be approved or cancelled until you're ready.\n\n` +
-        `— The KickStart team`;
+        `— The Blockwork team`;
       try {
         await base44.asServiceRole.integrations.Core.SendEmail({
           to: parent.email,

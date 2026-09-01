@@ -37,7 +37,7 @@ const PILLARS = [
   {
     icon: MessageSquare,
     title: "In-app messaging only",
-    body: "All communication happens inside KickStart. Messages are masked for personal information until a booking is confirmed. This keeps conversations on the platform where they're protected.",
+    body: "All communication happens inside Blockwork. Messages are masked for personal information until a booking is confirmed. This keeps conversations on the platform where they're protected.",
   },
   {
     icon: AlertTriangle,
@@ -51,16 +51,16 @@ export default function Safety() {
     <div className="min-h-screen bg-background flex flex-col">
       <div className="flex-1 max-w-3xl mx-auto px-4 py-12 lg:py-20 w-full">
         <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-8">
-          <ArrowLeft className="w-4 h-4" /> Back to KickStart
+          <ArrowLeft className="w-4 h-4" /> Back to Blockwork
         </Link>
         <div className="flex items-center gap-3 mb-6">
           <div className="w-12 h-12 rounded-2xl bg-foreground flex items-center justify-center">
             <ShieldCheck className="w-6 h-6 text-background" />
           </div>
-          <h1 className="text-2xl font-bold text-foreground">Safety at KickStart</h1>
+          <h1 className="text-2xl font-bold text-foreground">Safety at Blockwork</h1>
         </div>
         <p className="text-sm text-muted-foreground leading-relaxed mb-8">
-          Safety isn't a feature — it's the foundation of everything we built. KickStart connects neighborhood teens with outdoor tasks and online tutoring, but only inside a system designed to protect young people and give parents confidence. Teens never enter a client's home — all in-person work happens outdoors, and all tutoring happens over video. Here's how every layer works.
+          Safety isn't a feature — it's the foundation of everything we built. Blockwork connects neighborhood teens with outdoor tasks and online tutoring, but only inside a system designed to protect young people and give parents confidence. Teens never enter a client's home — all in-person work happens outdoors, and all tutoring happens over video. Here's how every layer works.
         </p>
         <div className="space-y-4">
           {PILLARS.map((p) => {

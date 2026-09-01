@@ -72,7 +72,7 @@ export async function releaseBookingPayment(base44, booking, tip) {
     user_id: booking.teen_user_id,
     type: 'payment',
     title: tipAmt > 0 ? `You got paid — plus a ${money(tipAmt)} tip! 🎉` : 'You got paid!',
-    body: `${money(teenGets)} landed in your Kickstart Wallet for "${booking.listing_title}".`,
+    body: `${money(teenGets)} landed in your Blockwork Wallet for "${booking.listing_title}".`,
     link: '/teen/wallet',
   });
   // Transfer the net payout (after platform fee) to the parent's Stripe Connect
@@ -89,7 +89,7 @@ export async function releaseBookingPayment(base44, booking, tip) {
   return teenGets;
 }
 
-// Credits a referral reward to a user: teens get cash added to their Kickstart
+// Credits a referral reward to a user: teens get cash added to their Blockwork
 // Wallet, neighbors get credit applied to their next booking.
 async function creditReferralReward(svc, userId, reward) {
   const teenProfiles = await svc.TeenProfile.filter({ user_id: userId });

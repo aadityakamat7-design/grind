@@ -1,4 +1,4 @@
-// Delivery mode mapping for Kickstart's two permitted job types.
+// Delivery mode mapping for Blockwork's two permitted job types.
 //
 // outdoor — work performed outside the residence (lawn care, car washing,
 //   dog walking with doorstep pickup, yard work, etc.). Never inside a home.
@@ -58,5 +58,5 @@ export function isRemovedCategory(category: string | undefined | null): boolean 
 export function generateSessionLink(bookingId: string): string {
   const safeId = bookingId.replace(/[^a-zA-Z0-9]/g, '');
   const suffix = Math.random().toString(36).slice(2, 8);
-  return `https://meet.jit.si/kickstart_${safeId}_${suffix}`;
+  return `https://meet.jit.si/blockwork_${safeId}_${suffix}`;
 }

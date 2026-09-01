@@ -94,7 +94,7 @@ export default function Layout() {
             <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-soft">
               <Zap className="w-5 h-5 text-primary-foreground" />
             </div>
-            <span className="font-extrabold text-[19px] tracking-tight text-foreground">KickStart</span>
+            <span className="font-extrabold text-[19px] tracking-tight text-foreground">Blockwork</span>
           </Link>
         </div>
         <div className="flex-1 overflow-y-auto px-3.5 py-5">
@@ -159,7 +159,7 @@ export default function Layout() {
               <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shadow-soft">
                 <Zap className="w-4 h-4 text-primary-foreground" />
               </div>
-              <span className="font-extrabold text-[17px] tracking-tight text-foreground">KickStart</span>
+              <span className="font-extrabold text-[17px] tracking-tight text-foreground">Blockwork</span>
             </Link>
           )}
           <div className="flex items-center gap-3">

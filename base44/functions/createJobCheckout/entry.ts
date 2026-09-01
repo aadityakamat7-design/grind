@@ -44,7 +44,7 @@ Deno.serve(async (req) => {
         {
           price_data: {
             currency: 'usd',
-            product_data: { name: job.title || 'Kickstart job post', description: 'Held in escrow until a teen accepts and completes the job.' },
+            product_data: { name: job.title || 'Blockwork job post', description: 'Held in escrow until a teen accepts and completes the job.' },
             unit_amount: cents,
           },
           quantity: 1,

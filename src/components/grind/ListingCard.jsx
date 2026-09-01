@@ -68,7 +68,7 @@ export default function ListingCard({ listing, teen, to }) {
             <RatingStars rating={teen.avg_rating} count={teen.review_count} />
           ) : (
             <span className="inline-flex items-center rounded-full bg-secondary text-muted-foreground border border-border px-2 py-0.5 text-[10px] font-medium">
-              ✨ New to Kickstart
+              ✨ New to Blockwork
             </span>
           ))}
         </div>

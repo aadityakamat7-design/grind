@@ -29,7 +29,7 @@ export default function BuyerOnboarding({ user }) {
     // Buyers must be 18+ — they're hiring and paying
     const age = calcAge(dob);
     if (age === null || age < 18) {
-      setAgeError("You must be at least 18 years old to hire on Kickstart.");
+      setAgeError("You must be at least 18 years old to hire on Blockwork.");
       setSaving(false);
       return;
     }
@@ -72,7 +72,7 @@ export default function BuyerOnboarding({ user }) {
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-bold text-foreground">Where are you?</h2>
-      <p className="text-sm text-muted-foreground">Kickstart is hyperlocal — we'll show you teens in your neighborhood.</p>
+      <p className="text-sm text-muted-foreground">Blockwork is hyperlocal — we'll show you teens in your neighborhood.</p>
       <div>
         <Label>Home address</Label>
         <Input className="rounded-xl mt-1" placeholder="123 Maple St" value={address} onChange={(e) => setAddress(e.target.value)} />
@@ -84,7 +84,7 @@ export default function BuyerOnboarding({ user }) {
       <div>
         <Label>Date of birth</Label>
         <Input type="date" className="rounded-xl mt-1" value={dob} onChange={(e) => setDob(e.target.value)} />
-        <p className="text-xs text-muted-foreground mt-1">You must be 18 or older to hire on Kickstart.</p>
+        <p className="text-xs text-muted-foreground mt-1">You must be 18 or older to hire on Blockwork.</p>
       </div>
       <div>
         <Label>Referral code (optional)</Label>

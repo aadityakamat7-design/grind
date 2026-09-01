@@ -34,7 +34,7 @@ Deno.serve(async (req) => {
         user_id: links[0].parent_user_id,
         type: 'payment',
         title: 'Teen cash-out',
-        body: `$${amt.toFixed(2)} was cashed out from the KickStart Wallet to your account.`,
+        body: `$${amt.toFixed(2)} was cashed out from the Blockwork Wallet to your account.`,
         link: '/parent/payouts',
       });
     }

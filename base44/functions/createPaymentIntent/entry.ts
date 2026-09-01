@@ -41,7 +41,7 @@ Deno.serve(async (req) => {
           booking_id: booking.id,
           start_payment: '1',
         },
-        description: booking.listing_title || 'Kickstart job',
+        description: booking.listing_title || 'Blockwork job',
       });
 
       await base44.asServiceRole.entities.Booking.update(booking.id, {
@@ -72,7 +72,7 @@ Deno.serve(async (req) => {
           base44_app_id: Deno.env.get('BASE44_APP_ID'),
           job_post_id: job.id,
         },
-        description: job.title || 'Kickstart job post',
+        description: job.title || 'Blockwork job post',
       });
 
       return Response.json({

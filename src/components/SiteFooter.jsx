@@ -19,7 +19,7 @@ export default function SiteFooter() {
             <div className="w-6 h-6 rounded-lg bg-primary flex items-center justify-center">
               <Zap className="w-3.5 h-3.5 text-primary-foreground" />
             </div>
-            <span className="font-semibold text-foreground">KickStart</span>
+            <span className="font-semibold text-foreground">Blockwork</span>
             <span>· © {new Date().getFullYear()}</span>
           </div>
           <nav className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-muted-foreground">

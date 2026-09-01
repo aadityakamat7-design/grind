@@ -23,10 +23,10 @@ function TermsContent() {
   return (
     <>
       <p className="text-foreground bg-muted rounded-xl p-3 border border-border">
-        <strong>Plain-language summary:</strong> KickStart is a marketplace where adult neighbors hire local teens for everyday services. Every teen account (ages 13–17) is linked to a verified parent or guardian who approves jobs and receives payments. We hold your payment in escrow until the job is done, then pay the teen's parent. We are a venue — not a party to the work itself.
+        <strong>Plain-language summary:</strong> Blockwork is a marketplace where adult neighbors hire local teens for everyday services. Every teen account (ages 13–17) is linked to a verified parent or guardian who approves jobs and receives payments. We hold your payment in escrow until the job is done, then pay the teen's parent. We are a venue — not a party to the work itself.
       </p>
       <Section title="1. Eligibility and Age Requirements">
-        <p><strong>Minimum age.</strong> You must be at least 13 years old to use KickStart.</p>
+        <p><strong>Minimum age.</strong> You must be at least 13 years old to use Blockwork.</p>
         <p><strong>Teen users (13–17).</strong> Require a verified parent or guardian who links to the teen's account, verifies their identity, and attests the relationship before the teen can accept jobs.</p>
         <p><strong>Adult users (18+).</strong> May use the platform independently without a parent. Neighbors hiring teens and parents managing teen accounts must be at least 18.</p>
       </Section>
@@ -35,7 +35,7 @@ function TermsContent() {
         <p><strong>Teen accounts (13–17).</strong> Not active until a parent completes linking, identity verification, and relationship attestation. The parent controls payouts and can approve or deny any booking.</p>
       </Section>
       <Section title="3. Our Role — Marketplace Venue">
-        <p>KickStart is a venue that connects neighbors with teens and their parents. We are not a party to any agreement between a neighbor and a teen. We do not employ teens and are not responsible for the quality, safety, or legality of any service.</p>
+        <p>Blockwork is a venue that connects neighbors with teens and their parents. We are not a party to any agreement between a neighbor and a teen. We do not employ teens and are not responsible for the quality, safety, or legality of any service.</p>
       </Section>
       <Section title="4. Fees and Payments">
         <p><strong>Platform fee.</strong> A service fee is deducted from the teen's earnings before payout.</p>
@@ -55,7 +55,7 @@ function TermsContent() {
         <p>You may close your account at any time. We may suspend or terminate any account that violates these terms or poses a safety risk.</p>
       </Section>
       <Section title="9. Disclaimers and Limitation of Liability">
-        <p>KickStart is provided "as is" without warranties. To the fullest extent permitted by law, we are not liable for indirect, incidental, or consequential damages arising from your use of the platform.</p>
+        <p>Blockwork is provided "as is" without warranties. To the fullest extent permitted by law, we are not liable for indirect, incidental, or consequential damages arising from your use of the platform.</p>
       </Section>
       <Section title="10. Changes and Contact">
         <p>We may update these terms from time to time. Continued use after changes means you accept the updated terms. Questions? Contact us through in-app support.</p>

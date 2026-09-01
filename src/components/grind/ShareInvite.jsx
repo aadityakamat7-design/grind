@@ -10,7 +10,7 @@ export default function ShareInvite({ code }) {
   const [email, setEmail] = useState("");
 
   const inviteUrl = `${window.location.origin}/onboarding?code=${code}`;
-  const shareText = `Hey! I'm joining Kickstart to earn money doing local jobs. I need you to approve my account — sign up as a Parent and enter my code: ${code}\n\n${inviteUrl}`;
+  const shareText = `Hey! I'm joining Blockwork to earn money doing local jobs. I need you to approve my account — sign up as a Parent and enter my code: ${code}\n\n${inviteUrl}`;
 
   const copyLink = () => {
     navigator.clipboard.writeText(inviteUrl);
@@ -19,7 +19,7 @@ export default function ShareInvite({ code }) {
   };
 
   const sendEmail = () => {
-    const subject = encodeURIComponent("Join me on Kickstart");
+    const subject = encodeURIComponent("Join me on Blockwork");
     const body = encodeURIComponent(shareText);
     window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
   };
@@ -27,7 +27,7 @@ export default function ShareInvite({ code }) {
   const share = async () => {
     if (navigator.share) {
       try {
-        await navigator.share({ title: "Join me on Kickstart", text: shareText, url: inviteUrl });
+        await navigator.share({ title: "Join me on Blockwork", text: shareText, url: inviteUrl });
       } catch { /* user cancelled */ }
     } else {
       copyLink();

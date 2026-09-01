@@ -59,7 +59,7 @@ export default function TeenEligibilityStep({ initialDob = "", initialState = ""
       )}
       <div className="flex items-start gap-2 bg-secondary border border-border rounded-xl p-3 text-xs text-muted-foreground">
         <ShieldCheck className="w-4 h-4 mt-0.5 shrink-0" />
-        Kickstart is for teens ages 13–19. We check your state's minimum working age for each job category — some categories (like lawn care) require a higher minimum age in certain states. Ages 18–19 use the platform independently without a parent.
+        Blockwork is for teens ages 13–19. We check your state's minimum working age for each job category — some categories (like lawn care) require a higher minimum age in certain states. Ages 18–19 use the platform independently without a parent.
       </div>
       <Button className="w-full rounded-xl h-12 font-medium" disabled={!dob || !usState} onClick={submit}>
         Check my eligibility

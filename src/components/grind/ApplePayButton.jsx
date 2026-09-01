@@ -38,7 +38,7 @@ export default function ApplePayButton({ bookingId, jobId, amount, label, onSucc
         const pr = stripe.paymentRequest({
           country: "US",
           currency: "usd",
-          total: { label: label || "Kickstart payment", amount: Math.round(amount * 100) },
+          total: { label: label || "Blockwork payment", amount: Math.round(amount * 100) },
           requestPayerName: true,
           requestPayerEmail: true,
         });

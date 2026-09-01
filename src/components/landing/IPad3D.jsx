@@ -184,7 +184,7 @@ export default function IPad3D({ triggerRef }) {
                         letterSpacing: "-0.02em",
                       }}
                     >
-                      Kickstart
+                      Blockwork
                     </span>
                   </div>
                   <span

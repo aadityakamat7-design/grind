@@ -1,4 +1,4 @@
-// Per-state, per-category minimum age rules for teen work on Kickstart.
+// Per-state, per-category minimum age rules for teen work on Blockwork.
 //
 // This is a maintained lookup table — not computed at runtime — mapping each
 // US state to the minimum age a teen must be to create a listing or accept a

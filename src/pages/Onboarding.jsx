@@ -44,7 +44,7 @@ export default function Onboarding() {
           <div className="w-8 h-8 rounded-xl bg-foreground flex items-center justify-center">
             <Zap className="w-4 h-4 text-background" />
           </div>
-          <span className="font-bold text-lg text-foreground">Kickstart</span>
+          <span className="font-bold text-lg text-foreground">Blockwork</span>
         </div>
 
         {!role ? (

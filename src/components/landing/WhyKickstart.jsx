@@ -5,7 +5,7 @@ import { Check, X, Zap } from "lucide-react";
 const US = ["Local jobs", "Secure payments", "Built for teens", "Easy scheduling", "Verified users", "Mobile app"];
 const THEM = ["Hard to find work", "Cash only", "No trust", "No scheduling"];
 
-export default function WhyKickstart() {
+export default function WhyBlockwork() {
   return (
     <div className="grid md:grid-cols-2 gap-5 max-w-3xl mx-auto">
       <motion.div
@@ -19,7 +19,7 @@ export default function WhyKickstart() {
           <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center">
             <Zap className="w-4 h-4 text-primary-foreground" />
           </div>
-          <h3 className="font-bold text-foreground text-lg">KickStart</h3>
+          <h3 className="font-bold text-foreground text-lg">Blockwork</h3>
         </div>
         <ul className="space-y-3">
           {US.map((item) => (

@@ -13,7 +13,7 @@ Deno.serve(async (req) => {
     if (!title || !title.trim()) return Response.json({ error: 'title required' }, { status: 400 });
 
     const result = await base44.integrations.Core.InvokeLLM({
-      prompt: `You are a job-category classifier for "Kickstart", a teen jobs marketplace. Read the job title and description below and pick the ONE category that best fits from this list:
+      prompt: `You are a job-category classifier for "Blockwork", a teen jobs marketplace. Read the job title and description below and pick the ONE category that best fits from this list:
 - tutoring (academic help, homework, teaching a skill like music or coding)
 - lawn_care (mowing, weeding, raking, yard cleanup, gardening)
 - pet_sitting (dog walking, pet feeding, pet care)

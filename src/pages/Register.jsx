@@ -103,7 +103,7 @@ export default function Register() {
     return (
       <AuthLayout
         icon={UserPlus}
-        title="Join Kickstart"
+        title="Join Blockwork"
         subtitle="First, tell us who you are"
         footer={
           <>

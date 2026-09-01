@@ -10,7 +10,7 @@
         "buyer",
         "admin"
       ],
-      "description": "The Kickstart role selected during onboarding"
+      "description": "The Blockwork role selected during onboarding"
     },
     "onboarding_complete": {
       "type": "boolean",

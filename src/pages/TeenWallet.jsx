@@ -50,7 +50,7 @@ export default function TeenWallet() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Kickstart Wallet" subtitle="Your earnings, ready to cash out." />
+      <PageHeader title="Blockwork Wallet" subtitle="Your earnings, ready to cash out." />
 
       <div className="bg-gradient-to-br from-foreground to-primary rounded-2xl p-6 text-primary-foreground shadow-card">
         <p className="text-[13px] opacity-80 flex items-center gap-1.5"><Wallet className="w-4 h-4" /> Current balance</p>
