@@ -10,6 +10,7 @@ import { ShieldCheck, ShieldX, Sparkles, Lock, Tag, AlertCircle } from "lucide-r
 import { CATEGORIES, CATEGORY_LABELS, categoryMinimum, computeFees, money, MAX_UNIT_PRICE, isOnlineCategory } from "@/lib/grind";
 import { getMinAgeForCategory } from "@/lib/stateWorkRules";
 import SlideToConfirm from "@/components/grind/SlideToConfirm";
+import DateTimePicker from "@/components/grind/DateTimePicker";
 import { US_STATES } from "@/lib/jobScreen";
 
 export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, onPosted }) {
@@ -373,7 +374,7 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
             </div>
             <div className="space-y-1.5">
               <Label>When (optional)</Label>
-              <Input className="rounded-xl" type="datetime-local" value={form.scheduled_start} onChange={(e) => set("scheduled_start", e.target.value)} />
+              <DateTimePicker value={form.scheduled_start} onChange={(v) => set("scheduled_start", v)} />
             </div>
             <Button className="w-full" disabled={!valid} onClick={reviewCategory}>
               Review & post

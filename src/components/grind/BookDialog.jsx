@@ -11,6 +11,7 @@ import { ShieldCheck, Lock, MessageCircle, Video, Sun } from "lucide-react";
 import { computeFees, money, isOnlineCategory } from "@/lib/grind";
 import SafetyAdvisorChat from "@/components/grind/SafetyAdvisorChat";
 import SlideToConfirm from "@/components/grind/SlideToConfirm";
+import DateTimePicker from "@/components/grind/DateTimePicker";
 
 export default function BookDialog({ open, onOpenChange, listing, buyer, buyerProfile }) {
   const navigate = useNavigate();
@@ -66,7 +67,9 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
           </div>
           <div>
             <Label>Date & time</Label>
-            <Input type="datetime-local" className="rounded-xl mt-1" value={when} onChange={(e) => setWhen(e.target.value)} />
+            <div className="mt-1">
+              <DateTimePicker value={when} onChange={setWhen} />
+            </div>
           </div>
           <div>
             <Label>How often?</Label>
