@@ -9,6 +9,7 @@ export default function WeeklyHoursCard({ teenName, teenState, teenAge, bookings
   if (teenAge == null || !teenState || teenAge >= 18) return null;
 
   const rules = getWorkHourRules(teenState, teenAge);
+  if (!rules) return null; // unverified state — fail closed
   const now = new Date();
 
   const schoolDay = isSchoolDayDate(now);

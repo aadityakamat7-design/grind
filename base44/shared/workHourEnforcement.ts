@@ -42,6 +42,14 @@ export async function enforceBookingHours(base44, opts: {
 
   const tz = getStateTimezone(state);
   const limits = getHourLimits(state, age);
+  // Fail closed: unverified states (non-CA) return null — block the booking
+  // rather than guessing hour limits.
+  if (!limits) {
+    return {
+      ok: false,
+      reason: `Blockwork isn't available in ${state || 'your state'} yet — we're starting in California and expanding soon.`,
+    };
+  }
   const start = new Date(scheduledStart);
   const hrs = Number(estimatedHours) || 2;
   const end = new Date(start.getTime() + hrs * 3600000);

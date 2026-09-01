@@ -62,7 +62,7 @@ export default function Welcome() {
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden scroll-smooth">
       <Seo
         title="Local teen jobs, parent-approved"
-        description="Parent-approved local marketplace where teens earn real paychecks doing lawn care, yard work, and online tutoring. Hire a teen or start earning."
+        description="Parent-approved local marketplace where California teens earn real paychecks doing lawn care, yard work, and online tutoring. Hire a teen or start earning. Currently available in California only."
         path="/"
         jsonLd={[
           {
@@ -70,8 +70,8 @@ export default function Welcome() {
             "@type": "Organization",
             name: "Blockwork",
             url: "https://blockwork.online",
-            description: "A parent-approved local marketplace where neighborhood teens earn real paychecks doing outdoor work and online tutoring.",
-            areaServed: "US",
+            description: "A parent-approved local marketplace where California teens earn real paychecks doing outdoor work and online tutoring. Currently available in California only.",
+            areaServed: "CA",
             contactPoint: {
               "@type": "ContactPoint",
               contactType: "customer support",
@@ -96,8 +96,8 @@ export default function Welcome() {
             name: "Blockwork teen jobs marketplace",
             serviceType: "Local teen jobs marketplace",
             provider: { "@type": "Organization", name: "Blockwork", url: "https://blockwork.online" },
-            areaServed: "US",
-            description: "Teens offer lawn care, car washing, pet sitting, tech help, tutoring, and odd jobs to neighbors — with a parent approving every booking and escrow-protected payments.",
+            areaServed: "CA",
+            description: "California teens offer lawn care, car washing, pet sitting, tech help, tutoring, and odd jobs to neighbors — with a parent approving every booking and escrow-protected payments. Currently available in California only.",
           },
         ]}
       />
@@ -182,7 +182,7 @@ export default function Welcome() {
           className="relative overflow-hidden bg-card rounded-3xl p-8 sm:p-12 text-center shadow-elevated"
         >
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">Ready to Get Started?</h2>
-          <p className="text-foreground/70 mt-3 max-w-md mx-auto">Join your local community now — thousands of teens and neighbors are already helping each other.</p>
+          <p className="text-foreground/70 mt-3 max-w-md mx-auto">Join your California community now — teens and neighbors are already helping each other. Blockwork is currently available in California only.</p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center mt-7">
             <Button
               size="lg"

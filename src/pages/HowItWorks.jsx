@@ -61,7 +61,7 @@ export default function HowItWorks() {
         </Link>
         <h1 className="text-2xl font-bold text-foreground mb-3">How Blockwork works</h1>
         <p className="text-sm text-muted-foreground leading-relaxed mb-8">
-          From listing to payout, here's the full flow — the same six steps whether you're a teen earning, a parent supervising, or a neighbor getting help.
+          From listing to payout, here's the full flow — the same six steps whether you're a teen earning, a parent supervising, or a neighbor getting help. Blockwork is currently available in California only.
         </p>
         <div className="space-y-4">
           {STEPS.map((s) => {

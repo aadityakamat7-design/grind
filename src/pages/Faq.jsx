@@ -15,11 +15,11 @@ const FAQS = [
   },
   {
     q: "How much can a teen earn doing yard work?",
-    a: "Teens set their own prices, and neighbors pay a fraction of what professional services charge. A typical lawn mowing or yard cleanup might pay $25–$60, and online tutoring often ranges from $15–$40 per session. Teens keep the majority of each payment; Blockwork takes a small service fee that's shown upfront at checkout. There's no limit on how many jobs a teen can take, subject to state work-hour limits for minors.",
+    a: "Teens set their own prices, and neighbors pay a fraction of what professional services charge. A typical lawn mowing or yard cleanup might pay $25–$60, and online tutoring often ranges from $15–$40 per session. Teens keep the majority of each payment; Blockwork takes a small service fee that's shown upfront at checkout. There's no limit on how many jobs a teen can take, subject to California work-hour limits for minors.",
   },
   {
     q: "Do teens need a work permit?",
-    a: "Casual odd jobs of the kind offered on Blockwork — light outdoor tasks and online tutoring — are generally exempt from state work-permit requirements. However, that exemption does not remove state child-labor hour limits or minimum-age rules, which Blockwork enforces automatically at booking. Limits vary by the teen's state and age, including daily and weekly caps and prohibited time windows. Parents are responsible for monitoring their teen's total hours, including any work done outside the platform.",
+    a: "No. The casual, irregular odd jobs offered on Blockwork — light outdoor tasks and online tutoring — are exempt from California's work-permit requirement under the state's odd-jobs exemption for irregular casual work in private homes. However, that exemption does not remove California's child-labor hour limits or minimum-age rules, which Blockwork enforces automatically at booking. Limits vary by the teen's age, including daily and weekly caps and prohibited time windows. Parents are responsible for monitoring their teen's total hours, including any work done outside the platform. (Blockwork currently operates in California only.)",
   },
   {
     q: "How does parent approval work?",

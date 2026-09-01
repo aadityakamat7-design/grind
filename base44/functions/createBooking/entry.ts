@@ -45,6 +45,11 @@ Deno.serve(async (req) => {
     }
     if (!buyerProfile) return Response.json({ error: 'Please complete your profile first' }, { status: 400 });
 
+    // CA-only: both the teen and the buyer must be in California
+    if ((teenProfile.state || '').toUpperCase() !== 'CA' || (buyerProfile.state || '').toUpperCase() !== 'CA') {
+      return Response.json({ error: 'Blockwork is currently only available in California.' }, { status: 403 });
+    }
+
     // Location/distance + state matching only for outdoor jobs — online jobs
     // (tutoring, tech help) can cross state lines, so they skip both.
     if (!isOnline) {

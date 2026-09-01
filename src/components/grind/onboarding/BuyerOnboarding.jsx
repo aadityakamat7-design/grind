@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { calcAge } from "@/lib/grind";
 import LegalModal from "@/components/grind/LegalModal";
+import WaitlistCapture from "@/components/grind/WaitlistCapture";
 
 const TERMS_VERSION = "2026-07";
 
@@ -16,6 +17,7 @@ export default function BuyerOnboarding({ user }) {
   const [tosAccepted, setTosAccepted] = useState(false);
   const [saving, setSaving] = useState(false);
   const [geoError, setGeoError] = useState("");
+  const [caBlocked, setCaBlocked] = useState(false);
   const [ageError, setAgeError] = useState("");
   const [legalModal, setLegalModal] = useState(null);
 
@@ -39,7 +41,9 @@ export default function BuyerOnboarding({ user }) {
         const res = await base44.functions.invoke("geocodeAddress", { query: `${address}, ${zip}` });
         geo = res.data;
       } catch (err) {
-        setGeoError(err.response?.data?.error || "Couldn't verify that address. Please check it and try again.");
+        const errorMsg = err.response?.data?.error || "Couldn't verify that address. Please check it and try again.";
+        setGeoError(errorMsg);
+        setCaBlocked(errorMsg.includes("California"));
         setSaving(false);
         return;
       }
@@ -68,7 +72,7 @@ export default function BuyerOnboarding({ user }) {
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-bold text-foreground">Where are you?</h2>
-      <p className="text-sm text-muted-foreground">Blockwork is hyperlocal — we'll show you teens in your neighborhood.</p>
+      <p className="text-sm text-muted-foreground">Blockwork is hyperlocal — we'll show you teens in your neighborhood. Currently available in California only.</p>
       <div>
         <Label>Home address</Label>
         <Input className="rounded-xl mt-1" placeholder="123 Maple St" value={address} onChange={(e) => setAddress(e.target.value)} />
@@ -84,6 +88,7 @@ export default function BuyerOnboarding({ user }) {
       </div>
       {ageError && <p className="text-xs text-destructive font-medium">{ageError}</p>}
       {geoError && <p className="text-xs text-destructive font-medium">{geoError}</p>}
+      {caBlocked && <WaitlistCapture state="" role="buyer" />}
       <label className="flex items-start gap-2.5 text-sm text-muted-foreground cursor-pointer">
         <Checkbox checked={tosAccepted} onCheckedChange={setTosAccepted} className="mt-0.5" />
         <span>I accept the{" "}

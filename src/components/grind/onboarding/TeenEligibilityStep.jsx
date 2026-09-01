@@ -4,23 +4,28 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ShieldAlert, ShieldCheck } from "lucide-react";
 import { US_STATES, checkEligibility, blockedMessage } from "@/lib/stateWorkRules";
+import WaitlistCapture from "@/components/grind/WaitlistCapture";
 
 export default function TeenEligibilityStep({ initialDob = "", initialState = "", onEligible }) {
   const [dob, setDob] = useState(initialDob);
   const [usState, setUsState] = useState(initialState);
   const [error, setError] = useState("");
+  const [showWaitlist, setShowWaitlist] = useState(false);
 
   const submit = () => {
     const result = checkEligibility(dob, usState);
     if (result.status === "invalid") {
       setError("Please enter a valid date of birth and pick your state.");
+      setShowWaitlist(false);
       return;
     }
     if (result.status === "blocked") {
       setError(blockedMessage(result, usState));
+      setShowWaitlist(result.reason === "state_unavailable");
       return;
     }
     setError("");
+    setShowWaitlist(false);
     onEligible({ dob, state: usState, result });
   };
 
@@ -33,7 +38,7 @@ export default function TeenEligibilityStep({ initialDob = "", initialState = ""
         <Label className="text-foreground">Your state</Label>
         <select
           value={usState}
-          onChange={(e) => { setUsState(e.target.value); setError(""); }}
+          onChange={(e) => { setUsState(e.target.value); setError(""); setShowWaitlist(false); }}
           className="mt-1 flex h-11 w-full rounded-xl border border-input bg-transparent px-3.5 text-sm font-normal shadow-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-ring"
         >
           <option value="">Select your state…</option>
@@ -57,9 +62,10 @@ export default function TeenEligibilityStep({ initialDob = "", initialState = ""
           {error}
         </div>
       )}
+      {showWaitlist && <WaitlistCapture state={usState} role="teen" />}
       <div className="flex items-start gap-2 bg-secondary border border-border rounded-xl p-3 text-xs text-muted-foreground">
         <ShieldCheck className="w-4 h-4 mt-0.5 shrink-0" />
-        Blockwork is for teens ages 13–19. We check your state's minimum working age for each job category — some categories (like lawn care) require a higher minimum age in certain states. Ages 18–19 use the platform independently without a parent.
+        Blockwork is for teens ages 13–19. We check your state's minimum working age for each job category — some categories (like lawn care) require a higher minimum age in certain states. Ages 18–19 use the platform independently without a parent. Currently available in California only.
       </div>
       <Button className="w-full rounded-xl h-12 font-medium" disabled={!dob || !usState} onClick={submit}>
         Check my eligibility

@@ -1,9 +1,9 @@
 import React from "react";
-import { ShieldCheck, Clock, Calendar, AlertTriangle } from "lucide-react";
+import { ShieldCheck, Clock, Calendar, AlertTriangle, FileText } from "lucide-react";
 import { stateName } from "@/lib/stateWorkRules";
 
-// Displays the specific state child-labor rules that apply to the teen,
-// pulled from the maintained per-state lookup table. Shown to the parent
+// Displays the specific California child-labor rules that apply to the teen,
+// pulled from the verified California lookup table. Shown to the parent
 // BEFORE they consent — they must see and acknowledge these specific rules.
 export default function StateRulesDisplay({ stateRules, teenName }) {
   if (!stateRules) {
@@ -38,7 +38,7 @@ export default function StateRulesDisplay({ stateRules, teenName }) {
       <div className="flex items-center gap-2">
         <ShieldCheck className="w-4 h-4 text-blue-600" />
         <p className="text-xs font-bold text-blue-900">
-          Child-labor rules for {teenName} — {stateName(state)}, age {age}
+          California child-labor rules for {teenName} — age {age}
         </p>
       </div>
 
@@ -82,7 +82,7 @@ export default function StateRulesDisplay({ stateRules, teenName }) {
       <div className="bg-white rounded-lg p-2.5 border border-blue-100">
         <p className="text-[10px] font-bold text-slate-700 mb-1">Permitted hours</p>
         <p className="text-[11px] text-slate-600">
-          {hourRules.earliestStartHour} – {hourRules.latestEndHour} ({hourRules.latestEndHourSummer} in summer)
+          {hourRules.earliestStartHour}:00 – {hourRules.latestEndHour}:00 ({hourRules.latestEndHourSummer}:00 in summer)
         </p>
         {hourRules.prohibitedDuringSchoolHours && (
           <p className="text-[11px] text-amber-600 mt-1">
@@ -94,13 +94,16 @@ export default function StateRulesDisplay({ stateRules, teenName }) {
       <div className="bg-white rounded-lg p-2.5 border border-blue-100">
         <p className="text-[11px] font-bold text-blue-800 mb-0.5">Enforced automatically</p>
         <p className="text-[11px] text-slate-600 leading-relaxed">
-          Blockwork enforces these hour limits server-side — a booking that would push your teen over their daily or weekly limit, or that falls in a prohibited time window, is rejected automatically. Casual odd jobs are exempt from work-permit requirements, but hour limits and age restrictions still apply. You remain responsible for monitoring your teen's total work hours, including any work outside Blockwork.
+          Blockwork enforces these hour limits server-side — a booking that would push your teen over their daily or weekly limit, or that falls in a prohibited time window, is rejected automatically. The casual, irregular odd jobs offered on this platform (light outdoor tasks and online tutoring) are exempt from California's work-permit requirement under the state's odd-jobs exemption, but hour limits, age restrictions, and hazardous-occupation rules still apply. You remain responsible for monitoring your teen's total work hours, including any work outside Blockwork.
         </p>
       </div>
 
-      <p className="text-[10px] text-slate-500 italic">
-        These rules are from Blockwork's maintained per-state lookup table. Verify your state's labor department publications for the most current requirements.
-      </p>
+      <div className="flex items-start gap-1.5">
+        <FileText className="w-3 h-3 text-blue-500 mt-0.5 shrink-0" />
+        <p className="text-[10px] text-slate-500 italic">
+          Source: California DIR Child Labor Law Pamphlet (dir.ca.gov/dlse). Verified {stateName(state)} rules — Blockwork operates in California only.
+        </p>
+      </div>
     </div>
   );
 }

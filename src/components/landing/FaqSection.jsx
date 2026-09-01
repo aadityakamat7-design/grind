@@ -4,7 +4,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 const FAQS = [
   {
     q: "How old do I need to be?",
-    a: "Teens 13–17 can join with a parent or guardian. Minimum working age varies by state — we check your state's rules automatically during sign-up.",
+    a: "Teens 13–17 can join with a parent or guardian. Blockwork is currently available in California only — we check California's rules automatically during sign-up.",
   },
   {
     q: "How do payments work?",

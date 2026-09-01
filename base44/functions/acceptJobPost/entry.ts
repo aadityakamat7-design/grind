@@ -47,6 +47,10 @@ Deno.serve(async (req) => {
     if (profile?.status !== 'active') {
       return Response.json({ error: "Your account isn't live yet — your parent must verify their ID and confirm your link before you can take jobs." }, { status: 403 });
     }
+    // CA-only: the teen must be in California
+    if ((profile?.state || '').toUpperCase() !== 'CA') {
+      return Response.json({ error: 'Blockwork is currently only available in California.' }, { status: 403 });
+    }
     const teenAge = getVerifiedAge(teenPrivate);
 
     // Category age gate — reject if the job's category exceeds the teen's

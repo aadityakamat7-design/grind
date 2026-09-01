@@ -44,7 +44,7 @@ export default function SplitHero({ onGetStarted, onLogin }) {
             className="text-muted-foreground text-lg mt-6 max-w-md mx-auto md:mx-0 leading-relaxed"
             style={{ fontFamily: "var(--font-body)" }}
           >
-            The local marketplace where teens earn real paychecks doing outdoor work and online tutoring — with a parent approving every step.
+            The local marketplace where California teens earn real paychecks doing outdoor work and online tutoring — with a parent approving every step. Now available in California.
           </motion.p>
 
           <motion.div

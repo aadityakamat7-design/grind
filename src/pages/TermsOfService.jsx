@@ -32,18 +32,18 @@ export default function TermsOfService() {
             <strong>Adult users (18+).</strong> Neighbors hiring teens and parents managing teen accounts must be at least 18 years old and legally able to enter contracts. Teens who are 18 or older may use the platform independently without a linked parent.
           </p>
 
-          <h2>1A. Work-Hour Limits for Minors</h2>
+          <h2>1A. Work-Hour Limits for Minors (California)</h2>
           <p>
-            <strong>Enforced automatically.</strong> Blockwork enforces state child-labor hour limits at booking, in the API — not only in the UI — so they cannot be bypassed by a direct call. Limits vary by the teen's state and age band (14–15 and 16–17; teens 18 and older are not subject to minor hour limits). They include maximum hours per day on school days and on non-school days, maximum hours per week during the school year and during summer, and prohibited time windows (for example, no work before an early-morning hour or after a late-evening hour, and no work during school hours on school days where the state requires it).
+            <strong>Enforced automatically.</strong> Blockwork enforces California child-labor hour limits at booking, in the API — not only in the UI — so they cannot be bypassed by a direct call. Limits vary by the teen's age band (14–15 and 16–17; teens 18 and older are not subject to minor hour limits). They include maximum hours per day on school days and on non-school days, maximum hours per week during the school year and during summer, and prohibited time windows (for example, no work before 7am or after 7pm on school nights for 14–15 year olds, and no work during school hours on school days where required).
           </p>
           <p>
-            The specific limits that apply to a teen are shown to the parent during the consent flow and are drawn from our maintained per-state lookup table, which reflects state child-labor rules for the teen's state. The platform counts a teen's already-scheduled and completed hours using their verified age, and rejects any booking that would push the teen over a daily or weekly limit or that falls in a prohibited time window, with a clear message stating the limit and the teen's current total.
+            The specific limits that apply to a teen are shown to the parent during the consent flow and are drawn from our verified California child-labor lookup table, sourced from the California DIR Child Labor Law Pamphlet. The platform counts a teen's already-scheduled and completed hours using their verified age, and rejects any booking that would push the teen over a daily or weekly limit or that falls in a prohibited time window, with a clear message stating the limit and the teen's current total.
           </p>
           <p>
-            <strong>Permit exemption does not waive hour limits.</strong> Casual odd jobs of the kind offered on Blockwork (outdoor tasks and online tutoring) are generally exempt from state work-permit requirements. That exemption does <strong>not</strong> remove the hour limits or minimum-age restrictions described above — those still apply and are enforced by the platform.
+            <strong>California odd-jobs exemption.</strong> The casual, irregular odd jobs offered on Blockwork (light outdoor tasks and online tutoring) are exempt from California's work-permit requirement under the state's odd-jobs exemption for irregular casual work in private homes. That exemption does <strong>not</strong> remove the hour limits, minimum-age restrictions, or hazardous-occupation rules described above — those still apply and are enforced by the platform.
           </p>
           <p>
-            <strong>Parent's monitoring responsibility.</strong> Parents are responsible for monitoring their teen's overall working hours — including any work the teen performs outside Blockwork — to ensure compliance with state law and to prevent the teen from working during school hours or past permitted times. The platform's limits reflect state child-labor rules for the teen's state but do not track hours worked off-platform.
+            <strong>Parent's monitoring responsibility.</strong> Parents are responsible for monitoring their teen's overall working hours — including any work the teen performs outside Blockwork — to ensure compliance with California law and to prevent the teen from working during school hours or past permitted times. The platform's limits reflect California child-labor rules but do not track hours worked off-platform.
           </p>
 
           <h2>2. Accounts and Parental Consent</h2>
@@ -62,8 +62,8 @@ export default function TermsOfService() {
             <li><strong>Per-job approval</strong> — "I understand that I must approve each booking before it is confirmed, and that I can deny any booking."</li>
             <li><strong>Permitted work types</strong> — "I understand that my teen may only perform outdoor tasks outside a client's residence and online tutoring over video, and will never enter a client's home."</li>
             <li><strong>Age accuracy</strong> — "I confirm that the date of birth provided for my teen is accurate."</li>
-            <li><strong>State child-labor rules</strong> — "I have reviewed the child-labor rules for my teen's state and understand the restrictions on hours and work types that apply to my teen's age."</li>
-            <li><strong>Hour monitoring</strong> — "I understand it is my responsibility to monitor my teen's working hours to ensure compliance with state law and to prevent my teen from working during school hours or past permitted times."</li>
+            <li><strong>California child-labor rules</strong> — "I have reviewed the California child-labor rules for my teen's age and understand the restrictions on hours and work types that apply."</li>
+            <li><strong>Hour monitoring</strong> — "I understand it is my responsibility to monitor my teen's working hours to ensure compliance with California law and to prevent my teen from working during school hours or past permitted times."</li>
             <li><strong>Acceptance of terms on the teen's behalf</strong> — "I have read and agree to the Terms of Service and Privacy Policy on my teen's behalf, and I accept responsibility for my teen's use of the platform."</li>
           </ul>
           <p>
@@ -95,7 +95,7 @@ export default function TermsOfService() {
             <li><strong>Online tutoring and tech help</strong> — conducted entirely over a remote video session, such as academic tutoring, homework help, and basic technology guidance.</li>
           </ul>
           <p>
-            <strong>Prohibited services.</strong> The following are not permitted on Blockwork: any service that requires entering a client's home; in-home pet sitting or animal care inside a residence; babysitting or childcare; any service involving heavy machinery, power tools restricted to adults, firearms, adult content, medical or personal care requiring certification; transportation of people; and any service that violates child-labor laws in the teen's state.
+            <strong>Prohibited services.</strong> The following are not permitted on Blockwork: any service that requires entering a client's home; in-home pet sitting or animal care inside a residence; babysitting or childcare; any service involving heavy machinery, power tools restricted to adults, firearms, adult content, medical or personal care requiring certification; transportation of people; and any service that violates California child-labor laws.
           </p>
           <p>
             We screen listings and job posts for safety hazards and may reject or remove any posting that violates these rules or that we determine is inappropriate for a teen.
@@ -141,7 +141,7 @@ export default function TermsOfService() {
             <li>Harass, threaten, or harm another user.</li>
             <li>Record an online session without the other party's consent.</li>
             <li>Attempt to bypass payment, fees, or escrow.</li>
-            <li>Use the service for anything other than the outdoor tasks and online tutoring described in these terms.</li>
+            <li>Use the service outside of California, or for anything other than the outdoor tasks and online tutoring described in these terms.</li>
           </ul>
 
           <h2>10. Assumption of Risk and Safety Responsibilities</h2>
@@ -152,7 +152,7 @@ export default function TermsOfService() {
             <strong>Neighbor's responsibility.</strong> The neighbor is responsible for providing a safe outdoor work environment, free of known hazards, and for warning the teen of any conditions on the property that could pose a risk. The neighbor must not ask the teen to perform work that is dangerous, illegal, or beyond the teen's capacity.
           </p>
           <p>
-            <strong>Parent's responsibility.</strong> The parent is responsible for assessing whether each job is suitable for their teen, for supervising their teen's participation as appropriate, and for ensuring compliance with state child-labor laws including hour restrictions and permitted work types.
+            <strong>Parent's responsibility.</strong> The parent is responsible for assessing whether each job is suitable for their teen, for supervising their teen's participation as appropriate, and for ensuring compliance with California child-labor laws including hour restrictions and permitted work types.
           </p>
           <p>
             <strong>Platform's role.</strong> Blockwork does not supervise, direct, or control how any work is performed. We do not inspect job sites, verify the safety of any property, or guarantee the competence of any teen. Our safety features are risk-reduction measures, not supervision.

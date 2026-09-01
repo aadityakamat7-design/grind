@@ -41,6 +41,10 @@ Deno.serve(async (req) => {
     if (!teenProfiles[0] || teenProfiles[0].status !== 'active') {
       return Response.json({ error: 'Your account is not active yet.' }, { status: 403 });
     }
+    // CA-only: the teen must be in California
+    if ((teenProfiles[0].state || '').toUpperCase() !== 'CA') {
+      return Response.json({ error: 'Blockwork is currently only available in California.' }, { status: 403 });
+    }
 
     // Server-side hazard screening — a client can't bypass this by calling
     // saveListing directly with a prohibited task.

@@ -13,6 +13,13 @@ Deno.serve(async (req) => {
     }
 
     const result = await geocodeAddress(query.trim());
+    // CA-only: reject addresses outside California
+    if ((result.state || '').toUpperCase() !== 'CA') {
+      return Response.json(
+        { error: `Blockwork isn't available in ${result.state || 'that state'} yet — we're starting in California and expanding soon.` },
+        { status: 403 },
+      );
+    }
     return Response.json(result);
   } catch (error) {
     console.error('geocodeAddress error:', error.message);

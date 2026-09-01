@@ -185,8 +185,8 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
       <label className="flex items-start gap-2.5 text-xs text-slate-700 cursor-pointer bg-amber-50 border border-amber-200 rounded-xl p-3">
         <Checkbox checked={stateRulesAck} onCheckedChange={setStateRulesAck} className="mt-0.5" />
         <span>
-          <strong>I have read and understand the specific state child-labor rules shown above</strong> for
-          my teen's age and state, including hour limits, prohibited work hours, and category minimums. Casual odd jobs are exempt from work-permit requirements, but hour limits and age restrictions still apply.
+          <strong>I have read and understand the California child-labor rules shown above</strong> for
+          my teen's age, including hour limits, prohibited work hours, and category minimums. The casual, irregular odd jobs offered on this platform are exempt from California's work-permit requirement under the state's odd-jobs exemption, but hour limits, age restrictions, and hazardous-occupation rules still apply.
         </span>
       </label>
 

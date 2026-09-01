@@ -23,7 +23,7 @@ function TermsContent() {
   return (
     <>
       <p className="text-foreground bg-muted rounded-xl p-3 border border-border">
-        <strong>Plain-language summary:</strong> Blockwork is a marketplace where adult neighbors hire local teens for everyday services. Every teen account (ages 13–17) is linked to a verified parent or guardian who approves jobs and receives payments. We hold your payment in escrow until the job is done, then pay the teen's parent. We are a venue — not a party to the work itself.
+        <strong>Plain-language summary:</strong> Blockwork is a marketplace where adult neighbors hire local California teens for everyday services. Every teen account (ages 13–17) is linked to a verified parent or guardian who approves jobs and receives payments. We hold your payment in escrow until the job is done, then pay the teen's parent. We are a venue — not a party to the work itself. Blockwork currently operates in California only.
       </p>
       <Section title="1. Eligibility and Age Requirements">
         <p><strong>Minimum age.</strong> You must be at least 13 years old to use Blockwork.</p>

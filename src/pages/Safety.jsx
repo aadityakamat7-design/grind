@@ -33,7 +33,7 @@ const PILLARS = [
   {
     icon: Clock,
     title: "Enforced work-hour limits for minors",
-    body: "Blockwork automatically enforces state child-labor hour limits at booking — daily and weekly caps that vary by the teen's age and state, plus prohibited time windows so no minor is scheduled to work too early, too late, or during school hours. A teen who has reached their weekly limit is shown as unavailable. Casual odd jobs are exempt from work-permit requirements, but hour limits and age restrictions still apply. Parents are responsible for monitoring their teen's total hours, including any work outside the platform.",
+    body: "Blockwork automatically enforces California child-labor hour limits at booking — daily and weekly caps that vary by the teen's age, plus prohibited time windows so no minor is scheduled to work too early, too late, or during school hours. A teen who has reached their weekly limit is shown as unavailable. The casual, irregular odd jobs offered on this platform are exempt from California's work-permit requirement under the state's odd-jobs exemption, but hour limits, age restrictions, and hazardous-occupation rules still apply. Parents are responsible for monitoring their teen's total hours, including any work outside the platform. (Blockwork currently operates in California only.)",
   },
   {
     icon: Eye,

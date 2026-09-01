@@ -72,6 +72,12 @@ Deno.serve(async (req) => {
       }, { status: 400 });
     }
 
+    // CA-only: the buyer must be in California
+    const buyerProfiles = await base44.asServiceRole.entities.BuyerProfile.filter({ user_id: user.id });
+    if (!buyerProfiles[0] || (buyerProfiles[0].state || '').toUpperCase() !== 'CA') {
+      return Response.json({ error: 'Blockwork is currently only available in California.' }, { status: 403 });
+    }
+
     // Server-side AI child labor law screening — the client can never bypass
     // this by calling createJobPost directly with ai_approved: true.
     const screen = await base44.integrations.Core.InvokeLLM({

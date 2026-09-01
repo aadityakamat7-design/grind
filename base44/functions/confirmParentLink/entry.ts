@@ -112,6 +112,10 @@ Deno.serve(async (req) => {
     if (teen.user_id === user.id) {
       return Response.json({ error: 'You cannot link to your own account.' }, { status: 400 });
     }
+    // CA-only: the teen must be in California
+    if ((teen.state || '').toUpperCase() !== 'CA') {
+      return Response.json({ error: 'Blockwork is currently only available in California.' }, { status: 403 });
+    }
 
     // --- Check if this code just hit the lock threshold ---
     if (recentCodeFailures.length + 1 >= CODE_LOCK_THRESHOLD) {

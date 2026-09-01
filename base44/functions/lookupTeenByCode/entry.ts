@@ -30,6 +30,10 @@ Deno.serve(async (req) => {
     if (teen.user_id === user.id) {
       return Response.json({ error: 'You cannot link to your own account.' }, { status: 400 });
     }
+    // CA-only: the teen must be in California
+    if ((teen.state || '').toUpperCase() !== 'CA') {
+      return Response.json({ error: 'Blockwork is currently only available in California.' }, { status: 403 });
+    }
 
     const privateRecords = await svc.TeenPrivateData.filter({ user_id: teen.user_id });
     const privateData = privateRecords[0] || null;
@@ -44,7 +48,7 @@ Deno.serve(async (req) => {
 
     // stateRules is null when the teen hasn't set their state yet — the UI
     // shows an "unavailable" fallback in that case.
-    const stateRules = state ? { state, age, categoryMinAges, hourRules } : null;
+    const stateRules = state && hourRules ? { state, age, categoryMinAges, hourRules } : null;
 
     return Response.json({
       teenName: teen.display_name,

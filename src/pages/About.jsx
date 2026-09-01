@@ -20,7 +20,7 @@ export default function About() {
         </div>
 
         <p className="text-base text-foreground leading-relaxed mb-6">
-          Blockwork is a secure, parent-monitored marketplace where neighborhood teens find local work and adults get reliable help. We believe a first job should teach responsibility, build confidence, and put real money in a teen's pocket — all inside a system that keeps them safe.
+          Blockwork is a secure, parent-monitored marketplace where California teens find local work and adults get reliable help. We believe a first job should teach responsibility, build confidence, and put real money in a teen's pocket — all inside a system that keeps them safe. Blockwork is currently available in California only — we're starting here and expanding soon.
         </p>
 
         <div className="space-y-4 mb-8">

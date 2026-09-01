@@ -11,6 +11,7 @@ export default function TeenHoursCard({ profile, privateData, bookings }) {
   if (age == null || !state || age >= 18) return null;
 
   const rules = getWorkHourRules(state, age);
+  if (!rules) return null; // unverified state — fail closed
   const now = new Date();
   const summer = isSummerDate(now);
   const schoolDay = isSchoolDayDate(now);
@@ -77,7 +78,7 @@ export default function TeenHoursCard({ profile, privateData, bookings }) {
         {rules.prohibitedDuringSchoolHours && " · No work during school hours on school days"}
       </p>
       <p className="text-[10px] text-muted-foreground mt-1">
-        Blockwork enforces these limits automatically. Casual odd jobs are exempt from work-permit requirements, but hour and age limits still apply.
+        Blockwork enforces these limits automatically. The casual, irregular odd jobs on this platform are exempt from California's work-permit requirement, but hour and age limits still apply.
       </p>
     </div>
   );
