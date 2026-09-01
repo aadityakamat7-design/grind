@@ -38,14 +38,10 @@ export async function attemptBookingPayout(base44, booking, { skipReview = false
   }
 
   if (!skipReview) {
-    // First-time check is per destination (per parent, or per independent teen).
-    const priorFilter = isIndependent
-      ? { teen_user_id: booking.teen_user_id, payout_status: 'transferred' }
-      : { parent_user_id: booking.parent_user_id, payout_status: 'transferred' };
-    const prior = await svc.Booking.filter(priorFilter, '-updated_date', 1);
-    const firstTime = prior.length === 0;
-    if (firstTime || amount >= REVIEW_THRESHOLD) {
-      const reason = firstTime ? 'First payout for this account' : `Amount of ${money(amount)} is over ${money(REVIEW_THRESHOLD)}`;
+    // Only large payouts get held for manual review. Small transactions transfer
+    // automatically — whatever nets out after Stripe fees goes straight through.
+    if (amount >= REVIEW_THRESHOLD) {
+      const reason = `Amount of ${money(amount)} is over ${money(REVIEW_THRESHOLD)}`;
       await svc.Booking.update(booking.id, { payout_status: 'pending_review', payout_review_reason: reason });
       await svc.Notification.create({
         user_id: destUserId,
