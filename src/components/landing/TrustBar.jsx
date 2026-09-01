@@ -2,6 +2,8 @@ import React from "react";
 import { motion } from "framer-motion";
 import { ShieldCheck, BadgeCheck, Lock, MapPin, Users } from "lucide-react";
 
+// A horizontal trust strip with divider lines — not a row of identical boxes.
+// Wraps naturally on small screens; the dividers only show on sm+.
 const ITEMS = [
   { icon: ShieldCheck, label: "Safe community" },
   { icon: BadgeCheck, label: "Verified users" },
@@ -12,19 +14,23 @@ const ITEMS = [
 
 export default function TrustBar() {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+    <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-4">
       {ITEMS.map((item, i) => (
-        <motion.div
-          key={item.label}
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: i * 0.06, duration: 0.5 }}
-          className="flex flex-col items-center gap-2.5 rounded-2xl bg-card border border-border px-3 py-5 text-center shadow-soft"
-        >
-          <item.icon className="w-5 h-5 text-foreground" />
-          <span className="text-xs font-medium text-muted-foreground leading-tight">{item.label}</span>
-        </motion.div>
+        <React.Fragment key={item.label}>
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: i * 0.05, duration: 0.4 }}
+            className="flex items-center gap-2"
+          >
+            <item.icon className="w-4 h-4 text-primary shrink-0" />
+            <span className="text-sm font-medium text-foreground/80">{item.label}</span>
+          </motion.div>
+          {i < ITEMS.length - 1 && (
+            <span className="hidden sm:block w-px h-4 bg-border" aria-hidden />
+          )}
+        </React.Fragment>
       ))}
     </div>
   );

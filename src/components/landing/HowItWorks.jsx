@@ -115,6 +115,9 @@ const FLOWS = {
   ],
 };
 
+// Vertical zig-zag: each step is a full-width row with the preview on one side
+// and the copy on the other, alternating sides. Replaces the 3-up identical
+// card grid with an editorial rhythm that reads as designed, not templated.
 export default function HowItWorks() {
   const [tab, setTab] = useState("teen");
   return (
@@ -141,18 +144,32 @@ export default function HowItWorks() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -12 }}
           transition={{ duration: 0.25 }}
-          className="grid md:grid-cols-3 gap-5"
+          className="space-y-4 md:space-y-6"
         >
-          {FLOWS[tab].map((s) => (
-            <div key={s.title} className="rounded-2xl bg-card border border-border p-6 shadow-card hover:shadow-elevated transition-shadow duration-300">
-              <div className="flex items-center gap-3 mb-4">
-                <span className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-sm font-bold text-primary-foreground">{s.n}</span>
-                <h3 className="font-semibold text-foreground text-lg">{s.title}</h3>
+          {FLOWS[tab].map((s, i) => {
+            const Mock = s.Mock;
+            const flip = i % 2 === 1;
+            return (
+              <div key={s.title} className="grid md:grid-cols-2 gap-5 items-center">
+                <motion.div
+                  initial={{ opacity: 0, x: flip ? 24 : -24 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true, margin: "-60px" }}
+                  transition={{ duration: 0.45 }}
+                  className={`rounded-2xl bg-card border border-border p-6 shadow-card ${flip ? "md:order-2" : ""}`}
+                >
+                  <Mock />
+                </motion.div>
+                <div className={flip ? "md:order-1" : ""}>
+                  <div className="flex items-baseline gap-3 mb-2">
+                    <span className="font-display text-5xl text-primary/25 leading-none">{s.n}</span>
+                    <h3 className="font-semibold text-foreground text-xl">{s.title}</h3>
+                  </div>
+                  <p className="text-[15px] text-muted-foreground leading-relaxed">{s.desc}</p>
+                </div>
               </div>
-              <p className="text-sm text-muted-foreground leading-relaxed mb-5">{s.desc}</p>
-              <s.Mock />
-            </div>
-          ))}
+            );
+          })}
         </motion.div>
       </AnimatePresence>
     </div>
