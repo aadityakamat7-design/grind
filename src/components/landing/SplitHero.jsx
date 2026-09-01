@@ -12,7 +12,7 @@ import Phone3D from "./Phone3D";
 export default function SplitHero({ onGetStarted, onLogin }) {
   return (
     <section
-      className="relative min-h-screen flex items-center overflow-hidden"
+      className="relative min-h-[100svh] flex items-center overflow-hidden"
       style={{ backgroundColor: "hsl(var(--brand-dark))" }}
     >
       {/* Soft brand glow for depth */}
@@ -21,9 +21,9 @@ export default function SplitHero({ onGetStarted, onLogin }) {
         style={{ background: "radial-gradient(ellipse 60% 50% at 70% 30%, hsl(219 74% 53% / 0.20), transparent 60%)" }}
       />
 
-      <div className="relative z-10 max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-[45%_55%] gap-8 md:gap-12 items-center w-full py-20 md:py-0">
+      <div className="relative z-10 max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-[45%_55%] gap-8 md:gap-12 items-center w-full py-10 md:py-0">
         {/* Left: text content */}
-        <div className="text-center md:text-left order-2 md:order-1">
+        <div className="text-center md:text-left order-1">
           <motion.p
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -82,7 +82,7 @@ export default function SplitHero({ onGetStarted, onLogin }) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.4, delay: 0.24, ease: "easeOut" }}
-            className="flex items-center gap-5 justify-center md:justify-start mt-8"
+            className="flex flex-wrap items-center gap-x-5 gap-y-2.5 justify-center md:justify-start mt-8"
           >
             <div className="flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-success" />
@@ -104,7 +104,7 @@ export default function SplitHero({ onGetStarted, onLogin }) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.1, ease: "easeOut" }}
-          className="order-1 md:order-2"
+          className="order-2 md:order-2 hidden md:block"
           style={{ perspective: "1400px" }}
         >
           <div style={{ transform: "rotateY(-12deg) rotateX(4deg)", transformStyle: "preserve-3d" }}>

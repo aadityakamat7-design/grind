@@ -21,7 +21,7 @@ const ROLE_HOME = { teen: "/teen", parent: "/parent", buyer: "/buyer", admin: "/
 
 function Section({ id, eyebrow, title, subtitle, children, className = "" }) {
   return (
-    <section id={id} className={`relative z-10 max-w-6xl mx-auto px-6 py-12 sm:py-16 ${className}`}>
+    <section id={id} className={`relative z-10 max-w-6xl mx-auto px-6 py-8 sm:py-16 ${className}`}>
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -61,7 +61,7 @@ export default function Welcome() {
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden scroll-smooth">
       <div className="fixed inset-x-0 top-0 h-[60vh] pointer-events-none z-0" style={{ background: "radial-gradient(ellipse 70% 50% at 50% 0%, rgba(46,107,224,0.10), transparent 70%)" }} />
-      <div className="opacity-40"><FallingMoney /></div>
+      <div className="opacity-40 hidden md:block"><FallingMoney /></div>
 
       {/* Header */}
       <header className="sticky top-0 inset-x-0 z-30 bg-background/80 backdrop-blur-md border-b border-border pt-[env(safe-area-inset-top)]">
@@ -111,7 +111,7 @@ export default function Welcome() {
         <EarningsCalculator />
       </Section>
 
-      <section id="safety" className="relative max-w-6xl mx-auto px-6 py-16 sm:py-24">
+      <section id="safety" className="relative max-w-6xl mx-auto px-6 py-10 sm:py-24">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}

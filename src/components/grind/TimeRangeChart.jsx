@@ -58,12 +58,12 @@ export function EarningsAreaChart({ data, valueKey = "net_amount", dateKey = "oc
 
   return (
     <div className="bg-card rounded-2xl border border-border shadow-soft p-4">
-      <div className="flex gap-2 mb-3">
+      <div className="flex gap-2 mb-3 overflow-x-auto no-scrollbar">
         {RANGES.map((r) => (
           <button
             key={r}
             onClick={() => setRange(r)}
-            className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+            className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
               range === r ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground hover:text-foreground"
             }`}
           >

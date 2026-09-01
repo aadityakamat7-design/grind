@@ -10,9 +10,9 @@ const TRUST_POINTS = [
 
 export default function AuthLayout({ title, subtitle, footer, children }) {
   return (
-    <div className="min-h-screen flex bg-background">
+    <div className="min-h-[100dvh] flex bg-background">
       {/* Left column — form */}
-      <div className="w-full md:w-[45%] flex flex-col min-h-screen px-6 sm:px-10 lg:px-16 py-8">
+      <div className="w-full md:w-[45%] flex flex-col min-h-[100dvh] px-6 sm:px-10 lg:px-16 pt-[max(2rem,env(safe-area-inset-top))] pb-[max(2rem,env(safe-area-inset-bottom))] overflow-y-auto">
         {/* Wordmark */}
         <Link to="/" className="flex items-center gap-2.5 self-start">
           <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-soft">

@@ -39,7 +39,7 @@ export default function Onboarding() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <div className="flex-1 max-w-md mx-auto px-6 py-10 w-full">
+      <div className="flex-1 max-w-md mx-auto px-6 pt-[max(2.5rem,env(safe-area-inset-top))] pb-[max(2.5rem,env(safe-area-inset-bottom))] w-full">
         <div className="flex items-center gap-2 mb-8">
           <div className="w-8 h-8 rounded-xl bg-foreground flex items-center justify-center">
             <Zap className="w-4 h-4 text-background" />

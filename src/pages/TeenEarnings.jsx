@@ -247,7 +247,7 @@ export default function TeenEarnings() {
 
       {/* Chart */}
       <div className="rounded-2xl p-4 mb-4" style={{ background: "#0D0D0F", border: "1px solid rgba(255,255,255,0.08)" }}>
-        <div className="flex gap-2 mb-4">
+        <div className="flex gap-2 mb-4 overflow-x-auto no-scrollbar">
           {RANGES.map((r) => (
             <button
               key={r}
@@ -257,7 +257,7 @@ export default function TeenEarnings() {
                 color: range === r ? "#fff" : "#8A8F98",
                 border: `1px solid ${range === r ? "#2D9CDB" : "rgba(255,255,255,0.08)"}`,
               }}
-              className="px-3 py-1.5 rounded-full text-xs font-medium transition-colors"
+              className="shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors"
             >
               {r}
             </button>

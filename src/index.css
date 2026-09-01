@@ -282,6 +282,18 @@
 
 body {
   overscroll-behavior: none;
+  overflow-x: clip;
+}
+
+@keyframes sheet-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+@media (max-width: 639px) {
+  [role="dialog"][data-state="open"] {
+    animation: sheet-up 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+  }
 }
 
 button,

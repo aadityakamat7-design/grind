@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { Outlet, NavLink, Navigate, Link, useLocation, useNavigate } from "react-router-dom";
-import { Home, List, CalendarDays, MessageCircle, Wallet, LayoutDashboard, ShieldCheck, Search, Zap, Briefcase, ArrowLeft, LifeBuoy } from "lucide-react";
+import { Home, List, CalendarDays, MessageCircle, Wallet, LayoutDashboard, ShieldCheck, Search, Zap, Briefcase, ArrowLeft, LifeBuoy, MoreHorizontal } from "lucide-react";
 import { useAppUser } from "@/lib/useAppUser";
 import NotificationBell from "@/components/grind/NotificationBell";
 import SiteFooter from "@/components/SiteFooter";
@@ -54,6 +54,7 @@ export default function Layout() {
   const { user, loading, reload } = useAppUser();
   const location = useLocation();
   const navigate = useNavigate();
+  const [moreOpen, setMoreOpen] = useState(false);
   const isChildPage = /^\/(bookings|messages|teens|neighbors)\/.+/.test(location.pathname);
 
   if (loading) {
@@ -77,6 +78,8 @@ export default function Layout() {
   }
 
   const tabs = TABS[user.app_role] || TABS.buyer;
+  const primaryTabs = tabs.length > 5 ? tabs.slice(0, 4) : tabs;
+  const overflowTabs = tabs.length > 5 ? tabs.slice(4) : [];
   const roleLabel = ROLE_LABELS[user.app_role] || "Member";
   const initials = (user.full_name || user.email || "?")
     .split(" ")
@@ -205,7 +208,7 @@ export default function Layout() {
       {/* Mobile bottom bar */}
       <nav className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-card/95 backdrop-blur-xl border-t border-border pb-[env(safe-area-inset-bottom)]">
         <div className="max-w-3xl mx-auto flex items-stretch justify-around">
-          {tabs.map((tab) => {
+          {primaryTabs.map((tab) => {
             const Icon = tab.icon;
             return (
               <NavLink
@@ -226,8 +229,61 @@ export default function Layout() {
               </NavLink>
             );
           })}
+          {overflowTabs.length > 0 && (
+            <button
+              onClick={() => setMoreOpen(true)}
+              className="flex flex-col items-center justify-center gap-1 py-2.5 px-2 text-[10px] font-semibold text-muted-foreground hover:text-foreground transition-colors duration-200 min-w-[44px] min-h-[44px]"
+            >
+              <MoreHorizontal className="w-[22px] h-[22px]" strokeWidth={2.2} />
+              More
+            </button>
+          )}
         </div>
       </nav>
+
+      {/* Mobile overflow sheet */}
+      {moreOpen && (
+        <div className="lg:hidden fixed inset-0 z-50">
+          <div className="absolute inset-0 bg-black/50" onClick={() => setMoreOpen(false)} />
+          <div className="absolute bottom-0 inset-x-0 bg-card border-t border-border rounded-t-2xl pb-[env(safe-area-inset-bottom)] animate-[sheet-up_0.25s_ease-out] max-h-[80vh] overflow-y-auto">
+            <div className="flex justify-center pt-3 pb-1">
+              <div className="w-10 h-1.5 rounded-full bg-border" />
+            </div>
+            <div className="px-3 pb-3 pt-2 space-y-1">
+              {overflowTabs.map((tab) => {
+                const Icon = tab.icon;
+                return (
+                  <NavLink
+                    key={tab.to}
+                    to={tab.to}
+                    end={tab.end}
+                    onClick={() => setMoreOpen(false)}
+                    className={({ isActive }) =>
+                      `flex items-center gap-3 rounded-xl px-3.5 py-3 text-[15px] font-semibold transition-colors min-h-[48px] ${
+                        isActive ? "bg-primary/10 text-primary" : "text-foreground hover:bg-accent"
+                      }`
+                    }
+                  >
+                    <Icon className="w-5 h-5 shrink-0" strokeWidth={2.2} />
+                    {tab.label}
+                  </NavLink>
+                );
+              })}
+              <div className="border-t border-border my-2" />
+              <Link to="/account" onClick={() => setMoreOpen(false)} className="flex items-center gap-3 rounded-xl px-3.5 py-3 text-[15px] font-semibold text-foreground hover:bg-accent transition-colors min-h-[48px]">
+                <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm shrink-0">{initials}</div>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate">{user.full_name || user.email}</p>
+                  <p className="text-xs text-muted-foreground font-normal">{roleLabel}</p>
+                </div>
+              </Link>
+              <Link to="/support" onClick={() => setMoreOpen(false)} className="flex items-center gap-3 rounded-xl px-3.5 py-3 text-[15px] font-semibold text-foreground hover:bg-accent transition-colors min-h-[48px]">
+                <LifeBuoy className="w-5 h-5 shrink-0" /> Support
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
