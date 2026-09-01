@@ -3,6 +3,7 @@ import { haversineMiles } from '../../shared/geo.ts';
 import { getVerifiedAge } from '../../shared/teenAge.ts';
 import { getMinAgeForCategory } from '../../shared/categoryAgeRules.ts';
 import { getDeliveryMode, isRemovedCategory, generateSessionLink } from '../../shared/deliveryMode.ts';
+import { enforceBookingHours } from '../../shared/workHourEnforcement.ts';
 
 Deno.serve(async (req) => {
   try {
@@ -120,6 +121,22 @@ Deno.serve(async (req) => {
         { status: 403 }
       );
     }
+
+    // Enforce state child-labor hour limits (daily/weekly caps + prohibited
+    // time windows) using the teen's verified age. Rejected at the API so a
+    // direct call can't bypass it.
+    const estimatedHours = listing.price_model === 'HOURLY' ? hoursNum : 2;
+    const hourCheck = await enforceBookingHours(base44, {
+      teenUserId: listing.teen_user_id,
+      state: teenProfile.state,
+      age: getVerifiedAge(teenPrivateData),
+      scheduledStart,
+      estimatedHours,
+    });
+    if (!hourCheck.ok) {
+      return Response.json({ error: hourCheck.reason, nextEligible: hourCheck.nextEligible }, { status: 403 });
+    }
+
     let parentUserId = '';
     if (needsParent) {
       const links = await base44.asServiceRole.entities.ParentTeenLink.filter({
@@ -148,6 +165,7 @@ Deno.serve(async (req) => {
       status: bookingStatus,
       price_total: total,
       charge_amount: buyerPays,
+      estimated_hours: estimatedHours,
       platform_fee,
       net_amount,
     });

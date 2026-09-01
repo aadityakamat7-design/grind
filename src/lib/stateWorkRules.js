@@ -6,6 +6,8 @@
 // Stricter states are listed at 14.
 // NOTE: reference table — have counsel verify before launch in a given state.
 
+import { getHourLimits } from "./stateHourLimits";
+
 export const US_STATES = [
   { code: "AL", name: "Alabama" }, { code: "AK", name: "Alaska" }, { code: "AZ", name: "Arizona" },
   { code: "AR", name: "Arkansas" }, { code: "CA", name: "California" }, { code: "CO", name: "Colorado" },
@@ -45,6 +47,16 @@ export function calcAgeFrom(dob) {
   const m = now.getMonth() - birth.getMonth();
   if (m < 0 || (m === 0 && now.getDate() < birth.getDate())) age--;
   return age;
+}
+
+// Verified age from TeenPrivateData — uses verified_dob (Stripe-verified DOB)
+// when available, falling back to self-reported DOB only before verification.
+// Mirrors base44/shared/teenAge.ts getVerifiedAge; keep in sync.
+export function getVerifiedAgeFromPrivate(privateData) {
+  if (!privateData) return null;
+  const dob = privateData.verified_dob || privateData.date_of_birth;
+  if (!dob) return privateData.age ?? null;
+  return calcAgeFrom(dob);
 }
 
 export function stateName(code) {
@@ -165,71 +177,17 @@ export const CONSENT_ITEMS = [
   { key: "booking_approval", label: "I understand I must approve or deny every booking request before it is confirmed, and that confirmed bookings cannot be auto-started without my teen's and the buyer's mutual confirmation." },
   { key: "messaging_access", label: "I understand I can read all messages between my teen and buyers at any time, and that Blockwork masks personal contact info (phone, email, address) until a booking is confirmed." },
   { key: "location_safety", label: "I understand that for outdoor jobs, the buyer's address is revealed to my teen only after I approve the booking, and that my teen can trigger a safety alert at any time during a job." },
-  { key: "labor_laws", label: "I understand my teen must follow the child-labor laws for their state, including hour limits, school-day restrictions, and category minimums shown above — and that Blockwork enforces these server-side." },
+  { key: "labor_laws", label: "I understand my teen must follow the child-labor laws for their state, including hour limits, prohibited work hours, and category minimums shown above — and that Blockwork enforces the hour limits server-side. Casual odd jobs are exempt from work-permit requirements, but hour limits and age restrictions still apply. I am responsible for monitoring my teen's overall work hours, including any work outside Blockwork." },
   { key: "revocation", label: "I understand I can revoke my authorization at any time, which immediately pauses my teen's account and flags any in-progress bookings for review." },
 ];
 
-// Federal FLSA baseline for 14–15 year olds, used as the conservative default.
-const FLSA_14_15 = {
-  maxDailyHoursSchoolDay: 3,
-  maxWeeklyHoursSchoolWeek: 18,
-  maxDailyHoursNonSchoolDay: 8,
-  maxWeeklyHoursSummer: 40,
-  earliestStartHour: 7,
-  latestEndHour: 19,
-  latestEndHourSummer: 21,
-  prohibitedDuringSchoolHours: true,
-  schoolHoursStart: 8,
-  schoolHoursEnd: 15,
-};
-
-// Slightly more lenient for 16–17 (many states allow up to 4h school days).
-const FLSA_16_17 = {
-  maxDailyHoursSchoolDay: 4,
-  maxWeeklyHoursSchoolWeek: 20,
-  maxDailyHoursNonSchoolDay: 8,
-  maxWeeklyHoursSummer: 48,
-  earliestStartHour: 5,
-  latestEndHour: 22,
-  latestEndHourSummer: 23,
-  prohibitedDuringSchoolHours: false,
-  schoolHoursStart: 8,
-  schoolHoursEnd: 15,
-};
-
-// Age 13 — most restrictive (casual-work exemption only).
-const RULES_AGE_13 = {
-  maxDailyHoursSchoolDay: 3,
-  maxWeeklyHoursSchoolWeek: 18,
-  maxDailyHoursNonSchoolDay: 8,
-  maxWeeklyHoursSummer: 40,
-  earliestStartHour: 7,
-  latestEndHour: 19,
-  latestEndHourSummer: 21,
-  prohibitedDuringSchoolHours: true,
-  schoolHoursStart: 8,
-  schoolHoursEnd: 15,
-};
-
+// Per-state hour limits now live in ./stateHourLimits.js (maintained, auditable
+// table). getWorkHourRules delegates so StateRulesDisplay, WeeklyHoursCard, the
+// teen dashboard, and the booking flow all read the same source. 18+ = no
+// limits; unlisted states fall back to the conservative federal baseline
+// (fails safe — more restrictive).
 export function getWorkHourRules(stateCode, age) {
-  if (age == null) return FLSA_14_15;
-  if (age >= 18) {
-    return {
-      maxDailyHoursSchoolDay: 24,
-      maxWeeklyHoursSchoolWeek: 60,
-      maxDailyHoursNonSchoolDay: 24,
-      maxWeeklyHoursSummer: 60,
-      earliestStartHour: 0,
-      latestEndHour: 24,
-      latestEndHourSummer: 24,
-      prohibitedDuringSchoolHours: false,
-      schoolHoursStart: 8,
-      schoolHoursEnd: 15,
-    };
-  }
-  if (age <= 13) return RULES_AGE_13;
-  if (age <= 15) return FLSA_14_15;
-  return FLSA_16_17;
+  return getHourLimits(stateCode, age);
 }
 
 // June 1 – Labor Day is considered "summer" for hour-rule purposes.

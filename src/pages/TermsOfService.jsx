@@ -30,6 +30,20 @@ export default function TermsOfService() {
             <strong>Adult users (18+).</strong> Neighbors hiring teens and parents managing teen accounts must be at least 18 years old and legally able to enter contracts. Teens who are 18 or older may use the platform independently without a linked parent.
           </p>
 
+          <h2>1A. Work-Hour Limits for Minors</h2>
+          <p>
+            <strong>Enforced automatically.</strong> Blockwork enforces state child-labor hour limits at booking, in the API — not only in the UI — so they cannot be bypassed by a direct call. Limits vary by the teen's state and age band (14–15 and 16–17; teens 18 and older are not subject to minor hour limits). They include maximum hours per day on school days and on non-school days, maximum hours per week during the school year and during summer, and prohibited time windows (for example, no work before an early-morning hour or after a late-evening hour, and no work during school hours on school days where the state requires it).
+          </p>
+          <p>
+            The specific limits that apply to a teen are shown to the parent during the consent flow and are drawn from our maintained per-state lookup table, which reflects state child-labor rules for the teen's state. The platform counts a teen's already-scheduled and completed hours using their verified age, and rejects any booking that would push the teen over a daily or weekly limit or that falls in a prohibited time window, with a clear message stating the limit and the teen's current total.
+          </p>
+          <p>
+            <strong>Permit exemption does not waive hour limits.</strong> Casual odd jobs of the kind offered on Blockwork (outdoor tasks and online tutoring) are generally exempt from state work-permit requirements. That exemption does <strong>not</strong> remove the hour limits or minimum-age restrictions described above — those still apply and are enforced by the platform.
+          </p>
+          <p>
+            <strong>Parent's monitoring responsibility.</strong> Parents are responsible for monitoring their teen's overall working hours — including any work the teen performs outside Blockwork — to ensure compliance with state law and to prevent the teen from working during school hours or past permitted times. The platform's limits reflect state child-labor rules for the teen's state but do not track hours worked off-platform.
+          </p>
+
           <h2>2. Accounts and Parental Consent</h2>
           <p>
             You agree to provide accurate information when registering, including your real name, date of birth, and email address. You are responsible for keeping your password and account secure.

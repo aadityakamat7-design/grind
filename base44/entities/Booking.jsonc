@@ -229,6 +229,20 @@
         }
       }
     },
+    "estimated_hours": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 24,
+      "default": 2,
+      "description": "Estimated duration in hours \u2014 used to enforce daily/weekly work-hour limits for minors. Set from the hours param for HOURLY listings; defaults to 2 for FIXED listings. Server-set only.",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
     "platform_fee": {
       "type": "number",
       "rls": {

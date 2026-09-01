@@ -1,6 +1,8 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 import { haversineMiles } from '../../shared/geo.ts';
 import { isOnlineCategory } from '../../shared/deliveryMode.ts';
+import { getHourLimits, isSummerDate, startOfWeek } from '../../shared/stateHourLimits.ts';
+import { getVerifiedAge } from '../../shared/teenAge.ts';
 
 // Server-side teen search. Reads the teen's exact coordinates from
 // TeenPrivateData (which the client can never access), computes distance,
@@ -36,6 +38,25 @@ Deno.serve(async (req) => {
       if (arr[0]) privateByUid[teenUserIds[i]] = arr[0];
     });
 
+    // Compute each teen's scheduled+completed hours this week so a teen who
+    // has reached their legal weekly limit is shown as unavailable (the
+    // server still re-checks at booking time).
+    const now = new Date();
+    const weekStart = startOfWeek(now);
+    const weekEnd = new Date(weekStart.getTime() + 7 * 86400000);
+    const activeBookings = teenUserIds.length
+      ? await svc.Booking.filter({ teen_user_id: { $in: teenUserIds }, status: { $in: ['confirmed', 'in_progress', 'completed'] } })
+      : [];
+    const hoursByTeen = {};
+    for (const b of activeBookings) {
+      if (!b.scheduled_start) continue;
+      const d = new Date(b.scheduled_start);
+      if (d >= weekStart && d < weekEnd) {
+        hoursByTeen[b.teen_user_id] = (hoursByTeen[b.teen_user_id] || 0) + (Number(b.estimated_hours) || 2);
+      }
+    }
+    const summerNow = isSummerDate(now);
+
     const results = listings
       .filter((l) => {
         const teen = profileByUid[l.teen_user_id];
@@ -60,6 +81,11 @@ Deno.serve(async (req) => {
           // so we never show a listing they can't actually book.
           inArea = false;
         }
+        const tAge = priv ? getVerifiedAge(priv) : null;
+        const tLimits = getHourLimits(teen.state, tAge);
+        const usedWeek = hoursByTeen[l.teen_user_id] || 0;
+        const maxWeekly = summerNow ? tLimits.maxWeeklyHoursSummer : tLimits.maxWeeklyHoursSchoolWeek;
+        const hoursFull = tAge != null && tAge < 18 && usedWeek >= maxWeekly;
         return {
           id: l.id,
           teen_user_id: l.teen_user_id,
@@ -76,7 +102,9 @@ Deno.serve(async (req) => {
           teen_resolved_city: teen.resolved_city || '',
           teen_avg_rating: teen.avg_rating || 0,
           teen_review_count: teen.review_count || 0,
-          teen_is_available: teen.is_available !== false,
+          teen_is_available: teen.is_available !== false && !hoursFull,
+          teen_hours_remaining_week: Math.max(0, maxWeekly - usedWeek),
+          teen_hours_full_week: hoursFull,
           _distance: distance != null ? Math.round(distance * 10) / 10 : null,
           _inArea: inArea,
         };

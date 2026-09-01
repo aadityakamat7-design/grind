@@ -12,6 +12,7 @@ import RedeemReferralCard from "@/components/grind/teen/RedeemReferralCard";
 import MessagesWidget from "@/components/grind/teen/MessagesWidget";
 import CashOutDialog from "@/components/grind/wallet/CashOutDialog";
 import TeenStatsGrid from "@/components/grind/teen/TeenStatsGrid";
+import TeenHoursCard from "@/components/grind/teen/TeenHoursCard";
 import CategoryBreakdown from "@/components/grind/teen/CategoryBreakdown";
 import ProfileCompleteness from "@/components/grind/teen/ProfileCompleteness";
 import { EarningsAreaChart } from "@/components/grind/TimeRangeChart";
@@ -28,6 +29,7 @@ export default function TeenHome() {
   const [wallet, setWallet] = useState(null);
   const [records, setRecords] = useState([]);
   const [threads, setThreads] = useState([]);
+  const [privateData, setPrivateData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [cashOutOpen, setCashOutOpen] = useState(false);
@@ -36,13 +38,14 @@ export default function TeenHome() {
   const load = useCallback(async () => {
     try {
       setError(false);
-      const [profiles, myBookings, myListings, w, txns, myThreads] = await Promise.all([
+      const [profiles, myBookings, myListings, w, txns, myThreads, myPrivate] = await Promise.all([
         base44.entities.TeenProfile.filter({ user_id: user.id }),
         base44.entities.Booking.filter({ teen_user_id: user.id }, "-created_date", 100),
         base44.entities.Listing.filter({ teen_user_id: user.id }, "-created_date"),
         getOrCreateWallet(user.id),
         base44.entities.EarningsRecord.filter({ teen_user_id: user.id }, "-occurred_at", 200),
         base44.entities.MessageThread.filter({ teen_user_id: user.id }, "-last_message_at", 5),
+        base44.entities.TeenPrivateData.filter({ user_id: user.id }),
       ]);
       const links = await base44.entities.ParentTeenLink.filter({ teen_user_id: user.id, status: "confirmed" });
       setHasParent(links.length > 0);
@@ -66,6 +69,7 @@ export default function TeenHome() {
       setWallet(w);
       setRecords(txns);
       setThreads(myThreads);
+      setPrivateData(myPrivate[0] || null);
     } catch (err) {
       console.error("TeenHome load failed:", err);
       setError(true);
@@ -109,6 +113,8 @@ export default function TeenHome() {
         </PageHeader>
 
         <TeenStatsGrid records={records} bookings={bookings} profile={profile} />
+
+        <TeenHoursCard profile={profile} privateData={privateData} bookings={bookings} />
 
         <div>
           <h2 className="text-[17px] font-bold text-foreground mb-3 flex items-center gap-2">

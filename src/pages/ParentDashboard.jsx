@@ -14,6 +14,8 @@ import LockedSetupCard from "@/components/grind/parent/LockedSetupCard";
 import LinkTeenDialog from "@/components/grind/parent/LinkTeenDialog";
 import LinkTeenCard from "@/components/grind/parent/LinkTeenCard";
 import ParentStatsGrid from "@/components/grind/parent/ParentStatsGrid";
+import WeeklyHoursCard from "@/components/grind/parent/WeeklyHoursCard";
+import { getVerifiedAgeFromPrivate } from "@/lib/stateWorkRules";
 import { EarningsAreaChart } from "@/components/grind/TimeRangeChart";
 import ErrorRetry from "@/components/grind/ErrorRetry";
 import PullToRefresh from "@/components/PullToRefresh";
@@ -27,6 +29,7 @@ export default function ParentDashboard() {
   const [parentProfile, setParentProfile] = useState(null);
   const [notifications, setNotifications] = useState([]);
   const [teenProfiles, setTeenProfiles] = useState([]);
+  const [teenPrivates, setTeenPrivates] = useState([]);
   const [selected, setSelected] = useState("all");
   const [pendingLinks, setPendingLinks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -39,12 +42,13 @@ export default function ParentDashboard() {
       const confirmed = allLinks.filter((l) => l.status === "confirmed");
       const pending = allLinks.filter((l) => l.status === "pending");
       const teenIds = confirmed.map((l) => l.teen_user_id);
-      const [b, r, profiles, notifs, tp] = await Promise.all([
+      const [b, r, profiles, notifs, tp, tpd] = await Promise.all([
         teenIds.length ? base44.entities.Booking.filter({ teen_user_id: { $in: teenIds } }, "-created_date", 100) : [],
         teenIds.length ? base44.entities.EarningsRecord.filter({ teen_user_id: { $in: teenIds } }, "-occurred_at", 200) : [],
         base44.entities.ParentProfile.filter({ user_id: user.id }),
         base44.entities.Notification.filter({ user_id: user.id }, "-created_date", 20),
         teenIds.length ? base44.entities.TeenProfile.filter({ user_id: { $in: teenIds } }) : [],
+        teenIds.length ? base44.entities.TeenPrivateData.filter({ user_id: { $in: teenIds } }) : [],
       ]);
       setLinks(confirmed);
       setPendingLinks(pending);
@@ -54,6 +58,7 @@ export default function ParentDashboard() {
       setConnectStatus(profiles[0]?.connect_status || "not_setup");
       setNotifications(notifs);
       setTeenProfiles(tp);
+      setTeenPrivates(tpd);
     } catch (err) {
       console.error("ParentDashboard load failed:", err);
       setError(true);
@@ -174,18 +179,28 @@ export default function ParentDashboard() {
             .filter((b) => b.teen_user_id === l.teen_user_id && b.payment_status === "held" && ["confirmed", "in_progress", "completed"].includes(b.status))
             .reduce((s, b) => s + (b.net_amount || 0), 0);
           const teenProfile = teenProfiles.find((p) => p.user_id === l.teen_user_id);
+          const teenPrivate = teenPrivates.find((p) => p.user_id === l.teen_user_id);
+          const teenAge = getVerifiedAgeFromPrivate(teenPrivate);
+          const teenBookings = bookings.filter((b) => b.teen_user_id === l.teen_user_id);
           return (
-            <StudentIncomeCard
-              key={l.id}
-              name={l.teen_display_name?.split(" ")[0]}
-              total={total}
-              week={week}
-              pending={pendingEscrow}
-              connectStatus={connectStatus}
-              rating={teenProfile?.avg_rating}
-              reviewCount={teenProfile?.review_count}
-              jobsCompleted={teenProfile?.jobs_completed}
-            />
+            <div key={l.id} className="space-y-3">
+              <WeeklyHoursCard
+                teenName={l.teen_display_name?.split(" ")[0]}
+                teenState={teenProfile?.state}
+                teenAge={teenAge}
+                bookings={teenBookings}
+              />
+              <StudentIncomeCard
+                name={l.teen_display_name?.split(" ")[0]}
+                total={total}
+                week={week}
+                pending={pendingEscrow}
+                connectStatus={connectStatus}
+                rating={teenProfile?.avg_rating}
+                reviewCount={teenProfile?.review_count}
+                jobsCompleted={teenProfile?.jobs_completed}
+              />
+            </div>
           );
         })}
 

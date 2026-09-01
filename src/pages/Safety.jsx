@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { ShieldCheck, ArrowLeft, IdCard, Landmark, Lock, Eye, MessageSquare, AlertTriangle, Users, Home } from "lucide-react";
+import { ShieldCheck, ArrowLeft, IdCard, Landmark, Lock, Eye, MessageSquare, AlertTriangle, Users, Home, Clock } from "lucide-react";
 import SiteFooter from "@/components/SiteFooter";
 
 const PILLARS = [
@@ -28,6 +28,11 @@ const PILLARS = [
     icon: Users,
     title: "Parental oversight on every job",
     body: "No job is confirmed without the parent's explicit approval. Parents see the job details, the neighbor's name, the location, and the pay before saying yes. A parent can deny any booking at any time before it starts.",
+  },
+  {
+    icon: Clock,
+    title: "Enforced work-hour limits for minors",
+    body: "Blockwork automatically enforces state child-labor hour limits at booking — daily and weekly caps that vary by the teen's age and state, plus prohibited time windows so no minor is scheduled to work too early, too late, or during school hours. A teen who has reached their weekly limit is shown as unavailable. Casual odd jobs are exempt from work-permit requirements, but hour limits and age restrictions still apply. Parents are responsible for monitoring their teen's total hours, including any work outside the platform.",
   },
   {
     icon: Eye,

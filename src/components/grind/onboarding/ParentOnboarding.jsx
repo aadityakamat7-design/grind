@@ -185,7 +185,7 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
         <Checkbox checked={stateRulesAck} onCheckedChange={setStateRulesAck} className="mt-0.5" />
         <span>
           <strong>I have read and understand the specific state child-labor rules shown above</strong> for
-          my teen's age and state, including hour limits, school-day restrictions, and category minimums.
+          my teen's age and state, including hour limits, prohibited work hours, and category minimums. Casual odd jobs are exempt from work-permit requirements, but hour limits and age restrictions still apply.
         </span>
       </label>
 

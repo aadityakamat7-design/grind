@@ -40,7 +40,7 @@ Deno.serve(async (req) => {
     for (const cat of JOB_CATEGORIES) {
       categoryMinAges[cat] = CATEGORY_AGES[state]?.[cat] ?? CONSERVATIVE_DEFAULT_AGE;
     }
-    const hourRules = getWorkHourRules(age);
+    const hourRules = getWorkHourRules(state, age);
 
     // stateRules is null when the teen hasn't set their state yet — the UI
     // shows an "unavailable" fallback in that case.

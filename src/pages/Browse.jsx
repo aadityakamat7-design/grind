@@ -150,6 +150,11 @@ export default function Browse() {
                     {l._distance < 1 ? "<1 mi" : `${Math.round(l._distance)} mi`}
                   </span>
                 )}
+                {l.teen_hours_full_week && (
+                  <span className="absolute bottom-2 right-2 bg-amber text-amber-foreground text-[10px] font-medium px-2 py-1 rounded-full shadow-soft">
+                    No hours this week
+                  </span>
+                )}
               </div>
               );
             })}

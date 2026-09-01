@@ -4,6 +4,7 @@ import { getMinAgeForCategory } from '../../shared/categoryAgeRules.ts';
 import { getDeliveryMode, isRemovedCategory, generateSessionLink } from '../../shared/deliveryMode.ts';
 import { notifyParentJobAccepted } from '../../shared/notifyParent.ts';
 import { getSafeOrigin } from '../../shared/safeOrigin.ts';
+import { enforceBookingHours } from '../../shared/workHourEnforcement.ts';
 
 // Runs the teen's "take this job" flow server-side, since JobPost.status is
 // locked to admin/service-role writes (so a buyer/teen can never flip a job
@@ -72,6 +73,20 @@ Deno.serve(async (req) => {
     const platformFee = job.platform_fee != null ? job.platform_fee : Math.round(gross * 0.15 * 100) / 100;
     const netAmount = job.net_amount != null ? job.net_amount : Math.round((gross - platformFee) * 100) / 100;
 
+    // Enforce state child-labor hour limits before claiming the job, so a teen
+    // over their daily/weekly limit or in a prohibited time window can't accept.
+    const estimatedHours = 2; // job posts don't capture duration
+    const hourCheck = await enforceBookingHours(base44, {
+      teenUserId: user.id,
+      state: job.state,
+      age: teenAge,
+      scheduledStart: job.scheduled_start,
+      estimatedHours,
+    });
+    if (!hourCheck.ok) {
+      return Response.json({ error: hourCheck.reason, nextEligible: hourCheck.nextEligible }, { status: 403 });
+    }
+
     // Atomically claim the job — prevents a race condition where two teens
     // accept the same job at nearly the same time. The updateMany filter
     // includes status: 'open', so if another teen already claimed it, this
@@ -103,6 +118,7 @@ Deno.serve(async (req) => {
       is_physical: !isOnline,
       price_total: job.price,
       charge_amount: job.charge_amount ?? job.price,
+      estimated_hours: estimatedHours,
       platform_fee: platformFee,
       net_amount: netAmount,
       payment_status: 'unpaid',

@@ -91,6 +91,13 @@ export default function StateRulesDisplay({ stateRules, teenName }) {
         )}
       </div>
 
+      <div className="bg-white rounded-lg p-2.5 border border-blue-100">
+        <p className="text-[11px] font-bold text-blue-800 mb-0.5">Enforced automatically</p>
+        <p className="text-[11px] text-slate-600 leading-relaxed">
+          Blockwork enforces these hour limits server-side — a booking that would push your teen over their daily or weekly limit, or that falls in a prohibited time window, is rejected automatically. Casual odd jobs are exempt from work-permit requirements, but hour limits and age restrictions still apply. You remain responsible for monitoring your teen's total work hours, including any work outside Blockwork.
+        </p>
+      </div>
+
       <p className="text-[10px] text-slate-500 italic">
         These rules are from Blockwork's maintained per-state lookup table. Verify your state's labor department publications for the most current requirements.
       </p>
