@@ -44,7 +44,8 @@ Deno.serve(async (req) => {
     }
     if (!buyerProfile) return Response.json({ error: 'Please complete your profile first' }, { status: 400 });
 
-    // Location/distance matching only for outdoor jobs — online jobs skip this.
+    // Location/distance + state matching only for outdoor jobs — online jobs
+    // (tutoring, tech help) can cross state lines, so they skip both.
     if (!isOnline) {
       if (
         teenPrivateData?.latitude == null || teenPrivateData?.longitude == null ||
@@ -55,13 +56,12 @@ Deno.serve(async (req) => {
           { status: 400 }
         );
       }
-    }
-
-    if (!teenProfile.state || !buyerProfile.state || teenProfile.state !== buyerProfile.state) {
-      return Response.json(
-        { error: 'This teen is in a different state — bookings must stay within the same state for legal compliance.' },
-        { status: 400 }
-      );
+      if (!teenProfile.state || !buyerProfile.state || teenProfile.state !== buyerProfile.state) {
+        return Response.json(
+          { error: 'This teen is in a different state — bookings must stay within the same state for legal compliance.' },
+          { status: 400 }
+        );
+      }
     }
 
     // Block check — either side can block the other

@@ -77,6 +77,7 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
         attestRelationship: consents.relationship === true,
         consents,
         stateRulesAcknowledged: stateRulesAck,
+        stateRules: teenInfo?.stateRules,
         userAgent: navigator.userAgent,
       });
       if (!res.data?.linked) {

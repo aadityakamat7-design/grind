@@ -1,10 +1,9 @@
 import React from "react";
-import { ShieldCheck, BadgeCheck, MapPin } from "lucide-react";
+import { ShieldCheck, BadgeCheck } from "lucide-react";
 
 const TYPES = {
   parent_approved: { icon: ShieldCheck, label: "Parent-approved", cls: "bg-secondary text-muted-foreground" },
   id_verified: { icon: BadgeCheck, label: "ID-verified neighbor", cls: "bg-secondary text-muted-foreground" },
-  location_shared: { icon: MapPin, label: "Location shared with parent", cls: "bg-secondary text-muted-foreground" },
 };
 
 export default function TrustBadge({ type, className = "" }) {

@@ -51,7 +51,7 @@ export async function recordStart(base44, booking) {
         user_id: booking.parent_user_id,
         type: 'booking',
         title: 'Job started',
-        body: `"${booking.listing_title}" just started — live location is being shared with you.`,
+        body: `"${booking.listing_title}" just started.`,
         link: `/bookings/${booking.id}`,
       });
     }
@@ -101,7 +101,7 @@ export async function recordBuyerStartAfterPayment(base44, booking, paymentInten
         user_id: booking.parent_user_id,
         type: 'booking',
         title: 'Job started',
-        body: `"${booking.listing_title}" just started — live location is being shared with you.`,
+        body: `"${booking.listing_title}" just started.`,
         link: `/bookings/${booking.id}`,
       });
     }

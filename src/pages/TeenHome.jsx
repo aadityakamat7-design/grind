@@ -6,6 +6,7 @@ import BookingCard from "@/components/grind/BookingCard";
 import PageHeader from "@/components/grind/PageHeader";
 import AvailabilityToggle from "@/components/grind/AvailabilityToggle";
 import AlertParentButton from "@/components/grind/AlertParentButton";
+import ConnectBankCard from "@/components/grind/parent/ConnectBankCard";
 import InviteCodeCard from "@/components/grind/teen/InviteCodeCard";
 import RedeemReferralCard from "@/components/grind/teen/RedeemReferralCard";
 import MessagesWidget from "@/components/grind/teen/MessagesWidget";
@@ -30,6 +31,7 @@ export default function TeenHome() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [cashOutOpen, setCashOutOpen] = useState(false);
+  const [hasParent, setHasParent] = useState(true);
 
   const load = useCallback(async () => {
     try {
@@ -42,6 +44,8 @@ export default function TeenHome() {
         base44.entities.EarningsRecord.filter({ teen_user_id: user.id }, "-occurred_at", 200),
         base44.entities.MessageThread.filter({ teen_user_id: user.id }, "-last_message_at", 5),
       ]);
+      const links = await base44.entities.ParentTeenLink.filter({ teen_user_id: user.id, status: "confirmed" });
+      setHasParent(links.length > 0);
       let p = profiles[0] || null;
       if (!p) {
         const code = genInviteCode();
@@ -116,6 +120,15 @@ export default function TeenHome() {
         <CategoryBreakdown bookings={bookings} listings={listings} />
 
         <ProfileCompleteness profile={profile} />
+
+        {profile?.status === "active" && !hasParent && (
+          <ConnectBankCard
+            profile={profile}
+            identityVerified={profile?.identity_status === "verified"}
+            returnPath="/teen"
+            onUpdated={load}
+          />
+        )}
 
         <InviteCodeCard profile={profile} onUpdated={load} />
 

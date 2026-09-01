@@ -183,7 +183,7 @@ export default function BookingDetail() {
               <Sun className="w-3 h-3" /> Outdoor
             </span>
           )}
-          {booking.status === "in_progress" && <TrustBadge type="location_shared" />}
+
         </div>
 
         {booking.status === "pending_parent_approval" && (isTeen || isBuyer) && (
@@ -241,11 +241,7 @@ export default function BookingDetail() {
 
         <CheckInTimeline booking={booking} />
 
-        {booking.status === "in_progress" && isParent && (
-          <div className="mt-4 bg-secondary border border-border rounded-xl p-3 text-xs text-muted-foreground font-medium">
-            📍 {booking.teen_display_name}'s live location is being shared with you while this job is active.
-          </div>
-        )}
+
       </div>
 
       <div className="space-y-3">

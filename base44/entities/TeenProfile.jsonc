@@ -146,6 +146,93 @@
         }
       }
     },
+    "connect_status": {
+      "type": "string",
+      "enum": [
+        "not_setup",
+        "pending",
+        "active",
+        "restricted"
+      ],
+      "default": "not_setup",
+      "description": "Independent 18+ teen's Stripe Connect payout account status (minors route through their parent)",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "stripe_connect_account_id": {
+      "type": "string",
+      "description": "Stripe Connect Express account id for an independent 18+ teen \u2014 readable only by the owning teen and admins; no raw bank details are ever stored",
+      "rls": {
+        "read": {
+          "$or": [
+            {
+              "data.user_id": "{{user.id}}"
+            },
+            {
+              "user_condition": {
+                "role": "admin"
+              }
+            }
+          ]
+        },
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "bank_last4": {
+      "type": "string",
+      "description": "Masked last 4 of the connected bank account (from Stripe) \u2014 readable only by the owning teen and admins",
+      "rls": {
+        "read": {
+          "$or": [
+            {
+              "data.user_id": "{{user.id}}"
+            },
+            {
+              "user_condition": {
+                "role": "admin"
+              }
+            }
+          ]
+        },
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "bank_name": {
+      "type": "string",
+      "description": "Bank name from Stripe \u2014 readable only by the owning teen and admins",
+      "rls": {
+        "read": {
+          "$or": [
+            {
+              "data.user_id": "{{user.id}}"
+            },
+            {
+              "user_condition": {
+                "role": "admin"
+              }
+            }
+          ]
+        },
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
     "status": {
       "type": "string",
       "enum": [

@@ -30,7 +30,13 @@ Deno.serve(async (req) => {
       const result = await attemptBookingPayout(base44, booking, { skipReview: true });
       return Response.json(result);
     }
+    const isTeen = booking.teen_user_id === user.id;
     if (isParent && booking.payout_status === 'awaiting_bank') {
+      const result = await attemptBookingPayout(base44, booking);
+      return Response.json(result);
+    }
+    // Independent 18+ teens retry their own payout after connecting a bank.
+    if (isTeen && !booking.parent_user_id && booking.payout_status === 'awaiting_bank') {
       const result = await attemptBookingPayout(base44, booking);
       return Response.json(result);
     }

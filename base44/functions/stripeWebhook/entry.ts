@@ -58,21 +58,12 @@ Deno.serve(async (req) => {
           console.log(`Booking ${bookingId} marked as held (payment ${session.payment_intent})`);
         }
       }
-      const jobPostId = session.metadata?.job_post_id;
-      if (jobPostId) {
-        await base44.asServiceRole.entities.JobPost.update(jobPostId, {
-          payment_status: 'held',
-          status: 'open',
-          stripe_payment_intent_id: session.payment_intent,
-        });
-        console.log(`JobPost ${jobPostId} marked as held and published (payment ${session.payment_intent})`);
-      }
+
     }
 
     if (event.type === 'payment_intent.succeeded') {
       const pi = event.data.object;
       const bookingId = pi.metadata?.booking_id;
-      const jobPostId = pi.metadata?.job_post_id;
 
       if (bookingId && pi.metadata?.start_payment === '1') {
         const booking = await base44.asServiceRole.entities.Booking.get(bookingId);
@@ -88,14 +79,7 @@ Deno.serve(async (req) => {
         console.log(`Booking ${bookingId} marked as held (PI ${pi.id})`);
       }
 
-      if (jobPostId) {
-        await base44.asServiceRole.entities.JobPost.update(jobPostId, {
-          payment_status: 'held',
-          status: 'open',
-          stripe_payment_intent_id: pi.id,
-        });
-        console.log(`JobPost ${jobPostId} marked as held and published (PI ${pi.id})`);
-      }
+
     }
 
     if (event.type === 'identity.verification_session.verified') {

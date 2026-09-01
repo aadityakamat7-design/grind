@@ -48,14 +48,17 @@ Deno.serve(async (req) => {
         let inArea = true;
         const online = isOnlineCategory(l.category) || l.delivery_mode === 'online';
         if (online) {
-          // Online listings (tutoring, tech help) match any teen in the same
-          // state — no distance check, but state-level eligibility still applies.
-          const sameState = teen.state && buyerState && teen.state === buyerState;
-          inArea = sameState;
+          // Online listings (tutoring, tech help) are available to any buyer,
+          // regardless of state — no distance or state restriction.
+          inArea = true;
         } else if (hasBuyerLocation && priv?.latitude != null && priv?.longitude != null) {
           distance = haversineMiles(buyerLat, buyerLng, priv.latitude, priv.longitude);
           const sameState = teen.state && buyerState && teen.state === buyerState;
           inArea = sameState && distance <= (teen.service_radius_miles || 3);
+        } else {
+          // Outdoor listing but the buyer has no geocoded location — fail closed
+          // so we never show a listing they can't actually book.
+          inArea = false;
         }
         return {
           id: l.id,

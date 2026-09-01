@@ -1,16 +1,23 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 import { getStripe } from '../../shared/stripeEnv.ts';
 
-// Syncs the parent's Stripe Connect account status. Only stores the status and
-// masked bank info returned by Stripe — never raw account/routing numbers.
+// Syncs the Stripe Connect account status for a parent or an independent
+// 18+ teen. Only stores the status and masked bank info returned by Stripe —
+// never raw account/routing numbers.
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const profiles = await base44.asServiceRole.entities.ParentProfile.filter({ user_id: user.id });
-    const profile = profiles[0];
+    const svc = base44.asServiceRole.entities;
+    const [parentProfiles, teenProfiles] = await Promise.all([
+      svc.ParentProfile.filter({ user_id: user.id }),
+      svc.TeenProfile.filter({ user_id: user.id }),
+    ]);
+
+    const isParent = !!parentProfiles[0];
+    const profile = isParent ? parentProfiles[0] : teenProfiles[0];
     if (!profile?.stripe_connect_account_id) return Response.json({ status: 'not_setup' });
 
     const stripe = getStripe();
@@ -23,7 +30,8 @@ Deno.serve(async (req) => {
     const bank = account.external_accounts?.data?.find((a) => a.object === 'bank_account')
       || account.external_accounts?.data?.[0];
 
-    await base44.asServiceRole.entities.ParentProfile.update(profile.id, {
+    const updateEntity = isParent ? svc.ParentProfile : svc.TeenProfile;
+    await updateEntity.update(profile.id, {
       connect_status: status,
       bank_last4: bank?.last4 || '',
       bank_name: bank?.bank_name || '',

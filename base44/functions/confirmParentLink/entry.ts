@@ -1,5 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 import { notifyAdmins } from '../../shared/notifyAdmins.ts';
+import { CONSENT_ITEMS, CONSENT_VERSION } from '../../shared/consentItems.ts';
+import { getVerifiedAge } from '../../shared/teenAge.ts';
 
 // Parent-teen linking — two-factor safety model:
 //   Check 1: parent identity verified (Stripe Identity: government ID + liveness)
@@ -9,6 +11,9 @@ import { notifyAdmins } from '../../shared/notifyAdmins.ts';
 // the teen remains unlistable/unsearchable. When the parent later completes
 // identity verification, markParentVerified (in identityVerification.ts)
 // flips the link to confirmed and activates the teen.
+//
+// Every itemized consent, the state-rules snapshot shown, the parent's IP, and
+// the user agent are recorded in a ConsentRecord for a complete audit trail.
 //
 // Rate limiting: max 5 attempts per 10 minutes per user and per IP, with
 // exponential backoff between attempts. Invite codes are locked after 10
@@ -25,10 +30,23 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { inviteCode, attestRelationship } = await req.json();
+    const { inviteCode, attestRelationship, consents, stateRulesAcknowledged, stateRules, userAgent } = await req.json();
     if (!inviteCode) return Response.json({ error: 'inviteCode required' }, { status: 400 });
     if (attestRelationship !== true) {
       return Response.json({ error: 'You must explicitly confirm you are this teen\'s parent or legal guardian.' }, { status: 400 });
+    }
+    // Require the state-rules acknowledgment and every itemized consent before
+    // the link is confirmed — no partial consent is accepted.
+    if (stateRulesAcknowledged !== true) {
+      return Response.json({ error: 'Please acknowledge the state child-labor rules before linking.' }, { status: 400 });
+    }
+    if (!consents || typeof consents !== 'object') {
+      return Response.json({ error: 'All consent items are required.' }, { status: 400 });
+    }
+    for (const item of CONSENT_ITEMS) {
+      if (consents[item.key] !== true) {
+        return Response.json({ error: 'All consent items are required before linking.' }, { status: 400 });
+      }
     }
 
     const svc = base44.asServiceRole.entities;
@@ -142,10 +160,13 @@ Deno.serve(async (req) => {
     };
 
     const existing = await svc.ParentTeenLink.filter({ parent_user_id: user.id, teen_user_id: teen.user_id });
+    let linkId;
     if (existing[0]) {
       await svc.ParentTeenLink.update(existing[0].id, data);
+      linkId = existing[0].id;
     } else {
-      await svc.ParentTeenLink.create({ parent_user_id: user.id, teen_user_id: teen.user_id, ...data });
+      const created = await svc.ParentTeenLink.create({ parent_user_id: user.id, teen_user_id: teen.user_id, ...data });
+      linkId = created.id;
     }
 
     await svc.TeenProfile.update(teen.id, {
@@ -157,6 +178,29 @@ Deno.serve(async (req) => {
     if (privateRecords[0]) {
       await svc.TeenPrivateData.update(privateRecords[0].id, { parent_user_id: user.id });
     }
+
+    // --- Record the full itemized consent for audit ---
+    const teenVerifiedAge = getVerifiedAge(privateRecords[0]);
+    const consentRecords = CONSENT_ITEMS.map((item) => ({
+      key: item.key,
+      label: item.label,
+      accepted: consents[item.key] === true,
+      accepted_at: nowIso,
+    }));
+    await svc.ConsentRecord.create({
+      parent_user_id: user.id,
+      teen_user_id: teen.user_id,
+      parent_teen_link_id: linkId,
+      consent_version: CONSENT_VERSION,
+      consents: consentRecords,
+      state_rules_shown: stateRules ? JSON.stringify(stateRules) : '',
+      state_rules_acknowledged: true,
+      teen_state: teen.state || '',
+      teen_verified_age: teenVerifiedAge,
+      ip,
+      user_agent: userAgent || '',
+      status: 'active',
+    });
 
     if (fullyVerified) {
       await svc.Notification.create({

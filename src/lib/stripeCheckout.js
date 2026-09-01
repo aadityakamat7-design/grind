@@ -7,20 +7,7 @@ export async function startCheckout(bookingId) {
   const { url, paid } = res.data || {};
   if (paid) return { paid: true };
   if (window.self !== window.top) {
-    alert("Checkout only works from the published app. Open your app in a new tab to complete payment.");
-    return { blocked: true };
-  }
-  window.location.href = url;
-  return {};
-}
-
-// Starts Stripe checkout for a job post's escrow fee. Same return shape as startCheckout.
-export async function startJobCheckout(jobId) {
-  const res = await base44.functions.invoke("createJobCheckout", { jobId });
-  const { url, paid } = res.data || {};
-  if (paid) return { paid: true };
-  if (window.self !== window.top) {
-    alert("Checkout only works from the published app. Open your app in a new tab to complete payment.");
+    alert("Checkout only works from the published app. Open the app in a new tab to complete payment.");
     return { blocked: true };
   }
   window.location.href = url;

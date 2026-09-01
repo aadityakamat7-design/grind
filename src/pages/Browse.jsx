@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useOutletContext } from "react-router-dom";
+import { useOutletContext, Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Input } from "@/components/ui/input";
 import { Search, MapPin } from "lucide-react";
@@ -84,6 +84,13 @@ export default function Browse() {
         <PageHeader title="Find local help" subtitle={myZip ? `Showing teens near ${myZip}` : "Browse trusted teens in your area."}>
           {myZip && <span className="flex items-center gap-1 text-[13px] text-muted-foreground"><MapPin className="w-3.5 h-3.5" /> {myZip}</span>}
         </PageHeader>
+
+        {buyerProfile && buyerProfile.latitude == null && (
+          <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-700">
+            <MapPin className="w-4 h-4 mt-0.5 shrink-0" />
+            <span>We couldn't verify your address, so nearby outdoor jobs are hidden. Update your address in <Link to="/account" className="font-semibold underline">Account</Link> to see local teens near you.</span>
+          </div>
+        )}
 
         <SavedTeensRow userId={user.id} />
 

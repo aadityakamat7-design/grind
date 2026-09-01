@@ -5,7 +5,7 @@ import { Landmark, CheckCircle2, AlertCircle, Loader2, Lock } from "lucide-react
 
 // Stripe Connect Express bank linking. The parent enters bank details directly
 // with Stripe — the app only ever stores the account id, status, and masked last 4.
-export default function ConnectBankCard({ profile, onUpdated, returnPath = "/parent/payouts" }) {
+export default function ConnectBankCard({ profile, onUpdated, returnPath = "/parent/payouts", identityVerified }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
@@ -92,7 +92,7 @@ export default function ConnectBankCard({ profile, onUpdated, returnPath = "/par
           <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" /> {error}
         </div>
       )}
-      <Button className="rounded-xl mt-4 w-full" disabled={!profile?.is_identity_verified} onClick={start}>
+      <Button className="rounded-xl mt-4 w-full" disabled={!(identityVerified ?? profile?.is_identity_verified)} onClick={start}>
         {status === "pending" || status === "restricted" ? "Continue on Stripe" : "Set up payouts with Stripe"}
       </Button>
       {status !== "not_setup" && (
@@ -100,7 +100,7 @@ export default function ConnectBankCard({ profile, onUpdated, returnPath = "/par
           Refresh status
         </Button>
       )}
-      {!profile?.is_identity_verified && (
+      {!(identityVerified ?? profile?.is_identity_verified) && (
         <p className="text-xs text-amber-600 font-semibold mt-2">Identity verification is required before payouts can be enabled.</p>
       )}
       <p className="text-xs text-slate-400 flex items-center justify-center gap-1 mt-3">
