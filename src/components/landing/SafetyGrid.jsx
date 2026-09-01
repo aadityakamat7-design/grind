@@ -2,37 +2,29 @@ import React from "react";
 import { motion } from "framer-motion";
 import { ShieldCheck, BadgeCheck, Lock, Home } from "lucide-react";
 
-// Trust section — bento layout with varied card sizes.
-// Parent-approved is the hero card (dark, wide, serif headline).
-// ID-verified is tall (row-span-2). Escrow + No-home-entry are standard.
-// The asymmetry is deliberate: it reads as designed, not templated.
+// Trust section — bento layout with varied card sizes, all on white.
+// Parent-approved is the hero card (wide, serif headline). ID-verified is tall
+// (row-span-2). Escrow + No-home-entry are standard.
 export default function SafetyGrid() {
   return (
     <div className="grid md:grid-cols-3 gap-4 md:gap-5">
-      {/* Parent-approved — large, brand-dark, col-span-2 */}
+      {/* Parent-approved — large, wide, col-span-2 */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-60px" }}
         transition={{ duration: 0.5 }}
-        className="md:col-span-2 relative overflow-hidden rounded-2xl p-7 md:p-8 text-white"
-        style={{ backgroundColor: "hsl(213 66% 14%)" }}
+        className="md:col-span-2 relative overflow-hidden rounded-2xl p-7 md:p-8 bg-card border border-border shadow-card text-foreground"
       >
-        {/* Soft glow for depth */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{ background: "radial-gradient(circle at 85% 15%, hsl(219 74% 53% / 0.22), transparent 50%)" }}
-        />
-
         <div className="relative z-10 flex items-start gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-white/10 border border-white/15 flex items-center justify-center shrink-0">
-            <ShieldCheck className="w-6 h-6 text-white" />
+          <div className="w-12 h-12 rounded-2xl bg-primary/10 border border-primary/15 flex items-center justify-center shrink-0">
+            <ShieldCheck className="w-6 h-6 text-primary" />
           </div>
           <div className="max-w-md">
-            <h3 className="font-display text-2xl md:text-[1.75rem] leading-tight">
+            <h3 className="font-display text-2xl md:text-[1.75rem] leading-tight text-foreground">
               Every booking gets a parent's sign-off.
             </h3>
-            <p className="text-white/70 mt-2.5 text-[15px] leading-relaxed">
+            <p className="text-muted-foreground mt-2.5 text-[15px] leading-relaxed">
               Your teen can't accept a job without your explicit approval. You see the job details, the neighbor's verified profile, and the pay — then you decide.
             </p>
           </div>

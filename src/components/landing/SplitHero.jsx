@@ -4,23 +4,12 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, ShieldCheck, BadgeCheck, Lock } from "lucide-react";
 import Phone3D from "./Phone3D";
 
-// Static split hero: Fraunces headline on a dark brand panel (left),
-// phone at a fixed 3D tilt (right). No GSAP, no scroll-pinning, no
-// scrubbing — scrolling is fully native. Only a one-time fade-and-rise
-// on load (300–400ms). Section fade-ins are handled by IntersectionObserver
-// (framer-motion whileInView) in the page, never blocking scroll.
+// White split hero: Fraunces headline on a clean white panel (left), phone at a
+// fixed 3D tilt (right). No scroll-pinning — native scroll only, one-time
+// fade-and-rise on load.
 export default function SplitHero({ onGetStarted, onLogin }) {
   return (
-    <section
-      className="relative min-h-[100svh] flex items-center overflow-hidden"
-      style={{ backgroundColor: "hsl(var(--brand-dark))" }}
-    >
-      {/* Soft brand glow for depth */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{ background: "radial-gradient(ellipse 60% 50% at 70% 30%, hsl(219 74% 53% / 0.20), transparent 60%)" }}
-      />
-
+    <section className="relative min-h-[100svh] flex items-center overflow-hidden bg-background">
       <div className="relative z-10 max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-[45%_55%] gap-8 md:gap-12 items-center w-full py-10 md:py-0">
         {/* Left: text content */}
         <div className="text-center md:text-left order-1">
@@ -28,7 +17,7 @@ export default function SplitHero({ onGetStarted, onLogin }) {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.35, ease: "easeOut" }}
-            className="text-xs font-semibold text-white/60 uppercase tracking-[0.2em] mb-5"
+            className="text-xs font-semibold text-muted-foreground uppercase tracking-[0.2em] mb-5"
           >
             Parent-approved teen work
           </motion.p>
@@ -37,7 +26,7 @@ export default function SplitHero({ onGetStarted, onLogin }) {
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, ease: "easeOut" }}
-            className="font-display text-white"
+            className="font-display text-foreground"
             style={{
               fontWeight: 600,
               fontSize: "clamp(38px, 5.5vw, 72px)",
@@ -52,7 +41,7 @@ export default function SplitHero({ onGetStarted, onLogin }) {
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.08, ease: "easeOut" }}
-            className="text-white/70 text-lg mt-6 max-w-md mx-auto md:mx-0 leading-relaxed"
+            className="text-muted-foreground text-lg mt-6 max-w-md mx-auto md:mx-0 leading-relaxed"
             style={{ fontFamily: "var(--font-body)" }}
           >
             The local marketplace where teens earn real paychecks doing outdoor work and online tutoring — with a parent approving every step.
@@ -72,7 +61,7 @@ export default function SplitHero({ onGetStarted, onLogin }) {
               variant="outline"
               size="lg"
               onClick={onLogin}
-              className="font-semibold border-white/25 bg-white/5 text-white hover:bg-white/10 hover:text-white"
+              className="font-semibold"
             >
               Log in
             </Button>
@@ -86,15 +75,15 @@ export default function SplitHero({ onGetStarted, onLogin }) {
           >
             <div className="flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-success" />
-              <span className="text-sm text-white/70 font-medium">Parent-approved</span>
+              <span className="text-sm text-muted-foreground font-medium">Parent-approved</span>
             </div>
             <div className="flex items-center gap-2">
               <BadgeCheck className="w-4 h-4 text-primary" />
-              <span className="text-sm text-white/70 font-medium">ID-verified</span>
+              <span className="text-sm text-muted-foreground font-medium">ID-verified</span>
             </div>
             <div className="flex items-center gap-2">
-              <Lock className="w-4 h-4 text-white/80" />
-              <span className="text-sm text-white/70 font-medium">Escrow</span>
+              <Lock className="w-4 h-4 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground font-medium">Escrow</span>
             </div>
           </motion.div>
         </div>

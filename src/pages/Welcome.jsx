@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Boxes } from "lucide-react";
 import { useAppUser } from "@/lib/useAppUser";
-import FallingMoney from "@/components/landing/FallingMoney";
 import SplitHero from "@/components/landing/SplitHero";
 import TrustBar from "@/components/landing/TrustBar";
 import HowItWorks from "@/components/landing/HowItWorks";
@@ -60,9 +59,6 @@ export default function Welcome() {
 
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden scroll-smooth">
-      <div className="fixed inset-x-0 top-0 h-[60vh] pointer-events-none z-0" style={{ background: "radial-gradient(ellipse 70% 50% at 50% 0%, rgba(46,107,224,0.10), transparent 70%)" }} />
-      <div className="opacity-40 hidden md:block"><FallingMoney /></div>
-
       {/* Header */}
       <header className="sticky top-0 inset-x-0 z-30 bg-background/80 backdrop-blur-md border-b border-border pt-[env(safe-area-inset-top)]">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -143,7 +139,6 @@ export default function Welcome() {
           transition={{ duration: 0.5 }}
           className="relative overflow-hidden bg-card rounded-3xl p-8 sm:p-12 text-center shadow-elevated"
         >
-          <div className="absolute -top-20 -right-20 w-64 h-64 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">Ready to Get Started?</h2>
           <p className="text-foreground/70 mt-3 max-w-md mx-auto">Join your local community now — thousands of teens and neighbors are already helping each other.</p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center mt-7">
