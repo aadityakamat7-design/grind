@@ -1,17 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useOutletContext, Link } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Video, Loader2 } from "lucide-react";
 import Seo from "@/components/Seo";
 
-// In-app video room: embeds the booking's session link inside Blockwork so
-// the teen and neighbor never leave the app. Access is gated by the same
-// getBookingDetail call the booking page uses, so only the teen, buyer,
-// and parent can open it.
+// Standalone full-screen video room. Embeds the booking's Jitsi session
+// inside Blockwork so the teen and neighbor never leave the app. Access is
+// gated by getBookingDetail, so only the teen, buyer, and parent can open it.
 export default function VideoRoom() {
   const { bookingId } = useParams();
-  const { user } = useOutletContext();
   const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -33,10 +31,16 @@ export default function VideoRoom() {
     })();
   }, [bookingId]);
 
+  // Skip Jitsi's prejoin lobby and start with mic/cam ready for a smoother
+  // in-app join.
+  const embedUrl = booking?.session_link
+    ? `${booking.session_link}#config.prejoinPageEnabled=false&config.startWithVideoMuted=false&config.startAudioMuted=false&config.subject=Blockwork%20Session`
+    : "";
+
   return (
-    <div className="flex flex-col" style={{ height: "100svh" }}>
+    <div className="fixed inset-0 flex flex-col bg-background" style={{ paddingTop: "env(safe-area-inset-top)" }}>
       <Seo title="Video session · Blockwork" path={`/bookings/${bookingId}/video`} />
-      <header className="flex items-center gap-2 px-4 py-3 border-b border-border bg-card pt-[max(0.75rem,env(safe-area-inset-top))]">
+      <header className="flex items-center gap-2 px-4 py-3 border-b border-border bg-card">
         <Link to={`/bookings/${bookingId}`}>
           <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0">
             <ArrowLeft className="w-4 h-4" />
@@ -65,8 +69,9 @@ export default function VideoRoom() {
         </div>
       ) : (
         <iframe
-          src={booking.session_link}
-          allow="camera; microphone; fullscreen; display-capture; autoplay; clipboard-write"
+          src={embedUrl}
+          allow="camera; microphone; fullscreen; display-capture; autoplay; clipboard-write; picture-in-picture"
+          allowFullScreen
           className="flex-1 w-full border-0"
           title="Blockwork video session"
         />

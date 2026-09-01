@@ -101,6 +101,7 @@ const AuthenticatedApp = () => {
       <Route path="/how-it-works" element={<HowItWorks />} />
       <Route path="/oauth/consent" element={<OAuthConsent />} />
       <Route path="/onboarding" element={<Onboarding />} />
+      <Route path="/bookings/:bookingId/video" element={<VideoRoom />} />
       <Route element={<Layout />}>
         <Route path="/account" element={<Account />} />
         <Route path="/teen" element={<TeenHome />} />
@@ -118,7 +119,6 @@ const AuthenticatedApp = () => {
         <Route path="/neighbors/:buyerUserId" element={<BuyerPublicProfile />} />
         <Route path="/buyer/bookings" element={<BuyerBookings />} />
         <Route path="/bookings/:bookingId" element={<BookingDetail />} />
-        <Route path="/bookings/:bookingId/video" element={<VideoRoom />} />
         <Route path="/messages" element={<Messages />} />
         <Route path="/messages/:threadId" element={<ChatThread />} />
         <Route path="/notifications" element={<Notifications />} />
