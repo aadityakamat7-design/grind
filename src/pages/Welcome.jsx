@@ -2,7 +2,7 @@ import React from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Zap } from "lucide-react";
+import { Boxes } from "lucide-react";
 import { useAppUser } from "@/lib/useAppUser";
 import FallingMoney from "@/components/landing/FallingMoney";
 import SplitHero from "@/components/landing/SplitHero";
@@ -68,7 +68,7 @@ export default function Welcome() {
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-card">
-              <Zap className="w-5 h-5 text-primary-foreground" />
+              <Boxes className="w-5 h-5 text-primary-foreground" />
             </div>
             <span className="font-bold text-xl tracking-tight">Blockwork</span>
           </div>
@@ -111,9 +111,24 @@ export default function Welcome() {
         <EarningsCalculator />
       </Section>
 
-      <Section id="safety" eyebrow="Safety" title="Safety isn't a feature. It's the foundation." subtitle="Every layer of Blockwork is built to protect teens and reassure parents.">
+      <section id="safety" className="relative max-w-6xl mx-auto px-6 py-16 sm:py-24">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.5 }}
+          className="mb-10 max-w-2xl"
+        >
+          <p className="text-xs font-semibold text-primary uppercase tracking-[0.2em] mb-3">Why parents trust us</p>
+          <h2 className="font-display text-3xl sm:text-4xl leading-tight text-foreground">
+            Safety isn't a feature. It's the foundation.
+          </h2>
+          <p className="text-muted-foreground mt-3 text-lg leading-relaxed">
+            Every layer of Blockwork is built to protect teens and reassure parents. This is what makes us different.
+          </p>
+        </motion.div>
         <SafetyGrid />
-      </Section>
+      </section>
 
       <Section eyebrow="FAQ" title="Questions, answered">
         <FaqSection />

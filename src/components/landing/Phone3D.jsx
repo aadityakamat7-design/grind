@@ -1,81 +1,34 @@
-import React, { useEffect, useRef } from "react";
-import { ShieldCheck, Star, Wallet } from "lucide-react";
+import React from "react";
+import { ShieldCheck, Star } from "lucide-react";
 
 const JOBS = [
   { title: "Lawn mowing", price: "+$40.00", meta: "Completed · Sat" },
   { title: "Dog walking", price: "+$25.00", meta: "Completed · Mon" },
 ];
 
-// Pure CSS 3D floating phone mockup showing the app UI. Continuously bobs and
-// gently tilts, with desktop-only mouse parallax. GPU-accelerated
-// (transform-only), no scroll-driven state.
+// Pure visual phone mockup — no animation logic. The parent component
+// controls perspective and motion (CSS float on mobile, GSAP on desktop).
 export default function Phone3D() {
-  const frameRef = useRef(null);
-  const wrapRef = useRef(null);
-  const mouseRef = useRef({ x: 0, y: 0 });
-
-  useEffect(() => {
-    const isTouch = window.matchMedia("(pointer: coarse)").matches;
-    const wrap = wrapRef.current;
-
-    function handleMouseMove(e) {
-      const rect = wrap.getBoundingClientRect();
-      const px = (e.clientX - rect.left) / rect.width - 0.5;
-      const py = (e.clientY - rect.top) / rect.height - 0.5;
-      mouseRef.current = { x: px, y: py };
-    }
-    function handleMouseLeave() {
-      mouseRef.current = { x: 0, y: 0 };
-    }
-    if (!isTouch && wrap) {
-      wrap.addEventListener("mousemove", handleMouseMove);
-      wrap.addEventListener("mouseleave", handleMouseLeave);
-    }
-
-    let raf;
-    const start = performance.now();
-    function animate(now) {
-      raf = requestAnimationFrame(animate);
-      const t = (now - start) / 1000;
-
-      const rotY = -14 + mouseRef.current.x * 12;
-      const rotX = 4 - mouseRef.current.y * 8;
-      const bob = Math.sin(t * 1.2) * 8;
-
-      if (frameRef.current) {
-        frameRef.current.style.transform = `rotateY(${rotY}deg) rotateX(${rotX}deg) translateY(${bob}px)`;
-      }
-    }
-    animate(start);
-
-    return () => {
-      cancelAnimationFrame(raf);
-      if (!isTouch && wrap) {
-        wrap.removeEventListener("mousemove", handleMouseMove);
-        wrap.removeEventListener("mouseleave", handleMouseLeave);
-      }
-    };
-  }, []);
-
   return (
-    <div ref={wrapRef} className="relative mx-auto w-[240px] sm:w-[290px] force-light" style={{ perspective: "1400px" }}>
+    <div className="relative mx-auto w-[240px] sm:w-[280px] force-light">
       {/* Soft shadow beneath the phone for depth */}
-      <div className="absolute left-1/2 -translate-x-1/2 bottom-[-2rem] w-[80%] h-8 bg-foreground/10 blur-2xl rounded-full" />
+      <div className="absolute left-1/2 -translate-x-1/2 -bottom-8 w-[80%] h-8 bg-foreground/10 blur-2xl rounded-full" />
 
-      <div
-        ref={frameRef}
-        className="relative rounded-[2.6rem] border border-border bg-foreground p-2.5 shadow-elevated will-change-transform"
-        style={{ transformStyle: "preserve-3d" }}
-      >
+      {/* Frame */}
+      <div className="relative rounded-[2.6rem] border border-border bg-foreground p-2.5 shadow-elevated">
+        {/* Screen */}
         <div className="relative rounded-[2rem] bg-background overflow-hidden aspect-[9/19.5]">
+          {/* Notch */}
           <div className="absolute top-0 inset-x-0 h-7 flex justify-center items-end pb-1 z-20">
             <div className="w-20 h-4 rounded-full bg-foreground" />
           </div>
 
+          {/* Content */}
           <div className="absolute inset-0 pt-9 px-4 pb-5 flex flex-col">
+            {/* Header */}
             <div className="flex items-center gap-2 mb-3">
-              <div className="w-7 h-7 rounded-full bg-foreground flex items-center justify-center">
-                <span className="text-xs">👋</span>
+              <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center">
+                <span className="text-[10px] font-bold text-primary-foreground">A</span>
               </div>
               <div>
                 <p className="text-[10px] text-muted-foreground leading-none">Welcome back</p>
@@ -83,20 +36,22 @@ export default function Phone3D() {
               </div>
             </div>
 
+            {/* Earnings card — serif figure in amber */}
             <div className="rounded-2xl bg-card border border-border p-3.5 mb-3 shadow-soft">
               <p className="text-[10px] font-medium text-muted-foreground">This week's earnings</p>
-              <p className="text-2xl font-bold tracking-tight text-foreground">$142.50</p>
-              <div className="flex items-end gap-1 mt-2 h-6">
+              <p className="font-display text-3xl text-amber leading-none mt-1">$142.50</p>
+              <div className="flex items-end gap-1 mt-2.5 h-6">
                 {[40, 65, 30, 80, 55, 90, 70].map((h, i) => (
-                  <div key={i} className="flex-1 bg-foreground rounded-sm" style={{ height: `${h}%` }} />
+                  <div key={i} className="flex-1 bg-foreground/15 rounded-sm" style={{ height: `${h}%` }} />
                 ))}
               </div>
             </div>
 
+            {/* Recent jobs */}
             <p className="text-[10px] font-semibold text-muted-foreground mb-1.5">Recent jobs</p>
             <div className="space-y-2">
               {JOBS.map((j) => (
-                <div key={j.title} className="flex items-center justify-between rounded-xl bg-muted border border-border px-3 py-2">
+                <div key={j.title} className="flex items-center justify-between rounded-xl bg-card border border-border px-3 py-2">
                   <div>
                     <p className="text-[11px] font-semibold text-foreground">{j.title}</p>
                     <p className="text-[9px] text-muted-foreground">{j.meta}</p>
@@ -106,9 +61,10 @@ export default function Phone3D() {
               ))}
             </div>
 
-            <div className="mt-auto flex items-center justify-between rounded-xl bg-muted border border-border px-3 py-2">
+            {/* Bottom badge */}
+            <div className="mt-auto flex items-center justify-between rounded-xl bg-card border border-border px-3 py-2">
               <div className="flex items-center gap-1.5">
-                <ShieldCheck className="w-3.5 h-3.5 text-foreground" />
+                <ShieldCheck className="w-3.5 h-3.5 text-success" />
                 <span className="text-[10px] font-medium text-foreground/80">Parent approved</span>
               </div>
               <div className="flex items-center gap-1">
@@ -118,12 +74,6 @@ export default function Phone3D() {
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Floating badge */}
-      <div className="absolute -right-10 top-10 hidden sm:flex items-center gap-1.5 rounded-xl bg-card border border-border px-3 py-2 shadow-floating">
-        <Wallet className="w-3.5 h-3.5 text-foreground" />
-        <span className="text-[10px] font-medium text-foreground">Paid securely</span>
       </div>
     </div>
   );
