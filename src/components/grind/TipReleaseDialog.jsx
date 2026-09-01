@@ -14,7 +14,10 @@ export default function TipReleaseDialog({ open, onOpenChange, booking, onReleas
   const [tip, setTip] = useState("0");
   const [saving, setSaving] = useState(false);
   const tipAmt = Math.max(0, Number(tip) || 0);
-  const teenGets = (booking.net_amount || 0) + tipAmt;
+  // The buyer's view has net_amount stripped (privacy) — use price_total, the
+  // escrow amount they actually paid and are now releasing.
+  const escrowAmount = booking.price_total || booking.net_amount || 0;
+  const teenGets = escrowAmount + tipAmt;
 
   const confirm = async () => {
     setSaving(true);
@@ -63,7 +66,7 @@ export default function TipReleaseDialog({ open, onOpenChange, booking, onReleas
             <Input type="number" min="0" className="rounded-xl mt-2" placeholder="Custom amount" value={tip} onChange={(e) => setTip(e.target.value)} />
           </div>
           <div className="bg-secondary rounded-xl p-4 text-sm space-y-1.5">
-            <div className="flex justify-between text-xs text-muted-foreground"><span>Job payment (escrow)</span><span>{money(booking.net_amount)}</span></div>
+            <div className="flex justify-between text-xs text-muted-foreground"><span>Job payment (escrow)</span><span>{money(escrowAmount)}</span></div>
             {tipAmt > 0 && <div className="flex justify-between text-xs text-emerald-600 font-semibold"><span>Tip</span><span>+{money(tipAmt)}</span></div>}
             <div className="flex justify-between font-bold text-foreground"><span>{booking.teen_display_name} receives</span><span>{money(teenGets)}</span></div>
           </div>
