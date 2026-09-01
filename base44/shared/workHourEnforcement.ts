@@ -3,24 +3,25 @@
 // over their daily/weekly limit, or that falls in a prohibited time window,
 // is rejected at the API — not just hidden in the UI. Uses the verified age
 // (caller passes getVerifiedAge()), not the self-reported age.
-import { getHourLimits, formatHour, isSummerDate, isSchoolDayDate, startOfWeek, startOfDay } from './stateHourLimits.ts';
+//
+// IMPORTANT: all hour/day/season checks interpret the booking time in the
+// TEEN'S LOCAL TIMEZONE (derived from their state), not the server's UTC.
+// Child-labor laws are based on local clock time where the work happens.
+import { getHourLimits, formatHour } from './stateHourLimits.ts';
+import {
+  getStateTimezone, getLocalHour, getLocalDayOfWeek,
+  localStartOfDay, localStartOfWeek,
+  isSummerDateLocal, isSchoolDayDateLocal, atLocalHour,
+} from './localTime.ts';
 
 const ACTIVE_STATUSES = ['confirmed', 'in_progress', 'completed'];
 
-function atHour(date: Date, hour: number): string {
-  const d = new Date(date);
-  d.setHours(Math.floor(hour), 0, 0, 0);
-  return d.toISOString();
-}
 function nextDay(date: Date): Date {
-  const d = new Date(date);
-  d.setDate(d.getDate() + 1);
-  return d;
+  return new Date(date.getTime() + 86400000);
 }
-function nextWeekStart(date: Date): Date {
-  const ws = startOfWeek(date);
-  ws.setDate(ws.getDate() + 7);
-  return ws;
+function nextWeekStart(date: Date, tz: string): Date {
+  const ws = localStartOfWeek(date, tz);
+  return new Date(ws.getTime() + 7 * 86400000);
 }
 
 // Returns { ok: true } or { ok: false, reason, nextEligible }.
@@ -39,28 +40,29 @@ export async function enforceBookingHours(base44, opts: {
   // No scheduled time → can't place it in a day/week window yet; don't block.
   if (!scheduledStart) return { ok: true };
 
+  const tz = getStateTimezone(state);
   const limits = getHourLimits(state, age);
   const start = new Date(scheduledStart);
   const hrs = Number(estimatedHours) || 2;
   const end = new Date(start.getTime() + hrs * 3600000);
 
-  const summer = isSummerDate(start);
-  const schoolDay = isSchoolDayDate(start);
+  const summer = isSummerDateLocal(start, tz);
+  const schoolDay = isSchoolDayDateLocal(start, tz);
   const maxDaily = schoolDay ? limits.maxDailyHoursSchoolDay : limits.maxDailyHoursNonSchoolDay;
   const maxWeekly = summer ? limits.maxWeeklyHoursSummer : limits.maxWeeklyHoursSchoolWeek;
   const latestEnd = summer ? limits.latestEndHourSummer : limits.latestEndHour;
   const ageLabel = age != null ? `${age}-year-old` : 'minor';
 
-  const startHour = start.getHours() + start.getMinutes() / 60;
-  const endHour = end.getHours() + end.getMinutes() / 60;
-  const sameDay = end.toDateString() === start.toDateString();
+  const startHour = getLocalHour(start, tz);
+  const endHour = getLocalHour(end, tz);
+  const sameDay = localStartOfDay(end, tz).getTime() === localStartOfDay(start, tz).getTime();
 
   // Prohibited time window — too early.
   if (startHour < limits.earliestStartHour) {
     return {
       ok: false,
       reason: `Work can't start before ${formatHour(limits.earliestStartHour)} for a ${ageLabel} in ${state}.`,
-      nextEligible: atHour(start, limits.earliestStartHour),
+      nextEligible: atLocalHour(start, limits.earliestStartHour, tz),
     };
   }
   // Prohibited time window — too late / past midnight.
@@ -68,7 +70,7 @@ export async function enforceBookingHours(base44, opts: {
     return {
       ok: false,
       reason: `Work can't continue past ${formatHour(latestEnd)} for a ${ageLabel} in ${state} on a ${schoolDay ? 'school day' : 'non-school day'}.`,
-      nextEligible: atHour(nextDay(start), limits.earliestStartHour),
+      nextEligible: atLocalHour(nextDay(start), limits.earliestStartHour, tz),
     };
   }
   // Prohibited during school hours on a school day.
@@ -76,7 +78,7 @@ export async function enforceBookingHours(base44, opts: {
     return {
       ok: false,
       reason: `Work can't happen during school hours (${formatHour(limits.schoolHoursStart)}–${formatHour(limits.schoolHoursEnd)}) on a school day in ${state}.`,
-      nextEligible: atHour(start, limits.schoolHoursEnd),
+      nextEligible: atLocalHour(start, limits.schoolHoursEnd, tz),
     };
   }
 
@@ -87,9 +89,9 @@ export async function enforceBookingHours(base44, opts: {
     '-created_date',
     200,
   );
-  const dayStart = startOfDay(start);
+  const dayStart = localStartOfDay(start, tz);
   const dayEnd = new Date(dayStart.getTime() + 86400000);
-  const weekStart = startOfWeek(start);
+  const weekStart = localStartOfWeek(start, tz);
   const weekEnd = new Date(weekStart.getTime() + 7 * 86400000);
   const hrsOf = (b: any) => Number(b.estimated_hours) || 2;
   const dayHours = bookings
@@ -103,14 +105,14 @@ export async function enforceBookingHours(base44, opts: {
     return {
       ok: false,
       reason: `This would exceed the ${maxDaily}h daily limit for a ${ageLabel} in ${state} on a ${schoolDay ? 'school day' : 'non-school day'} (${dayHours}h already scheduled that day).`,
-      nextEligible: atHour(nextDay(start), limits.earliestStartHour),
+      nextEligible: atLocalHour(nextDay(start), limits.earliestStartHour, tz),
     };
   }
   if (weekHours + hrs > maxWeekly) {
     return {
       ok: false,
       reason: `This would exceed the ${maxWeekly}h weekly limit for a ${ageLabel} in ${state} during ${summer ? 'summer' : 'the school year'} (${weekHours}h already scheduled this week).`,
-      nextEligible: atHour(nextWeekStart(start), limits.earliestStartHour),
+      nextEligible: atLocalHour(nextWeekStart(start, tz), limits.earliestStartHour, tz),
     };
   }
 
