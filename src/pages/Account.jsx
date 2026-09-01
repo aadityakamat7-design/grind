@@ -6,6 +6,7 @@ import { LogOut, ShieldCheck } from "lucide-react";
 import PageHeader from "@/components/grind/PageHeader";
 import DeleteAccountButton from "@/components/grind/DeleteAccountButton";
 import AccountReviewsTab from "@/components/grind/AccountReviewsTab";
+import ProfileSettingsCard from "@/components/grind/ProfileSettingsCard";
 
 const ROLE_LABELS = { teen: "Teen", parent: "Parent / Guardian", buyer: "Neighbor", admin: "Admin" };
 
@@ -59,6 +60,8 @@ export default function Account() {
               </span>
             </div>
           </div>
+
+          <ProfileSettingsCard user={user} />
 
           <Button
             variant="outline"
