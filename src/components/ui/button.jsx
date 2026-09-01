@@ -4,22 +4,24 @@ import { cva } from "class-variance-authority";
 
 import { cn } from "@/lib/utils"
 
+// Pill buttons — 44px+ tap targets, iOS motion, all states.
+// primary / accent (amber, teen/earnings) / destructive / outline / secondary / ghost / link
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-40 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 active:scale-[0.97]",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-semibold select-none transition-all duration-200 ease-ios focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-40 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 active:scale-[0.97]",
   {
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground shadow-[0_2px_8px_rgba(46,107,224,0.25)] hover:bg-primary-hover",
+          "bg-primary text-primary-foreground shadow-glow hover:bg-primary-hover",
         accent:
-          "bg-amber text-white shadow-[0_2px_8px_rgba(245,158,11,0.25)] hover:bg-amber-hover",
+          "bg-amber text-white shadow-glow-accent hover:bg-amber-hover",
         destructive:
           "bg-destructive text-destructive-foreground shadow-soft hover:bg-destructive/90",
         outline:
-          "border border-primary bg-background text-primary hover:bg-primary/10",
+          "border border-border bg-background text-foreground hover:bg-secondary hover:border-primary/40",
         secondary:
           "bg-secondary text-secondary-foreground hover:bg-secondary/70",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
+        ghost: "text-foreground hover:bg-secondary",
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {

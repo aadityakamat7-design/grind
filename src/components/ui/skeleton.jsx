@@ -1,13 +1,12 @@
 import { cn } from "@/lib/utils"
 
-function Skeleton({
-  className,
-  ...props
-}) {
+// Skeleton loader — warm shimmer, neutral surface (no brand tint).
+function Skeleton({ className, ...props }) {
   return (
-    (<div
-      className={cn("animate-pulse rounded-xl bg-primary/10", className)}
-      {...props} />)
+    <div
+      className={cn("skeleton-shimmer rounded-xl", className)}
+      {...props}
+    />
   );
 }
 
