@@ -17,6 +17,10 @@
     "updated_by_id": {
       "type": "string",
       "description": "Id of the admin who last changed this setting"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000
     }
   },
   "required": [

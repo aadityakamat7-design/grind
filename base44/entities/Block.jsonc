@@ -9,6 +9,10 @@
     "blocked_id": {
       "type": "string",
       "description": "User who is blocked"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000
     }
   },
   "required": [

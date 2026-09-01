@@ -10,6 +10,10 @@
     },
     "teen_display_name": {
       "type": "string"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000
     }
   },
   "required": [

@@ -41,6 +41,10 @@
     "longitude": {
       "type": "number",
       "description": "Exact longitude \u2014 never exposed to the client; used only by server functions for distance calculation"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000
     }
   },
   "required": [
