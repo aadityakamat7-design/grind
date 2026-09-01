@@ -99,7 +99,7 @@ export default function PrivacyPolicy() {
             <li><strong>Export</strong> your data in a portable format.</li>
           </ul>
           <p>
-            Parents can exercise these rights on behalf of their linked teen. To make a request, use the in-app account deletion option or contact us at <a href="mailto:blockwork@teenskickstart.base44.app" className="text-foreground font-medium hover:underline">blockwork@teenskickstart.base44.app</a>.
+            Parents can exercise these rights on behalf of their linked teen. To make a request, use the in-app account deletion option or contact us at <a href="mailto:support@blockwork.online" className="text-foreground font-medium hover:underline">support@blockwork.online</a>.
           </p>
 
           <h2>11. Children's Privacy (COPPA)</h2>
@@ -125,7 +125,7 @@ export default function PrivacyPolicy() {
 
           <h2>14. Contact</h2>
           <p>
-            Questions or privacy requests? Contact us at <a href="mailto:blockwork@teenskickstart.base44.app" className="text-foreground font-medium hover:underline">blockwork@teenskickstart.base44.app</a>.
+            Questions or privacy requests? Contact us at <a href="mailto:support@blockwork.online" className="text-foreground font-medium hover:underline">support@blockwork.online</a>.
           </p>
         </div>
       </div>

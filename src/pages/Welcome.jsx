@@ -75,7 +75,7 @@ export default function Welcome() {
             contactPoint: {
               "@type": "ContactPoint",
               contactType: "customer support",
-              email: "blockwork@teenskickstart.base44.app",
+              email: "support@blockwork.online",
               availableLanguage: "English",
             },
           },

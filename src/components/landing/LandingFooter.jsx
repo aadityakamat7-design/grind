@@ -9,7 +9,7 @@ const COLS = [
     { label: "Safety", href: "#safety" },
   ]},
   { title: "Company", links: [
-    { label: "Contact", href: "mailto:blockwork@teenskickstart.base44.app" },
+    { label: "Contact", href: "mailto:support@blockwork.online" },
     { label: "Support", to: "/support" },
   ]},
   { title: "Legal", links: [
