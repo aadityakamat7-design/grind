@@ -41,8 +41,8 @@ const BREADCRUMB_JSONLD = {
   "@context": "https://schema.org",
   "@type": "BreadcrumbList",
   itemListElement: [
-    { "@type": "ListItem", position: 1, name: "Home", item: "https://teenskickstart.base44.app/" },
-    { "@type": "ListItem", position: 2, name: "How it works", item: "https://teenskickstart.base44.app/how-it-works" },
+    { "@type": "ListItem", position: 1, name: "Home", item: "https://blockwork.online/" },
+    { "@type": "ListItem", position: 2, name: "How it works", item: "https://blockwork.online/how-it-works" },
   ],
 };
 

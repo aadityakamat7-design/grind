@@ -31,4 +31,4 @@ Allow: /
 User-agent: Google-Extended
 Allow: /
 
-Sitemap: https://teenskickstart.base44.app/sitemap.xml
+Sitemap: https://blockwork.online/sitemap.xml
