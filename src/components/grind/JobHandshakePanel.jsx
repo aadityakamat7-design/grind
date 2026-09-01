@@ -16,36 +16,43 @@ export default function JobHandshakePanel({ booking, isTeen, isBuyer, isParent, 
   if (booking.status === "confirmed") {
     const amount = booking.charge_amount ?? booking.price_total;
     const teenStarted = !!booking.teen_started_at;
-    const parentStarted = !!booking.parent_started_at;
     const buyerStarted = !!booking.buyer_started_at;
-    const gatingDone = teenStarted && parentStarted;
+    const gatingDone = teenStarted && buyerStarted;
 
-    // Parent and teen are the gating pair — each taps Start to confirm.
-    if (isTeen || isParent) {
-      const mineStarted = isTeen ? teenStarted : parentStarted;
-      const otherRole = isTeen ? "parent" : "teen";
-      const otherStarted = isTeen ? parentStarted : teenStarted;
+    // Teen confirms Start. The job goes in_progress once both the teen and the
+    // buyer (who pays the escrow) have confirmed.
+    if (isTeen) {
       return (
         <div className="space-y-2">
-          <Button className="w-full rounded-xl" disabled={acting || mineStarted} onClick={onStart}>
+          <Button className="w-full rounded-xl" disabled={acting || teenStarted} onClick={onStart}>
             <Play className="w-4 h-4 mr-2" />
-            {mineStarted ? "You confirmed start" : "Start job"}
+            {teenStarted ? "You confirmed start" : "Start job"}
           </Button>
           <p className="text-xs text-center text-slate-500 font-medium">
             {gatingDone
               ? "Both confirmed — job is in progress."
-              : mineStarted
-                ? `Waiting for your ${otherRole} to confirm start.`
-                : otherStarted
-                  ? `Your ${otherRole} confirmed — tap to confirm start.`
-                  : `Both you and your ${otherRole} must confirm to start.`}
+              : teenStarted
+                ? "Waiting for the neighbor to pay the escrow and start."
+                : "Confirm start — the neighbor pays the escrow to begin."}
           </p>
         </div>
       );
     }
 
-    // Buyer pays the escrow separately — payment is held, but the job only
-    // starts once the parent and teen both confirm.
+    // Parent observes the start — they do not confirm it themselves.
+    if (isParent) {
+      return (
+        <p className="text-xs text-center text-slate-500 font-medium">
+          {gatingDone
+            ? "The job is in progress."
+            : teenStarted
+              ? "The teen is ready — waiting for the neighbor to pay the escrow."
+              : "Waiting for the teen and neighbor to confirm start."}
+        </p>
+      );
+    }
+
+    // Buyer pays the escrow — the job starts once both the teen and buyer confirm.
     return (
       <div className="space-y-2">
         <Button className="w-full rounded-xl" disabled={acting || buyerStarted} onClick={onStart}>
@@ -56,8 +63,8 @@ export default function JobHandshakePanel({ booking, isTeen, isBuyer, isParent, 
         </Button>
         <p className="text-xs text-center text-slate-500 font-medium">
           {buyerStarted
-            ? (gatingDone ? "Job is in progress." : "Payment held — waiting for the teen and parent to confirm start.")
-            : "Pay to hold the escrow. The job starts once the teen and parent both confirm."}
+            ? (gatingDone ? "Job is in progress." : "Payment held — waiting for the teen to confirm start.")
+            : "Pay to hold the escrow. The job starts once the teen confirms too."}
         </p>
       </div>
     );

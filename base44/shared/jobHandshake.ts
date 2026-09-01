@@ -20,9 +20,9 @@ export function roleFor(booking, userId) {
 }
 
 export function bothStarted(b) {
-  // The gating pair for Start is the parent + teen. The buyer pays the escrow
-  // separately and no longer gates in_progress.
-  return !!b.teen_started_at && !!b.parent_started_at;
+  // The gating pair for Start is the teen + buyer (the buyer pays the escrow).
+  // The parent observes but does not confirm start.
+  return !!b.teen_started_at && !!b.buyer_started_at;
 }
 
 // Teen confirms Start. If the buyer has already paid (buyer_started_at set),
@@ -71,56 +71,10 @@ export async function recordStart(base44, booking) {
         user_id: booking.parent_user_id,
         type: 'booking',
         title: `${booking.teen_display_name} is ready to start`,
-        body: `Tap "Start job" on "${booking.listing_title}" to confirm and begin.`,
+        body: `Waiting for the neighbor to pay the escrow on "${booking.listing_title}" to begin.`,
         link: `/bookings/${booking.id}`,
       });
     }
-  }
-
-  return { started: nowStarted };
-}
-
-// Parent confirms Start. If the teen has already started, the job goes
-// in_progress immediately — the gating pair is the parent + teen. No money
-// moves here; the buyer's escrow payment is handled separately.
-export async function recordParentStart(base44, booking) {
-  const svc = base44.asServiceRole.entities;
-  if (booking.parent_started_at) return { alreadyDone: true, started: bothStarted(booking) };
-
-  const patch = { parent_started_at: new Date().toISOString() };
-  const next = { ...booking, ...patch };
-  const nowStarted = bothStarted(next);
-  if (nowStarted) patch.status = 'in_progress';
-
-  await svc.Booking.update(booking.id, patch);
-
-  if (nowStarted) {
-    for (const uid of [booking.teen_user_id, booking.parent_user_id].filter(Boolean)) {
-      await svc.Notification.create({
-        user_id: uid,
-        type: 'booking',
-        title: 'Job started',
-        body: `Both confirmed — "${booking.listing_title}" is now in progress.`,
-        link: `/bookings/${booking.id}`,
-      });
-    }
-    if (booking.buyer_user_id) {
-      await svc.Notification.create({
-        user_id: booking.buyer_user_id,
-        type: 'booking',
-        title: 'Job started',
-        body: `"${booking.listing_title}" is now in progress.`,
-        link: `/bookings/${booking.id}`,
-      });
-    }
-  } else {
-    await svc.Notification.create({
-      user_id: booking.teen_user_id,
-      type: 'booking',
-      title: `Your parent is ready to start`,
-      body: `Tap "Start job" on "${booking.listing_title}" to confirm and begin.`,
-      link: `/bookings/${booking.id}`,
-    });
   }
 
   return { started: nowStarted };
