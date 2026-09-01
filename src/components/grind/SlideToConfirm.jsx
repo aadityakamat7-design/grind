@@ -33,6 +33,18 @@ export default function SlideToConfirm({ onConfirm, label, disabled, loading, lo
     setAnimating(false);
   };
 
+  const complete = () => {
+    const max = getMaxDrag();
+    setDragX(max);
+    dragXRef.current = max;
+    setCompleted(true);
+    setAnimating(true);
+    if (typeof navigator !== "undefined" && navigator.vibrate) {
+      navigator.vibrate(30);
+    }
+    setTimeout(() => onConfirm?.(), 300);
+  };
+
   const handlePointerMove = (e) => {
     if (!dragging) return;
     const delta = e.clientX - startX.current;
@@ -40,6 +52,11 @@ export default function SlideToConfirm({ onConfirm, label, disabled, loading, lo
     const newX = Math.max(0, Math.min(baseX.current + delta, max));
     dragXRef.current = newX;
     setDragX(newX);
+    // Fire the moment the drag crosses the threshold — no release needed.
+    if (newX >= max * THRESHOLD) {
+      setDragging(false);
+      complete();
+    }
   };
 
   const handlePointerUp = () => {
@@ -48,13 +65,7 @@ export default function SlideToConfirm({ onConfirm, label, disabled, loading, lo
     setAnimating(true);
     const max = getMaxDrag();
     if (dragXRef.current >= max * THRESHOLD) {
-      setDragX(max);
-      dragXRef.current = max;
-      setCompleted(true);
-      if (typeof navigator !== "undefined" && navigator.vibrate) {
-        navigator.vibrate(30);
-      }
-      setTimeout(() => onConfirm?.(), 600);
+      complete();
     } else {
       setDragX(0);
       dragXRef.current = 0;
