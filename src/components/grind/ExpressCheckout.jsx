@@ -3,7 +3,6 @@ import { loadStripe } from "@stripe/stripe-js";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { CreditCard, Lock } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { money } from "@/lib/grind";
 
 // Payment step layout (top to bottom):
@@ -70,7 +69,8 @@ export default function ExpressCheckout({ bookingId, amount, onSuccess, onError,
           expressElement.on("ready", () => {
             setTimeout(() => {
               if (cancelled) return;
-              const hasButtons = !!(expressRef.current && expressRef.current.children.length > 0);
+              const el = expressRef.current;
+              const hasButtons = !!(el && el.children.length > 0 && el.offsetHeight > 0);
               setHasExpressMethods(hasButtons);
             }, 300);
           });
@@ -153,8 +153,11 @@ export default function ExpressCheckout({ bookingId, amount, onSuccess, onError,
         </div>
       )}
 
-      {/* Express Checkout Element — Apple Pay + Link (auto-hidden if unavailable) */}
-      <div ref={expressRef} className={cn(hasExpressMethods ? "" : "h-0 overflow-hidden")} />
+      {/* Express Checkout Element — Apple Pay + Link (auto-hidden if unavailable).
+          Container must be visible (not clipped) so Stripe can detect available
+          payment methods and render the native buttons. If none render, the div
+          stays empty (0 height) and the divider above hides — no gap. */}
+      <div ref={expressRef} />
 
       {inIframe && (
         <div className="flex items-center gap-2 rounded-xl p-3 text-xs text-muted-foreground bg-secondary border border-border mt-4">

@@ -16,14 +16,33 @@ export function useAppUser() {
   const [loading, setLoading] = useState(cachedUser === null);
 
   const reload = useCallback(async () => {
-    try {
+    const fetchUser = async () => {
       const u = await base44.auth.me();
-      // Defensive: lowercase app_role so legacy uppercase values (TEEN/BUYER/PARENT)
-      // never silently break role-based routing or comparisons.
       if (u && u.app_role) u.app_role = u.app_role.toLowerCase();
+      return u;
+    };
+    try {
+      const u = await fetchUser();
       cachedUser = u;
       setUser(u);
     } catch {
+      // If the token exists in localStorage, this is likely a transient
+      // failure (e.g. returning from an external redirect like Stripe
+      // Checkout where the app reloads mid-session). Retry once before
+      // giving up — don't log the user out unnecessarily.
+      const token = typeof window !== 'undefined' && window.localStorage.getItem('base44_access_token');
+      if (token) {
+        try {
+          await new Promise(r => setTimeout(r, 800));
+          const u = await fetchUser();
+          cachedUser = u;
+          setUser(u);
+          setLoading(false);
+          return;
+        } catch {
+          // Still failed — fall through to set user null
+        }
+      }
       cachedUser = null;
       setUser(null);
     }

@@ -105,7 +105,12 @@ export const AuthProvider = ({ children }) => {
       setAuthChecked(true);
       
       // If user auth fails, it might be an expired token
-      if (error.status === 401 || error.status === 403) {
+      // Only force a login redirect if there's genuinely no token. If the
+      // token exists in localStorage, this is likely a transient failure
+      // (e.g. returning from an external redirect like Stripe Checkout)
+      // and the Layout's useAppUser will retry — don't log the user out.
+      const token = typeof window !== 'undefined' && window.localStorage.getItem('base44_access_token');
+      if (!token && (error.status === 401 || error.status === 403)) {
         setAuthError({
           type: 'auth_required',
           message: 'Authentication required'
