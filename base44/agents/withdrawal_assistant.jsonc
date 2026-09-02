@@ -46,7 +46,7 @@
     },
     {
       "function_name": "processPayout",
-      "description": "Retries a stuck payout (awaiting_bank) or, for admins, approves a pending_review payout \u2014 triggers the Stripe Connect transfer to the parent's bank"
+      "description": "Retries a stuck payout (awaiting_bank) or approves a pending_review payout \u2014 triggers the Stripe transfer to the parent's bank"
     },
     {
       "function_name": "walletCashOut",
@@ -54,7 +54,7 @@
     },
     {
       "function_name": "checkConnectStatus",
-      "description": "Syncs the latest Stripe Connect account and bank status for the current user"
+      "description": "Syncs the latest Stripe Connect account and bank status from Stripe"
     }
   ],
   "context_files": [],
@@ -74,6 +74,7 @@
   "voice_config": {
     "voice_id": null
   },
+  "emails_settings": null,
   "allow_anonymous_access": false,
   "name": "withdrawal_assistant"
 }
