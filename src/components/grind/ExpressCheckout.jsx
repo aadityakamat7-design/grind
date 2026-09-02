@@ -1,17 +1,20 @@
 import { useEffect, useRef, useState } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import { base44 } from "@/api/base44Client";
+import { Button } from "@/components/ui/button";
 import { CreditCard, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { money } from "@/lib/grind";
 
-// Stripe Express Checkout Element — renders native Apple Pay, Google Pay,
-// and Link buttons automatically. Unavailable methods are hidden by Stripe.
-// Below the express buttons: a divider and a "Pay with card" button that
-// redirects to Stripe's hosted Checkout.
+// Payment step layout (top to bottom):
+//   1. "Pay $X to start this job"
+//   2. Primary "Pay and continue" button → redirects to Stripe hosted Checkout
+//   3. Divider "or pay instantly"
+//   4. Express Checkout Element → Apple Pay + Link (native, rendered by Stripe)
 //
-// All three paths charge the same amount via the same PaymentIntent / Checkout
-// Session, fire the same webhook, and set payment_status: 'held' identically.
+// If no express methods are available on the device, the divider and express
+// section are hidden entirely — just the primary button shows, no empty gap.
+// All three paths charge the same amount and fire the same webhook.
 export default function ExpressCheckout({ bookingId, amount, onSuccess, onError, disabled }) {
   const [processing, setProcessing] = useState(false);
   const [cardRedirecting, setCardRedirecting] = useState(false);
@@ -26,7 +29,7 @@ export default function ExpressCheckout({ bookingId, amount, onSuccess, onError,
   const inIframe = typeof window !== "undefined" && window.self !== window.top;
 
   // Initialise the Express Checkout Element in the background (skipped in
-  // iframe — the card button still works everywhere).
+  // iframe — the primary "Pay and continue" button works everywhere).
   useEffect(() => {
     if (inIframe || !amount || amount <= 0) return;
 
@@ -46,20 +49,16 @@ export default function ExpressCheckout({ bookingId, amount, onSuccess, onError,
           clientSecret: client_secret,
           appearance: {
             theme: "stripe",
-            variables: {
-              borderRadius: "12px",
-              colorPrimary: "#1e3dde",
-            },
+            variables: { borderRadius: "12px", colorPrimary: "#1e3dde" },
           },
         });
         elementsRef.current = elements;
 
         const expressElement = elements.create("expressCheckout", {
-          buttonType: { applePay: "plain", googlePay: "plain" },
+          buttonType: { applePay: "plain" },
           buttonHeight: 48,
           paymentMethods: {
             applePay: "always",
-            googlePay: "always",
             link: "always",
           },
         });
@@ -69,9 +68,6 @@ export default function ExpressCheckout({ bookingId, amount, onSuccess, onError,
           if (cancelled || !expressRef.current) return;
           expressElement.mount(expressRef.current);
           expressElement.on("ready", () => {
-            // Give Stripe a moment to render the available buttons, then check
-            // if any actually appeared. If none did, we hide the divider and
-            // show only the card option — no empty gap.
             setTimeout(() => {
               if (cancelled) return;
               const hasButtons = !!(expressRef.current && expressRef.current.children.length > 0);
@@ -132,41 +128,38 @@ export default function ExpressCheckout({ bookingId, amount, onSuccess, onError,
 
   return (
     <div>
-      {/* Amount shown clearly above the buttons */}
+      {/* Amount */}
       <p className="text-center text-lg font-bold text-foreground mb-4">
         Pay {money(amount)} to start this job
       </p>
 
-      {/* Express Checkout Element — Apple Pay, Google Pay, Link (auto-hidden if unavailable) */}
-      <div ref={expressRef} />
+      {/* Primary button — Pay and continue (redirects to hosted Checkout) */}
+      <Button
+        className="w-full"
+        size="lg"
+        disabled={isDisabled}
+        onClick={handleCardPay}
+      >
+        <CreditCard className="w-4 h-4" />
+        {cardRedirecting ? "Redirecting…" : "Pay and continue"}
+      </Button>
 
-      {/* Divider — only when express methods rendered */}
+      {/* Divider — only when express methods are available */}
       {hasExpressMethods && (
         <div className="flex items-center gap-3 my-4">
           <div className="flex-1 h-px bg-border" />
-          <span className="text-xs text-muted-foreground font-medium">or</span>
+          <span className="text-xs text-muted-foreground font-medium">or pay instantly</span>
           <div className="flex-1 h-px bg-border" />
         </div>
       )}
 
-      {/* Card button — redirects to Stripe hosted Checkout */}
-      <button
-        type="button"
-        onClick={handleCardPay}
-        disabled={isDisabled}
-        className={cn(
-          "w-full h-12 rounded-xl flex items-center justify-center gap-2 font-semibold text-sm transition-all duration-200 ease-ios active:scale-[0.97]",
-          "border border-border bg-background text-foreground hover:bg-secondary hover:border-primary/40 disabled:opacity-40 disabled:pointer-events-none"
-        )}
-      >
-        <CreditCard className="w-5 h-5" />
-        Pay with card
-      </button>
+      {/* Express Checkout Element — Apple Pay + Link (auto-hidden if unavailable) */}
+      <div ref={expressRef} className={cn(hasExpressMethods ? "" : "h-0 overflow-hidden")} />
 
       {inIframe && (
         <div className="flex items-center gap-2 rounded-xl p-3 text-xs text-muted-foreground bg-secondary border border-border mt-4">
           <Lock className="w-4 h-4 shrink-0" />
-          Apple Pay &amp; Google Pay work on the published app from your phone. Card payment works here.
+          Apple Pay works on the published app from Safari on iPhone. Card payment works here.
         </div>
       )}
 
