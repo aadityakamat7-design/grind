@@ -2,6 +2,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Play, CheckCircle2, Clock, Camera, AlertTriangle, Image as ImageIcon } from "lucide-react";
 import { Image } from "@/components/ui/image";
+import { money } from "@/lib/grind";
 
 // Photo-proof job completion UI:
 //   confirmed    → both sides press Start (buyer pays escrow)
@@ -84,8 +85,22 @@ export default function JobHandshakePanel({ booking, isTeen, isBuyer, isParent, 
       );
     }
 
-    // Express checkout handles the payment — no button here
-    return null;
+    // Teen is ready — show the pay-to-start button. This creates a Stripe
+    // Checkout Session and redirects the buyer to pay the escrow.
+    return (
+      <div className="space-y-2">
+        <div className="flex items-center gap-2 rounded-xl p-3 text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200">
+          <CheckCircle2 className="w-4 h-4 shrink-0" />
+          {booking.teen_display_name} is ready!
+        </div>
+        <Button className="w-full rounded-xl" disabled={acting} onClick={onStart}>
+          <Play className="w-4 h-4 mr-2" /> Pay {money(amount)} to start
+        </Button>
+        <p className="text-xs text-center text-slate-500 font-medium">
+          Payment is held in escrow until the job is confirmed complete.
+        </p>
+      </div>
+    );
   }
 
   if (booking.status === "in_progress") {
