@@ -155,21 +155,20 @@ export async function attemptBookingPayout(base44, booking, { skipReview = false
       }
     } catch (err) {
       console.error('Tip transfer failed:', err.message);
-      if (transferIds.length > 0) {
-        // Base succeeded — don't fail the whole payout. Log for manual retry.
-        await notifyAdmins(base44, {
-          type: 'payment',
-          title: 'Tip transfer failed — manual retry needed',
-          body: `Base payout for "${booking.listing_title}" succeeded but the ${money(tipAmount)} tip transfer failed: ${err.message}. Retry from the admin payout queue.`,
-          link: '/admin',
-        });
-      } else {
-        await svc.Booking.update(booking.id, {
-          payout_status: 'pending_review',
-          payout_review_reason: `Tip transfer failed: ${err.message}`,
-        });
-        return { status: 'pending_review', reason: err.message };
-      }
+      // Mark as pending_review so processPayout can retry. The idempotency
+      // key payout_<bookingId>_base prevents a duplicate base transfer on retry.
+      await svc.Booking.update(booking.id, {
+        payout_status: 'pending_review',
+        payout_review_reason: `Tip transfer failed (base succeeded): ${err.message}`,
+        ...(transferIds.length > 0 ? { stripe_transfer_id: transferIds.join(',') } : {}),
+      });
+      await notifyAdmins(base44, {
+        type: 'payment',
+        title: 'Tip transfer needs retry',
+        body: `Base payout for "${booking.listing_title}" ${transferIds.length > 0 ? 'succeeded' : 'also failed'} but the ${money(tipAmount)} tip transfer failed: ${err.message}. Retry from the admin payout queue.`,
+        link: '/admin',
+      });
+      return { status: 'pending_review', reason: err.message };
     }
   }
 
