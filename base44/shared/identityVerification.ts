@@ -43,9 +43,7 @@ export async function markParentVerified(base44, userId, extra = {}, fullName = 
 // Re-checks a Stripe Identity session's document + selfie results and persists
 // verified data to the parent profile.
 export async function applyVerifiedIdentity(base44, stripe, sessionId) {
-  const session = await stripe.identity.verificationSessions.retrieve(sessionId, {
-    expand: ['verified_outputs.dob', 'verified_outputs.id_number'],
-  });
+  const session = await stripe.identity.verificationSessions.retrieve(sessionId);
 
   if (session.status !== 'verified') {
     return { verified: false, status: session.status, lastError: session.last_error?.reason || null };
