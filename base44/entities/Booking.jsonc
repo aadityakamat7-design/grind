@@ -385,6 +385,17 @@
         }
       }
     },
+    "tip_stripe_payment_intent_id": {
+      "type": "string",
+      "description": "Stripe PaymentIntent id for the buyer's tip charge \u2014 used to tie the tip transfer to its own charge so tip funds aren't left in the platform balance (server-set only)",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
     "dispute_flagged_at": {
       "type": "string",
       "format": "date-time",

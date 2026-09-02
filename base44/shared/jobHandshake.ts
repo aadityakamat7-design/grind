@@ -165,7 +165,7 @@ export async function recordTeenFinish(base44, booking, photos) {
 // Buyer confirms the job was done correctly. This completes the booking and
 // releases the escrowed payment to the parent (auto-pay). The tip amount
 // passed here must already have been charged through Stripe (or be zero).
-export async function recordBuyerConfirm(base44, booking, tip = 0) {
+export async function recordBuyerConfirm(base44, booking, tip = 0, tipPaymentIntentId = '') {
   const svc = base44.asServiceRole.entities;
   if (booking.buyer_finished_at) return { alreadyDone: true, released: false };
 
@@ -174,6 +174,7 @@ export async function recordBuyerConfirm(base44, booking, tip = 0) {
     status: 'completed',
   };
   if (tip > 0) patch.tip_amount = tip;
+  if (tipPaymentIntentId) patch.tip_stripe_payment_intent_id = tipPaymentIntentId;
   await svc.Booking.update(booking.id, patch);
 
   // Release escrow exactly once — atomic lock so a concurrent webhook tip

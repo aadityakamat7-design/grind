@@ -42,7 +42,7 @@ Deno.serve(async (req) => {
         const booking = await base44.asServiceRole.entities.Booking.get(tipBookingId);
         if (booking && booking.payment_status === 'held' && !booking.buyer_finished_at) {
           const tip = Number(session.metadata?.tip_amount) || 0;
-          const result = await recordBuyerConfirm(base44, booking, tip);
+          const result = await recordBuyerConfirm(base44, booking, tip, session.payment_intent || '');
           console.log(`Booking ${tipBookingId} buyer confirm recorded with tip ${tip}:`, JSON.stringify(result));
         }
       }

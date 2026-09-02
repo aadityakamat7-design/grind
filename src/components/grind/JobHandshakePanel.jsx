@@ -3,12 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Play, CheckCircle2, Clock, Camera, AlertTriangle, Image as ImageIcon } from "lucide-react";
 import { Image } from "@/components/ui/image";
 import { money } from "@/lib/grind";
+import ExpressCheckout from "@/components/grind/ExpressCheckout";
 
 // Photo-proof job completion UI:
 //   confirmed    → both sides press Start (buyer pays escrow)
 //   in_progress   → teen finishes with photos, buyer confirms or disputes
 //   disputed     → shows the dispute status (under admin review)
-export default function JobHandshakePanel({ booking, isTeen, isBuyer, isParent, acting, onStart, onFinish, onConfirm, onDispute }) {
+export default function JobHandshakePanel({ booking, isTeen, isBuyer, isParent, acting, onStart, onFinish, onConfirm, onDispute, onPaymentSuccess, onPaymentError }) {
   if (!isTeen && !isBuyer && !isParent) return null;
 
   const teenFinished = !!booking.teen_finished_at;
@@ -85,17 +86,21 @@ export default function JobHandshakePanel({ booking, isTeen, isBuyer, isParent, 
       );
     }
 
-    // Teen is ready — show the pay-to-start button. This creates a Stripe
-    // Checkout Session and redirects the buyer to pay the escrow.
+    // Teen is ready — show Apple Pay + Card buttons. Apple Pay triggers the
+    // native Apple Pay sheet; Card redirects to Stripe Checkout.
     return (
-      <div className="space-y-2">
+      <div className="space-y-3">
         <div className="flex items-center gap-2 rounded-xl p-3 text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200">
           <CheckCircle2 className="w-4 h-4 shrink-0" />
           {booking.teen_display_name} is ready!
         </div>
-        <Button className="w-full rounded-xl" disabled={acting} onClick={onStart}>
-          <Play className="w-4 h-4 mr-2" /> Pay {money(amount)} to start
-        </Button>
+        <ExpressCheckout
+          bookingId={booking.id}
+          amount={amount}
+          onSuccess={onPaymentSuccess}
+          onError={onPaymentError}
+          disabled={acting}
+        />
         <p className="text-xs text-center text-slate-500 font-medium">
           Payment is held in escrow until the job is confirmed complete.
         </p>

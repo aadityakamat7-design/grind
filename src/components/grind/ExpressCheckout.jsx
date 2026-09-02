@@ -1,35 +1,32 @@
 import { useEffect, useRef, useState } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import { base44 } from "@/api/base44Client";
-import { Button } from "@/components/ui/button";
 import { CreditCard, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // Two clean payment buttons:
-//   1. Apple Pay logo  → triggers the native Apple Pay sheet on iPhone/Safari
-//   2. Card icon       → reveals the Stripe card form
-// The Stripe Express Checkout Element is mounted hidden and only used to
-// trigger Apple Pay's native sheet — no Google Pay / Link / Amazon buttons.
-export default function ExpressCheckout({ bookingId, amount, label, onSuccess, onError }) {
+//   1. Apple Pay  → triggers the native Apple Pay sheet (double-click to pay)
+//   2. Card       → redirects to Stripe Checkout
+//
+// Apple Pay uses a Stripe PaymentIntent + Express Checkout Element (hidden).
+// Card calls jobHandshake(action: "start") which creates a Checkout Session
+// and redirects. Both paths converge at the webhook → recordBuyerStartAfterPayment.
+export default function ExpressCheckout({ bookingId, amount, onSuccess, onError, disabled }) {
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [applePayAvailable, setApplePayAvailable] = useState(false);
-  const [showCard, setShowCard] = useState(false);
+  const [cardRedirecting, setCardRedirecting] = useState(false);
 
   const stripeRef = useRef(null);
   const elementsRef = useRef(null);
   const expressRef = useRef(null);
-  const paymentRef = useRef(null);
   const expressElementRef = useRef(null);
-  const paymentElementRef = useRef(null);
+
+  const inIframe = typeof window !== "undefined" && window.self !== window.top;
 
   useEffect(() => {
-    if (window.self !== window.top) {
-      setLoading(false);
-      return;
-    }
-    if (!amount || amount <= 0) {
+    if (inIframe || !amount || amount <= 0) {
       setLoading(false);
       return;
     }
@@ -56,15 +53,11 @@ export default function ExpressCheckout({ bookingId, amount, label, onSuccess, o
           clientSecret: client_secret,
           appearance: {
             theme: "stripe",
-            variables: {
-              borderRadius: "12px",
-              colorPrimary: "#1e3dde",
-            },
+            variables: { borderRadius: "12px", colorPrimary: "#1e3dde" },
           },
         });
         elementsRef.current = elements;
 
-        // Express Checkout — Apple Pay only
         const expressElement = elements.create("expressCheckout", {
           buttonType: { applePay: "plain" },
           buttonHeight: 48,
@@ -72,112 +65,76 @@ export default function ExpressCheckout({ bookingId, amount, label, onSuccess, o
         });
         expressElementRef.current = expressElement;
 
-        const paymentElement = elements.create("payment", {
-          layout: { type: "tabs", defaultCollapsed: false },
-        });
-        paymentElementRef.current = paymentElement;
-
         requestAnimationFrame(() => {
-          if (cancelled) return;
-
-          if (expressRef.current) {
-            expressElement.mount(expressRef.current);
-            expressElement.on("ready", () => {
-              setTimeout(() => {
-                if (!cancelled && expressRef.current && expressRef.current.children.length > 0) {
-                  setApplePayAvailable(true);
-                }
-              }, 200);
-            });
-            expressElement.on("confirm", async () => {
-              setProcessing(true);
-              setErrorMsg("");
-              const { error } = await stripe.confirmPayment({
-                elements,
-                redirect: "if_required",
-                confirmParams: {
-                  return_url: `${window.location.origin}/bookings/${bookingId}?started=1`,
-                },
-              });
-              if (error) {
-                setErrorMsg(error.message);
-                onError?.(error.message);
-                setProcessing(false);
-              } else {
-                onSuccess?.();
+          if (cancelled || !expressRef.current) return;
+          expressElement.mount(expressRef.current);
+          expressElement.on("ready", () => {
+            setTimeout(() => {
+              if (!cancelled && expressRef.current && expressRef.current.children.length > 0) {
+                setApplePayAvailable(true);
               }
+            }, 200);
+          });
+          expressElement.on("confirm", async () => {
+            setProcessing(true);
+            setErrorMsg("");
+            const { error } = await stripe.confirmPayment({
+              elements,
+              redirect: "if_required",
+              confirmParams: {
+                return_url: `${window.location.origin}/bookings/${bookingId}?started=1`,
+              },
             });
-            expressElement.on("cancel", () => setProcessing(false));
-          }
-
-          // Payment Element — mounted lazily when card is toggled
+            if (error) {
+              setErrorMsg(error.message);
+              onError?.(error.message);
+              setProcessing(false);
+            } else {
+              onSuccess?.();
+            }
+          });
+          expressElement.on("cancel", () => setProcessing(false));
         });
 
         setLoading(false);
       } catch (err) {
         console.error("ExpressCheckout init error:", err);
-        setErrorMsg("Couldn't load payment options. Please refresh the page.");
         setLoading(false);
       }
     });
 
     return () => {
       cancelled = true;
-      try {
-        expressElementRef.current?.destroy();
-        paymentElementRef.current?.destroy();
-      } catch {}
+      try { expressElementRef.current?.destroy(); } catch {}
       expressElementRef.current = null;
-      paymentElementRef.current = null;
     };
   }, [bookingId, amount]);
 
-  // Mount the card form only when the user taps the card button
-  useEffect(() => {
-    if (showCard && paymentRef.current && paymentElementRef.current && !paymentElementRef.current._mounted) {
-      try {
-        paymentElementRef.current.mount(paymentRef.current);
-        paymentElementRef.current._mounted = true;
-      } catch {}
-    }
-  }, [showCard]);
-
-  const handleCardSubmit = async (e) => {
-    e.preventDefault();
-    if (!stripeRef.current || !elementsRef.current) return;
-    setProcessing(true);
+  const handleCardPay = async () => {
+    setCardRedirecting(true);
     setErrorMsg("");
-    const { error } = await stripeRef.current.confirmPayment({
-      elements: elementsRef.current,
-      redirect: "if_required",
-      confirmParams: {
-        return_url: `${window.location.origin}/bookings/${bookingId}?started=1`,
-      },
-    });
-    if (error) {
-      setErrorMsg(error.message);
-      onError?.(error.message);
-      setProcessing(false);
-    } else {
+    try {
+      const res = await base44.functions.invoke("jobHandshake", { bookingId, action: "start" });
+      if (res.data?.url) {
+        window.location.href = res.data.url;
+        return;
+      }
+      // No URL = no charge needed or already started
       onSuccess?.();
+    } catch (err) {
+      const msg = err.response?.data?.error || "Couldn't start checkout. Please try again.";
+      setErrorMsg(msg);
+      onError?.(msg);
+      setCardRedirecting(false);
     }
   };
 
   const triggerApplePay = () => {
-    // Click the hidden Stripe Apple Pay button to open the native sheet
     const btn = expressRef.current?.querySelector("button");
     btn?.click();
   };
 
-  // Preview iframe — express payment can't run
-  if (window.self !== window.top) {
-    return (
-      <div className="flex items-center gap-2 rounded-xl p-3 text-xs text-muted-foreground bg-secondary border border-border">
-        <Lock className="w-4 h-4 shrink-0" />
-        Open the app in a new tab to pay — checkout doesn't work inside a preview.
-      </div>
-    );
-  }
+  const isDisabled = disabled || processing || cardRedirecting;
 
   return (
     <div className="space-y-3">
@@ -192,9 +149,9 @@ export default function ExpressCheckout({ bookingId, amount, label, onSuccess, o
           <button
             type="button"
             onClick={triggerApplePay}
-            disabled={!applePayAvailable || processing}
+            disabled={!applePayAvailable || isDisabled}
             className={cn(
-              "h-12 rounded-xl flex items-center justify-center gap-2 font-semibold text-sm transition-all duration-200 ease-ios",
+              "h-12 rounded-xl flex items-center justify-center gap-2 font-semibold text-sm transition-all duration-200 ease-ios active:scale-[0.97]",
               "bg-black text-white hover:bg-black/90 disabled:opacity-40 disabled:pointer-events-none"
             )}
           >
@@ -207,11 +164,11 @@ export default function ExpressCheckout({ bookingId, amount, label, onSuccess, o
           {/* Card button */}
           <button
             type="button"
-            onClick={() => setShowCard(true)}
-            disabled={processing}
+            onClick={handleCardPay}
+            disabled={isDisabled}
             className={cn(
               "h-12 rounded-xl flex items-center justify-center gap-2 font-semibold text-sm transition-all duration-200 ease-ios active:scale-[0.97]",
-              "border border-border bg-background text-foreground hover:bg-secondary hover:border-primary/40"
+              "border border-border bg-background text-foreground hover:bg-secondary hover:border-primary/40 disabled:opacity-40 disabled:pointer-events-none"
             )}
           >
             <CreditCard className="w-5 h-5" />
@@ -220,19 +177,14 @@ export default function ExpressCheckout({ bookingId, amount, label, onSuccess, o
         </div>
       )}
 
-      {/* Card form — revealed when card button is tapped */}
-      {showCard && (
-        <form onSubmit={handleCardSubmit} className="space-y-3 pt-1">
-          <div ref={paymentRef} />
-          <Button type="submit" disabled={processing} className="w-full">
-            {processing ? "Processing…" : `Pay $${Number(amount).toFixed(2)}`}
-          </Button>
-        </form>
+      {inIframe && !loading && (
+        <div className="flex items-center gap-2 rounded-xl p-3 text-xs text-muted-foreground bg-secondary border border-border">
+          <Lock className="w-4 h-4 shrink-0" />
+          Apple Pay works on the published app from Safari on iPhone. Card payment works here.
+        </div>
       )}
 
-      {errorMsg && (
-        <p className="text-xs text-destructive font-medium text-center">{errorMsg}</p>
-      )}
+      {errorMsg && <p className="text-xs text-destructive font-medium text-center">{errorMsg}</p>}
     </div>
   );
 }

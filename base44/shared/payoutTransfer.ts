@@ -5,15 +5,60 @@ import { notifyParentPayoutSent } from './notifyParent.ts';
 const REVIEW_THRESHOLD = 100; // USD — payouts at/above this go to manual review
 const money = (n) => `$${Number(n || 0).toFixed(2)}`;
 
+// Retrieves the charge id and the actual net (after Stripe processing fees)
+// for a given PaymentIntent. Returns availableNet = 0 if the charge can't be read.
+async function getChargeNet(stripe, paymentIntentId) {
+  if (!paymentIntentId) return { sourceTransaction: null, availableNet: 0 };
+  try {
+    const pi = await stripe.paymentIntents.retrieve(paymentIntentId);
+    const sourceTransaction = typeof pi.latest_charge === 'string' ? pi.latest_charge : pi.latest_charge?.id;
+    if (!sourceTransaction) return { sourceTransaction: null, availableNet: 0 };
+    const charge = await stripe.charges.retrieve(sourceTransaction, { expand: ['balance_transaction'] });
+    const bt = charge.balance_transaction;
+    const availableNet = bt && typeof bt.net === 'number' ? Math.max(0, bt.net / 100) : 0;
+    return { sourceTransaction, availableNet };
+  } catch (e) {
+    console.error('Could not read charge for PI', paymentIntentId, ':', e.message);
+    return { sourceTransaction: null, availableNet: 0 };
+  }
+}
+
+// Creates a single Stripe Connect transfer tied to a specific charge (if
+// available) so it doesn't depend on settled platform balance. The amount is
+// capped to the charge's actual net after Stripe fees. Uses an idempotency
+// key tied to the booking + purpose so a retried webhook or concurrent call
+// can never create a duplicate transfer.
+async function createTransfer(stripe, { amount, sourceTransaction, destination, bookingId, purpose }) {
+  if (amount <= 0) return null;
+  const transferAmount = sourceTransaction ? Math.min(amount, sourceTransaction.availableNet) : amount;
+  if (transferAmount <= 0) return null;
+  const transfer = await stripe.transfers.create({
+    amount: Math.round(transferAmount * 100),
+    currency: 'usd',
+    destination,
+    ...(sourceTransaction?.sourceTransaction ? { source_transaction: sourceTransaction.sourceTransaction } : {}),
+    metadata: {
+      base44_app_id: Deno.env.get('BASE44_APP_ID'),
+      booking_id: bookingId,
+      purpose,
+    },
+  }, { idempotencyKey: `payout_${bookingId}_${purpose}` });
+  return { id: transfer.id, amount: transferAmount };
+}
+
 // Attempts the Stripe Connect transfer of a released booking's net payout
 // (net_amount + tip) to the destination Connect account. For minors the
 // destination is the parent's Connect account; for independent 18+ teens
-// (no parent on the booking) it is the teen's own Connect account. Depending
-// on state it lands in: awaiting_bank, pending_review, or transferred.
+// (no parent on the booking) it is the teen's own Connect account.
+//
+// The base payout and tip are transferred separately, each tied to its own
+// charge, so tip funds are never left stranded in the platform balance.
 export async function attemptBookingPayout(base44, booking, { skipReview = false } = {}) {
   const svc = base44.asServiceRole.entities;
-  const amount = Math.round(((booking.net_amount || 0) + (booking.tip_amount || 0)) * 100) / 100;
-  if (amount <= 0) return { status: 'not_started' };
+  const baseAmount = Math.round((Number(booking.net_amount) || 0) * 100) / 100;
+  const tipAmount = Math.round((Number(booking.tip_amount) || 0) * 100) / 100;
+  const totalAmount = baseAmount + tipAmount;
+  if (totalAmount <= 0) return { status: 'not_started' };
 
   // Payouts route to the parent's Connect account for minors, or the teen's
   // own Connect account for independent 18+ teens (no parent on the booking).
@@ -31,111 +76,135 @@ export async function attemptBookingPayout(base44, booking, { skipReview = false
       user_id: destUserId,
       type: 'payment',
       title: 'Connect a bank to receive this payout',
-      body: `${money(amount)} from "${booking.listing_title}" is waiting. Connect your bank in Payouts to receive it.`,
+      body: `${money(totalAmount)} from "${booking.listing_title}" is waiting. Connect your bank in Payouts to receive it.`,
       link: returnLink,
     });
     return { status: 'awaiting_bank' };
   }
 
-  if (!skipReview) {
-    // Only large payouts get held for manual review. Small transactions transfer
-    // automatically — whatever nets out after Stripe fees goes straight through.
-    if (amount >= REVIEW_THRESHOLD) {
-      const reason = `Amount of ${money(amount)} is over ${money(REVIEW_THRESHOLD)}`;
-      await svc.Booking.update(booking.id, { payout_status: 'pending_review', payout_review_reason: reason });
-      await svc.Notification.create({
-        user_id: destUserId,
-        type: 'payment',
-        title: 'Payout in a short safety review',
-        body: `Your ${money(amount)} payout for "${booking.listing_title}" is in a brief review (${reason.toLowerCase()}). It's usually released within 1 business day.`,
-        link: returnLink,
-      });
-      await notifyAdmins(base44, {
-        type: 'payment',
-        title: 'Payout needs manual review',
-        body: `${money(amount)} payout for "${booking.listing_title}" is pending review (${reason.toLowerCase()}).`,
-        link: '/admin',
-      });
-      return { status: 'pending_review', reason };
-    }
-  }
-
-  const stripe = await getStripeForApp(base44);
-  try {
-    // Tie the transfer to the original charge when possible so it doesn't
-    // depend on settled platform balance. The platform fee simply stays behind.
-    let sourceTransaction;
-    const chargeAmount = booking.charge_amount ?? booking.price_total;
-    let availableNet = amount; // default to the intended payout if we can't read the charge
-    if (booking.stripe_payment_intent_id) {
-      const pi = await stripe.paymentIntents.retrieve(booking.stripe_payment_intent_id);
-      sourceTransaction = typeof pi.latest_charge === 'string' ? pi.latest_charge : pi.latest_charge?.id;
-      // Read the actual net left after Stripe's processing fees from the charge's
-      // balance transaction. On small charges Stripe's ~2.9% + 30¢ fee eats most of
-      // the dollar, so the 85% net can exceed what's actually transferable — cap the
-      // transfer to the real available amount so it goes through instead of failing.
-      if (sourceTransaction) {
-        try {
-          const charge = await stripe.charges.retrieve(sourceTransaction, { expand: ['balance_transaction'] });
-          const bt = charge.balance_transaction;
-          if (bt && typeof bt.net === 'number') {
-            availableNet = Math.min(amount, Math.max(0, bt.net / 100));
-          }
-        } catch (e) {
-          console.error('Could not read charge balance transaction:', e.message);
-        }
-      }
-    }
-    const transferAmount = availableNet;
-    const transfer = await stripe.transfers.create({
-      amount: Math.round(transferAmount * 100),
-      currency: 'usd',
-      destination: dest.stripe_connect_account_id,
-      ...(sourceTransaction ? { source_transaction: sourceTransaction } : {}),
-      metadata: {
-        base44_app_id: Deno.env.get('BASE44_APP_ID'),
-        booking_id: booking.id,
-        parent_user_id: booking.parent_user_id || '',
-        teen_user_id: booking.teen_user_id || '',
-      },
-    }, {
-      // Idempotency key tied to the booking — a retried webhook or concurrent
-      // processPayout call can never create a duplicate transfer for the
-      // same booking.
-      idempotencyKey: `payout_${booking.id}`,
-    });
-    await svc.Booking.update(booking.id, {
-      payout_status: 'transferred',
-      stripe_transfer_id: transfer.id,
-      transferred_at: new Date().toISOString(),
-      payout_review_reason: '',
-      ...(transferAmount < amount ? { net_amount: Math.round((transferAmount - (booking.tip_amount || 0)) * 100) / 100 } : {}),
-    });
+  if (!skipReview && totalAmount >= REVIEW_THRESHOLD) {
+    const reason = `Amount of ${money(totalAmount)} is over ${money(REVIEW_THRESHOLD)}`;
+    await svc.Booking.update(booking.id, { payout_status: 'pending_review', payout_review_reason: reason });
     await svc.Notification.create({
       user_id: destUserId,
       type: 'payment',
-      title: 'Payout on its way to your bank 🏦',
-      body: `${money(transferAmount)} from "${booking.listing_title}" was transferred to your bank ending in ${dest.bank_last4 || '••••'}. It typically arrives in 1–2 business days.`,
+      title: 'Payout in a short safety review',
+      body: `Your ${money(totalAmount)} payout for "${booking.listing_title}" is in a brief review (${reason.toLowerCase()}). It's usually released within 1 business day.`,
       link: returnLink,
     });
-    // Email the parent only when there is one (minors). Independent teens get
-    // the in-app notification above.
-    if (booking.parent_user_id) {
-      await notifyParentPayoutSent(base44, {
-        parentUserId: booking.parent_user_id,
-        amount: transferAmount,
-        jobTitle: booking.listing_title,
-        bankLast4: dest.bank_last4,
-        origin: Deno.env.get('BASE44_APP_URL') || '',
+    await notifyAdmins(base44, {
+      type: 'payment',
+      title: 'Payout needs manual review',
+      body: `${money(totalAmount)} payout for "${booking.listing_title}" is pending review (${reason.toLowerCase()}).`,
+      link: '/admin',
+    });
+    return { status: 'pending_review', reason };
+  }
+
+  const stripe = await getStripeForApp(base44);
+
+  // Look up the actual net (after Stripe fees) for both the start-payment
+  // charge and the tip charge so each transfer is capped to what's actually
+  // available and tied to its own source_transaction.
+  const baseCharge = await getChargeNet(stripe, booking.stripe_payment_intent_id);
+  const tipCharge = await getChargeNet(stripe, booking.tip_stripe_payment_intent_id);
+
+  const transferIds = [];
+  let totalTransferred = 0;
+
+  // --- Base transfer (85% net after platform fee) ---
+  if (baseAmount > 0) {
+    try {
+      const result = await createTransfer(stripe, {
+        amount: baseAmount,
+        sourceTransaction: baseCharge,
+        destination: dest.stripe_connect_account_id,
+        bookingId: booking.id,
+        purpose: 'base',
       });
+      if (result) {
+        transferIds.push(result.id);
+        totalTransferred += result.amount;
+      }
+    } catch (err) {
+      console.error('Base transfer failed:', err.message);
+      await svc.Booking.update(booking.id, {
+        payout_status: 'pending_review',
+        payout_review_reason: `Base transfer failed: ${err.message}`,
+      });
+      return { status: 'pending_review', reason: err.message };
     }
-    return { status: 'transferred', transferId: transfer.id };
-  } catch (err) {
-    console.error('Stripe transfer failed:', err.message);
+  }
+
+  // --- Tip transfer (100% to the teen) ---
+  // If the base already went through but the tip fails, we don't roll back —
+  // the base money is already in the parent's account. We log the tip failure
+  // and notify admins so they can retry from the payout queue.
+  if (tipAmount > 0) {
+    try {
+      const result = await createTransfer(stripe, {
+        amount: tipAmount,
+        sourceTransaction: tipCharge,
+        destination: dest.stripe_connect_account_id,
+        bookingId: booking.id,
+        purpose: 'tip',
+      });
+      if (result) {
+        transferIds.push(result.id);
+        totalTransferred += result.amount;
+      }
+    } catch (err) {
+      console.error('Tip transfer failed:', err.message);
+      if (transferIds.length > 0) {
+        // Base succeeded — don't fail the whole payout. Log for manual retry.
+        await notifyAdmins(base44, {
+          type: 'payment',
+          title: 'Tip transfer failed — manual retry needed',
+          body: `Base payout for "${booking.listing_title}" succeeded but the ${money(tipAmount)} tip transfer failed: ${err.message}. Retry from the admin payout queue.`,
+          link: '/admin',
+        });
+      } else {
+        await svc.Booking.update(booking.id, {
+          payout_status: 'pending_review',
+          payout_review_reason: `Tip transfer failed: ${err.message}`,
+        });
+        return { status: 'pending_review', reason: err.message };
+      }
+    }
+  }
+
+  if (totalTransferred <= 0) {
     await svc.Booking.update(booking.id, {
       payout_status: 'pending_review',
-      payout_review_reason: `Automatic transfer failed: ${err.message}`,
+      payout_review_reason: 'No transfer could be created — both charges had insufficient net',
     });
-    return { status: 'pending_review', reason: err.message };
+    return { status: 'pending_review', reason: 'Insufficient charge net' };
   }
+
+  await svc.Booking.update(booking.id, {
+    payout_status: 'transferred',
+    stripe_transfer_id: transferIds.join(','),
+    transferred_at: new Date().toISOString(),
+    payout_review_reason: '',
+  });
+
+  await svc.Notification.create({
+    user_id: destUserId,
+    type: 'payment',
+    title: 'Payout on its way to your bank 🏦',
+    body: `${money(totalTransferred)} from "${booking.listing_title}" was transferred to your bank ending in ${dest.bank_last4 || '••••'}. It typically arrives in 1–2 business days.`,
+    link: returnLink,
+  });
+
+  if (booking.parent_user_id) {
+    await notifyParentPayoutSent(base44, {
+      parentUserId: booking.parent_user_id,
+      amount: totalTransferred,
+      jobTitle: booking.listing_title,
+      bankLast4: dest.bank_last4,
+      origin: Deno.env.get('BASE44_APP_URL') || '',
+    });
+  }
+
+  return { status: 'transferred', transferIds };
 }

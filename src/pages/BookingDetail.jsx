@@ -261,6 +261,8 @@ export default function BookingDetail() {
           onFinish={finishJob}
           onConfirm={confirmJob}
           onDispute={disputeJob}
+          onPaymentSuccess={() => setTimeout(() => load(), 1500)}
+          onPaymentError={(msg) => setHandshakeError(msg)}
         />
         {handshakeError && <p className="text-xs text-destructive font-medium text-center">{handshakeError}</p>}
         {isTeen && booking.status === "in_progress" && <AlertParentButton booking={booking} />}
