@@ -1,14 +1,10 @@
 import React from "react";
-import { Link } from "react-router-dom";
-import { Lock, ShieldCheck, Landmark, CheckCircle2 } from "lucide-react";
+import { ShieldCheck, Landmark, CheckCircle2 } from "lucide-react";
 
-// Locked payout-setup card shown on the parent dashboard when identity or
-// bank connection is not yet complete. Locked (non-interactive) until the
-// linked teen has at least one job request (booking). Unlocks the moment
-// a booking exists, linking to the approval page setup flow.
-//
-// Defaults to locked: if hasJobRequests is undefined/null/false, render locked.
-export default function LockedSetupCard({ profile, hasJobRequests }) {
+// Payout-setup card shown on the parent dashboard when identity or bank
+// connection is not yet complete. The button is always active so the parent
+// can verify and set up payouts at any time — no need to wait for a job request.
+export default function LockedSetupCard({ profile, onStartSetup }) {
   const identityDone = !!profile?.is_identity_verified;
   const bankDone = profile?.connect_status === "active";
   const setupComplete = identityDone && bankDone;
@@ -16,11 +12,8 @@ export default function LockedSetupCard({ profile, hasJobRequests }) {
   // Don't render if setup is already complete — PayoutStatusCard handles that
   if (setupComplete) return null;
 
-  // Default to locked when data hasn't loaded
-  const locked = !hasJobRequests;
-
   return (
-    <div className={`bg-card rounded-2xl border border-border shadow-soft p-5 ${locked ? "opacity-70" : ""}`}>
+    <div className="bg-card rounded-2xl border border-border shadow-soft p-5">
       <h3 className="font-bold text-foreground text-sm mb-4">Payout setup</h3>
 
       <div className="space-y-3">
@@ -61,23 +54,13 @@ export default function LockedSetupCard({ profile, hasJobRequests }) {
         </div>
       </div>
 
-      {locked ? (
-        <button
-          disabled
-          aria-disabled="true"
-          className="w-full mt-4 flex items-center justify-center gap-2 rounded-xl bg-muted text-muted-foreground h-11 font-medium text-sm cursor-not-allowed"
-          style={{ pointerEvents: "none" }}
-        >
-          <Lock className="w-4 h-4" />
-          Unlocks when your teen requests their first job
-        </button>
-      ) : (
-        <Link to="/parent/approvals?setup=1" className="block mt-4">
-          <button className="w-full rounded-xl bg-primary text-primary-foreground h-11 font-medium text-sm shadow-soft hover:bg-primary-hover transition-colors">
-            Complete setup
-          </button>
-        </Link>
-      )}
+      <button
+        onClick={onStartSetup}
+        className="w-full mt-4 flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground h-11 font-medium text-sm shadow-soft hover:bg-primary-hover transition-colors"
+      >
+        <ShieldCheck className="w-4 h-4" />
+        {identityDone ? "Connect your bank" : "Verify my ID & set up payouts"}
+      </button>
     </div>
   );
 }

@@ -153,7 +153,7 @@ export default function ParentDashboard() {
           <PayoutStatusCard profile={parentProfile} onUpdated={load} returnPath="/parent" />
         )}
         {!(parentProfile?.is_identity_verified && parentProfile?.connect_status === "active") && (
-          <LockedSetupCard profile={parentProfile} hasJobRequests={bookings.length > 0} />
+          <LockedSetupCard profile={parentProfile} onStartSetup={() => setVerifyOpen(true)} />
         )}
 
         <ParentStatsGrid records={records} bookings={bookings} links={links} teenProfiles={teenProfiles} pendingApprovals={bookings.filter((b) => b.status === "pending_parent_approval").length} />
@@ -238,6 +238,12 @@ export default function ParentDashboard() {
         <div className="pt-2">
           <LinkTeenDialog onLinked={load} />
         </div>
+
+        <IdentityVerificationGate
+          open={verifyOpen}
+          onOpenChange={setVerifyOpen}
+          onVerified={() => { setVerifyOpen(false); load(); }}
+        />
       </div>
     </PullToRefresh>
   );
