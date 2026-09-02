@@ -11,6 +11,7 @@ import { toast } from "@/components/ui/use-toast";
 import ErrorRetry from "@/components/grind/ErrorRetry";
 
 const PAYOUT_LABELS = {
+  awaiting_settlement: { text: "Settling — sent to your bank in ~7 days", cls: "text-amber-600", icon: Clock },
   transferred: { text: "In your bank in 1–2 business days", cls: "text-emerald-600", icon: CheckCircle2 },
   pending_review: { text: "Safety review — usually within 1 day", cls: "text-amber-600", icon: Clock },
   awaiting_bank: { text: "Waiting for your bank connection", cls: "text-rose-600", icon: Landmark },

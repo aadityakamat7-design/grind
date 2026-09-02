@@ -310,11 +310,12 @@
       "enum": [
         "not_started",
         "awaiting_bank",
+        "awaiting_settlement",
         "pending_review",
         "transferred"
       ],
       "default": "not_started",
-      "description": "Stage of the Stripe Connect transfer to the parent",
+      "description": "Stage of the Stripe Connect transfer to the parent. awaiting_settlement = released but waiting for the 7-day payment settlement window before the transfer is attempted.",
       "rls": {
         "write": {
           "user_condition": {
@@ -325,6 +326,18 @@
     },
     "payout_review_reason": {
       "type": "string",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "payout_eligible_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the 7-day settlement window ends and the payout becomes eligible for transfer (server-set only)",
       "rls": {
         "write": {
           "user_condition": {

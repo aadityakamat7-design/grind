@@ -17,6 +17,7 @@ const STATUS = {
 };
 
 const PAYOUT_STATUS = {
+  awaiting_settlement: { label: "Settling (~7 days)", color: "#F2B84B" },
   transferred: { label: "Sent to parent's bank", color: "#00D47E" },
   pending_review: { label: "In review", color: "#F2B84B" },
   awaiting_bank: { label: "Parent connecting bank", color: "#F2B84B" },

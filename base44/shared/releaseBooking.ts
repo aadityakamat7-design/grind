@@ -1,5 +1,3 @@
-import { attemptBookingPayout } from './payoutTransfer.ts';
-
 // Finalizes a released booking payment: booking update, earnings record, wallet
 // credit, Stripe Connect transfer to the parent, notifications, and referral
 // completion. The tip amount passed here must already have been charged through
@@ -75,9 +73,29 @@ export async function releaseBookingPayment(base44, booking, tip) {
     body: `${money(teenGets)} landed in your Blockwork Wallet for "${booking.listing_title}".`,
     link: '/teen/wallet',
   });
-  // Transfer the net payout (after platform fee) to the parent's Stripe Connect
-  // account — never the teen's. Sends its own parent notification per outcome.
-  await attemptBookingPayout(base44, { ...booking, platform_fee: platformFee, net_amount: netBase, tip_amount: tipAmt });
+  // Delay the actual Stripe Connect transfer by 7 days to allow the buyer's
+  // charge to fully settle. The payout_status is set to awaiting_settlement
+  // with a payout_eligible_at timestamp; a daily scheduled workflow
+  // (processSettledPayouts) picks it up and calls attemptBookingPayout once
+  // the settlement period passes.
+  const SETTLEMENT_DAYS = 7;
+  const eligibleAt = new Date(Date.now() + SETTLEMENT_DAYS * 24 * 60 * 60 * 1000).toISOString();
+  await svc.Booking.update(booking.id, {
+    payout_status: 'awaiting_settlement',
+    payout_eligible_at: eligibleAt,
+  });
+
+  const isIndependent = !booking.parent_user_id;
+  const notifyUserId = isIndependent ? booking.teen_user_id : booking.parent_user_id;
+  if (notifyUserId) {
+    await svc.Notification.create({
+      user_id: notifyUserId,
+      type: 'payment',
+      title: 'Payout settling',
+      body: `${money(teenGets)} from "${booking.listing_title}" is settling. It'll be sent to your bank in about ${SETTLEMENT_DAYS} days once the payment clears.`,
+      link: isIndependent ? '/teen' : '/parent/payouts',
+    });
+  }
 
   return teenGets;
 }

@@ -58,6 +58,8 @@ export default function PaymentStatusTracker({ booking }) {
 }
 
 function releasedDetail(payoutStatus) {
+  if (payoutStatus === "awaiting_settlement")
+    return "Payment is settling — the payout will be sent to the parent's bank in about 7 days once the transaction clears.";
   if (payoutStatus === "pending_review")
     return "In a short safety review before transfer — usually cleared within 1 business day.";
   if (payoutStatus === "awaiting_bank")
