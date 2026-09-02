@@ -42,8 +42,7 @@ Deno.serve(async (req) => {
     const updateEntity = isParent ? svc.ParentProfile : svc.TeenProfile;
     const stripe = await getStripeForApp(base44);
 
-    let accountId = profile.stripe_connect_account_id;
-    if (!accountId) {
+    const createAccount = async () => {
       const account = await stripe.accounts.create({
         type: 'express',
         email: user.email,
@@ -55,20 +54,46 @@ Deno.serve(async (req) => {
           subject: isParent ? 'parent' : 'teen',
         },
       });
-      accountId = account.id;
       await updateEntity.update(profile.id, {
-        stripe_connect_account_id: accountId,
+        stripe_connect_account_id: account.id,
         connect_status: 'pending',
       });
+      return account.id;
+    };
+
+    let accountId = profile.stripe_connect_account_id;
+    // Clear simulated/stale account IDs that don't exist in the current Stripe mode
+    if (accountId && (accountId.includes('simulated') || accountId.includes('test_blockwork'))) {
+      accountId = null;
+    }
+    if (!accountId) {
+      accountId = await createAccount();
     }
 
     const origin = getSafeOrigin(req);
-    const link = await stripe.accountLinks.create({
-      account: accountId,
-      refresh_url: `${origin}${returnPath}?connect=refresh`,
-      return_url: `${origin}${returnPath}?connect=return`,
-      type: 'account_onboarding',
-    });
+    let link;
+    try {
+      link = await stripe.accountLinks.create({
+        account: accountId,
+        refresh_url: `${origin}${returnPath}?connect=refresh`,
+        return_url: `${origin}${returnPath}?connect=return`,
+        type: 'account_onboarding',
+      });
+    } catch (linkErr) {
+      // The stored account may not exist in the current Stripe mode (e.g. a
+      // test account ID used with live keys). Create a fresh account and retry.
+      if (linkErr.message?.includes('No such account') || linkErr.code === 'resource_missing') {
+        accountId = await createAccount();
+        link = await stripe.accountLinks.create({
+          account: accountId,
+          refresh_url: `${origin}${returnPath}?connect=refresh`,
+          return_url: `${origin}${returnPath}?connect=return`,
+          type: 'account_onboarding',
+        });
+      } else {
+        throw linkErr;
+      }
+    }
 
     return Response.json({ url: link.url });
   } catch (error) {

@@ -51,8 +51,9 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
     }
     setLookingUp(true);
     try {
-      const data = await fetch(`/functions/lookupTeenByCode?code=${code.trim().toUpperCase()}`).then(r => r.json());
-      if (data.error) {
+      const res = await base44.functions.invoke("lookupTeenByCode", { code: code.trim().toUpperCase() });
+      const data = res.data;
+      if (data?.error) {
         setError(data.error);
         setLookingUp(false);
         return;
@@ -61,7 +62,7 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
       setStep(2);
       setLookingUp(false);
     } catch (err) {
-      setError("Something went wrong. Please try again.");
+      setError(err?.response?.data?.error || err?.data?.error || "Something went wrong. Please try again.");
       setLookingUp(false);
     }
   };

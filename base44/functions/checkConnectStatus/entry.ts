@@ -21,7 +21,25 @@ Deno.serve(async (req) => {
     if (!profile?.stripe_connect_account_id) return Response.json({ status: 'not_setup' });
 
     const stripe = await getStripeForApp(base44);
-    const account = await stripe.accounts.retrieve(profile.stripe_connect_account_id);
+    let account;
+    try {
+      account = await stripe.accounts.retrieve(profile.stripe_connect_account_id);
+    } catch (retrieveErr) {
+      // The stored account may not exist in the current Stripe mode (e.g. a
+      // simulated/test account ID used with live keys). Clear it and return
+      // not_setup so the user can start fresh.
+      if (retrieveErr.message?.includes('No such account') || retrieveErr.code === 'resource_missing') {
+        const updateEntity = isParent ? svc.ParentProfile : svc.TeenProfile;
+        await updateEntity.update(profile.id, {
+          stripe_connect_account_id: '',
+          connect_status: 'not_setup',
+          bank_last4: '',
+          bank_name: '',
+        });
+        return Response.json({ status: 'not_setup' });
+      }
+      throw retrieveErr;
+    }
 
     let status = 'pending';
     if (account.payouts_enabled && account.details_submitted) status = 'active';

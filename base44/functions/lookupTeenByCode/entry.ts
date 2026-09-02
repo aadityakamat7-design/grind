@@ -15,8 +15,12 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const url = new URL(req.url);
-    const code = (url.searchParams.get('code') || '').trim().toUpperCase();
+    const body = await req.json().catch(() => ({}));
+    let code = (String(body.code || '')).trim().toUpperCase();
+    if (!code) {
+      const url = new URL(req.url);
+      code = (url.searchParams.get('code') || '').trim().toUpperCase();
+    }
     if (!code) {
       return Response.json({ error: 'A connection code is required.' }, { status: 400 });
     }
