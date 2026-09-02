@@ -246,7 +246,7 @@ export default function BookingDetail() {
           </Link>
         )}
 
-        {isBuyer && booking.status === "confirmed" && !booking.buyer_started_at && (booking.charge_amount ?? booking.price_total) > 0 && (
+        {isBuyer && booking.status === "confirmed" && !booking.buyer_started_at && booking.teen_started_at && (booking.charge_amount ?? booking.price_total) > 0 && (
           <ExpressCheckout
             bookingId={booking.id}
             amount={booking.charge_amount ?? booking.price_total}
@@ -254,6 +254,12 @@ export default function BookingDetail() {
             onSuccess={() => setTimeout(() => load(), 1500)}
             onError={(msg) => setHandshakeError(msg)}
           />
+        )}
+        {isBuyer && booking.status === "confirmed" && !booking.buyer_started_at && !booking.teen_started_at && (booking.charge_amount ?? booking.price_total) > 0 && (
+          <div className="flex items-center gap-2 rounded-xl p-3 text-xs text-muted-foreground bg-secondary border border-border">
+            <Lock className="w-4 h-4 shrink-0" />
+            Waiting for {booking.teen_display_name} to confirm they're ready. Payment unlocks once the teen starts.
+          </div>
         )}
         <JobHandshakePanel
           booking={booking}

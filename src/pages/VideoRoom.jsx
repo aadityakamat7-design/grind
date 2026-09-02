@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Video, Loader2 } from "lucide-react";
+import { ArrowLeft, Video, Loader2, Lock } from "lucide-react";
 import Seo from "@/components/Seo";
 
 // Standalone full-screen video room. Embeds the booking's Jitsi session
@@ -22,6 +22,7 @@ export default function VideoRoom() {
         if (!b) { setError("Booking not found."); return; }
         if (b.delivery_mode !== "online") { setError("This booking is not an online session."); return; }
         if (!b.session_link) { setError("The video room isn't available until the booking is confirmed."); return; }
+        if (b.payment_status !== "held" && b.payment_status !== "released") { setBooking(b); setLoading(false); return; }
         setBooking(b);
       } catch (e) {
         setError("Couldn't load this video session.");
@@ -63,6 +64,19 @@ export default function VideoRoom() {
         <div className="flex-1 flex flex-col items-center justify-center gap-3 p-6 text-center">
           <Video className="w-8 h-8 text-muted-foreground" />
           <p className="text-sm text-muted-foreground max-w-xs">{error}</p>
+          <Link to={`/bookings/${bookingId}`}>
+            <Button variant="outline">Back to booking</Button>
+          </Link>
+        </div>
+      ) : booking && booking.payment_status !== "held" && booking.payment_status !== "released" ? (
+        <div className="flex-1 flex flex-col items-center justify-center gap-3 p-6 text-center">
+          <div className="w-14 h-14 rounded-2xl bg-secondary border border-border flex items-center justify-center">
+            <Lock className="w-7 h-7 text-muted-foreground" />
+          </div>
+          <p className="text-sm font-semibold text-foreground">Video room locked</p>
+          <p className="text-sm text-muted-foreground max-w-xs">
+            The session unlocks once the neighbor pays and the job starts. Payment is still being processed.
+          </p>
           <Link to={`/bookings/${bookingId}`}>
             <Button variant="outline">Back to booking</Button>
           </Link>

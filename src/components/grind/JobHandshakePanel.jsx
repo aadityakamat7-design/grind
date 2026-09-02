@@ -19,21 +19,21 @@ export default function JobHandshakePanel({ booking, isTeen, isBuyer, isParent, 
     const buyerStarted = !!booking.buyer_started_at;
     const gatingDone = teenStarted && buyerStarted;
 
-    // Teen confirms Start. The job goes in_progress once both the teen and the
-    // buyer (who pays the escrow) have confirmed.
+    // Teen confirms they're ready first. The buyer can only pay after this.
+    // The job goes in_progress once both the teen and the buyer have confirmed.
     if (isTeen) {
       return (
         <div className="space-y-2">
           <Button className="w-full rounded-xl" disabled={acting || teenStarted} onClick={onStart}>
             <Play className="w-4 h-4 mr-2" />
-            {teenStarted ? "You confirmed start" : "Start job"}
+            {teenStarted ? "You're ready" : "I'm ready"}
           </Button>
           <p className="text-xs text-center text-slate-500 font-medium">
             {gatingDone
               ? "Both confirmed — job is in progress."
               : teenStarted
-                ? "Waiting for the neighbor to pay the escrow and start."
-                : "Confirm start — the neighbor pays the escrow to begin."}
+                ? "You're ready — waiting for the neighbor to pay and start."
+                : "Confirm you're ready first — the neighbor can pay once you do."}
           </p>
         </div>
       );
@@ -46,8 +46,17 @@ export default function JobHandshakePanel({ booking, isTeen, isBuyer, isParent, 
           {gatingDone
             ? "The job is in progress."
             : teenStarted
-              ? "The teen is ready — waiting for the neighbor to pay the escrow."
-              : "Waiting for the teen and neighbor to confirm start."}
+              ? "The teen is ready — waiting for the neighbor to pay and start."
+              : "Waiting for the teen to confirm they're ready."}
+        </p>
+      );
+    }
+
+    // Buyer hasn't paid yet — waiting for teen to be ready first
+    if (!teenStarted) {
+      return (
+        <p className="flex items-center justify-center gap-1.5 text-xs text-slate-500 font-medium text-center">
+          <Clock className="w-3.5 h-3.5" /> Waiting for {booking.teen_display_name} to confirm they're ready.
         </p>
       );
     }
