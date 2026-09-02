@@ -13,6 +13,9 @@ import PayoutStatusCard from "@/components/grind/parent/PayoutStatusCard";
 import LockedSetupCard from "@/components/grind/parent/LockedSetupCard";
 import LinkTeenDialog from "@/components/grind/parent/LinkTeenDialog";
 import LinkTeenCard from "@/components/grind/parent/LinkTeenCard";
+import IdentityVerificationGate from "@/components/grind/parent/IdentityVerificationGate";
+import { Button } from "@/components/ui/button";
+import { ShieldCheck } from "lucide-react";
 import ParentStatsGrid from "@/components/grind/parent/ParentStatsGrid";
 import WeeklyHoursCard from "@/components/grind/parent/WeeklyHoursCard";
 import { getVerifiedAgeFromPrivate } from "@/lib/stateWorkRules";
@@ -32,6 +35,7 @@ export default function ParentDashboard() {
   const [teenPrivates, setTeenPrivates] = useState([]);
   const [selected, setSelected] = useState("all");
   const [pendingLinks, setPendingLinks] = useState([]);
+  const [verifyOpen, setVerifyOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
@@ -109,12 +113,20 @@ export default function ParentDashboard() {
           {pendingLinks.map((l) => (
             <div key={l.id} className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
               <p className="font-bold text-amber-700 text-sm">Linked with {l.teen_display_name} — pending activation</p>
-              <p className="text-xs text-amber-600 mt-1">Verify your government ID to activate your teen's account. You'll be prompted when your teen gets their first job request.</p>
+              <p className="text-xs text-amber-600 mt-1">Verify your government ID to activate your teen's account and connect your payout account.</p>
             </div>
           ))}
+          <Button className="w-full rounded-xl" size="lg" onClick={() => setVerifyOpen(true)}>
+            <ShieldCheck className="w-4 h-4" /> Verify my ID & set up payouts
+          </Button>
           <div className="pt-2">
             <LinkTeenDialog onLinked={load} />
           </div>
+          <IdentityVerificationGate
+            open={verifyOpen}
+            onOpenChange={setVerifyOpen}
+            onVerified={() => { setVerifyOpen(false); load(); }}
+          />
         </div>
       </PullToRefresh>
     );
