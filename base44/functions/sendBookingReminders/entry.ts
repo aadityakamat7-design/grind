@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
+import { getSafeOrigin } from '../../shared/safeOrigin.ts';
 import { verifyWorkflowCall } from '../../shared/workflowAuth.ts';
 
 // Called on a schedule. Notifies the teen and buyer of confirmed bookings
@@ -24,8 +25,12 @@ Deno.serve(async (req) => {
       return start >= now && start <= soon;
     });
 
+    const origin = getSafeOrigin(req);
+
     for (const b of due) {
       const when = new Date(b.scheduled_start).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+      const deepLink = `${origin}/bookings/${b.id}`;
+
       await svc.Notification.create({
         user_id: b.teen_user_id,
         type: 'booking',
@@ -42,6 +47,43 @@ Deno.serve(async (req) => {
         link: `/bookings/${b.id}`,
         read: false,
       });
+
+      // Email reminder to both parties
+      const [teenUsers, buyerUsers] = await Promise.all([
+        svc.User.filter({ id: b.teen_user_id }),
+        svc.User.filter({ id: b.buyer_user_id }),
+      ]);
+      if (teenUsers[0]?.email) {
+        try {
+          await base44.asServiceRole.integrations.Core.SendEmail({
+            to: teenUsers[0].email,
+            subject: `Your job "${b.listing_title}" starts soon`,
+            body:
+              `Hi ${b.teen_display_name || ''},\n\n` +
+              `This is a quick reminder: "${b.listing_title}" with ${b.buyer_name || 'your neighbor'} starts at ${when}.\n\n` +
+              `View your booking here:\n${deepLink}\n\n` +
+              `— The Blockwork team`,
+          });
+        } catch (err) {
+          console.error('Booking reminder email (teen) error:', err.message);
+        }
+      }
+      if (buyerUsers[0]?.email) {
+        try {
+          await base44.asServiceRole.integrations.Core.SendEmail({
+            to: buyerUsers[0].email,
+            subject: `Your booking "${b.listing_title}" starts soon`,
+            body:
+              `Hi ${b.buyer_name || ''},\n\n` +
+              `This is a quick reminder: ${b.teen_display_name || 'Your teen'} is scheduled for "${b.listing_title}" at ${when}.\n\n` +
+              `View your booking here:\n${deepLink}\n\n` +
+              `— The Blockwork team`,
+          });
+        } catch (err) {
+          console.error('Booking reminder email (buyer) error:', err.message);
+        }
+      }
+
       await svc.Booking.update(b.id, { reminder_sent: true });
     }
 

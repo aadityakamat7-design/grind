@@ -53,6 +53,7 @@ export default function TeenEligibilityStep({ initialDob = "", initialState = ""
           type="date"
           className="rounded-xl mt-1 h-11"
           value={dob}
+          max={new Date().toISOString().split('T')[0]}
           onChange={(e) => { setDob(e.target.value); setError(""); }}
         />
       </div>
