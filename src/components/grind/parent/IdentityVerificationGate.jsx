@@ -51,10 +51,27 @@ export default function IdentityVerificationGate({ open, onOpenChange, onVerifie
     setStatus("checking");
     setError("");
     try {
-      await base44.functions.invoke("checkConnectStatus", {});
-      setStep("done");
-      setStatus("idle");
-      setTimeout(() => { onVerified?.(); }, 1200);
+      const res = await base44.functions.invoke("checkConnectStatus", {});
+      const s = res.data?.status;
+      // Only advance to "done" when Stripe confirms payouts are active and
+      // details are fully submitted. Otherwise the parent abandoned the
+      // onboarding without adding a bank account — stay on the bank step
+      // and tell them clearly.
+      if (s === "active") {
+        setStep("done");
+        setStatus("idle");
+        setTimeout(() => { onVerified?.(); }, 1200);
+      } else if (s === "not_setup") {
+        setError("It looks like the bank setup wasn't completed. Please connect your bank account to continue.");
+        setStatus("failed");
+      } else if (s === "restricted") {
+        setError("Your payout account still needs a few more details. Please finish the bank setup to continue.");
+        setStatus("failed");
+      } else {
+        // pending — Stripe is still processing. Let them retry shortly.
+        setError("Stripe is still confirming your bank details — this usually takes a few minutes. Try again in a moment.");
+        setStatus("failed");
+      }
     } catch (err) {
       setError(err.response?.data?.error || "We couldn't confirm your bank connection.");
       setStatus("failed");
