@@ -76,7 +76,7 @@ export default function BuyerHome() {
             <Search className="w-6 h-6" />
           </div>
           <div className="flex-1">
-            <p className="font-bold text-[15px]">Browse & book local teens</p>
+            <p className="font-bold text-[15px]">Browse & book nearby skills</p>
             <p className="text-[13px] opacity-80 mt-0.5">Lawn care, tutoring, pet sitting and more</p>
           </div>
           <ChevronRight className="w-5 h-5 opacity-60" />

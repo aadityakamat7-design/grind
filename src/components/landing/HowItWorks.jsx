@@ -51,7 +51,7 @@ function BrowseMock() {
   return (
     <div className="rounded-xl bg-muted border border-border p-3 space-y-2">
       <div className="flex items-center gap-1.5 text-[9px] text-muted-foreground">
-        <Search className="w-3 h-3" /> Teens near 30327
+        <Search className="w-3 h-3" /> Services near 30327
       </div>
       {[["Jordan P.", "Lawn care", "4.9"], ["Ava R.", "Tutoring", "5.0"]].map(([n, s, r]) => (
         <div key={n} className="flex items-center justify-between rounded-lg bg-card border border-border px-2 py-1.5">
@@ -109,7 +109,7 @@ const FLOWS = {
     { n: "3", title: "Get Paid", desc: "Finish the job and Blockwork pays you — automatically, no chasing.", Mock: PaidMock },
   ],
   neighbor: [
-    { n: "1", title: "Browse Local Teens", desc: "See verified teens in your neighborhood, filtered by service.", Mock: BrowseMock },
+    { n: "1", title: "Browse Local Services", desc: "See verified teen services in your neighborhood, filtered by skill.", Mock: BrowseMock },
     { n: "2", title: "Choose & Book", desc: "Pick based on ratings, skills, and reviews from real neighbors.", Mock: ChooseMock },
     { n: "3", title: "Pay Securely", desc: "You pay Blockwork up front — we pay the teen once the job is done.", Mock: PaySecureMock },
   ],

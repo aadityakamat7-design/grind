@@ -88,7 +88,7 @@ export default function Browse() {
         {buyerProfile && buyerProfile.latitude == null && (
           <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-700">
             <MapPin className="w-4 h-4 mt-0.5 shrink-0" />
-            <span>We couldn't verify your address, so nearby outdoor jobs are hidden. Update your address in <Link to="/account" className="font-semibold underline">Account</Link> to see local teens near you.</span>
+            <span>We couldn't verify your address, so nearby outdoor jobs are hidden. Update your address in <Link to="/account" className="font-semibold underline">Account</Link> to see local services near you.</span>
           </div>
         )}
 
@@ -127,7 +127,7 @@ export default function Browse() {
         </div>
 
         {filtered.length === 0 ? (
-          <EmptyState icon={Search} title="No services found" subtitle="Try a different search or category — or check back as more teens in your area join." />
+          <EmptyState icon={Search} title="No services found" subtitle="Try a different search or category — or check back as more services in your area join." />
         ) : (
           <div className="grid sm:grid-cols-2 gap-4">
             {filtered.map((l) => {

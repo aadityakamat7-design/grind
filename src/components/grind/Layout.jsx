@@ -105,7 +105,7 @@ export default function Layout() {
   if (user.app_role === 'parent' && user.has_buyer_profile) {
     tabs = [
       ...TABS.parent,
-      { divider: true, label: 'Hire Teens' },
+      { divider: true, label: 'Hire Services' },
       { to: '/browse', label: 'Browse', icon: Search },
       { to: '/jobs', label: 'Post a Job', icon: Briefcase },
       { to: '/buyer/bookings', label: 'My Bookings', icon: CalendarDays },
