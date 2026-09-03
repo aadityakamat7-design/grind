@@ -2,6 +2,8 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 import { CATEGORY_AGES, JOB_CATEGORIES, CONSERVATIVE_DEFAULT_AGE } from '../../shared/categoryAgeRules.ts';
 import { getWorkHourRules } from '../../shared/workHourRules.ts';
 import { getVerifiedAge } from '../../shared/teenAge.ts';
+import { checkRateLimit, recordFailedAttempt, recordSuccess, isCodeLocked, recordCodeFailure, getClientIp } from '../../shared/rateLimiter.ts';
+import { alertSecurityEvent } from '../../shared/securityMonitor.ts';
 
 // Looks up a teen by their invite code so a parent can review the teen's
 // info and the specific state child-labor rules BEFORE consenting. Returns
@@ -25,12 +27,41 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'A connection code is required.' }, { status: 400 });
     }
 
+    // Rate limit: max 5 lookups per 10 minutes per IP and per user. This
+    // prevents brute-forcing invite codes to enumerate teen identities. The
+    // invite code is also locked after 10 failed lookups (same threshold as
+    // confirmParentLink) so a brute-force attack locks the code before it
+    // can succeed.
+    const ip = getClientIp(req);
+    const rateCheck = checkRateLimit(ip, user.id);
+    if (!rateCheck.allowed) {
+      return Response.json({ error: 'Too many attempts. Please wait a few minutes before trying again.' }, { status: 429 });
+    }
+    if (isCodeLocked(code)) {
+      await alertSecurityEvent(base44, {
+        type: 'safety',
+        title: 'Locked invite code attempted',
+        body: `Someone tried to look up locked invite code "${code}" from IP ${ip}.`,
+      });
+      return Response.json({ error: 'This invite code has been locked due to too many failed attempts. Please contact support.' }, { status: 429 });
+    }
+
     const svc = base44.asServiceRole.entities;
     const teens = await svc.TeenProfile.filter({ invite_code: code });
     const teen = teens[0];
     if (!teen) {
+      recordFailedAttempt(ip, user.id);
+      const codeResult = recordCodeFailure(code);
+      if (codeResult.locked) {
+        await alertSecurityEvent(base44, {
+          type: 'safety',
+          title: 'Invite code locked after repeated failed lookups',
+          body: `Invite code "${code}" has been locked after ${codeResult.failCount} failed lookup attempts from IP ${ip}.`,
+        });
+      }
       return Response.json({ error: 'No teen found with that code — double-check and try again.' }, { status: 404 });
     }
+    recordSuccess(ip, user.id);
     if (teen.user_id === user.id) {
       return Response.json({ error: 'You cannot link to your own account.' }, { status: 400 });
     }

@@ -2,6 +2,7 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 import { getStripe } from '../../shared/stripeEnv.ts';
 import { applyVerifiedIdentity } from '../../shared/identityVerification.ts';
 import { recordBuyerConfirm, recordBuyerStartAfterPayment } from '../../shared/jobHandshake.ts';
+import { alertSecurityEvent } from '../../shared/securityMonitor.ts';
 
 Deno.serve(async (req) => {
   try {
@@ -19,9 +20,29 @@ Deno.serve(async (req) => {
     try {
       event = await getStripe(false).webhooks.constructEventAsync(body, signature, liveSecret);
     } catch (liveErr) {
-      if (!testSecret) throw liveErr;
-      event = await getStripe(true).webhooks.constructEventAsync(body, signature, testSecret);
-      isTestEvent = true;
+      if (!testSecret) {
+        // Signature verification failed with the live secret and no test
+        // secret is configured — this is either a forged request or a
+        // misconfigured webhook endpoint. Alert admins immediately.
+        await alertSecurityEvent(base44, {
+          type: 'safety',
+          title: '🚨 Stripe webhook signature verification failed',
+          body: `A webhook request failed signature verification. This could be a forged request or a misconfigured endpoint. Error: ${liveErr.message}. IP: ${req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'}.`,
+        });
+        throw liveErr;
+      }
+      try {
+        event = await getStripe(true).webhooks.constructEventAsync(body, signature, testSecret);
+        isTestEvent = true;
+      } catch (testErr) {
+        // Both live and test signature verification failed — forged request.
+        await alertSecurityEvent(base44, {
+          type: 'safety',
+          title: '🚨 Stripe webhook signature verification failed (live + test)',
+          body: `A webhook request failed signature verification against both live and test secrets. This is likely a forged request. Live error: ${liveErr.message}. Test error: ${testErr.message}. IP: ${req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'}.`,
+        });
+        throw testErr;
+      }
     }
     const stripe = isTestEvent ? getStripe(true) : getStripe(false);
 

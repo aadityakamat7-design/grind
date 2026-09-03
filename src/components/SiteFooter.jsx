@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Zap } from "lucide-react";
+import StripeBadge from "@/components/StripeBadge";
 
 // Subtle site-wide footer with the five required links. Appears on every page.
 export default function SiteFooter() {
@@ -31,6 +32,10 @@ export default function SiteFooter() {
               </Link>
             ))}
           </nav>
+        </div>
+        {/* Stripe trust badge on every page — reinforces payment security site-wide */}
+        <div className="flex justify-center mt-4 pt-4 border-t border-border/50">
+          <StripeBadge showText={false} />
         </div>
       </div>
     </footer>

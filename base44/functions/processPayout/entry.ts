@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 import { attemptBookingPayout } from '../../shared/payoutTransfer.ts';
+import { checkRateLimit, recordSuccess, getClientIp } from '../../shared/rateLimiter.ts';
 
 // Retries or approves a booking payout:
 // - Admins approve payouts stuck in pending_review (manual safety review).
@@ -13,6 +14,16 @@ Deno.serve(async (req) => {
 
     const { bookingId } = await req.json();
     if (!bookingId) return Response.json({ error: 'bookingId required' }, { status: 400 });
+
+    // Rate limit payout requests: max 5 per 10 minutes per IP and per user.
+    // Prevents rapid-fire payout attempts that could probe for booking IDs
+    // or try to trigger multiple transfers.
+    const ip = getClientIp(req);
+    const rateCheck = checkRateLimit(ip, user.id);
+    if (!rateCheck.allowed) {
+      return Response.json({ error: 'Too many requests. Please wait a few minutes before trying again.' }, { status: 429 });
+    }
+    recordSuccess(ip, user.id);
 
     const booking = await base44.asServiceRole.entities.Booking.get(bookingId).catch(() => null);
     if (!booking) return Response.json({ error: 'Booking not found' }, { status: 404 });

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Landmark, CheckCircle2, AlertCircle, Loader2, Lock } from "lucide-react";
+import StripeBadge from "@/components/StripeBadge";
 
 // Stripe Connect Express bank linking. The parent enters bank details directly
 // with Stripe — the app only ever stores the account id, status, and masked last 4.
@@ -104,8 +105,11 @@ export default function ConnectBankCard({ profile, onUpdated, returnPath = "/par
         <p className="text-xs text-amber-600 font-semibold mt-2">Identity verification is required before payouts can be enabled.</p>
       )}
       <p className="text-xs text-slate-400 flex items-center justify-center gap-1 mt-3">
-        <Lock className="w-3 h-3" /> Powered by Stripe Connect
+        <Lock className="w-3 h-3" /> Bank details go directly to Stripe — we never see your account or routing numbers.
       </p>
+      <div className="mt-4 pt-3 border-t border-slate-100">
+        <StripeBadge />
+      </div>
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 import { getStripeForApp, getPublishableKeyForApp } from '../../shared/stripeEnv.ts';
+import { checkRateLimit, recordFailedAttempt, recordSuccess, getClientIp } from '../../shared/rateLimiter.ts';
 
 // Creates a Stripe PaymentIntent for in-app Apple Pay / Google Pay via the
 // Payment Request Button. This is an alternative to the Stripe Checkout
@@ -16,6 +17,16 @@ Deno.serve(async (req) => {
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
     const { bookingId, jobId, getKeyOnly } = await req.json();
+
+    // Rate limit payment initiation: max 5 per 10 minutes per IP and per user.
+    // Prevents rapid-fire PaymentIntent creation (which could be used to probe
+    // for valid booking IDs or to flood Stripe with API calls).
+    const ip = getClientIp(req);
+    const rateCheck = checkRateLimit(ip, user.id);
+    if (!rateCheck.allowed) {
+      return Response.json({ error: 'Too many requests. Please wait a few minutes before trying again.' }, { status: 429 });
+    }
+    recordSuccess(ip, user.id);
 
     if (getKeyOnly) {
       return Response.json({ publishable_key: await getPublishableKeyForApp(base44) });

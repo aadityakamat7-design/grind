@@ -4,6 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { CreditCard, Lock } from "lucide-react";
 import { money } from "@/lib/grind";
+import StripeBadge from "@/components/StripeBadge";
 
 // Payment step layout (top to bottom):
 //   1. "Pay $X to start this job"
@@ -167,6 +168,12 @@ export default function ExpressCheckout({ bookingId, amount, onSuccess, onError,
       )}
 
       {errorMsg && <p className="text-xs text-destructive font-medium text-center mt-3">{errorMsg}</p>}
+
+      {/* Stripe trust badge — at the moment of purchase, right beneath the
+          payment buttons. Reassures users their card details go to Stripe. */}
+      <div className="mt-5 pt-4 border-t border-border">
+        <StripeBadge />
+      </div>
     </div>
   );
 }
