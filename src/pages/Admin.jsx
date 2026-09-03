@@ -184,7 +184,7 @@ export default function Admin() {
         </div>
       </div>
 
-      <PayoutReviewQueue bookings={bookings} onDone={load} />
+      <PayoutReviewQueue bookings={bookings} onDone={load} user={user} />
 
       <DisputeReviewQueue bookings={bookings} onDone={load} />
 

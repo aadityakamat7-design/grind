@@ -1,6 +1,7 @@
 import { getStripeForApp } from './stripeEnv.ts';
 import { notifyAdmins } from './notifyAdmins.ts';
 import { notifyParentPayoutSent } from './notifyParent.ts';
+import { reviewBookingPayout, saveReview } from './payoutReview.ts';
 
 const REVIEW_THRESHOLD = 100; // USD — payouts at/above this go to manual review
 const money = (n) => `$${Number(n || 0).toFixed(2)}`;
@@ -82,23 +83,50 @@ export async function attemptBookingPayout(base44, booking, { skipReview = false
     return { status: 'awaiting_bank' };
   }
 
-  if (!skipReview && totalAmount >= REVIEW_THRESHOLD) {
-    const reason = `Amount of ${money(totalAmount)} is over ${money(REVIEW_THRESHOLD)}`;
-    await svc.Booking.update(booking.id, { payout_status: 'pending_review', payout_review_reason: reason });
-    await svc.Notification.create({
-      user_id: destUserId,
-      type: 'payment',
-      title: 'Payout in a short safety review',
-      body: `Your ${money(totalAmount)} payout for "${booking.listing_title}" is in a brief review (${reason.toLowerCase()}). It's usually released within 1 business day.`,
-      link: returnLink,
-    });
-    await notifyAdmins(base44, {
-      type: 'payment',
-      title: 'Payout needs manual review',
-      body: `${money(totalAmount)} payout for "${booking.listing_title}" is pending review (${reason.toLowerCase()}).`,
-      link: '/admin',
-    });
-    return { status: 'pending_review', reason };
+  // Run the automated review agent before any transfer. The agent runs 8
+  // fraud/error/compliance checks and produces a risk assessment. Critical
+  // failures block the payout entirely and alert admins; medium/high risk
+  // holds for admin approval. skipReview is set only when an admin has
+  // already approved a held payout — their decision overrides the agent.
+  if (!skipReview) {
+    const review = await reviewBookingPayout(base44, booking);
+    if (review.is_critical || review.recommended_action === 'reject') {
+      await saveReview(base44, booking, review, { status: 'blocked' });
+      await svc.Booking.update(booking.id, {
+        payout_status: 'pending_review',
+        payout_review_reason: `BLOCKED: ${review.flags.join('; ')}`,
+      });
+      await notifyAdmins(base44, {
+        type: 'payment',
+        title: '🚨 Critical payout failure blocked',
+        body: `${money(review.amount)} payout for "${booking.listing_title}" was BLOCKED: ${review.flags.join('; ')}.`,
+        link: '/admin',
+      });
+      return { status: 'blocked', reason: review.flags.join('; ') };
+    }
+    if (review.recommended_action === 'hold_for_admin') {
+      await saveReview(base44, booking, review, { status: 'pending' });
+      await svc.Booking.update(booking.id, {
+        payout_status: 'pending_review',
+        payout_review_reason: review.flags.join('; ') || 'Held for admin review',
+      });
+      await svc.Notification.create({
+        user_id: destUserId,
+        type: 'payment',
+        title: 'Payout in safety review',
+        body: `Your ${money(review.amount)} payout for "${booking.listing_title}" is in a brief safety review. It's usually released within 1 business day.`,
+        link: returnLink,
+      });
+      await notifyAdmins(base44, {
+        type: 'payment',
+        title: 'Payout held for review',
+        body: `${money(review.amount)} payout for "${booking.listing_title}" held: ${review.flags.join('; ') || 'manual review trigger'}.`,
+        link: '/admin',
+      });
+      return { status: 'pending_review', reason: review.flags.join('; ') };
+    }
+    // Auto-approved — record the clearance and proceed to the transfer
+    await saveReview(base44, booking, review, { status: 'auto_approved' });
   }
 
   const stripe = await getStripeForApp(base44);

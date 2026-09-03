@@ -1,0 +1,208 @@
+{
+  "name": "PayoutReview",
+  "type": "object",
+  "properties": {
+    "booking_id": {
+      "type": "string",
+      "description": "The booking this review applies to"
+    },
+    "teen_user_id": {
+      "type": "string"
+    },
+    "parent_user_id": {
+      "type": "string"
+    },
+    "buyer_user_id": {
+      "type": "string"
+    },
+    "listing_title": {
+      "type": "string"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Total payout amount being reviewed (net + tip)"
+    },
+    "net_amount": {
+      "type": "number"
+    },
+    "tip_amount": {
+      "type": "number"
+    },
+    "is_first_payout": {
+      "type": "boolean",
+      "default": false,
+      "description": "True if this is the teen's first-ever payout (manual-review trigger)"
+    },
+    "risk_level": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "description": "Overall risk score from the agent's checks"
+    },
+    "recommended_action": {
+      "type": "string",
+      "enum": [
+        "auto_approve",
+        "hold_for_admin",
+        "reject"
+      ],
+      "description": "What the agent recommends: auto_approve = proceed, hold_for_admin = needs human, reject = block"
+    },
+    "is_critical": {
+      "type": "boolean",
+      "default": false,
+      "description": "True when a critical failure was detected (amount mismatch, duplicate transfer, self-dealing, no valid charge) \u2014 blocks the payout and alerts admins immediately",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "checks": {
+      "type": "array",
+      "description": "Every check the agent ran, with pass/fail and the specific reason for any failure",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Check identifier: amount_sanity, destination_correctness, duplicate_detection, booking_legitimacy, self_dealing, velocity_anomalies, compliance, account_status"
+          },
+          "passed": {
+            "type": "boolean"
+          },
+          "reason": {
+            "type": "string",
+            "description": "Why the check failed (empty when passed)"
+          }
+        }
+      }
+    },
+    "flags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Human-readable flag summaries \u2014 one per failed check"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "auto_approved",
+        "approved",
+        "rejected",
+        "blocked",
+        "transferred"
+      ],
+      "default": "pending",
+      "description": "pending = waiting for admin decision, auto_approved = agent cleared it, approved = admin cleared it, rejected = admin denied, blocked = critical failure, transferred = payout completed",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "reviewed_by_id": {
+      "type": "string",
+      "description": "Admin who made the decision",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "reviewed_at": {
+      "type": "string",
+      "format": "date-time",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "review_note": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Required note when rejecting; optional when approving",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "review_action": {
+      "type": "string",
+      "enum": [
+        "auto_approve",
+        "approve",
+        "reject",
+        "block"
+      ],
+      "description": "The action that was taken (auto = agent, approve/reject = admin, block = critical auto-block)",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "audit_mode": {
+      "type": "boolean",
+      "default": false,
+      "description": "True if this review was produced by a retroactive audit (not blocking a live payout)"
+    },
+    "transfer_result": {
+      "type": "string",
+      "description": "Outcome of the transfer attempt if the review led to a transfer",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "booking_id",
+    "risk_level",
+    "recommended_action"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
