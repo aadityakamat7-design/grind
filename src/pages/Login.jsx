@@ -7,6 +7,8 @@ import { Label } from "@/components/ui/label";
 import { LogIn, Mail, Lock, Loader2 } from "lucide-react";
 import AuthLayout from "@/components/AuthLayout";
 import GoogleIcon from "@/components/GoogleIcon";
+import AppleIcon from "@/components/AppleIcon";
+import FacebookIcon from "@/components/FacebookIcon";
 import { Checkbox } from "@/components/ui/checkbox";
 import VerifyEmailForm from "@/components/VerifyEmailForm";
 import { safeReturnTo } from "@/lib/authReturnTo";
@@ -68,6 +70,14 @@ export default function Login() {
     base44.auth.loginWithProvider("google", safeReturnTo());
   };
 
+  const handleProvider = (provider, label) => {
+    if (window.self !== window.top) {
+      setError(`${label} sign-in isn't available inside the preview. Use email and password here, or open the published app to use ${label}.`);
+      return;
+    }
+    base44.auth.loginWithProvider(provider, safeReturnTo());
+  };
+
   if (needsVerification) {
     return (
       <AuthLayout
@@ -96,12 +106,31 @@ export default function Login() {
     >
       <Button
         variant="outline"
-        className="w-full h-12 text-sm font-medium mb-6"
+        className="w-full h-12 text-sm font-medium mb-3"
         onClick={handleGoogle}
       >
         <GoogleIcon className="w-5 h-5 mr-2" />
         Continue with Google
       </Button>
+
+      <div className="grid grid-cols-2 gap-3 mb-6">
+        <Button
+          variant="outline"
+          className="h-12 text-sm font-medium"
+          onClick={() => handleProvider("apple", "Apple")}
+        >
+          <AppleIcon className="w-5 h-5 mr-2" />
+          Apple
+        </Button>
+        <Button
+          variant="outline"
+          className="h-12 text-sm font-medium"
+          onClick={() => handleProvider("facebook", "Facebook")}
+        >
+          <FacebookIcon className="w-5 h-5 mr-2" />
+          Facebook
+        </Button>
+      </div>
 
       <div className="relative mb-6">
         <div className="absolute inset-0 flex items-center">

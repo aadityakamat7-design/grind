@@ -9,6 +9,8 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp
 import { Checkbox } from "@/components/ui/checkbox";
 import AuthLayout from "@/components/AuthLayout";
 import GoogleIcon from "@/components/GoogleIcon";
+import AppleIcon from "@/components/AppleIcon";
+import FacebookIcon from "@/components/FacebookIcon";
 import RolePicker from "@/components/grind/onboarding/RolePicker";
 import LegalModal from "@/components/grind/LegalModal";
 import TeenEligibilityStep from "@/components/grind/onboarding/TeenEligibilityStep";
@@ -86,12 +88,19 @@ export default function Register() {
   };
 
   const handleGoogle = () => {
-    // Google OAuth can't run inside an embedded preview frame — no new tabs, just explain
     if (window.self !== window.top) {
       setError("Google sign-up isn't available inside the preview. Use email and password here, or open the published app to use Google.");
       return;
     }
     base44.auth.loginWithProvider("google", safeReturnTo());
+  };
+
+  const handleProvider = (provider, label) => {
+    if (window.self !== window.top) {
+      setError(`${label} sign-up isn't available inside the preview. Use email and password here, or open the published app to use ${label}.`);
+      return;
+    }
+    base44.auth.loginWithProvider(provider, safeReturnTo());
   };
 
   const pickRole = (r) => {
@@ -229,12 +238,31 @@ export default function Register() {
       </button>
       <Button
         variant="outline"
-        className="w-full h-12 text-sm font-medium mb-6"
+        className="w-full h-12 text-sm font-medium mb-3"
         onClick={handleGoogle}
       >
         <GoogleIcon className="w-5 h-5 mr-2" />
         Continue with Google
       </Button>
+
+      <div className="grid grid-cols-2 gap-3 mb-6">
+        <Button
+          variant="outline"
+          className="h-12 text-sm font-medium"
+          onClick={() => handleProvider("apple", "Apple")}
+        >
+          <AppleIcon className="w-5 h-5 mr-2" />
+          Apple
+        </Button>
+        <Button
+          variant="outline"
+          className="h-12 text-sm font-medium"
+          onClick={() => handleProvider("facebook", "Facebook")}
+        >
+          <FacebookIcon className="w-5 h-5 mr-2" />
+          Facebook
+        </Button>
+      </div>
 
       <div className="relative mb-6">
         <div className="absolute inset-0 flex items-center">
