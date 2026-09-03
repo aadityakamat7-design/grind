@@ -1,6 +1,7 @@
 // Shared constants, helpers, and safety logic for Blockwork
 
-export const PLATFORM_FEE_RATE = 0.15;
+export const PLATFORM_FEE_RATE = 0.125;
+export const PLATFORM_FEE_FIXED = 0.65;
 
 // Price caps — enforced server-side via entity schema, mirrored here for
 // client-side validation so users get immediate feedback before Stripe.
@@ -165,7 +166,7 @@ export function maskPII(body, isConfirmed) {
 }
 
 export function computeFees(total) {
-  const platform_fee = Math.round(total * PLATFORM_FEE_RATE * 100) / 100;
+  const platform_fee = Math.round((total * PLATFORM_FEE_RATE + PLATFORM_FEE_FIXED) * 100) / 100;
   const net_amount = Math.round((total - platform_fee) * 100) / 100;
   return { platform_fee, net_amount };
 }

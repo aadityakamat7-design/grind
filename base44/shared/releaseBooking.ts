@@ -2,16 +2,18 @@
 // credit, Stripe Connect transfer to the parent, notifications, and referral
 // completion. The tip amount passed here must already have been charged through
 // Stripe (or be zero).
+import { calculatePlatformFee, calculateNetAmount } from './platformFee.ts';
+
 const money = (n) => `$${Number(n || 0).toFixed(2)}`;
 
 export async function releaseBookingPayment(base44, booking, tip) {
   const svc = base44.asServiceRole.entities;
   const tipAmt = Math.max(0, Math.round((Number(tip) || 0) * 100) / 100);
-  // Enforce the 85/15 split server-side: the teen nets 85% of the job price,
-  // the platform keeps 15%. Tips pass through 100% to the teen.
+  // Enforce the platform fee server-side: 12.5% + $0.65 per transaction.
+  // Tips pass through 100% to the teen.
   const gross = Math.round((Number(booking.price_total) || 0) * 100) / 100;
-  const platformFee = Math.round(gross * 0.15 * 100) / 100;
-  const netBase = Math.round((gross - platformFee) * 100) / 100;
+  const platformFee = calculatePlatformFee(gross);
+  const netBase = calculateNetAmount(gross);
   const teenGets = Math.round((netBase + tipAmt) * 100) / 100;
 
   await svc.Booking.update(booking.id, {

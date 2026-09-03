@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 import { getDeliveryMode, isRemovedCategory } from '../../shared/deliveryMode.ts';
+import { calculatePlatformFee, calculateNetAmount } from '../../shared/platformFee.ts';
 
 const MAX_UNIT_PRICE = 500;
 const MIN_TITLE = 3;
@@ -119,8 +120,8 @@ Respond with:
     }
 
     const gross = Math.round(price * 100) / 100;
-    const platformFee = Math.round(gross * 0.15 * 100) / 100;
-    const netAmount = Math.round((gross - platformFee) * 100) / 100;
+    const platformFee = calculatePlatformFee(gross);
+    const netAmount = calculateNetAmount(gross);
 
     // Jobs go live immediately after passing the AI screen — no posting fee.
     // The neighbor pays via Stripe at the "Start job" handshake, and funds are

@@ -5,6 +5,7 @@ import { getDeliveryMode, isRemovedCategory, generateSessionLink } from '../../s
 import { notifyParentJobAccepted } from '../../shared/notifyParent.ts';
 import { getSafeOrigin } from '../../shared/safeOrigin.ts';
 import { enforceBookingHours } from '../../shared/workHourEnforcement.ts';
+import { calculatePlatformFee, calculateNetAmount } from '../../shared/platformFee.ts';
 
 // Runs the teen's "take this job" flow server-side, since JobPost.status is
 // locked to admin/service-role writes (so a buyer/teen can never flip a job
@@ -85,8 +86,8 @@ Deno.serve(async (req) => {
     }
 
     const gross = Number(job.price) || 0;
-    const platformFee = job.platform_fee != null ? job.platform_fee : Math.round(gross * 0.15 * 100) / 100;
-    const netAmount = job.net_amount != null ? job.net_amount : Math.round((gross - platformFee) * 100) / 100;
+    const platformFee = job.platform_fee != null ? job.platform_fee : calculatePlatformFee(gross);
+    const netAmount = job.net_amount != null ? job.net_amount : calculateNetAmount(gross);
 
     // Enforce state child-labor hour limits before claiming the job, so a teen
     // over their daily/weekly limit or in a prohibited time window can't accept.

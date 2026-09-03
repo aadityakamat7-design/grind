@@ -8,6 +8,7 @@ import { getVerifiedAge } from './teenAge.ts';
 import { isEligibleForCategory } from './categoryAgeRules.ts';
 import { getHourLimits } from './stateHourLimits.ts';
 import { getStateTimezone, getLocalHour, isSchoolDayDateLocal, isSummerDateLocal } from './localTime.ts';
+import { calculatePlatformFee, calculateNetAmount } from './platformFee.ts';
 
 export const REVIEW_THRESHOLD = 100; // USD — payouts at/above this trigger review
 const money = (n: number) => `$${Number(n || 0).toFixed(2)}`;
@@ -72,13 +73,13 @@ export async function reviewBookingPayout(base44, booking: any): Promise<PayoutR
   const tipAmount = Math.round((Number(booking.tip_amount) || 0) * 100) / 100;
   const totalAmount = Math.round((baseAmount + tipAmount) * 100) / 100;
   const gross = Math.round((Number(booking.price_total) || 0) * 100) / 100;
-  const expectedFee = Math.round(gross * 0.15 * 100) / 100;
-  const expectedNet = Math.round((gross - expectedFee) * 100) / 100;
+  const expectedFee = calculatePlatformFee(gross);
+  const expectedNet = calculateNetAmount(gross);
 
   // --- 1. Amount sanity ---
   const amountDiff = Math.abs(baseAmount - expectedNet);
   if (amountDiff > 0.02) {
-    checks.push({ name: 'amount_sanity', passed: false, reason: `Net ${money(baseAmount)} ≠ expected ${money(expectedNet)} (gross ${money(gross)} − 15% fee ${money(expectedFee)})` });
+    checks.push({ name: 'amount_sanity', passed: false, reason: `Net ${money(baseAmount)} ≠ expected ${money(expectedNet)} (gross ${money(gross)} − 12.5% + $0.65 fee ${money(expectedFee)})` });
     flags.push(`Amount mismatch: net ${money(baseAmount)} vs expected ${money(expectedNet)}`);
     isCritical = true;
   } else {

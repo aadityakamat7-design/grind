@@ -4,6 +4,7 @@ import { getVerifiedAge } from '../../shared/teenAge.ts';
 import { getMinAgeForCategory } from '../../shared/categoryAgeRules.ts';
 import { getDeliveryMode, isRemovedCategory, generateSessionLink } from '../../shared/deliveryMode.ts';
 import { enforceBookingHours } from '../../shared/workHourEnforcement.ts';
+import { calculatePlatformFee, calculateNetAmount } from '../../shared/platformFee.ts';
 
 Deno.serve(async (req) => {
   try {
@@ -119,8 +120,8 @@ Deno.serve(async (req) => {
         { status: 400 }
       );
     }
-    const platform_fee = Math.round(total * 0.15 * 100) / 100;
-    const net_amount = Math.round((total - platform_fee) * 100) / 100;
+    const platform_fee = calculatePlatformFee(total);
+    const net_amount = calculateNetAmount(total);
     const buyerPays = total;
 
     // 18+ teens use the platform independently — no parent approval needed.

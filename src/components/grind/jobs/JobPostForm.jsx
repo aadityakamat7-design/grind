@@ -263,7 +263,7 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
 
               <div className="bg-secondary rounded-xl p-3 text-xs text-muted-foreground space-y-1">
                 <div className="flex justify-between"><span>Stripe processing fee (incl. payout)</span><span>{money(platform_fee)}</span></div>
-                <div className="flex justify-between"><span>Teen earns (85%)</span><span>{money(net_amount)}</span></div>
+                <div className="flex justify-between"><span>Teen earns</span><span>{money(net_amount)}</span></div>
               </div>
             </div>
 
