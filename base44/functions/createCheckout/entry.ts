@@ -47,7 +47,7 @@ Deno.serve(async (req) => {
         base44_app_id: Deno.env.get('BASE44_APP_ID'),
         booking_id: booking.id,
       },
-      payment_intent_data: { metadata: { booking_id: booking.id } },
+      payment_intent_data: { metadata: { booking_id: booking.id, base44_app_id: Deno.env.get('BASE44_APP_ID') } },
     });
 
     await base44.asServiceRole.entities.Booking.update(booking.id, { stripe_session_id: session.id, is_test_mode: testMode });

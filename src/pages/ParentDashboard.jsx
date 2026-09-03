@@ -43,6 +43,17 @@ export default function ParentDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
+  // Detect Stripe return params on page load — when the user returns from
+  // Stripe Identity or Connect, the URL contains ?identity_return=1 or
+  // ?connect=return. Open the gate so the status check fires, even if the
+  // dialog was closed when the page reloaded.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("identity_return") || params.get("connect")) {
+      setVerifyOpen(true);
+    }
+  }, []);
+
   const load = useCallback(async () => {
     try {
       setError(false);

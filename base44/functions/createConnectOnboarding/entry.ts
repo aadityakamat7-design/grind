@@ -47,6 +47,7 @@ Deno.serve(async (req) => {
         type: 'express',
         email: user.email,
         business_type: 'individual',
+        business_profile: { name: 'Blockwork' },
         capabilities: { transfers: { requested: true } },
         metadata: {
           base44_app_id: Deno.env.get('BASE44_APP_ID'),

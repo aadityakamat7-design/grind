@@ -49,16 +49,25 @@ export default function ParentApprovals() {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (!params.get("setup")) return;
+    const hasSetup = params.get("setup");
+    const hasReturn = params.get("identity_return") || params.get("connect");
+    if (!hasSetup && !hasReturn) return;
     if (loading) return; // Wait for data before checking pending
-    if (pending.length === 0) {
+    // Only redirect to dashboard for the "setup" param (user was sent here
+    // to approve a booking). For Stripe returns, stay on the page so the
+    // gate can process the verification/bank result.
+    if (hasSetup && !hasReturn && pending.length === 0) {
       window.location.replace("/parent");
       return;
     }
     if (profile && (!profile.is_identity_verified || profile.connect_status !== "active")) {
       setGateOpen(true);
     }
-    window.history.replaceState({}, "", window.location.pathname);
+    // Only clear the "setup" param — leave identity_return/connect for the
+    // gate's own useEffect to detect and process.
+    if (hasSetup && !hasReturn) {
+      window.history.replaceState({}, "", window.location.pathname);
+    }
   }, [profile, pending, loading]);
 
   if (loading)

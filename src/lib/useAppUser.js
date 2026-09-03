@@ -28,19 +28,22 @@ export function useAppUser() {
     } catch {
       // If the token exists in localStorage, this is likely a transient
       // failure (e.g. returning from an external redirect like Stripe
-      // Checkout where the app reloads mid-session). Retry once before
-      // giving up — don't log the user out unnecessarily.
+      // Checkout/Identity/Connect where the app reloads mid-session).
+      // Retry up to 3 times with increasing delays before giving up.
       const token = typeof window !== 'undefined' && window.localStorage.getItem('base44_access_token');
       if (token) {
-        try {
-          await new Promise(r => setTimeout(r, 800));
-          const u = await fetchUser();
-          cachedUser = u;
-          setUser(u);
-          setLoading(false);
-          return;
-        } catch {
-          // Still failed — fall through to set user null
+        const delays = [800, 1500, 2500];
+        for (let i = 0; i < delays.length; i++) {
+          try {
+            await new Promise(r => setTimeout(r, delays[i]));
+            const u = await fetchUser();
+            cachedUser = u;
+            setUser(u);
+            setLoading(false);
+            return;
+          } catch {
+            // continue to next retry
+          }
         }
       }
       cachedUser = null;

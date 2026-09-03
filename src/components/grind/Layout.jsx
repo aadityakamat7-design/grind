@@ -66,7 +66,27 @@ export default function Layout() {
       </div>
     );
   }
-  if (!user) return <Navigate to="/" replace />;
+  if (!user) {
+    // If there's a token in localStorage but the user couldn't be loaded,
+    // this is likely a transient failure after returning from an external
+    // redirect (Stripe Identity/Connect). Show a loading state with a retry
+    // option instead of bouncing the user to the home page unsigned in.
+    const token = typeof window !== 'undefined' && window.localStorage.getItem('base44_access_token');
+    if (token) {
+      return (
+        <div className="fixed inset-0 flex items-center justify-center bg-background">
+          <div className="flex flex-col items-center gap-4">
+            <div className="w-10 h-10 border-[3px] border-muted border-t-primary rounded-full animate-spin" />
+            <p className="text-sm text-muted-foreground">Loading your session…</p>
+            <button onClick={() => reload()} className="text-sm text-primary font-medium hover:underline">
+              Retry
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return <Navigate to="/" replace />;
+  }
   if (!user.app_role || !user.onboarded) return <Navigate to="/onboarding" replace />;
 
   // Block cross-role access — but allow parents with buyer mode to access
