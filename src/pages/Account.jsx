@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useOutletContext } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,8 @@ import PageHeader from "@/components/grind/PageHeader";
 import DeleteAccountButton from "@/components/grind/DeleteAccountButton";
 import AccountReviewsTab from "@/components/grind/AccountReviewsTab";
 import ProfileSettingsCard from "@/components/grind/ProfileSettingsCard";
+import RecoveryPhoneCard from "@/components/grind/RecoveryPhoneCard";
+import { Image } from "@/components/ui/image";
 
 const ROLE_LABELS = { teen: "Teen", parent: "Parent / Guardian", buyer: "Neighbor", admin: "Admin" };
 
@@ -19,6 +21,15 @@ export default function Account() {
     .slice(0, 2)
     .join("")
     .toUpperCase();
+
+  const [teenPhoto, setTeenPhoto] = useState(null);
+
+  useEffect(() => {
+    if (user.app_role !== "teen") return;
+    base44.entities.TeenProfile.filter({ user_id: user.id })
+      .then((profiles) => setTeenPhoto(profiles[0]?.photo_url || null))
+      .catch(() => {});
+  }, [user.id, user.app_role]);
 
   const tabs = [
     { key: "profile", label: "Profile" },
@@ -48,9 +59,13 @@ export default function Account() {
       {tab === "profile" ? (
         <>
           <div className="bg-card rounded-2xl border border-border shadow-soft p-5 flex items-center gap-4">
-            <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary font-bold text-xl shrink-0">
-              {initials}
-            </div>
+            {teenPhoto ? (
+              <Image src={teenPhoto} alt="" className="w-16 h-16 rounded-2xl shrink-0" fittingType="fill" />
+            ) : (
+              <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary font-bold text-xl shrink-0">
+                {initials}
+              </div>
+            )}
             <div className="min-w-0">
               <p className="font-bold text-foreground text-[15px] truncate">{user.full_name || user.email}</p>
               <p className="text-[13px] text-muted-foreground truncate">{user.email}</p>
@@ -62,6 +77,8 @@ export default function Account() {
           </div>
 
           <ProfileSettingsCard user={user} />
+
+          <RecoveryPhoneCard user={user} />
 
           <Button
             variant="outline"

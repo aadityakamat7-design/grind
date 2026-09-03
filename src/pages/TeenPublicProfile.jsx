@@ -13,6 +13,7 @@ import ReviewCard from "@/components/grind/ReviewCard";
 import { CATEGORY_LABELS, money } from "@/lib/grind";
 import { categoryAverages } from "@/lib/ratings";
 import VerifiedSkillBadge from "@/components/grind/VerifiedSkillBadge";
+import { Image } from "@/components/ui/image";
 import { Star } from "lucide-react";
 
 export default function TeenPublicProfile() {
@@ -53,9 +54,13 @@ export default function TeenPublicProfile() {
   return (
     <div className="space-y-6">
       <div className="bg-card rounded-2xl border border-border shadow-soft p-6 text-center">
-        <div className="w-20 h-20 rounded-3xl bg-foreground flex items-center justify-center mx-auto text-background text-3xl font-bold">
-          {profile.display_name?.charAt(0)}
-        </div>
+        {profile.photo_url ? (
+          <Image src={profile.photo_url} alt={profile.display_name} className="w-20 h-20 rounded-3xl mx-auto" fittingType="fill" />
+        ) : (
+          <div className="w-20 h-20 rounded-3xl bg-foreground flex items-center justify-center mx-auto text-background text-3xl font-bold">
+            {profile.display_name?.charAt(0)}
+          </div>
+        )}
         <h1 className="text-xl font-bold text-foreground mt-3 truncate">{profile.display_name}</h1>
         <div className="flex justify-center mt-1.5">
           {profile.review_count > 0 ? (

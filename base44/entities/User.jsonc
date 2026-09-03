@@ -43,6 +43,10 @@
       "type": "string",
       "format": "date-time",
       "description": "Timestamp when the parent acknowledged payment authorization"
+    },
+    "recovery_phone": {
+      "type": "string",
+      "description": "Phone number for account recovery \u2014 private, visible only to the user and support"
     }
   }
 }

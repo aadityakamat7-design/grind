@@ -8,6 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/components/ui/use-toast";
 import { Save, MapPin, AlertCircle } from "lucide-react";
 import SkillPicker from "@/components/grind/SkillPicker";
+import PhotoUpload from "@/components/grind/PhotoUpload";
 
 // Role-aware profile editor. Only exposes fields the owner is allowed to
 // update (RLS-enforced server-side). Address/ZIP changes are re-geocoded so
@@ -53,6 +54,7 @@ export default function ProfileSettingsCard({ user }) {
           setForm({
             display_name: p.display_name || "",
             bio: p.bio || "",
+            photo_url: p.photo_url || "",
             skills: p.skills || [],
             service_radius_miles: p.service_radius_miles ?? 3,
             is_available: p.is_available !== false,
@@ -125,6 +127,7 @@ export default function ProfileSettingsCard({ user }) {
         await base44.entities.TeenProfile.update(p.id, {
           display_name: form.display_name,
           bio: form.bio,
+          photo_url: form.photo_url || "",
           skills: Array.isArray(form.skills) ? form.skills : [],
           service_radius_miles: Number(form.service_radius_miles) || 3,
           is_available: form.is_available,
@@ -212,6 +215,11 @@ export default function ProfileSettingsCard({ user }) {
 
       {role === "teen" && (
         <>
+          <PhotoUpload
+            photoUrl={form.photo_url}
+            displayName={form.display_name}
+            onChange={(url) => set("photo_url", url)}
+          />
           <Field label="Display name" hint="First name + last initial only — visible to neighbors.">
             <Input className="rounded-xl" value={form.display_name || ""} onChange={(e) => set("display_name", e.target.value)} />
           </Field>
