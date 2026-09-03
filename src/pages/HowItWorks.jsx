@@ -13,7 +13,7 @@ const STEPS = [
   {
     icon: UserCheck,
     title: "2. Match and book",
-    body: "Neighbors browse nearby teens by category, rating, and distance, or a teen accepts a posted job. For outdoor work, the address stays hidden until the booking is confirmed. For online tutoring, a video session link is generated automatically.",
+    body: "Neighbors browse nearby services by category, rating, and distance, or a teen accepts a posted job. For outdoor work, the address stays hidden until the booking is confirmed. For online tutoring, a video session link is generated automatically.",
   },
   {
     icon: ShieldCheck,
