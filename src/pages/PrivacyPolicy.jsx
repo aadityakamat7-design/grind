@@ -21,6 +21,10 @@ export default function PrivacyPolicy() {
             <strong>Plain-language summary:</strong> We collect the information needed to run a safe marketplace for outdoor tasks and online tutoring — names, dates of birth, emails, listings, messages, and limited location data during active jobs. We verify parent and teen identities using government IDs (processed by Stripe; we never store the raw images). We hold payments in escrow through Stripe. We do not sell your data. This policy explains what we collect, why, and your rights.
           </p>
 
+          <p className="text-base text-foreground bg-muted rounded-xl p-4 border border-border">
+            <strong>California only.</strong> Blockwork currently operates only in California. This policy applies solely to California residents and users. We do not currently offer services in any other state.
+          </p>
+
           <h2>1. What Data We Collect and Why</h2>
           <p><strong>Account data:</strong> Name, email, date of birth, and role (teen, parent, or neighbor). Used to create and manage your account and verify age eligibility.</p>
           <p><strong>Profile data:</strong> Display name (first name + last initial for teens), bio, photo, skills, and service area. Used to show your profile to other users.</p>
@@ -107,12 +111,9 @@ export default function PrivacyPolicy() {
             We do not knowingly collect personal information from children under 13. If you believe a child under 13 has registered, contact us and we will promptly delete the account and associated data. For teens 13–17, we obtain verifiable parental consent through identity verification and itemized acknowledgment before activating the account, as described above and in the Terms of Service.
           </p>
 
-          <h2>12. California and New York Privacy Rights</h2>
+          <h2>12. California Privacy Rights</h2>
           <p>
             <strong>California (CCPA/CPRA).</strong> California residents have the right to know what personal data is collected, request deletion, correct inaccurate data, opt out of the sale or sharing of personal data, and not be discriminated against for exercising these rights. We do not sell or share personal data as defined by California law. To exercise your rights, contact us at the email below.
-          </p>
-          <p>
-            <strong>New York.</strong> New York residents have similar rights to access, correct, and delete their personal data. For teen accounts, these rights are exercised by the parent or guardian on the teen's behalf.
           </p>
           <p>
             These rights are consistent with the rights described in Section 10 and do not limit any other rights you may have under applicable law.

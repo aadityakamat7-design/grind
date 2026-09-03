@@ -94,7 +94,7 @@ export default function StateRulesDisplay({ stateRules, teenName }) {
       <div className="bg-white rounded-lg p-2.5 border border-blue-100">
         <p className="text-[11px] font-bold text-blue-800 mb-0.5">Enforced automatically</p>
         <p className="text-[11px] text-slate-600 leading-relaxed">
-          Blockwork enforces these hour limits server-side — a booking that would push your teen over their daily or weekly limit, or that falls in a prohibited time window, is rejected automatically. The casual, irregular odd jobs offered on this platform (light outdoor tasks and online tutoring) are exempt from California's work-permit requirement under the state's odd-jobs exemption, but hour limits, age restrictions, and hazardous-occupation rules still apply. You remain responsible for monitoring your teen's total work hours, including any work outside Blockwork.
+          Blockwork enforces these hour limits server-side — a booking that would push your teen over their daily or weekly limit, or that falls in a prohibited time window, is rejected automatically. The casual, irregular odd jobs offered on this platform (light outdoor tasks and online tutoring) are generally exempt from California's work-permit requirement under the state's odd-jobs exemption for irregular casual work in private homes, as described in the California DIR Child Labor Law Pamphlet (dir.ca.gov/dlse). Parents and teens remain responsible for confirming any requirements applicable to their situation — Blockwork does not determine permit eligibility. Hour limits, age restrictions, and hazardous-occupation rules still apply. You remain responsible for monitoring your teen's total work hours, including any work outside Blockwork.
         </p>
       </div>
 

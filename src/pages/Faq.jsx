@@ -19,7 +19,7 @@ const FAQS = [
   },
   {
     q: "Do teens need a work permit?",
-    a: "No. The casual, irregular odd jobs offered on Blockwork — light outdoor tasks and online tutoring — are exempt from California's work-permit requirement under the state's odd-jobs exemption for irregular casual work in private homes. However, that exemption does not remove California's child-labor hour limits or minimum-age rules, which Blockwork enforces automatically at booking. Limits vary by the teen's age, including daily and weekly caps and prohibited time windows. Parents are responsible for monitoring their teen's total hours, including any work done outside the platform. (Blockwork currently operates in California only.)",
+    a: "Generally, no. The casual, irregular odd jobs offered on Blockwork — light outdoor tasks and online tutoring — are generally exempt from California's work-permit requirement under the state's odd-jobs exemption for irregular casual work in private homes, as described in the California DIR Child Labor Law Pamphlet (dir.ca.gov/dlse). However, parents and teens remain responsible for confirming any permit requirements applicable to their situation — Blockwork does not determine permit eligibility. This exemption does not remove California's child-labor hour limits or minimum-age rules, which Blockwork enforces automatically at booking. Limits vary by the teen's age, including daily and weekly caps and prohibited time windows. Parents are responsible for monitoring their teen's total hours, including any work done outside the platform. (Blockwork currently operates in California only.)",
   },
   {
     q: "How does parent approval work?",
@@ -68,8 +68,11 @@ export default function Faq() {
           </div>
           <h1 className="text-2xl font-bold text-foreground">Frequently asked questions</h1>
         </div>
-        <p className="text-sm text-muted-foreground leading-relaxed mb-8">
+        <p className="text-sm text-muted-foreground leading-relaxed mb-4">
           Everything people ask before joining Blockwork — how teens get paid, how we keep things safe, and what the rules are. Don't see your question? <Link to="/support" className="text-foreground font-medium hover:underline">Reach out to our team</Link>.
+        </p>
+        <p className="text-xs text-muted-foreground bg-muted rounded-xl p-3 border border-border mb-8">
+          <strong className="text-foreground">California only.</strong> Blockwork currently operates only in California. All services and rules described here apply solely to California residents.
         </p>
         <div className="space-y-4">
           {FAQS.map((f) => (

@@ -21,6 +21,10 @@ export default function TermsOfService() {
             <strong>Plain-language summary:</strong> Blockwork is a marketplace where adult neighbors hire local teens for outdoor tasks (like lawn care and car washing) performed outside the residence, and for online tutoring and tech help conducted over video. Every teen account is linked to a verified parent or guardian who approves each job and receives the earnings. Teens never enter a client's home — all in-person work happens outdoors, and all tutoring happens remotely. We hold your payment in escrow until the teen uploads photo proof of completion and the neighbor confirms the work. We are a venue — not a party to the work itself. These terms explain the rules for using Blockwork.
           </p>
 
+          <p className="text-base text-foreground bg-muted rounded-xl p-4 border border-border">
+            <strong>California only.</strong> Blockwork currently operates only in California. All services, features, and terms described here are available and apply solely to California residents. We do not currently offer services in any other state.
+          </p>
+
           <h2>1. Eligibility and Age Requirements</h2>
           <p>
             <strong>Minimum age.</strong> You must be at least 13 years old to use Blockwork. Users under 13 are not permitted.
@@ -40,7 +44,7 @@ export default function TermsOfService() {
             The specific limits that apply to a teen are shown to the parent during the consent flow and are drawn from our verified California child-labor lookup table, sourced from the California DIR Child Labor Law Pamphlet. The platform counts a teen's already-scheduled and completed hours using their verified age, and rejects any booking that would push the teen over a daily or weekly limit or that falls in a prohibited time window, with a clear message stating the limit and the teen's current total.
           </p>
           <p>
-            <strong>California odd-jobs exemption.</strong> The casual, irregular odd jobs offered on Blockwork (light outdoor tasks and online tutoring) are exempt from California's work-permit requirement under the state's odd-jobs exemption for irregular casual work in private homes. That exemption does <strong>not</strong> remove the hour limits, minimum-age restrictions, or hazardous-occupation rules described above — those still apply and are enforced by the platform.
+            <strong>California odd-jobs exemption.</strong> The casual, irregular odd jobs offered on Blockwork (light outdoor tasks and online tutoring) are generally exempt from California's work-permit requirement under the state's odd-jobs exemption for irregular casual work in private homes, as described in the California DIR Child Labor Law Pamphlet (dir.ca.gov/dlse). However, parents and teens remain responsible for confirming any permit or employment requirements applicable to their specific situation — Blockwork does not determine permit eligibility. This exemption does <strong>not</strong> remove the hour limits, minimum-age restrictions, or hazardous-occupation rules described above — those still apply and are enforced by the platform.
           </p>
           <p>
             <strong>Parent's monitoring responsibility.</strong> Parents are responsible for monitoring their teen's overall working hours — including any work the teen performs outside Blockwork — to ensure compliance with California law and to prevent the teen from working during school hours or past permitted times. The platform's limits reflect California child-labor rules but do not track hours worked off-platform.
@@ -72,10 +76,10 @@ export default function TermsOfService() {
 
           <h2>3. Our Role — Marketplace Venue</h2>
           <p>
-            Blockwork provides a technology platform that connects neighbors with teens and their parents. We are <strong>not</strong> a party to any agreement between a neighbor and a teen (or their parent). We do not employ teens, do not contract with teens, do not supervise or direct how work is performed, and are not a staffing agency, employer, or joint employer of any teen. Any work agreement is solely between the neighbor and the teen's parent or guardian.
+            Blockwork provides a technology platform that connects neighbors with teens and their parents. We are <strong>not</strong> a party to any agreement between a neighbor and a teen (or their parent). We do not employ teens, do not contract with teens, do not direct or control the manner or means of how work is performed, do not set wages (teens set their own prices), do not guarantee any volume of work, and are not a staffing agency, employer, or joint employer of any teen. Any work agreement is solely between the neighbor and the teen's parent or guardian.
           </p>
           <p>
-            Our safety features — including parent approval, identity verification, hazard screening, photo-proof completion, and in-app messaging — are risk-reduction measures. They do not constitute supervision of any job, do not guarantee that any user is safe or trustworthy, and do not guarantee that any job will be completed satisfactorily or without incident. You use Blockwork at your own risk.
+            Our safety features — including parent approval, identity verification, hazard screening, hour limits, photo-proof completion, and in-app messaging — are risk-reduction and compliance measures required by California child-labor law. They do not constitute supervision or direction of any job, do not guarantee that any user is safe or trustworthy, and do not guarantee that any job will be completed satisfactorily or without incident. You use Blockwork at your own risk.
           </p>
 
           <h2>4. No-Home-Entry Policy</h2>
@@ -201,8 +205,11 @@ export default function TermsOfService() {
           </p>
 
           <h2>17. Insurance</h2>
+          <p>
+            <strong>No insurance provided.</strong> Blockwork does not provide any insurance coverage — including general liability, workers' compensation, accident, health, or property insurance — for teens, parents, or neighbors. Blockwork is not an insurer and does not imply or represent that any coverage exists. Participants are solely responsible for obtaining and maintaining any insurance coverage they deem appropriate for their situation. Do not rely on Blockwork for any insurance protection.
+          </p>
           <p className="bg-muted rounded-xl p-4 border border-border text-foreground">
-            <strong>[PENDING LEGAL REVIEW]</strong> Whether Blockwork should carry general liability, errors-and-omissions, or other insurance, and whether users should be required to carry their own insurance, requires review by legal counsel and a determination of business needs. No insurance representation or requirement is in effect until counsel approves it.
+            <strong>[PENDING LEGAL REVIEW]</strong> Whether Blockwork should carry general liability, errors-and-omissions, or other insurance as a business, and whether users should be required to carry their own insurance as a condition of using the platform, requires review by legal counsel and a determination of business needs. The disclaimer above is in effect regardless.
           </p>
 
           <h2>18. Dispute Resolution and Governing Law</h2>

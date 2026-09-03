@@ -187,7 +187,7 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
         <Checkbox checked={stateRulesAck} onCheckedChange={setStateRulesAck} className="mt-0.5" />
         <span>
           <strong>I have read and understand the California child-labor rules shown above</strong> for
-          my teen's age, including hour limits, prohibited work hours, and category minimums. The casual, irregular odd jobs offered on this platform are exempt from California's work-permit requirement under the state's odd-jobs exemption, but hour limits, age restrictions, and hazardous-occupation rules still apply.
+          my teen's age, including hour limits, prohibited work hours, and category minimums. The casual, irregular odd jobs offered on this platform are generally exempt from California's work-permit requirement under the state's odd-jobs exemption for irregular casual work in private homes, as described in the California DIR Child Labor Law Pamphlet (dir.ca.gov/dlse). I remain responsible for confirming any requirements applicable to my teen's situation — Blockwork does not determine permit eligibility. Hour limits, age restrictions, and hazardous-occupation rules still apply.
         </span>
       </label>
 
