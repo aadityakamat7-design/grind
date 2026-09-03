@@ -1,14 +1,15 @@
 import React from "react";
 import { ShieldCheck, Landmark, CheckCircle2 } from "lucide-react";
-import { useIdentityVerification } from "@/lib/useIdentityVerification";
 
 // Payout-setup card shown on the parent dashboard when identity or bank
 // connection is not yet complete. When identity verification is disabled
 // (pilot toggle), only the bank step is shown. The button is always active
 // so the parent can set up payouts at any time.
-export default function LockedSetupCard({ profile, onStartSetup }) {
-  const { identityVerificationEnabled } = useIdentityVerification();
-
+//
+// `identityVerificationEnabled` is passed from the parent (ParentDashboard)
+// so there's a single source of truth for the toggle state — no separate
+// hook instance that could cause mismatched renders.
+export default function LockedSetupCard({ profile, onStartSetup, identityVerificationEnabled = true }) {
   const identityDone = identityVerificationEnabled ? !!profile?.is_identity_verified : true;
   const bankDone = profile?.connect_status === "active";
   const setupComplete = identityDone && bankDone;

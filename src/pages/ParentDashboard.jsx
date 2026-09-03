@@ -163,16 +163,8 @@ export default function ParentDashboard() {
         {(() => {
           const identityDone = identityVerificationEnabled ? parentProfile?.is_identity_verified : true;
           const setupComplete = identityDone && parentProfile?.connect_status === "active";
-          return (
-            <>
-              {setupComplete && (
-                <PayoutStatusCard profile={parentProfile} onUpdated={load} returnPath="/parent" />
-              )}
-              {!setupComplete && (
-                <LockedSetupCard profile={parentProfile} onStartSetup={() => setVerifyOpen(true)} />
-              )}
-            </>
-          );
+          if (setupComplete) return <PayoutStatusCard profile={parentProfile} onUpdated={load} returnPath="/parent" />;
+          return <LockedSetupCard profile={parentProfile} onStartSetup={() => setVerifyOpen(true)} identityVerificationEnabled={identityVerificationEnabled} />;
         })()}
 
         <ParentStatsGrid records={records} bookings={bookings} links={links} teenProfiles={teenProfiles} pendingApprovals={bookings.filter((b) => b.status === "pending_parent_approval").length} />
