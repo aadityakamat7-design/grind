@@ -60,7 +60,7 @@ export default function About() {
               <div>
                 <h2 className="font-bold text-foreground text-sm">How it works</h2>
                 <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
-                  Teens create listings for services they offer. Neighbors post jobs or browse teen profiles. When a teen accepts a job, their parent approves it. Payment is held in escrow until the job is done, then released to the parent's connected bank account. The teen earns money in their Blockwork Wallet.
+                  Teens create listings for services they offer. Neighbors post jobs or browse service listings. When a teen accepts a job, their parent approves it. Payment is held in escrow until the job is done, then released to the parent's connected bank account. The teen earns money in their Blockwork Wallet.
                 </p>
               </div>
             </div>

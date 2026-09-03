@@ -52,7 +52,7 @@ export default function BuyerBookings() {
         <EmptyState
           icon={CalendarDays}
           title="No bookings yet"
-          subtitle="Browse teens in your neighborhood and book your first job."
+          subtitle="Browse services in your neighborhood and book your first job."
           action={<Link to="/browse" className="inline-flex items-center gap-1.5 bg-primary text-primary-foreground text-[13px] font-semibold rounded-full px-5 h-10 shadow-soft hover:opacity-90 transition-opacity">Browse services</Link>}
         />
       ) : (

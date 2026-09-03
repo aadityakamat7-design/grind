@@ -100,9 +100,9 @@ export default function BuyerHome() {
           </h2>
           {upcoming.length === 0 ? (
             <div className="bg-card rounded-2xl border border-border p-6 text-center">
-              <p className="text-[14px] text-muted-foreground">Nothing booked yet — browse local teens and set up your first appointment.</p>
+              <p className="text-[14px] text-muted-foreground">Nothing booked yet — browse local services and set up your first appointment.</p>
               <Link to="/browse" className="inline-flex items-center gap-1.5 mt-4 bg-primary text-primary-foreground text-[13px] font-semibold rounded-full px-5 h-10 shadow-soft hover:opacity-90 transition-opacity">
-                <Search className="w-4 h-4" /> Browse teens
+                <Search className="w-4 h-4" /> Browse services
               </Link>
             </div>
           ) : (

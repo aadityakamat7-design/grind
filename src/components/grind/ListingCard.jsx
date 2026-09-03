@@ -62,8 +62,7 @@ export default function ListingCard({ listing, teen, to }) {
           {creds.length > 0 && <VerifiedSkillBadge credentials={creds} />}
         </div>
         <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{listing.description}</p>
-        <div className="flex items-center justify-between gap-2 mt-3">
-          <p className="text-xs font-medium text-foreground">by {listing.teen_display_name}</p>
+        <div className="flex items-center justify-end gap-2 mt-3">
           {teen && (teen.review_count > 0 ? (
             <RatingStars rating={teen.avg_rating} count={teen.review_count} />
           ) : (

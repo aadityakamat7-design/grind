@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ShieldCheck, Lock, MessageCircle, Video, Sun } from "lucide-react";
+import { ShieldCheck, Lock, MessageCircle, Video, Sun, MapPin, Pencil } from "lucide-react";
 import { computeFees, money, isOnlineCategory } from "@/lib/grind";
 import SafetyAdvisorChat from "@/components/grind/SafetyAdvisorChat";
 import SlideToConfirm from "@/components/grind/SlideToConfirm";
@@ -18,6 +18,7 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
   const [when, setWhen] = useState("");
   const [hours, setHours] = useState(1);
   const [address, setAddress] = useState(buyerProfile?.address || "");
+  const [overrideAddress, setOverrideAddress] = useState(false);
   const [notes, setNotes] = useState("");
   const [recurrence, setRecurrence] = useState("none");
   const [saving, setSaving] = useState(false);
@@ -92,9 +93,23 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
           {!isOnline && (
             <div>
               <Label>Job address</Label>
-              <Input className="rounded-xl mt-1" placeholder="Where will the job happen?" value={address} onChange={(e) => setAddress(e.target.value)} />
+              {overrideAddress ? (
+                <Input className="rounded-xl mt-1" placeholder="Where will the job happen?" value={address} onChange={(e) => setAddress(e.target.value)} />
+              ) : (
+                <div className="mt-1 flex items-center gap-2 rounded-xl border border-border bg-secondary/50 px-3.5 py-2.5">
+                  <MapPin className="w-4 h-4 text-muted-foreground shrink-0" />
+                  <span className="text-sm text-foreground truncate flex-1">{address || "No address on file"}</span>
+                  <button
+                    type="button"
+                    onClick={() => setOverrideAddress(true)}
+                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary hover:underline"
+                  >
+                    <Pencil className="w-3 h-3" /> Change
+                  </button>
+                </div>
+              )}
               <p className="text-xs text-slate-400 mt-1 flex items-center gap-1">
-                <Lock className="w-3 h-3" /> Only shared after the parent approves.
+                <Lock className="w-3 h-3" /> Using your saved address. Only shared after the parent approves.
               </p>
             </div>
           )}

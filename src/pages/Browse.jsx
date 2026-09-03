@@ -68,7 +68,7 @@ export default function Browse() {
     .filter(
       (l) =>
         !search ||
-        `${l.title} ${l.description} ${l.teen_display_name}`.toLowerCase().includes(search.toLowerCase())
+        `${l.title} ${l.description}`.toLowerCase().includes(search.toLowerCase())
     )
     .sort((a, b) => {
       const aInArea = a.delivery_mode === "online" || a._inArea;
@@ -81,7 +81,7 @@ export default function Browse() {
   return (
     <PullToRefresh onRefresh={load}>
       <div className="space-y-5">
-        <PageHeader title="Find local help" subtitle={myZip ? `Showing teens near ${myZip}` : "Browse trusted teens in your area."}>
+        <PageHeader title="Find local help" subtitle={myZip ? `Showing services near ${myZip}` : "Browse trusted services in your area."}>
           {myZip && <span className="flex items-center gap-1 text-[13px] text-muted-foreground"><MapPin className="w-3.5 h-3.5" /> {myZip}</span>}
         </PageHeader>
 
