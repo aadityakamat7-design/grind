@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { ShieldCheck, CalendarDays, MapPin, AlertCircle } from "lucide-react";
+import { ShieldCheck, CalendarDays, MapPin, Lock } from "lucide-react";
 import { format } from "date-fns";
 import { money } from "@/lib/grind";
-import IdentityVerificationGate from "@/components/grind/parent/IdentityVerificationGate";
 import { useApprovalWithVerification } from "@/hooks/useApprovalWithVerification";
 
 export default function ApprovalQueue({ pending, onDecided }) {
@@ -17,19 +16,17 @@ export default function ApprovalQueue({ pending, onDecided }) {
 
   useEffect(() => { loadProfile(); }, [loadProfile]);
 
-  const { gateOpen, setGateOpen, attempt, onVerified, acting, initialStep } = useApprovalWithVerification(profile, onDecided);
+  const { attempt, acting } = useApprovalWithVerification(profile, onDecided);
 
   return (
     <div>
-      <IdentityVerificationGate open={gateOpen} onOpenChange={setGateOpen} onVerified={onVerified} initialStep={initialStep} />
-
       <h2 className="font-bold text-foreground mb-3 flex items-center gap-1.5">
         <ShieldCheck className="w-4 h-4 text-muted-foreground" /> Approval queue
       </h2>
-      {pending.length > 0 && (!profile?.is_identity_verified || profile?.connect_status !== "active") && (
+      {pending.length > 0 && profile?.connect_status !== "active" && (
         <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-700 mb-3">
-          <AlertCircle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
-          <span>Complete identity verification and bank setup to approve jobs. Tap "Approve" on any job below to start the setup.</span>
+          <Lock className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+          <span>Earnings will be locked until you connect your bank account. Your teen can still do the job — they just won't be able to withdraw until setup is complete.</span>
         </div>
       )}
       {pending.length === 0 ? (

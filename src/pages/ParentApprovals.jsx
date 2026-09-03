@@ -2,12 +2,11 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useOutletContext } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { ShieldCheck, MapPin, CalendarDays, FileText } from "lucide-react";
+import { ShieldCheck, MapPin, CalendarDays, FileText, Lock } from "lucide-react";
 import { format } from "date-fns";
 import EmptyState from "@/components/grind/EmptyState";
 import PageHeader from "@/components/grind/PageHeader";
 import { money } from "@/lib/grind";
-import IdentityVerificationGate from "@/components/grind/parent/IdentityVerificationGate";
 import { useApprovalWithVerification } from "@/hooks/useApprovalWithVerification";
 import ErrorRetry from "@/components/grind/ErrorRetry";
 
@@ -45,30 +44,19 @@ export default function ParentApprovals() {
     return unsub;
   }, [load]);
 
-  const { gateOpen, setGateOpen, attempt, onVerified, acting, initialStep } = useApprovalWithVerification(profile, load);
+  const { attempt, acting } = useApprovalWithVerification(profile, load);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const hasSetup = params.get("setup");
-    const hasReturn = params.get("identity_return") || params.get("connect");
-    if (!hasSetup && !hasReturn) return;
-    if (loading) return; // Wait for data before checking pending
-    // Only redirect to dashboard for the "setup" param (user was sent here
-    // to approve a booking). For Stripe returns, stay on the page so the
-    // gate can process the verification/bank result.
-    if (hasSetup && !hasReturn && pending.length === 0) {
+    if (!hasSetup) return;
+    if (loading) return;
+    if (pending.length === 0) {
       window.location.replace("/parent");
       return;
     }
-    if (profile && (!profile.is_identity_verified || profile.connect_status !== "active")) {
-      setGateOpen(true);
-    }
-    // Only clear the "setup" param — leave identity_return/connect for the
-    // gate's own useEffect to detect and process.
-    if (hasSetup && !hasReturn) {
-      window.history.replaceState({}, "", window.location.pathname);
-    }
-  }, [profile, pending, loading]);
+    window.history.replaceState({}, "", window.location.pathname);
+  }, [pending, loading]);
 
   if (loading)
     return (
@@ -80,8 +68,6 @@ export default function ParentApprovals() {
 
   return (
     <div className="space-y-5">
-      <IdentityVerificationGate open={gateOpen} onOpenChange={setGateOpen} onVerified={onVerified} initialStep={initialStep} />
-
       <PageHeader title="Approvals" subtitle="Every booking needs your OK before it's confirmed." />
 
       {pending.length === 0 ? (
@@ -124,13 +110,12 @@ export default function ParentApprovals() {
                 <p className="text-[12px] text-muted-foreground/70 mt-3">
                   No payment yet — the neighbor pays when both sides start the job. Denying cancels the booking.
                 </p>
-                {(!profile?.is_identity_verified || profile?.connect_status !== "active") && (
+                {profile?.connect_status !== "active" && (
                   <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-xl p-3 text-[12px] text-amber-700 mt-3">
-                    <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5" />
+                    <Lock className="w-4 h-4 shrink-0 mt-0.5" />
                     <span>
-                      <strong className="font-semibold">Complete setup to approve this job.</strong>
-                      {!profile?.is_identity_verified ? " Verify your identity" : " Connect your bank account"}
-                      {" first — tap Approve to start the guided setup."}
+                      <strong className="font-semibold">Earnings will be locked.</strong> Your teen can do this job, but their earnings won't be withdrawable until you{" "}
+                      <a href="/parent" className="underline font-semibold">connect your bank account</a>.
                     </span>
                   </div>
                 )}

@@ -1,6 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 import { refundHeldPayment } from '../../shared/stripeRefund.ts';
-import { isIdentityVerificationEnabled } from '../../shared/identityVerificationEnabled.ts';
 
 Deno.serve(async (req) => {
   try {
@@ -19,20 +18,11 @@ Deno.serve(async (req) => {
     }
 
     if (approve) {
-      // The parent must have passed ID verification before they can APPROVE a
-      // booking. This is the core safety gate — an unverified parent cannot
-      // release their teen into a job. Denial/refund does NOT require verification.
-      const profiles = await base44.asServiceRole.entities.ParentProfile.filter({ user_id: user.id });
-      const identityRequired = await isIdentityVerificationEnabled(base44);
-      if (identityRequired && !profiles[0]?.is_identity_verified) {
-        return Response.json({ error: 'You must verify your identity before approving bookings. Complete ID verification in your dashboard.' }, { status: 403 });
-      }
-      // The parent must also have an active Stripe Connect payout account.
-      // This is the second safety gate — payouts cannot flow to an unconnected
-      // parent, so approval is blocked until the bank account is active.
-      if (profiles[0]?.connect_status !== 'active') {
-        return Response.json({ error: 'You need to connect your bank account before approving bookings. Complete payout setup in your dashboard.' }, { status: 403 });
-      }
+      // Parents can approve bookings freely — identity verification and bank
+      // (Stripe Connect) setup are NOT required to approve. The teen can do
+      // the job and earn money, but the earnings are locked in the Blockwork
+      // Wallet and cannot be withdrawn until the parent completes payout
+      // setup (walletCashOut and attemptBookingPayout both enforce this).
       await base44.asServiceRole.entities.Booking.update(booking.id, { status: 'confirmed' });
       const threads = await base44.asServiceRole.entities.MessageThread.filter({ booking_id: booking.id });
       if (threads[0]) {
