@@ -20,7 +20,7 @@ export default function ShareInvite({ code }) {
   const share = async () => {
     if (navigator.share) {
       try {
-        await navigator.share({ title: "Join me on Blockwork", text: shareText, url: inviteUrl });
+        await navigator.share({ title: "Join me on Blockwork", text: shareText });
       } catch { /* user cancelled */ }
     } else {
       copyLink();
