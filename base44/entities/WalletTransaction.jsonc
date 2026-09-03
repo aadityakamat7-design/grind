@@ -15,6 +15,15 @@
     "amount": {
       "type": "number"
     },
+    "status": {
+      "type": "string",
+      "enum": [
+        "completed",
+        "processing"
+      ],
+      "default": "completed",
+      "description": "processing = cash-out submitted but funds haven't settled yet (24-48 hour window)"
+    },
     "description": {
       "type": "string"
     },

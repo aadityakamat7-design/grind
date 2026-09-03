@@ -1,5 +1,5 @@
 import React from "react";
-import { ArrowDownLeft, ArrowUpRight } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, Clock } from "lucide-react";
 import { format } from "date-fns";
 import { money } from "@/lib/grind";
 
@@ -16,6 +16,7 @@ export default function TransactionList({ transactions }) {
       {transactions.map((t) => {
         const c = CONFIG[t.type] || CONFIG.earning;
         const Icon = c.icon;
+        const isProcessing = t.status === "processing";
         return (
           <div key={t.id} className="flex items-center gap-3 bg-white rounded-2xl border border-slate-100 shadow-sm p-3.5">
             <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${c.style}`}>
@@ -23,8 +24,13 @@ export default function TransactionList({ transactions }) {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-slate-900 truncate">{t.description || t.type}</p>
-              <p className="text-[11px] text-slate-400">
+              <p className="text-[11px] text-slate-400 flex items-center gap-1.5">
                 {t.occurred_at ? format(new Date(t.occurred_at), "MMM d, yyyy") : ""}
+                {isProcessing && (
+                  <span className="inline-flex items-center gap-0.5 text-amber-600 font-medium">
+                    <Clock className="w-3 h-3" /> Processing
+                  </span>
+                )}
               </p>
             </div>
             <p className={`font-bold text-sm ${t.type === "earning" ? "text-emerald-600" : "text-slate-700"}`}>

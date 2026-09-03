@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useOutletContext, Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { ArrowUpRight, FileText, Wallet, Bot } from "lucide-react";
+import { ArrowUpRight, FileText, Wallet, Bot, Lock } from "lucide-react";
 import { getOrCreateWallet } from "@/lib/wallet";
 import { money } from "@/lib/grind";
 import TransactionList from "@/components/grind/wallet/TransactionList";
@@ -17,6 +17,7 @@ export default function TeenWallet() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [cashOutOpen, setCashOutOpen] = useState(false);
+  const [withdrawalsLocked, setWithdrawalsLocked] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -25,6 +26,9 @@ export default function TeenWallet() {
       const txns = await base44.entities.WalletTransaction.filter({ teen_user_id: user.id }, "-occurred_at", 30);
       setWallet(w);
       setTransactions(txns);
+      // Check if the parent has locked withdrawals
+      const links = await base44.entities.ParentTeenLink.filter({ teen_user_id: user.id, status: "confirmed" });
+      setWithdrawalsLocked(!!links[0]?.withdrawals_locked);
     } catch (err) {
       console.error("TeenWallet load failed:", err);
       setError(true);
@@ -58,8 +62,24 @@ export default function TeenWallet() {
         <p className="text-[12px] opacity-70 mt-2">Job payouts land here the moment a neighbor releases payment.</p>
       </div>
 
+      {withdrawalsLocked && (
+        <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-2xl p-4">
+          <Lock className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm font-semibold text-amber-700">Withdrawals paused</p>
+            <p className="text-xs text-amber-600 mt-1">
+              Your parent has paused cash-outs from your wallet. Ask them to re-enable withdrawals from their dashboard.
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-2 gap-3">
-        <Button className="rounded-full h-12" disabled={(wallet.balance || 0) <= 0} onClick={() => setCashOutOpen(true)}>
+        <Button
+          className="rounded-full h-12"
+          disabled={(wallet.balance || 0) <= 0 || withdrawalsLocked}
+          onClick={() => setCashOutOpen(true)}
+        >
           <ArrowUpRight className="w-4 h-4 mr-1.5" /> Cash out
         </Button>
         <Link to="/withdrawal-assistant">

@@ -76,6 +76,11 @@
         }
       }
     },
+    "withdrawals_locked": {
+      "type": "boolean",
+      "default": false,
+      "description": "When true, the teen cannot cash out their Blockwork Wallet balance. The parent toggles this from their dashboard. No field-level RLS \u2014 the parent can update it via the entity-level update rule."
+    },
     "description": {
       "type": "string",
       "maxLength": 1000

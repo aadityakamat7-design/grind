@@ -23,6 +23,7 @@ import { EarningsAreaChart } from "@/components/grind/TimeRangeChart";
 import ErrorRetry from "@/components/grind/ErrorRetry";
 import PullToRefresh from "@/components/PullToRefresh";
 import BuyerModeCard from "@/components/grind/parent/BuyerModeCard";
+import WithdrawalLockCard from "@/components/grind/parent/WithdrawalLockCard";
 
 export default function ParentDashboard() {
   const { user, reload } = useOutletContext();
@@ -205,6 +206,7 @@ export default function ParentDashboard() {
                 teenAge={teenAge}
                 bookings={teenBookings}
               />
+              <WithdrawalLockCard link={l} onUpdated={load} />
               <StudentIncomeCard
                 name={l.teen_display_name?.split(" ")[0]}
                 total={total}

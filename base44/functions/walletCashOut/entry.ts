@@ -17,29 +17,47 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Insufficient balance' }, { status: 400 });
     }
 
+    // Check if the parent has locked withdrawals for this teen
+    const links = await base44.asServiceRole.entities.ParentTeenLink.filter({ teen_user_id: user.id, status: 'confirmed' });
+    const link = links[0];
+    if (link?.withdrawals_locked) {
+      return Response.json({
+        success: false,
+        locked: true,
+        message: 'Your parent has paused withdrawals. Ask them to re-enable withdrawals from their dashboard.',
+      });
+    }
+
+    // Record the cash-out as "processing" — funds settle in 24-48 hours.
+    // The wallet balance is deducted immediately so the teen can't double-spend;
+    // the actual transfer to the parent's bank happens via the normal payout flow.
     await base44.asServiceRole.entities.WalletTransaction.create({
       teen_user_id: user.id,
       type: 'cashout',
+      status: 'processing',
       amount: amt,
-      description: 'Instant cash-out to parent account',
+      description: 'Cash-out — processing (24-48 hours)',
       occurred_at: new Date().toISOString(),
     });
     await base44.asServiceRole.entities.WalletAccount.update(wallet.id, {
       balance: Math.round(((wallet.balance || 0) - amt) * 100) / 100,
     });
 
-    const links = await base44.asServiceRole.entities.ParentTeenLink.filter({ teen_user_id: user.id, status: 'confirmed' });
-    if (links[0]?.parent_user_id) {
+    if (link?.parent_user_id) {
       await base44.asServiceRole.entities.Notification.create({
-        user_id: links[0].parent_user_id,
+        user_id: link.parent_user_id,
         type: 'payment',
-        title: 'Teen cash-out',
-        body: `$${amt.toFixed(2)} was cashed out from the Blockwork Wallet to your account.`,
+        title: 'Teen cash-out requested',
+        body: `$${amt.toFixed(2)} cash-out requested from the Blockwork Wallet. Processing in 24-48 hours.`,
         link: '/parent/payouts',
       });
     }
 
-    return Response.json({ success: true });
+    return Response.json({
+      success: true,
+      processing: true,
+      message: 'Cash-out submitted. Please allow 24-48 hours for processing.',
+    });
   } catch (error) {
     console.error('walletCashOut error:', error.message);
     return Response.json({ error: 'Something went wrong' }, { status: 500 });
