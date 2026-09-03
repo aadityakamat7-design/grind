@@ -38,7 +38,7 @@ function TermsContent() {
         <p>Blockwork is a venue that connects neighbors with teens and their parents. We are not a party to any agreement between a neighbor and a teen. We do not employ teens and are not responsible for the quality, safety, or legality of any service.</p>
       </Section>
       <Section title="4. Fees and Payments">
-        <p><strong>Platform fee.</strong> A service fee is deducted from the teen's earnings before payout.</p>
+        <p><strong>Stripe processing fee.</strong> A processing fee (including payout) is deducted from the teen's earnings before payout.</p>
         <p><strong>Escrow.</strong> Payment is charged through Stripe and held in escrow. Funds are released to the teen's parent only when both sides confirm the job is finished. If cancelled or denied, the neighbor is refunded.</p>
         <p><strong>Payouts.</strong> Earnings are paid to the parent's connected Stripe Connect account, not directly to the teen.</p>
       </Section>

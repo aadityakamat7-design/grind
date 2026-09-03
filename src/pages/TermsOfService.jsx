@@ -118,7 +118,7 @@ export default function TermsOfService() {
 
           <h2>7. Fees and Payments</h2>
           <p>
-            <strong>Platform fee.</strong> Blockwork charges a service fee on each completed booking. The fee is deducted from the teen's earnings before payout to the parent. The current fee rate is shown at checkout and on the earnings screen.
+            <strong>Stripe processing fee.</strong> Blockwork charges a Stripe processing fee (including payout) on each completed booking. The fee is deducted from the teen's earnings before payout to the parent. The current fee rate is shown at checkout and on the earnings screen.
           </p>
           <p>
             <strong>Escrow.</strong> When a job starts, the neighbor's payment (including any tip) is charged through Stripe and held in escrow. The teen uploads photo proof that the work is complete. The neighbor then has 12 hours to confirm the work or report a problem. If the neighbor confirms, the funds are released to the teen's parent. If the neighbor does not respond within 12 hours, the funds are automatically released. If the neighbor reports a problem, the funds are held pending review.
