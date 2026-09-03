@@ -26,6 +26,17 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'This job is no longer available.' }, { status: 400 });
     }
 
+    // Guard: a teen can't accept a job posted by their own parent — prevents
+    // self-dealing and fake bookings to game ratings/earnings.
+    const selfDealingLinks = await svc.ParentTeenLink.filter({
+      parent_user_id: job.buyer_user_id,
+      teen_user_id: user.id,
+      status: 'confirmed',
+    });
+    if (selfDealingLinks.length > 0) {
+      return Response.json({ error: "You can't accept a job posted by your own parent." }, { status: 403 });
+    }
+
     // Reject removed categories (babysitting, etc.) — teens never enter a home.
     if (isRemovedCategory(job.category)) {
       return Response.json({ error: 'This category is no longer available on Blockwork.' }, { status: 400 });

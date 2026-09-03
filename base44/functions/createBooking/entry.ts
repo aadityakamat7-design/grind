@@ -79,6 +79,18 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'This booking cannot be created.' }, { status: 403 });
     }
 
+    // Guard: a parent can never book their own teen — prevents self-dealing,
+    // fake bookings to game ratings/earnings, and the conflict of a parent
+    // approving a job they themselves posted.
+    const selfDealingLinks = await base44.asServiceRole.entities.ParentTeenLink.filter({
+      parent_user_id: user.id,
+      teen_user_id: listing.teen_user_id,
+      status: 'confirmed',
+    });
+    if (selfDealingLinks.length > 0) {
+      return Response.json({ error: "You can't book your own teen." }, { status: 403 });
+    }
+
     if (!isOnline) {
       const distance = haversineMiles(
         buyerProfile.latitude, buyerProfile.longitude,

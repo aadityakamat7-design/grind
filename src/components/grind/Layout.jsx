@@ -69,17 +69,31 @@ export default function Layout() {
   if (!user) return <Navigate to="/" replace />;
   if (!user.app_role || !user.onboarded) return <Navigate to="/onboarding" replace />;
 
-  // Block cross-role access
+  // Block cross-role access — but allow parents with buyer mode to access
+  // buyer routes so they can browse, book, and manage their own bookings.
   const blocked = RESTRICTED_PREFIXES.find(({ prefix }) =>
     location.pathname === prefix || location.pathname.startsWith(prefix + "/")
   );
   if (blocked && blocked.role !== user.app_role) {
-    return <Navigate to={ROLE_HOME[user.app_role] || "/"} replace />;
+    const parentBuyerAllowed = blocked.role === 'buyer' && user.app_role === 'parent' && user.has_buyer_profile;
+    if (!parentBuyerAllowed) {
+      return <Navigate to={ROLE_HOME[user.app_role] || "/"} replace />;
+    }
   }
 
-  const tabs = TABS[user.app_role] || TABS.buyer;
-  const primaryTabs = tabs.length > 5 ? tabs.slice(0, 4) : tabs;
-  const overflowTabs = tabs.length > 5 ? tabs.slice(4) : [];
+  let tabs = [...(TABS[user.app_role] || TABS.buyer)];
+  if (user.app_role === 'parent' && user.has_buyer_profile) {
+    tabs = [
+      ...TABS.parent,
+      { divider: true, label: 'Hire Teens' },
+      { to: '/browse', label: 'Browse', icon: Search },
+      { to: '/jobs', label: 'Post a Job', icon: Briefcase },
+      { to: '/buyer/bookings', label: 'My Bookings', icon: CalendarDays },
+    ];
+  }
+  const mobileTabs = tabs.filter((t) => !t.divider);
+  const primaryTabs = mobileTabs.length > 5 ? mobileTabs.slice(0, 4) : mobileTabs;
+  const overflowTabs = mobileTabs.length > 5 ? mobileTabs.slice(4) : [];
   const roleLabel = ROLE_LABELS[user.app_role] || "Member";
   const initials = (user.full_name || user.email || "?")
     .split(" ")
@@ -105,7 +119,14 @@ export default function Layout() {
             {roleLabel}
           </p>
           <nav className="flex flex-col gap-1">
-            {tabs.map((tab) => {
+            {tabs.map((tab, idx) => {
+              if (tab.divider) {
+                return (
+                  <p key={`div-${idx}`} className="px-3.5 mt-4 mb-2 text-[10px] font-bold uppercase tracking-[0.08em] text-muted-foreground/70">
+                    {tab.label}
+                  </p>
+                );
+              }
               const Icon = tab.icon;
               return (
                 <NavLink

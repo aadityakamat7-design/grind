@@ -22,9 +22,10 @@ import { getVerifiedAgeFromPrivate } from "@/lib/stateWorkRules";
 import { EarningsAreaChart } from "@/components/grind/TimeRangeChart";
 import ErrorRetry from "@/components/grind/ErrorRetry";
 import PullToRefresh from "@/components/PullToRefresh";
+import BuyerModeCard from "@/components/grind/parent/BuyerModeCard";
 
 export default function ParentDashboard() {
-  const { user } = useOutletContext();
+  const { user, reload } = useOutletContext();
   const [links, setLinks] = useState([]);
   const [bookings, setBookings] = useState([]);
   const [records, setRecords] = useState([]);
@@ -148,6 +149,8 @@ export default function ParentDashboard() {
     <PullToRefresh onRefresh={load}>
       <div className="space-y-6">
         <PageHeader title="Parent dashboard" subtitle="Full visibility into your student's activity." />
+
+        <BuyerModeCard user={user} reload={reload} />
 
         {parentProfile?.is_identity_verified && parentProfile?.connect_status === "active" && (
           <PayoutStatusCard profile={parentProfile} onUpdated={load} returnPath="/parent" />
