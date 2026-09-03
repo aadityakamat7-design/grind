@@ -26,7 +26,7 @@ export default function PaymentStatusTracker({ booking }) {
 
   const steps = [
     { key: "held", label: "Payment held", detail: "Funds are held securely in escrow until the job is done." },
-    { key: "released", label: "Released to parent", detail: releasedDetail(payout_status) },
+    { key: "released", label: "Released — ready to withdraw", detail: releasedDetail(payout_status) },
     { key: "transferred", label: "Transferred to bank", detail: "Typically arrives in the parent's bank in 1–2 business days." },
   ];
   const current =
@@ -59,10 +59,10 @@ export default function PaymentStatusTracker({ booking }) {
 
 function releasedDetail(payoutStatus) {
   if (payoutStatus === "awaiting_settlement")
-    return "Payment is settling — the payout will be sent to the parent's bank in about 7 days once the transaction clears.";
+    return "Payment is settling — in about 7 days, the parent can tap \"Withdraw to bank\" on the Payouts page to send it to their account.";
   if (payoutStatus === "pending_review")
     return "In a short safety review before transfer — usually cleared within 1 business day.";
   if (payoutStatus === "awaiting_bank")
     return "Waiting for the parent to connect a bank account in Payouts.";
-  return "The buyer confirmed completion — the payout is being sent to the parent's account.";
+  return "The parent withdrew the payout — it's on its way to their bank.";
 }

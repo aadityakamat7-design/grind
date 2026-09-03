@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useOutletContext } from "react-router-dom";
+import { useOutletContext, Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { Wallet, Clock, CheckCircle2, Landmark } from "lucide-react";
+import { Wallet, Clock, CheckCircle2, Landmark, Bot, ArrowDownToLine } from "lucide-react";
 import { format } from "date-fns";
 import EmptyState from "@/components/grind/EmptyState";
 import PageHeader from "@/components/grind/PageHeader";
@@ -11,7 +11,7 @@ import { toast } from "@/components/ui/use-toast";
 import ErrorRetry from "@/components/grind/ErrorRetry";
 
 const PAYOUT_LABELS = {
-  awaiting_settlement: { text: "Settling — sent to your bank in ~7 days", cls: "text-amber-600", icon: Clock },
+  awaiting_settlement: { text: "Ready to withdraw — tap below to send to your bank", cls: "text-amber-600", icon: Clock },
   transferred: { text: "In your bank in 1–2 business days", cls: "text-emerald-600", icon: CheckCircle2 },
   pending_review: { text: "Safety review — usually within 1 day", cls: "text-amber-600", icon: Clock },
   awaiting_bank: { text: "Waiting for your bank connection", cls: "text-rose-600", icon: Landmark },
@@ -85,6 +85,36 @@ export default function ParentPayouts() {
 
   const total = records.reduce((s, r) => s + (r.net_amount || 0), 0);
 
+  // Find all bookings eligible for manual withdrawal right now
+  const eligibleBookings = records
+    .map((r) => (r.booking_id ? payoutByBooking[r.booking_id] : null))
+    .filter((b) => {
+      if (!b) return false;
+      const settlementReady = b.payout_status === "awaiting_settlement"
+        && b.payout_eligible_at
+        && new Date(b.payout_eligible_at) <= new Date();
+      return (b.payout_status === "awaiting_bank" || settlementReady);
+    });
+  const canWithdrawAll = eligibleBookings.length > 0 && profile?.connect_status === "active";
+
+  const withdrawAll = async () => {
+    for (const b of eligibleBookings) {
+      setRetrying(b.id);
+      try {
+        const res = await base44.functions.invoke("processPayout", { bookingId: b.id });
+        if (res.data?.error) {
+          toast({ title: "Payout failed", description: res.data.error, variant: "destructive" });
+          break;
+        }
+      } catch (err) {
+        toast({ title: "Payout failed", description: err.response?.data?.error || "Something went wrong.", variant: "destructive" });
+        break;
+      }
+    }
+    setRetrying(null);
+    load();
+  };
+
   return (
     <div className="space-y-5">
       <PageHeader title="Payouts" subtitle="All teen earnings pay out to your bank — never directly to your teen." />
@@ -94,6 +124,21 @@ export default function ParentPayouts() {
         <p className="text-[40px] font-extrabold mt-1.5 tracking-tight">{money(total)}</p>
       </div>
 
+      <Button
+        className="w-full rounded-full h-12 text-base"
+        disabled={!canWithdrawAll || retrying !== null}
+        onClick={withdrawAll}
+      >
+        <ArrowDownToLine className="w-4 h-4 mr-1.5" />
+        {retrying ? "Sending..." : eligibleBookings.length > 0 ? `Withdraw ${eligibleBookings.length} payout${eligibleBookings.length > 1 ? "s" : ""} to bank` : "No payouts ready to withdraw"}
+      </Button>
+
+      <Link to="/withdrawal-assistant">
+        <Button variant="outline" className="w-full rounded-full h-11">
+          <Bot className="w-4 h-4 mr-1.5" /> Ask the Withdrawal Assistant
+        </Button>
+      </Link>
+
       {records.length === 0 ? (
         <EmptyState icon={Wallet} title="No payouts yet" subtitle="When your teen completes jobs and payments are released, they'll appear here." />
       ) : (
@@ -102,7 +147,11 @@ export default function ParentPayouts() {
             const booking = r.booking_id ? payoutByBooking[r.booking_id] : null;
             const info = booking ? PAYOUT_LABELS[booking.payout_status] : null;
             const Icon = info?.icon;
-            const canRetry = booking?.payout_status === "awaiting_bank" && profile?.connect_status === "active";
+            const settlementReady = booking?.payout_status === "awaiting_settlement"
+              && booking?.payout_eligible_at
+              && new Date(booking.payout_eligible_at) <= new Date();
+            const canRetry = (booking?.payout_status === "awaiting_bank" || settlementReady)
+              && profile?.connect_status === "active";
             return (
               <div key={r.id} className="bg-card rounded-2xl border border-border shadow-soft p-4">
                 <div className="flex items-center justify-between">
@@ -120,8 +169,8 @@ export default function ParentPayouts() {
                   </p>
                 )}
                 {canRetry && (
-                  <Button size="sm" variant="outline" className="rounded-full mt-2.5" disabled={retrying === booking.id} onClick={() => retryPayout(booking.id)}>
-                    {retrying === booking.id ? "Sending..." : "Send to my bank"}
+                  <Button size="sm" className="rounded-full mt-2.5" disabled={retrying === booking.id} onClick={() => retryPayout(booking.id)}>
+                    {retrying === booking.id ? "Sending..." : (<><ArrowDownToLine className="w-3.5 h-3.5 mr-1" /> Withdraw to bank</>)}
                   </Button>
                 )}
               </div>

@@ -92,7 +92,7 @@ export async function releaseBookingPayment(base44, booking, tip) {
       user_id: notifyUserId,
       type: 'payment',
       title: 'Payout settling',
-      body: `${money(teenGets)} from "${booking.listing_title}" is settling. It'll be sent to your bank in about ${SETTLEMENT_DAYS} days once the payment clears.`,
+      body: `${money(teenGets)} from "${booking.listing_title}" is settling. In about ${SETTLEMENT_DAYS} days it'll be ready to withdraw — tap "Withdraw to bank" on your Payouts page to send it to your account.`,
       link: isIndependent ? '/teen' : '/parent/payouts',
     });
   }

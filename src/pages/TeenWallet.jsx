@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useOutletContext, Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { ArrowUpRight, FileText, Wallet } from "lucide-react";
+import { ArrowUpRight, FileText, Wallet, Bot } from "lucide-react";
 import { getOrCreateWallet } from "@/lib/wallet";
 import { money } from "@/lib/grind";
 import TransactionList from "@/components/grind/wallet/TransactionList";
@@ -62,9 +62,9 @@ export default function TeenWallet() {
         <Button className="rounded-full h-12" disabled={(wallet.balance || 0) <= 0} onClick={() => setCashOutOpen(true)}>
           <ArrowUpRight className="w-4 h-4 mr-1.5" /> Cash out
         </Button>
-        <Link to="/teen/earnings">
+        <Link to="/withdrawal-assistant">
           <Button variant="outline" className="rounded-full w-full h-12">
-            <FileText className="w-4 h-4 mr-1.5" /> Earnings & taxes
+            <Bot className="w-4 h-4 mr-1.5" /> Withdrawal Assistant
           </Button>
         </Link>
       </div>
@@ -73,6 +73,17 @@ export default function TeenWallet() {
         <h2 className="text-[17px] font-bold text-foreground mb-3">Activity</h2>
         <TransactionList transactions={transactions} />
       </section>
+
+      {/* Bottom links: earnings/taxes + legal */}
+      <div className="pt-4 mt-2 border-t border-border">
+        <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-muted-foreground">
+          <Link to="/teen/earnings" className="flex items-center gap-1.5 font-medium hover:text-foreground transition-colors">
+            <FileText className="w-3.5 h-3.5" /> Earnings & taxes
+          </Link>
+          <Link to="/terms" className="font-medium hover:text-foreground transition-colors">Terms</Link>
+          <Link to="/privacy" className="font-medium hover:text-foreground transition-colors">Privacy</Link>
+        </div>
+      </div>
 
       {cashOutOpen && (
         <CashOutDialog open={cashOutOpen} onOpenChange={setCashOutOpen} wallet={wallet} onDone={load} />
