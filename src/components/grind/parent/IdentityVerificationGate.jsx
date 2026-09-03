@@ -3,25 +3,29 @@ import { base44 } from "@/api/base44Client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ShieldCheck, AlertCircle, Loader2, IdCard, LifeBuoy, Landmark, CheckCircle2 } from "lucide-react";
+import { useIdentityVerification } from "@/lib/useIdentityVerification";
 
 // Multi-step gate shown when a parent tries to approve a booking before they
 // are identity-verified and have a payout account.
-//   Step "verify": Stripe Identity (government ID + liveness)
+//   Step "verify": Stripe Identity (government ID + liveness) — skipped when
+//                  the admin identity-verification toggle is off
 //   Step "bank":   Stripe Connect Express bank linking
 //   Step "done":   Brief confirmation, then the pending approval completes
 export default function IdentityVerificationGate({ open, onOpenChange, onVerified, initialStep = "verify" }) {
-  const [step, setStep] = useState(initialStep);
+  const { identityVerificationEnabled } = useIdentityVerification();
+  const effectiveInitialStep = identityVerificationEnabled ? initialStep : "bank";
+  const [step, setStep] = useState(effectiveInitialStep);
   const [status, setStatus] = useState("idle"); // idle | starting | checking | processing | failed
   const [error, setError] = useState("");
 
   // Reset to the initial step whenever the gate opens
   useEffect(() => {
     if (open) {
-      setStep(initialStep);
+      setStep(effectiveInitialStep);
       setStatus("idle");
       setError("");
     }
-  }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [open, effectiveInitialStep]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const checkIdentityStatus = useCallback(async () => {
     setStatus("checking");

@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 import { refundHeldPayment } from '../../shared/stripeRefund.ts';
+import { isIdentityVerificationEnabled } from '../../shared/identityVerificationEnabled.ts';
 
 Deno.serve(async (req) => {
   try {
@@ -22,7 +23,8 @@ Deno.serve(async (req) => {
       // booking. This is the core safety gate — an unverified parent cannot
       // release their teen into a job. Denial/refund does NOT require verification.
       const profiles = await base44.asServiceRole.entities.ParentProfile.filter({ user_id: user.id });
-      if (!profiles[0]?.is_identity_verified) {
+      const identityRequired = await isIdentityVerificationEnabled(base44);
+      if (identityRequired && !profiles[0]?.is_identity_verified) {
         return Response.json({ error: 'You must verify your identity before approving bookings. Complete ID verification in your dashboard.' }, { status: 403 });
       }
       // The parent must also have an active Stripe Connect payout account.

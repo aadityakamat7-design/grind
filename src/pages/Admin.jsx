@@ -14,6 +14,7 @@ import StatusBadge from "@/components/grind/StatusBadge";
 import ErrorRetry from "@/components/grind/ErrorRetry";
 import SafetyEscrowCenter from "@/components/grind/admin/SafetyEscrowCenter";
 import StripeTestModeCard from "@/components/grind/admin/StripeTestModeCard";
+import IdentityVerificationToggle from "@/components/grind/admin/IdentityVerificationToggle";
 import StateComplianceTable from "@/components/grind/admin/StateComplianceTable";
 import { money } from "@/lib/grind";
 
@@ -144,6 +145,8 @@ export default function Admin() {
       <PageHeader title="Admin console" subtitle="Marketplace health, moderation, and verifications." />
 
       <StripeTestModeCard />
+
+      <IdentityVerificationToggle />
 
       <StateComplianceTable />
 

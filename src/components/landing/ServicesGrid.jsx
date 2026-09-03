@@ -4,17 +4,15 @@ import { motion } from "framer-motion";
 // Every service card is identical (emoji + label, same style) — no "different
 // things." Two cards span wider on large screens to break the stamped-grid feel
 // without making any item look unlike the others.
+// Outdoor jobs + online services only — no indoor/in-home work.
 const SERVICES = [
   { emoji: "🌿", label: "Lawn Care", wide: true },
   { emoji: "🐕", label: "Dog Walking" },
   { emoji: "❄️", label: "Snow Shoveling" },
-  { emoji: "📚", label: "Tutoring" },
   { emoji: "🚗", label: "Car Washing" },
-  { emoji: "💻", label: "Tech Help", wide: true },
-  { emoji: "🧸", label: "Babysitting" },
-  { emoji: "🛋️", label: "Furniture Moving" },
-  { emoji: "🧹", label: "House Cleaning" },
   { emoji: "🛒", label: "Grocery Pickup" },
+  { emoji: "📚", label: "Tutoring" },
+  { emoji: "💻", label: "Tech Help", wide: true },
 ];
 
 export default function ServicesGrid() {

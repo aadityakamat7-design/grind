@@ -1,6 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 import { notifyAdmins } from '../../shared/notifyAdmins.ts';
-import { CONSENT_ITEMS, CONSENT_VERSION } from '../../shared/consentItems.ts';
+import { CONSENT_ITEMS, CONSENT_VERSION, IDENTITY_CONSENT_ITEM, FULL_TERMS_TEXT } from '../../shared/consentItems.ts';
+import { isIdentityVerificationEnabled } from '../../shared/identityVerificationEnabled.ts';
 import { getVerifiedAge } from '../../shared/teenAge.ts';
 
 // Parent-teen linking — two-factor safety model:
@@ -43,7 +44,9 @@ Deno.serve(async (req) => {
     if (!consents || typeof consents !== 'object') {
       return Response.json({ error: 'All consent items are required.' }, { status: 400 });
     }
-    for (const item of CONSENT_ITEMS) {
+    const identityRequired = await isIdentityVerificationEnabled(base44);
+    const allConsentItems = identityRequired ? [...CONSENT_ITEMS, IDENTITY_CONSENT_ITEM] : CONSENT_ITEMS;
+    for (const item of allConsentItems) {
       if (consents[item.key] !== true) {
         return Response.json({ error: 'All consent items are required before linking.' }, { status: 400 });
       }
@@ -152,7 +155,10 @@ Deno.serve(async (req) => {
     const identityVerified = !!parentProfiles[0]?.is_identity_verified;
 
     const nowIso = new Date().toISOString();
-    const fullyVerified = identityVerified;
+    // When identity verification is disabled (pilot), the link is fully
+    // verified without ID — the teen goes active immediately. Connect
+    // onboarding for payouts remains a separate requirement.
+    const fullyVerified = identityRequired ? identityVerified : true;
 
     const data = {
       teen_profile_id: teen.id,
@@ -185,12 +191,22 @@ Deno.serve(async (req) => {
 
     // --- Record the full itemized consent for audit ---
     const teenVerifiedAge = getVerifiedAge(privateRecords[0]);
-    const consentRecords = CONSENT_ITEMS.map((item) => ({
+    const consentRecords = allConsentItems.map((item) => ({
       key: item.key,
       label: item.label,
+      fullLabel: item.fullLabel,
       accepted: consents[item.key] === true,
       accepted_at: nowIso,
     }));
+    // Record the full legal terms text that was available in the collapsible
+    // section — stored for audit even though it's not a checked checkbox.
+    consentRecords.push({
+      key: 'full_terms_read',
+      label: 'I have read the full terms and legal disclaimers.',
+      fullLabel: FULL_TERMS_TEXT,
+      accepted: true,
+      accepted_at: nowIso,
+    });
     await svc.ConsentRecord.create({
       parent_user_id: user.id,
       teen_user_id: teen.user_id,
@@ -211,7 +227,7 @@ Deno.serve(async (req) => {
         user_id: teen.user_id,
         type: 'approval',
         title: 'Your account is live! 🎉',
-        body: `${user.full_name || 'Your parent'} confirmed your link and verified their ID. You can now publish services and take jobs.`,
+        body: `${user.full_name || 'Your parent'} confirmed your link. You can now publish services and take jobs.`,
         link: '/teen',
       });
       await svc.Notification.create({

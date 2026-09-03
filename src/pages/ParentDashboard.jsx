@@ -24,9 +24,11 @@ import ErrorRetry from "@/components/grind/ErrorRetry";
 import PullToRefresh from "@/components/PullToRefresh";
 import BuyerModeCard from "@/components/grind/parent/BuyerModeCard";
 import WithdrawalLockCard from "@/components/grind/parent/WithdrawalLockCard";
+import { useIdentityVerification } from "@/lib/useIdentityVerification";
 
 export default function ParentDashboard() {
   const { user, reload } = useOutletContext();
+  const { identityVerificationEnabled } = useIdentityVerification();
   const [links, setLinks] = useState([]);
   const [bookings, setBookings] = useState([]);
   const [records, setRecords] = useState([]);
@@ -115,11 +117,16 @@ export default function ParentDashboard() {
           {pendingLinks.map((l) => (
             <div key={l.id} className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
               <p className="font-bold text-amber-700 text-sm">Linked with {l.teen_display_name} — pending activation</p>
-              <p className="text-xs text-amber-600 mt-1">Verify your government ID to activate your teen's account and connect your payout account.</p>
+              <p className="text-xs text-amber-600 mt-1">
+                {identityVerificationEnabled
+                  ? "Verify your government ID to activate your teen's account and connect your payout account."
+                  : "Connect your bank account to activate your teen's account and start receiving payouts."}
+              </p>
             </div>
           ))}
           <Button className="w-full rounded-xl" size="lg" onClick={() => setVerifyOpen(true)}>
-            <ShieldCheck className="w-4 h-4" /> Verify my ID & set up payouts
+            <ShieldCheck className="w-4 h-4" />
+            {identityVerificationEnabled ? "Verify my ID & set up payouts" : "Set up payouts"}
           </Button>
           <div className="pt-2">
             <LinkTeenDialog onLinked={load} />
@@ -153,12 +160,20 @@ export default function ParentDashboard() {
 
         <BuyerModeCard user={user} reload={reload} />
 
-        {parentProfile?.is_identity_verified && parentProfile?.connect_status === "active" && (
-          <PayoutStatusCard profile={parentProfile} onUpdated={load} returnPath="/parent" />
-        )}
-        {!(parentProfile?.is_identity_verified && parentProfile?.connect_status === "active") && (
-          <LockedSetupCard profile={parentProfile} onStartSetup={() => setVerifyOpen(true)} />
-        )}
+        {(() => {
+          const identityDone = identityVerificationEnabled ? parentProfile?.is_identity_verified : true;
+          const setupComplete = identityDone && parentProfile?.connect_status === "active";
+          return (
+            <>
+              {setupComplete && (
+                <PayoutStatusCard profile={parentProfile} onUpdated={load} returnPath="/parent" />
+              )}
+              {!setupComplete && (
+                <LockedSetupCard profile={parentProfile} onStartSetup={() => setVerifyOpen(true)} />
+              )}
+            </>
+          );
+        })()}
 
         <ParentStatsGrid records={records} bookings={bookings} links={links} teenProfiles={teenProfiles} pendingApprovals={bookings.filter((b) => b.status === "pending_parent_approval").length} />
 

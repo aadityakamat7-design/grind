@@ -1,21 +1,25 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ShieldCheck, AlertCircle, ArrowLeft, FileText } from "lucide-react";
+import { ShieldCheck, AlertCircle, ArrowLeft, ChevronDown, ChevronUp } from "lucide-react";
 import { calcAge } from "@/lib/grind";
 import LegalModal from "@/components/grind/LegalModal";
-import { CONSENT_ITEMS, CONSENT_VERSION } from "@/lib/stateWorkRules";
+import { CONSENT_ITEMS, CONSENT_VERSION, IDENTITY_CONSENT_ITEM, FULL_TERMS_TEXT } from "@/lib/stateWorkRules";
 import StateRulesDisplay from "@/components/grind/parent/StateRulesDisplay";
+import { useIdentityVerification } from "@/lib/useIdentityVerification";
 
 const TERMS_VERSION = "2026-07";
 
 // Two-step parent onboarding:
 //   Step 1: Enter DOB (must be 18+) + teen's invite code → look up teen
-//   Step 2: See state rules + 8 itemized consent checkboxes + payment auth → submit
+//   Step 2: See state rules + 5-6 short consent checkboxes + collapsible full
+//           terms → submit. The full legal text is recorded in the
+//           ConsentRecord audit trail regardless of display length.
 export default function ParentOnboarding({ user, initialCode = "" }) {
+  const { identityVerificationEnabled } = useIdentityVerification();
   const [step, setStep] = useState(1);
   const [code, setCode] = useState(initialCode);
   const [dob, setDob] = useState("");
@@ -24,10 +28,16 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
   const [teenInfo, setTeenInfo] = useState(null);
 
   const [consents, setConsents] = useState({});
-  const [stateRulesAck, setStateRulesAck] = useState(false);
-  const [paymentAuth, setPaymentAuth] = useState(false);
+  const [showFullTerms, setShowFullTerms] = useState(false);
   const [saving, setSaving] = useState(false);
   const [legalModal, setLegalModal] = useState(null);
+
+  // Build the consent items list — include the identity item only when
+  // identity verification is enabled (the default / fails-safe state).
+  const allConsentItems = useMemo(
+    () => (identityVerificationEnabled ? [...CONSENT_ITEMS, IDENTITY_CONSENT_ITEM] : CONSENT_ITEMS),
+    [identityVerificationEnabled]
+  );
 
   useEffect(() => {
     (async () => {
@@ -67,7 +77,7 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
     }
   };
 
-  const allConsentsChecked = CONSENT_ITEMS.every((item) => consents[item.key] === true);
+  const allConsentsChecked = allConsentItems.every((item) => consents[item.key] === true);
 
   const submit = async () => {
     setSaving(true);
@@ -77,7 +87,8 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
         inviteCode: code.trim().toUpperCase(),
         attestRelationship: consents.relationship === true,
         consents,
-        stateRulesAcknowledged: stateRulesAck,
+        // State-rules acknowledgment is implicit in the labor_laws consent item
+        stateRulesAcknowledged: consents.labor_laws === true,
         stateRules: teenInfo?.stateRules,
         userAgent: navigator.userAgent,
       });
@@ -107,7 +118,6 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
     setStep(1);
     setTeenInfo(null);
     setConsents({});
-    setStateRulesAck(false);
     setError("");
   };
 
@@ -153,7 +163,7 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
     );
   }
 
-  // Step 2: State rules + 8 consent checkboxes + payment auth
+  // Step 2: State rules + short consent checkboxes + collapsible full terms
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
@@ -178,37 +188,40 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
 
       <div>
         <p className="text-xs font-bold text-foreground mb-2 flex items-center gap-1.5">
-          <FileText className="w-3.5 h-3.5 text-blue-500" /> State child-labor rules that apply
+          <ShieldCheck className="w-3.5 h-3.5 text-blue-500" /> California child-labor rules
         </p>
         <StateRulesDisplay stateRules={teenInfo?.stateRules} teenName={teenInfo?.teenName} />
       </div>
 
-      <label className="flex items-start gap-2.5 text-xs text-slate-700 cursor-pointer bg-amber-50 border border-amber-200 rounded-xl p-3">
-        <Checkbox checked={stateRulesAck} onCheckedChange={setStateRulesAck} className="mt-0.5" />
-        <span>
-          <strong>I have read and understand the California child-labor rules shown above</strong> for
-          my teen's age, including hour limits, prohibited work hours, and category minimums. The casual, irregular odd jobs offered on this platform are generally exempt from California's work-permit requirement under the state's odd-jobs exemption for irregular casual work in private homes, as described in the California DIR Child Labor Law Pamphlet (dir.ca.gov/dlse). I remain responsible for confirming any requirements applicable to my teen's situation — Blockwork does not determine permit eligibility. Hour limits, age restrictions, and hazardous-occupation rules still apply.
-        </span>
-      </label>
-
       <div className="space-y-2.5">
-        <p className="text-xs font-bold text-foreground">Parental consent — check each box individually</p>
-        {CONSENT_ITEMS.map((item) => (
-          <label key={item.key} className="flex items-start gap-2.5 text-xs text-slate-600 cursor-pointer">
+        <p className="text-xs font-bold text-foreground">Parental consent — check each box</p>
+        {allConsentItems.map((item) => (
+          <label key={item.key} className="flex items-start gap-2.5 text-[13px] text-slate-700 cursor-pointer leading-snug">
             <Checkbox
               checked={consents[item.key] === true}
               onCheckedChange={(checked) => setConsents((prev) => ({ ...prev, [item.key]: checked === true }))}
-              className="mt-0.5"
+              className="mt-0.5 shrink-0"
             />
             <span>{item.label}</span>
           </label>
         ))}
       </div>
 
-      <label className="flex items-start gap-2.5 text-sm text-muted-foreground cursor-pointer">
-        <Checkbox checked={paymentAuth} onCheckedChange={setPaymentAuth} className="mt-0.5" />
-        <span>I authorize Blockwork to process payments on my behalf, including holding funds in escrow and transferring payouts to my connected bank account.</span>
-      </label>
+      {/* Collapsible full legal terms — available but not blocking comprehension */}
+      <button
+        onClick={() => setShowFullTerms((v) => !v)}
+        className="flex items-center gap-1.5 text-xs font-semibold text-primary hover:text-primary-hover transition-colors w-full"
+      >
+        {showFullTerms ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+        {showFullTerms ? "Hide full terms" : "Read full terms"}
+      </button>
+      {showFullTerms && (
+        <div className="bg-secondary border border-border rounded-xl p-3.5">
+          <p className="text-[11px] text-muted-foreground leading-relaxed">
+            {FULL_TERMS_TEXT}
+          </p>
+        </div>
+      )}
 
       {error && (
         <div className="flex items-start gap-2 bg-destructive/10 border border-destructive/20 rounded-xl p-3 text-sm text-destructive">
@@ -219,14 +232,14 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
 
       <Button
         className="w-full rounded-xl"
-        disabled={!allConsentsChecked || !stateRulesAck || !paymentAuth || saving}
+        disabled={!allConsentsChecked || saving}
         onClick={submit}
       >
         {saving ? "Linking..." : `Confirm & approve my teen (consent v${CONSENT_VERSION})`}
       </Button>
       {!allConsentsChecked && (
         <p className="text-[11px] text-muted-foreground text-center">
-          {CONSENT_ITEMS.filter((i) => consents[i.key] !== true).length} of {CONSENT_ITEMS.length} consent items still need to be checked
+          {allConsentItems.filter((i) => consents[i.key] !== true).length} of {allConsentItems.length} consent items still need to be checked
         </p>
       )}
       <LegalModal type={legalModal} open={!!legalModal} onOpenChange={(v) => !v && setLegalModal(null)} />
