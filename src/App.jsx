@@ -8,6 +8,7 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ScrollToTop from './components/ScrollToTop';
 import TestModeBanner from "@/components/TestModeBanner";
+import RouteMeta from "@/components/RouteMeta";
 // Add page imports here
 import Login from '@/pages/Login';
 import Register from '@/pages/Register';
@@ -142,6 +143,7 @@ function App() {
         <Router>
           <ScrollToTop />
           <TestModeBanner />
+          <RouteMeta />
           <AuthenticatedApp />
         </Router>
         <Toaster />

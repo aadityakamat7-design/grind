@@ -32,16 +32,18 @@ function upsertLink(rel, href) {
 
 export default function Seo({ title, description, path = "/", image, jsonLd = [] }) {
   useEffect(() => {
+    // document.title and the <meta name="description"> tag are managed
+    // centrally by <RouteMeta /> in App.jsx so they update on every
+    // route change. Here we only handle OG/Twitter tags, canonical,
+    // and JSON-LD — all of which use the page-specific props below.
     const fullTitle = title
       ? `${title} — ${SITE_NAME}`
       : `${SITE_NAME} — Local teen jobs, parent-approved`;
-    document.title = fullTitle;
 
     const origin = window.location.origin;
     const canonical = new URL(path, origin).toString();
     const ogImage = image || DEFAULT_OG_IMAGE;
 
-    upsertMeta("name", "description", description);
     upsertLink("canonical", canonical);
 
     upsertMeta("property", "og:title", fullTitle);
