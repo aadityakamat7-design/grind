@@ -35,10 +35,11 @@ Deno.serve(async (req) => {
 
     const svc = base44.asServiceRole.entities;
 
-    // Reject if the teen's profile is not active — prevents suspended or
-    // pending_parent teens from creating or editing listings via direct API.
+ // Teens can create and edit listings as soon as they have a profile —
+    // parent verification is only required for payouts, not for listing
+    // creation. Suspended teens are still blocked.
     const teenProfiles = await svc.TeenProfile.filter({ user_id: user.id });
-    if (!teenProfiles[0] || teenProfiles[0].status !== 'active') {
+    if (!teenProfiles[0] || teenProfiles[0].status === 'suspended') {
       return Response.json({ error: 'Your account is not active yet.' }, { status: 403 });
     }
     // CA-only: the teen must be in California

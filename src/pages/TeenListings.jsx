@@ -84,7 +84,7 @@ export default function TeenListings() {
     );
   if (error) return <ErrorRetry onRetry={load} />;
 
-  const canPublish = profile?.status === "active";
+  const canPublish = !!profile && profile.status !== "suspended";
 
   return (
     <div className="space-y-5">
@@ -93,12 +93,6 @@ export default function TeenListings() {
           <Plus className="w-4 h-4 mr-1.5" /> New
         </Button>
       </PageHeader>
-
-      {!canPublish && (
-        <div className="bg-secondary border border-border rounded-xl p-3.5 text-[13px] text-muted-foreground">
-          You can create services once your parent approves your account.
-        </div>
-      )}
 
       {listings.length === 0 ? (
         <EmptyState icon={List} title="No services yet" subtitle="List a skill you already have — tutoring, lawn care, pet sitting, tech help..." />
