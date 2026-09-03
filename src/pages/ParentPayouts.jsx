@@ -71,6 +71,38 @@ export default function ParentPayouts() {
     load();
   };
 
+  const eligibleBookings = Object.values(payoutByBooking).filter((b) => {
+    const settlementReady = b.payout_status === "awaiting_settlement"
+      && b.payout_eligible_at
+      && new Date(b.payout_eligible_at) <= new Date();
+    return (b.payout_status === "awaiting_bank" || settlementReady);
+  });
+  const canBatch = eligibleBookings.length > 0 && profile?.connect_status === "active";
+  const [batching, setBatching] = useState(false);
+
+  const batchWithdraw = async () => {
+    setBatching(true);
+    let ok = 0;
+    let fail = 0;
+    for (const b of eligibleBookings) {
+      try {
+        const res = await base44.functions.invoke("processPayout", { bookingId: b.id });
+        if (res.data?.error) fail++; else ok++;
+      } catch {
+        fail++;
+      }
+    }
+    setBatching(false);
+    load();
+    if (ok > 0 && fail === 0) {
+      toast({ title: `${ok} payout${ok > 1 ? "s" : ""} sent`, description: "Funds arrive in 1–2 business days." });
+    } else if (ok > 0 && fail > 0) {
+      toast({ title: `${ok} sent, ${fail} failed`, description: "Some payouts couldn't be processed — try again.", variant: "destructive" });
+    } else if (fail > 0) {
+      toast({ title: "Payouts failed", description: "Couldn't process withdrawals — try again.", variant: "destructive" });
+    }
+  };
+
   if (loading)
     return (
       <div className="space-y-5">
@@ -93,6 +125,16 @@ export default function ParentPayouts() {
         <p className="text-[13px] opacity-80">Total released to you</p>
         <p className="text-[40px] font-extrabold mt-1.5 tracking-tight">{money(total)}</p>
       </div>
+
+      {canBatch && (
+        <Button className="w-full rounded-full h-12 text-base" disabled={batching} onClick={batchWithdraw}>
+          {batching ? (
+            <><span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin mr-2" /> Processing withdrawals...</>
+          ) : (
+            <><ArrowDownToLine className="w-4 h-4 mr-1.5" /> Withdraw {money(eligibleBookings.reduce((s, b) => s + (b.net_amount || 0), 0))} to bank</>
+          )}
+        </Button>
+      )}
 
       <Link to="/withdrawal-assistant">
         <Button variant="outline" className="w-full rounded-full h-11">
