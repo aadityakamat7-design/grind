@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ShieldCheck, Clock, Lock, AlertCircle } from "lucide-react";
+import { ShieldCheck, Clock, Lock, AlertCircle, CreditCard } from "lucide-react";
 import { money } from "@/lib/grind";
 
 export default function CashOutDialog({ open, onOpenChange, wallet, onDone }) {
@@ -21,6 +21,8 @@ export default function CashOutDialog({ open, onOpenChange, wallet, onDone }) {
       const data = res.data || res;
       if (data.locked) {
         setResult({ type: "locked", message: data.message || "Withdrawals are paused." });
+      } else if (data.no_payout_account) {
+        setResult({ type: "no_payout", message: data.message || "Your parent hasn't set up their payout account yet." });
       } else if (data.error) {
         setResult({ type: "error", message: data.error });
       } else {
@@ -32,9 +34,14 @@ export default function CashOutDialog({ open, onOpenChange, wallet, onDone }) {
     } catch (err) {
       const msg = err.response?.data?.error || err.response?.data?.message || "Something went wrong. Please try again.";
       const isLocked = err.response?.data?.locked;
+      const isNoPayout = err.response?.data?.no_payout_account;
       setResult({
-        type: isLocked ? "locked" : "error",
-        message: isLocked ? (err.response.data.message || "Your parent has paused withdrawals.") : msg,
+        type: isLocked ? "locked" : isNoPayout ? "no_payout" : "error",
+        message: isLocked
+          ? (err.response.data.message || "Your parent has paused withdrawals.")
+          : isNoPayout
+            ? (err.response.data.message || "Your parent hasn't set up their payout account yet.")
+            : msg,
       });
     } finally {
       setSaving(false);
@@ -79,6 +86,17 @@ export default function CashOutDialog({ open, onOpenChange, wallet, onDone }) {
                 </div>
                 <div>
                   <p className="font-bold text-foreground text-base">Withdrawals paused</p>
+                  <p className="text-sm text-muted-foreground mt-1.5 leading-relaxed">{result.message}</p>
+                </div>
+              </div>
+            )}
+            {result.type === "no_payout" && (
+              <div className="flex flex-col items-center text-center gap-3 py-4">
+                <div className="w-12 h-12 rounded-2xl bg-amber-50 flex items-center justify-center">
+                  <CreditCard className="w-6 h-6 text-amber-600" />
+                </div>
+                <div>
+                  <p className="font-bold text-foreground text-base">Payout account needed</p>
                   <p className="text-sm text-muted-foreground mt-1.5 leading-relaxed">{result.message}</p>
                 </div>
               </div>

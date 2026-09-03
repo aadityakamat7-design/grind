@@ -28,6 +28,26 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Check if the parent has a payout account set up — cash-outs route to the parent's
+    // Stripe Connect account, so without one there's nowhere for the money to go.
+    if (link?.parent_user_id) {
+      const parentProfiles = await base44.asServiceRole.entities.ParentProfile.filter({ user_id: link.parent_user_id });
+      const parentProfile = parentProfiles[0];
+      if (!parentProfile || parentProfile.connect_status !== 'active') {
+        return Response.json({
+          success: false,
+          no_payout_account: true,
+          message: "Your parent hasn't set up their payout account yet. Ask them to connect their bank from the parent dashboard so you can cash out.",
+        });
+      }
+    } else {
+      return Response.json({
+        success: false,
+        no_payout_account: true,
+        message: "Your parent account isn't linked yet. Ask your parent to finish setting up their account.",
+      });
+    }
+
     // Record the cash-out as "processing" — funds settle in 24-48 hours.
     // The wallet balance is deducted immediately so the teen can't double-spend;
     // the actual transfer to the parent's bank happens via the normal payout flow.
