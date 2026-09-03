@@ -85,36 +85,6 @@ export default function ParentPayouts() {
 
   const total = records.reduce((s, r) => s + (r.net_amount || 0), 0);
 
-  // Find all bookings eligible for manual withdrawal right now
-  const eligibleBookings = records
-    .map((r) => (r.booking_id ? payoutByBooking[r.booking_id] : null))
-    .filter((b) => {
-      if (!b) return false;
-      const settlementReady = b.payout_status === "awaiting_settlement"
-        && b.payout_eligible_at
-        && new Date(b.payout_eligible_at) <= new Date();
-      return (b.payout_status === "awaiting_bank" || settlementReady);
-    });
-  const canWithdrawAll = eligibleBookings.length > 0 && profile?.connect_status === "active";
-
-  const withdrawAll = async () => {
-    for (const b of eligibleBookings) {
-      setRetrying(b.id);
-      try {
-        const res = await base44.functions.invoke("processPayout", { bookingId: b.id });
-        if (res.data?.error) {
-          toast({ title: "Payout failed", description: res.data.error, variant: "destructive" });
-          break;
-        }
-      } catch (err) {
-        toast({ title: "Payout failed", description: err.response?.data?.error || "Something went wrong.", variant: "destructive" });
-        break;
-      }
-    }
-    setRetrying(null);
-    load();
-  };
-
   return (
     <div className="space-y-5">
       <PageHeader title="Payouts" subtitle="All teen earnings pay out to your bank — never directly to your teen." />
@@ -123,15 +93,6 @@ export default function ParentPayouts() {
         <p className="text-[13px] opacity-80">Total released to you</p>
         <p className="text-[40px] font-extrabold mt-1.5 tracking-tight">{money(total)}</p>
       </div>
-
-      <Button
-        className="w-full rounded-full h-12 text-base"
-        disabled={!canWithdrawAll || retrying !== null}
-        onClick={withdrawAll}
-      >
-        <ArrowDownToLine className="w-4 h-4 mr-1.5" />
-        {retrying ? "Sending..." : eligibleBookings.length > 0 ? `Withdraw ${eligibleBookings.length} payout${eligibleBookings.length > 1 ? "s" : ""} to bank` : "No payouts ready to withdraw"}
-      </Button>
 
       <Link to="/withdrawal-assistant">
         <Button variant="outline" className="w-full rounded-full h-11">
