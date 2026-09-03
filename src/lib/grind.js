@@ -58,11 +58,64 @@ export function categoryMinimum(category, priceModel) {
 // (test score, certificate, award photo) for admin review.
 export const SKILL_CATEGORIES = ["tutoring", "tech_help"];
 
-export const SKILL_SUGGESTIONS = [
-  "Math", "Reading", "Coding", "Spanish", "Piano", "Mowing",
-  "Weeding", "Dog walking", "Phone setup", "Wi-Fi help",
-  "Car detailing", "Moving boxes", "Yard cleanup", "Snow shoveling",
+// 5 generic skill topics, each with a curated list of popular services.
+// Teens pick from these dropdowns AND can add their own custom skills.
+// Used by SkillPicker in onboarding and profile settings.
+export const SKILL_TOPICS = [
+  {
+    id: "academic",
+    label: "Academic & Tutoring",
+    icon: "GraduationCap",
+    skills: [
+      "Math", "Algebra", "Geometry", "Reading & Writing", "Science",
+      "Biology", "Chemistry", "Physics", "Spanish", "SAT/ACT Prep",
+      "History", "Essay Writing", "Study Skills", "French", "Mandarin",
+    ],
+  },
+  {
+    id: "tech",
+    label: "Technology",
+    icon: "Laptop",
+    skills: [
+      "Coding", "Python", "Web Design", "Phone Setup", "Wi-Fi Help",
+      "Computer Basics", "Social Media Setup", "Video Editing",
+      "Photo Editing", "Excel & Spreadsheets", "Presentation Design",
+      "3D Printing", "Robotics",
+    ],
+  },
+  {
+    id: "lawn",
+    label: "Lawn & Yard",
+    icon: "Sprout",
+    skills: [
+      "Lawn Mowing", "Weeding", "Leaf Raking", "Yard Cleanup",
+      "Snow Shoveling", "Planting", "Hedge Trimming", "Garden Maintenance",
+      "Mulching", "Watering Plants",
+    ],
+  },
+  {
+    id: "car",
+    label: "Car Care",
+    icon: "Car",
+    skills: [
+      "Car Washing", "Car Detailing", "Interior Vacuum", "Window Cleaning",
+      "Tire Cleaning", "Waxing",
+    ],
+  },
+  {
+    id: "pet",
+    label: "Pet Care",
+    icon: "Dog",
+    skills: [
+      "Dog Walking", "Pet Sitting", "Cat Care", "Dog Feeding",
+      "Pet Playtime", "Small Animal Care", "Fish Care",
+    ],
+  },
 ];
+
+// Flattened list of all curated skills across topics — kept for backward
+// compatibility with any code that still references SKILL_SUGGESTIONS.
+export const SKILL_SUGGESTIONS = SKILL_TOPICS.flatMap((t) => t.skills);
 
 // --- Task hazard safety check ---
 // Blocks tasks unsafe/illegal for minors and CA/NY hazardous-occupations items.

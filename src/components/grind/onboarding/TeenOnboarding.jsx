@@ -5,8 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { ShieldAlert, MapPin } from "lucide-react";
-import { calcAge, genInviteCode, SKILL_SUGGESTIONS } from "@/lib/grind";
+import { calcAge, genInviteCode } from "@/lib/grind";
 import ShareInvite from "@/components/grind/ShareInvite";
+import SkillPicker from "@/components/grind/SkillPicker";
 import { checkEligibility, stateName } from "@/lib/stateWorkRules";
 import { setCachedUser } from "@/lib/useAppUser";
 import TeenEligibilityStep from "@/components/grind/onboarding/TeenEligibilityStep";
@@ -25,9 +26,6 @@ export default function TeenOnboarding({ user }) {
   const [inviteCode, setInviteCode] = useState("");
   const [saving, setSaving] = useState(false);
   const [geoError, setGeoError] = useState("");
-
-  const toggleSkill = (s) =>
-    setSkills((prev) => (prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]));
 
   const createProfile = async () => {
     setSaving(true);
@@ -158,22 +156,10 @@ export default function TeenOnboarding({ user }) {
         </div>
         <div>
           <Label className="text-foreground">Skills</Label>
-          <div className="flex flex-wrap gap-2 mt-2">
-            {SKILL_SUGGESTIONS.map((s) => (
-              <button
-                key={s}
-                type="button"
-                onClick={() => toggleSkill(s)}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
-                  skills.includes(s)
-                    ? "bg-foreground text-background border-foreground"
-                    : "bg-card text-foreground border-border hover:border-foreground/30"
-                }`}
-              >
-                {s}
-              </button>
-            ))}
-          </div>
+          <p className="text-xs text-muted-foreground mt-1 mb-2">
+            Pick from popular services or add your own — you can change these anytime.
+          </p>
+          <SkillPicker value={skills} onChange={setSkills} />
         </div>
         {geoError && <p className="text-xs text-destructive font-medium">{geoError}</p>}
         <Button className="w-full rounded-xl" disabled={!firstName || !zip || saving} onClick={createProfile}>

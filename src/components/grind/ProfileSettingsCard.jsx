@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/components/ui/use-toast";
 import { Save, MapPin, AlertCircle } from "lucide-react";
+import SkillPicker from "@/components/grind/SkillPicker";
 
 // Role-aware profile editor. Only exposes fields the owner is allowed to
 // update (RLS-enforced server-side). Address/ZIP changes are re-geocoded so
@@ -52,7 +53,7 @@ export default function ProfileSettingsCard({ user }) {
           setForm({
             display_name: p.display_name || "",
             bio: p.bio || "",
-            skills: (p.skills || []).join(", "),
+            skills: p.skills || [],
             service_radius_miles: p.service_radius_miles ?? 3,
             is_available: p.is_available !== false,
             zip: pd.zip || "",
@@ -124,7 +125,7 @@ export default function ProfileSettingsCard({ user }) {
         await base44.entities.TeenProfile.update(p.id, {
           display_name: form.display_name,
           bio: form.bio,
-          skills: form.skills.split(",").map((s) => s.trim()).filter(Boolean),
+          skills: Array.isArray(form.skills) ? form.skills : [],
           service_radius_miles: Number(form.service_radius_miles) || 3,
           is_available: form.is_available,
         });
@@ -217,9 +218,16 @@ export default function ProfileSettingsCard({ user }) {
           <Field label="Bio">
             <Textarea className="rounded-xl" rows={3} value={form.bio || ""} onChange={(e) => set("bio", e.target.value)} />
           </Field>
-          <Field label="Skills" hint="Comma-separated, e.g. Math, Lawn care, Dog walking">
-            <Input className="rounded-xl" value={form.skills || ""} onChange={(e) => set("skills", e.target.value)} />
-          </Field>
+          <div>
+            <Label>Skills</Label>
+            <p className="text-xs text-muted-foreground mt-1 mb-2">
+              Pick from popular services or add your own.
+            </p>
+            <SkillPicker
+              value={Array.isArray(form.skills) ? form.skills : []}
+              onChange={(skills) => set("skills", skills)}
+            />
+          </div>
           <Field label="Service radius (miles)">
             <Input className="rounded-xl" type="number" min="1" max="25" value={form.service_radius_miles ?? ""} onChange={(e) => set("service_radius_miles", e.target.value)} />
           </Field>
