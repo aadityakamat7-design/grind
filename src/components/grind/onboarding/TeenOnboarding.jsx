@@ -93,6 +93,10 @@ export default function TeenOnboarding({ user }) {
     };
     await base44.auth.updateMe(updatedUser);
     setCachedUser(updatedUser);
+    base44.analytics.track({
+      eventName: "teen_onboarding_complete",
+      properties: { state: usState, age: calcAge(dob), is_independent: calcAge(dob) !== null && calcAge(dob) >= 18 },
+    });
     localStorage.removeItem("kickstart_teen_dob");
     localStorage.removeItem("kickstart_teen_state");
     localStorage.removeItem("kickstart_teen_min_age");
