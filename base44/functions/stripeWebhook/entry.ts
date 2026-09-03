@@ -3,6 +3,7 @@ import { getStripe } from '../../shared/stripeEnv.ts';
 import { applyVerifiedIdentity } from '../../shared/identityVerification.ts';
 import { recordBuyerConfirm, recordBuyerStartAfterPayment } from '../../shared/jobHandshake.ts';
 import { alertSecurityEvent } from '../../shared/securityMonitor.ts';
+import { notifyOwnerTransaction } from '../../shared/notifyOwnerTransaction.ts';
 
 Deno.serve(async (req) => {
   try {
@@ -66,9 +67,19 @@ Deno.serve(async (req) => {
           const result = await recordBuyerConfirm(base44, booking, tip, session.payment_intent || '');
           console.log(`Booking ${tipBookingId} buyer confirm recorded with tip ${tip}:`, JSON.stringify(result));
         }
+        await notifyOwnerTransaction(base44, {
+          type: 'Tip charge',
+          title: `"${booking?.listing_title || tipBookingId}" — $${(Number(session.metadata?.tip_amount) || 0).toFixed(2)}`,
+          details: `Booking: ${tipBookingId}\nPayment intent: ${session.payment_intent || 'n/a'}\nMode: ${isTestEvent ? 'TEST' : 'LIVE'}`,
+        });
       }
       const bookingId = session.metadata?.booking_id;
       if (bookingId) {
+        await notifyOwnerTransaction(base44, {
+          type: 'Escrow charge',
+          title: `"${bookingId}" — ${session.metadata?.start_payment === '1' ? 'start payment' : 'escrow hold'}`,
+          details: `Booking: ${bookingId}\nPayment intent: ${session.payment_intent || 'n/a'}\nMode: ${isTestEvent ? 'TEST' : 'LIVE'}`,
+        });
         if (session.metadata?.start_payment === '1') {
           // Buyer's start payment cleared — record buyer_started_at + held, and
           // advance to in_progress if the teen has already started.

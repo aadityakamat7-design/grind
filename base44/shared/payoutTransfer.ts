@@ -2,6 +2,7 @@ import { getStripeForApp } from './stripeEnv.ts';
 import { notifyAdmins } from './notifyAdmins.ts';
 import { notifyParentPayoutSent } from './notifyParent.ts';
 import { reviewBookingPayout, saveReview } from './payoutReview.ts';
+import { notifyOwnerTransaction } from './notifyOwnerTransaction.ts';
 
 const REVIEW_THRESHOLD = 100; // USD — payouts at/above this go to manual review
 const money = (n) => `$${Number(n || 0).toFixed(2)}`;
@@ -232,6 +233,12 @@ export async function attemptBookingPayout(base44, booking, { skipReview = false
       origin: Deno.env.get('BASE44_APP_URL') || '',
     });
   }
+
+  await notifyOwnerTransaction(base44, {
+    type: 'Payout transfer',
+    title: `"${booking.listing_title}" — ${money(totalTransferred)} to ${isIndependent ? 'teen' : 'parent'}`,
+    details: `Booking: ${booking.id}\nRecipient: ${destUserId}\nBank ending in: ${dest.bank_last4 || '••••'}\nTransfer IDs: ${transferIds.join(', ')}`,
+  });
 
   return { status: 'transferred', transferIds };
 }

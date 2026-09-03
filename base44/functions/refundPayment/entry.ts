@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 import { refundHeldPayment } from '../../shared/stripeRefund.ts';
+import { notifyOwnerTransaction } from '../../shared/notifyOwnerTransaction.ts';
 
 Deno.serve(async (req) => {
   try {
@@ -58,6 +59,12 @@ Deno.serve(async (req) => {
     }
 
     await refundHeldPayment(base44, booking);
+
+    await notifyOwnerTransaction(base44, {
+      type: 'Refund',
+      title: `"${booking.listing_title}" — $${Number(booking.charge_amount || booking.price_total || 0).toFixed(2)} returned to buyer`,
+      details: `Booking: ${booking.id}\nBuyer: ${booking.buyer_name || booking.buyer_user_id}\nCancelled by: ${user.id}`,
+    });
 
     await base44.asServiceRole.entities.Booking.update(booking.id, {
       status: 'cancelled',
