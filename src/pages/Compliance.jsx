@@ -117,7 +117,7 @@ const SECTIONS = [
         </p>
         <ul>
           <li><strong>Minimum age 14 for platform jobs.</strong> Users under 13 are blocked entirely. To accept jobs on the platform, a teen must be at least 14.</li>
-          <li><strong>Age is verified, not self-reported.</strong> A teen's age is confirmed from the date of birth on a government-issued ID — not from what the teen enters at signup.</li>
+          <li><strong>Age is provided at signup and attested by the parent.</strong> A teen enters their date of birth when they register, and the linked parent or guardian confirms that date of birth is accurate as part of the parental consent flow.</li>
           <li><strong>Hour limits enforced automatically.</strong> The platform enforces California's daily and weekly hour caps server-side, with different limits for school days vs. non-school days and prohibited time windows (for example, no work before 7am or after 7pm on school nights for younger teens). A booking that would push a teen over a limit is rejected before it's confirmed.</li>
           <li><strong>Age-based job categories.</strong> Each job category has a minimum age. Hazardous tasks are screened and blocked before a listing goes live.</li>
           <li><strong>Verified parental approval on every booking.</strong> No job for a minor is confirmed unless the teen's parent reviews the details and explicitly approves it.</li>
