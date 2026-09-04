@@ -2,7 +2,7 @@
 // credit, Stripe Connect transfer to the parent, notifications, and referral
 // completion. The tip amount passed here must already have been charged through
 // Stripe (or be zero).
-import { calculatePlatformFee, calculateNetAmount } from './platformFee.ts';
+import { calculatePlatformFee, calculateNetAmount, calculateTipFee, calculateTipNet } from './platformFee.ts';
 
 const money = (n) => `$${Number(n || 0).toFixed(2)}`;
 
@@ -10,11 +10,14 @@ export async function releaseBookingPayment(base44, booking, tip) {
   const svc = base44.asServiceRole.entities;
   const tipAmt = Math.max(0, Math.round((Number(tip) || 0) * 100) / 100);
   // Enforce the platform fee server-side: 12.9% + $0.30 per transaction.
-  // Tips pass through 100% to the teen.
+  // Tips are charged a 3.5% + $0.50 processing fee to cover Stripe's cost;
+  // the net tip (after fee) is what the teen actually receives.
   const gross = Math.round((Number(booking.price_total) || 0) * 100) / 100;
   const platformFee = calculatePlatformFee(gross);
   const netBase = calculateNetAmount(gross);
-  const teenGets = Math.round((netBase + tipAmt) * 100) / 100;
+  const tipFee = calculateTipFee(tipAmt);
+  const netTip = calculateTipNet(tipAmt);
+  const teenGets = Math.round((netBase + netTip) * 100) / 100;
 
   await svc.Booking.update(booking.id, {
     payment_status: 'released',
@@ -34,6 +37,7 @@ export async function releaseBookingPayment(base44, booking, tip) {
     net_amount: teenGets,
     occurred_at: new Date().toISOString(),
     tax_year: new Date().getFullYear(),
+    description: tipAmt > 0 ? `Includes ${money(tipAmt)} tip (${money(netTip)} after ${money(tipFee)} processing fee)` : '',
   });
 
   // Increment jobs_completed for both the teen and the buyer — this is the
@@ -60,7 +64,7 @@ export async function releaseBookingPayment(base44, booking, tip) {
     teen_user_id: booking.teen_user_id,
     type: 'earning',
     amount: teenGets,
-    description: `"${booking.listing_title}" — ${booking.buyer_name}${tipAmt > 0 ? ` (incl. ${money(tipAmt)} tip)` : ''}`,
+    description: `"${booking.listing_title}" — ${booking.buyer_name}${tipAmt > 0 ? ` (incl. ${money(netTip)} tip after fee)` : ''}`,
     occurred_at: new Date().toISOString(),
   });
   await svc.WalletAccount.update(wallet.id, {
@@ -71,8 +75,8 @@ export async function releaseBookingPayment(base44, booking, tip) {
   await svc.Notification.create({
     user_id: booking.teen_user_id,
     type: 'payment',
-    title: tipAmt > 0 ? `You got paid — plus a ${money(tipAmt)} tip! 🎉` : 'You got paid!',
-    body: `${money(teenGets)} landed in your Blockwork Wallet for "${booking.listing_title}".`,
+    title: tipAmt > 0 ? `You got paid — plus a ${money(netTip)} tip! 🎉` : 'You got paid!',
+    body: `${money(teenGets)} landed in your Blockwork Wallet for "${booking.listing_title}"${tipAmt > 0 ? ` (tip after ${money(tipFee)} processing fee)` : ''}.`,
     link: '/teen/wallet',
   });
   // Delay the actual Stripe Connect transfer by 7 days to allow the buyer's

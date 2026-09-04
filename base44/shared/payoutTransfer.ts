@@ -3,6 +3,7 @@ import { notifyAdmins } from './notifyAdmins.ts';
 import { notifyParentPayoutSent } from './notifyParent.ts';
 import { reviewBookingPayout, saveReview } from './payoutReview.ts';
 import { notifyOwnerTransaction } from './notifyOwnerTransaction.ts';
+import { calculateTipNet } from './platformFee.ts';
 
 const REVIEW_THRESHOLD = 100; // USD — payouts at/above this go to manual review
 const money = (n) => `$${Number(n || 0).toFixed(2)}`;
@@ -58,8 +59,10 @@ async function createTransfer(stripe, { amount, sourceTransaction, destination, 
 export async function attemptBookingPayout(base44, booking, { skipReview = false } = {}) {
   const svc = base44.asServiceRole.entities;
   const baseAmount = Math.round((Number(booking.net_amount) || 0) * 100) / 100;
-  const tipAmount = Math.round((Number(booking.tip_amount) || 0) * 100) / 100;
-  const totalAmount = baseAmount + tipAmount;
+  // The tip transfer is the NET tip after the 3.5% + $0.50 processing fee —
+  // the fee stays in the platform balance to cover Stripe's charge cost.
+  const tipAmount = calculateTipNet(Math.round((Number(booking.tip_amount) || 0) * 100) / 100);
+  const totalAmount = Math.round((baseAmount + tipAmount) * 100) / 100;
   if (totalAmount <= 0) return { status: 'not_started' };
 
   // Payouts route to the parent's Connect account for minors, or the teen's

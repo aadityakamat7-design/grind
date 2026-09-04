@@ -17,7 +17,11 @@ export default function TipReleaseDialog({ open, onOpenChange, booking, onReleas
   // The buyer's view has net_amount stripped (privacy) — use price_total, the
   // escrow amount they actually paid and are now releasing.
   const escrowAmount = booking.price_total || booking.net_amount || 0;
-  const teenGets = escrowAmount + tipAmt;
+  // Tips are charged a 3.5% + $0.50 processing fee to cover Stripe's cost;
+  // the net tip (after fee) is what the teen actually receives.
+  const tipFee = tipAmt > 0 ? Math.round((tipAmt * 0.035 + 0.5) * 100) / 100 : 0;
+  const netTip = Math.max(0, Math.round((tipAmt - tipFee) * 100) / 100);
+  const teenGets = escrowAmount + netTip;
 
   const confirm = async () => {
     setSaving(true);
@@ -47,7 +51,7 @@ export default function TipReleaseDialog({ open, onOpenChange, booking, onReleas
           <DialogTitle>Confirm job done & pay {booking.teen_display_name}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
-          <p className="text-sm text-muted-foreground">The work is done! Add a tip if you'd like — 100% goes to the teen.</p>
+          <p className="text-sm text-muted-foreground">The work is done! Add a tip if you'd like. A 3.5% + $0.50 processing fee applies to tips to cover Stripe's payment cost — the rest goes to the teen.</p>
           <div>
             <Label>Add a tip? (optional)</Label>
             <div className="grid grid-cols-4 gap-2 mt-1.5">
@@ -67,7 +71,10 @@ export default function TipReleaseDialog({ open, onOpenChange, booking, onReleas
           </div>
           <div className="bg-secondary rounded-xl p-4 text-sm space-y-1.5">
             <div className="flex justify-between text-xs text-muted-foreground"><span>Job payment (escrow)</span><span>{money(escrowAmount)}</span></div>
-            {tipAmt > 0 && <div className="flex justify-between text-xs text-emerald-600 font-semibold"><span>Tip</span><span>+{money(tipAmt)}</span></div>}
+            {tipAmt > 0 && <>
+              <div className="flex justify-between text-xs text-muted-foreground"><span>Tip</span><span>+{money(tipAmt)}</span></div>
+              <div className="flex justify-between text-xs text-muted-foreground"><span>Processing fee (3.5% + $0.50)</span><span>−{money(tipFee)}</span></div>
+            </>}
             <div className="flex justify-between font-bold text-foreground"><span>{booking.teen_display_name} receives</span><span>{money(teenGets)}</span></div>
           </div>
           <Button className="w-full rounded-xl" disabled={saving} onClick={confirm}>
