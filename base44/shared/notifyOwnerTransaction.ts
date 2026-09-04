@@ -19,7 +19,7 @@ export async function notifyOwnerTransaction(base44, { type, title, details }) {
   ].join('\n');
 
   try {
-    await base44.integrations.Core.SendEmail({
+    await base44.asServiceRole.integrations.Core.SendEmail({
       to: OWNER_EMAIL,
       subject: `[Blockwork] ${type}: ${title}`,
       body,

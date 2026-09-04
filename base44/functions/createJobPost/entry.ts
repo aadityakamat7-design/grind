@@ -81,7 +81,7 @@ Deno.serve(async (req) => {
 
     // Server-side AI child labor law screening — the client can never bypass
     // this by calling createJobPost directly with ai_approved: true.
-    const screen = await base44.integrations.Core.InvokeLLM({
+    const screen = await base44.asServiceRole.integrations.Core.InvokeLLM({
       prompt: `You are a strict child labor law compliance officer for "Blockwork", a marketplace where teenagers aged 13-19 perform casual local jobs for neighbors. All work is either OUTDOOR (lawn care, car washing, dog walking, yard work — performed outside the residence, never inside a home) or ONLINE (tutoring, remote tech help — conducted via video, no physical meeting). In-home work (babysitting, house cleaning, elder care, in-person tutoring) is PROHIBITED — teens never enter a client's home under any circumstance. Ages 18-19 are legal adults who can perform most non-hazardous work without child-labor restrictions, but the platform still prohibits hazardous tasks for all ages.
 
 Evaluate whether the following job may legally and safely be performed by a teen worker in the U.S. state of ${body.state}. Apply BOTH:

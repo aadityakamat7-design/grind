@@ -11,7 +11,7 @@ Deno.serve(async (req) => {
     const { title, description, category, priceModel, state } = await req.json();
     if (!title || !title.trim()) return Response.json({ error: 'title required' }, { status: 400 });
 
-    const result = await base44.integrations.Core.InvokeLLM({
+    const result = await base44.asServiceRole.integrations.Core.InvokeLLM({
       prompt: `You are a pricing advisor for "Blockwork", a neighborhood marketplace where teens (ages 13-17) do local jobs for neighbors. Given the job details below, recommend a fair price.
 
 Job title: ${title}

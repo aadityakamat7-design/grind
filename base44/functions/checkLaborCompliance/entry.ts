@@ -82,7 +82,7 @@ Return your assessment as JSON matching this exact shape:
   "citations": [ "statute / agency source" ]
 }`;
 
-    const result = await base44.integrations.Core.InvokeLLM({
+    const result = await base44.asServiceRole.integrations.Core.InvokeLLM({
       prompt,
       response_json_schema: {
         type: 'object',

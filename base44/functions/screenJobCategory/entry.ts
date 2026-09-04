@@ -12,7 +12,7 @@ Deno.serve(async (req) => {
     const { title, description, priceModel } = await req.json();
     if (!title || !title.trim()) return Response.json({ error: 'title required' }, { status: 400 });
 
-    const result = await base44.integrations.Core.InvokeLLM({
+    const result = await base44.asServiceRole.integrations.Core.InvokeLLM({
       prompt: `You are a job-category classifier for "Blockwork", a teen jobs marketplace. Read the job title and description below and pick the ONE category that best fits from this list:
 - tutoring (academic help, homework, teaching a skill like music or coding)
 - lawn_care (mowing, weeding, raking, yard cleanup, gardening)
