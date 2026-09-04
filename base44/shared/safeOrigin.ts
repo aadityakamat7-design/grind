@@ -8,7 +8,15 @@ export function getSafeOrigin(req: Request): string {
     const url = new URL(origin);
     if (url.protocol !== 'https:') return DEFAULT_ORIGIN;
     const host = url.hostname;
-    if (host === 'base44.app' || host.endsWith('.base44.app') || host.endsWith('.base44.dev')) {
+    // Accept the published app (foo.base44.app) and preview hosts, which use
+    // `--` separators (e.g. preview-sandbox--<app>--base44.app). Without the
+    // `--` check, preview sessions fall back to the published origin and
+    // Stripe cancel/success redirects bounce the user to the published app
+    // (where they aren't logged in) instead of back to the booking.
+    if (
+      host === 'base44.app' || host.endsWith('.base44.app') || host.endsWith('--base44.app') ||
+      host === 'base44.dev' || host.endsWith('.base44.dev') || host.endsWith('--base44.dev')
+    ) {
       return url.origin;
     }
   } catch {
