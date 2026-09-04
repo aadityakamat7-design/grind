@@ -4,8 +4,7 @@ import { getSafeOrigin } from '../../shared/safeOrigin.ts';
 
 // Starts Stripe Connect Express hosted onboarding for a payout account.
 // Parents (of minors) and independent 18+ teens both use this — bank details
-// are entered directly with Stripe, never stored here. Identity verification
-// is required first for both roles.
+// are entered directly with Stripe, never stored here.
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -27,15 +26,6 @@ Deno.serve(async (req) => {
     const isTeen = !!teenProfiles[0];
     if (!isParent && !isTeen) {
       return Response.json({ error: 'No payout profile found.' }, { status: 400 });
-    }
-
-    // Identity verification is required before payouts can be enabled — for
-    // both parents and independent teens.
-    const identityOk = isParent
-      ? !!parentProfiles[0].is_identity_verified
-      : teenProfiles[0].identity_status === 'verified';
-    if (!identityOk) {
-      return Response.json({ error: 'Identity verification is required before setting up payouts.' }, { status: 403 });
     }
 
     const profile = isParent ? parentProfiles[0] : teenProfiles[0];
