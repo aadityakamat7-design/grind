@@ -6,7 +6,6 @@ import BookingCard from "@/components/grind/BookingCard";
 import PageHeader from "@/components/grind/PageHeader";
 import EmptyState from "@/components/grind/EmptyState";
 import StudentIncomeCard from "@/components/grind/parent/StudentIncomeCard";
-import ApprovalQueue from "@/components/grind/parent/ApprovalQueue";
 import SafetyPanel from "@/components/grind/parent/SafetyPanel";
 
 import PayoutStatusCard from "@/components/grind/parent/PayoutStatusCard";
@@ -124,14 +123,12 @@ export default function ParentDashboard() {
     return (
       <PullToRefresh onRefresh={load}>
         <div className="space-y-6">
-          <PageHeader title="Parent dashboard" subtitle="You're almost there — one more step to activate your teen's account." />
+          <PageHeader title="Parent dashboard" subtitle="Your teen can start working right away." />
           {pendingLinks.map((l) => (
-            <div key={l.id} className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
-              <p className="font-bold text-amber-700 text-sm">Linked with {l.teen_display_name} — pending activation</p>
-              <p className="text-xs text-amber-600 mt-1">
-                {identityVerificationEnabled
-                  ? "Verify your government ID to activate your teen's account and connect your payout account."
-                  : "Connect your bank account to activate your teen's account and start receiving payouts."}
+            <div key={l.id} className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4">
+              <p className="font-bold text-emerald-700 text-sm">Linked with {l.teen_display_name}</p>
+              <p className="text-xs text-emerald-600 mt-1">
+                Your teen can post services and take jobs now. To receive their earnings, connect your bank account below.
               </p>
             </div>
           ))}
@@ -157,7 +154,6 @@ export default function ParentDashboard() {
   const shownRecords = records.filter((r) => shownIds.includes(r.teen_user_id));
   const weekAgo = Date.now() - 7 * 86400000;
 
-  const pending = shownBookings.filter((b) => b.status === "pending_parent_approval");
   const activeJobs = shownBookings.filter((b) => b.status === "in_progress");
   const upcoming = shownBookings
     .filter((b) => b.status === "confirmed")
@@ -178,7 +174,7 @@ export default function ParentDashboard() {
           return <LockedSetupCard profile={parentProfile} onStartSetup={() => setVerifyOpen(true)} identityVerificationEnabled={identityVerificationEnabled} />;
         })()}
 
-        <ParentStatsGrid records={records} bookings={bookings} links={links} teenProfiles={teenProfiles} pendingApprovals={bookings.filter((b) => b.status === "pending_parent_approval").length} />
+        <ParentStatsGrid records={records} bookings={bookings} links={links} teenProfiles={teenProfiles} />
 
         {links.length > 1 && (
           <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-4 px-4">
@@ -238,8 +234,6 @@ export default function ParentDashboard() {
             </div>
           );
         })}
-
-        <ApprovalQueue pending={pending} onDecided={load} />
 
         <SafetyPanel activeJobs={activeJobs} alerts={alerts} />
 
