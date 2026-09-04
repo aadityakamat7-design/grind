@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Zap, Lock } from "lucide-react";
+import { Lock } from "lucide-react";
 import StripeBadge from "@/components/StripeBadge";
 import NortonBadge from "@/components/NortonBadge";
 
@@ -21,10 +21,9 @@ export default function SiteFooter() {
       <div className="max-w-5xl mx-auto px-4 lg:px-8 py-5">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <div className="w-6 h-6 rounded-lg bg-primary flex items-center justify-center">
-              <Zap className="w-3.5 h-3.5 text-primary-foreground" />
-            </div>
-            <span className="font-semibold text-foreground">Blockwork</span>
+            <Link to="/" className="font-semibold text-foreground hover:text-primary transition-colors">
+              Blockwork
+            </Link>
             <span>· © {new Date().getFullYear()}</span>
           </div>
           <nav className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-muted-foreground">
