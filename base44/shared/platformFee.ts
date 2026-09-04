@@ -1,9 +1,9 @@
-// Centralized platform fee calculation — 12.5% + $0.65 fixed per transaction.
+// Centralized platform fee calculation — 12.9% + $0.30 fixed per transaction.
 // Used by every backend function that computes or validates a platform fee so
 // the rate lives in exactly one place.
 
-export const PLATFORM_FEE_RATE = 0.125;
-export const PLATFORM_FEE_FIXED = 0.65;
+export const PLATFORM_FEE_RATE = 0.129;
+export const PLATFORM_FEE_FIXED = 0.30;
 
 export function calculatePlatformFee(gross: number): number {
   return Math.round((gross * PLATFORM_FEE_RATE + PLATFORM_FEE_FIXED) * 100) / 100;

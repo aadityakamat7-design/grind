@@ -167,7 +167,7 @@ export default function Admin() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           <StatCard icon={CalendarDays} label="Total bookings" value={bookings.length} subtitle={`${bookingsByStatus.in_progress} active now`} accent="text-primary" />
           <StatCard icon={Wallet} label="GMV" value={money(gmv)} subtitle="gross booking value" accent="text-emerald-600" />
-          <StatCard icon={TrendingUp} label="Platform revenue" value={money(platformRevenue)} subtitle="12.5% + $0.65 take rate" accent="text-amber-600" />
+          <StatCard icon={TrendingUp} label="Platform revenue" value={money(platformRevenue)} subtitle="12.9% + $0.30 take rate" accent="text-amber-600" />
           <StatCard icon={CheckCircle2} label="Completion rate" value={`${completionRate}%`} subtitle={`${completed.length} completed`} accent="text-emerald-600" />
           <StatCard icon={CalendarDays} label="Avg booking value" value={money(avgBookingValue)} subtitle="per job" accent="text-primary" />
           <StatCard icon={CheckCircle2} label="Pending approval" value={bookingsByStatus.pending_parent_approval} subtitle="awaiting parent" accent="text-amber-600" />

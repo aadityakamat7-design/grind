@@ -79,7 +79,7 @@ export async function reviewBookingPayout(base44, booking: any): Promise<PayoutR
   // --- 1. Amount sanity ---
   const amountDiff = Math.abs(baseAmount - expectedNet);
   if (amountDiff > 0.02) {
-    checks.push({ name: 'amount_sanity', passed: false, reason: `Net ${money(baseAmount)} ≠ expected ${money(expectedNet)} (gross ${money(gross)} − 12.5% + $0.65 fee ${money(expectedFee)})` });
+    checks.push({ name: 'amount_sanity', passed: false, reason: `Net ${money(baseAmount)} ≠ expected ${money(expectedNet)} (gross ${money(gross)} − 12.9% + $0.30 fee ${money(expectedFee)})` });
     flags.push(`Amount mismatch: net ${money(baseAmount)} vs expected ${money(expectedNet)}`);
     isCritical = true;
   } else {

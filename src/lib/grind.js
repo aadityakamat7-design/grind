@@ -1,7 +1,7 @@
 // Shared constants, helpers, and safety logic for Blockwork
 
-export const PLATFORM_FEE_RATE = 0.125;
-export const PLATFORM_FEE_FIXED = 0.65;
+export const PLATFORM_FEE_RATE = 0.129;
+export const PLATFORM_FEE_FIXED = 0.30;
 
 // Price caps — enforced server-side via entity schema, mirrored here for
 // client-side validation so users get immediate feedback before Stripe.
