@@ -1,12 +1,28 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 import { getStripeForApp } from '../../shared/stripeEnv.ts';
-import { getSafeOrigin } from '../../shared/safeOrigin.ts';
+import { getSafeOrigin, safeOriginFromString } from '../../shared/safeOrigin.ts';
 
-// Only allow relative paths (starting with a single "/") as the return URL to
-// prevent open-redirect attacks via attacker-supplied external domains.
+// Accepts either a relative path (starting with a single "/") or a full
+// https URL on a trusted app domain. Relative paths are anchored to the
+// request's safe origin; full URLs are validated and used as-is so the
+// frontend can preserve the exact path + query (e.g. ?identity_return=1).
 function safeReturnUrl(req: Request, returnUrl?: string): string {
-  if (typeof returnUrl === 'string' && returnUrl.startsWith('/') && !returnUrl.startsWith('//')) {
+  if (typeof returnUrl !== 'string') return getSafeOrigin(req);
+  // Relative path — anchor to the safe origin.
+  if (returnUrl.startsWith('/') && !returnUrl.startsWith('//')) {
     return `${getSafeOrigin(req)}${returnUrl}`;
+  }
+  // Full URL — validate its origin is a trusted app domain, then use as-is.
+  try {
+    const url = new URL(returnUrl);
+    if (url.protocol === 'https:') {
+      const safe = safeOriginFromString(returnUrl);
+      // safeOriginFromString returns APP_BASE_URL when the host isn't trusted,
+      // so only accept the full URL when it round-trips unchanged.
+      if (safe === url.origin) return returnUrl;
+    }
+  } catch {
+    // fall through
   }
   return getSafeOrigin(req);
 }

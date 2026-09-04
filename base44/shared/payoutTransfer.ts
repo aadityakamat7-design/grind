@@ -4,6 +4,7 @@ import { notifyParentPayoutSent } from './notifyParent.ts';
 import { reviewBookingPayout, saveReview } from './payoutReview.ts';
 import { notifyOwnerTransaction } from './notifyOwnerTransaction.ts';
 import { calculateTipNet } from './platformFee.ts';
+import { APP_BASE_URL } from './safeOrigin.ts';
 
 const REVIEW_THRESHOLD = 100; // USD — payouts at/above this go to manual review
 const money = (n) => `$${Number(n || 0).toFixed(2)}`;
@@ -258,7 +259,7 @@ export async function attemptBookingPayout(base44, booking, { skipReview = false
       amount: totalTransferred,
       jobTitle: booking.listing_title,
       bankLast4: dest.bank_last4,
-      origin: Deno.env.get('BASE44_APP_URL') || '',
+      origin: APP_BASE_URL,
     });
   }
 

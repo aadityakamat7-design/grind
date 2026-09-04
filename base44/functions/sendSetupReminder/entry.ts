@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
-import { getSafeOrigin } from '../../shared/safeOrigin.ts';
+import { APP_BASE_URL } from '../../shared/safeOrigin.ts';
 import { verifyWorkflowCall } from '../../shared/workflowAuth.ts';
 
 // Called by the Setup Reminders workflow at 24h and 72h after a teen accepts
@@ -37,7 +37,7 @@ Deno.serve(async (req) => {
       : [];
     const parent = parents[0];
     if (parent?.email) {
-      const origin = getSafeOrigin(req);
+      const origin = APP_BASE_URL;
       const deepLink = `${origin}/parent/approvals?setup=1`;
       const teenName = booking.teen_display_name || 'Your teen';
       const subject = `Reminder: ${teenName}'s job is waiting — complete setup to approve`;

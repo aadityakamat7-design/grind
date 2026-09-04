@@ -1,20 +1,25 @@
-const DEFAULT_ORIGIN = 'https://teenskickstart.base44.app';
+// Single source of truth for the app's production base URL.
+// Every redirect, callback, and generated link references this so the
+// domain can never drift across files.
+export const APP_BASE_URL = 'https://blockwork.online';
+
+// Backwards-compatible alias — some callers still import DEFAULT_ORIGIN.
+const DEFAULT_ORIGIN = APP_BASE_URL;
 
 // Validates an origin string and returns it if it's a trusted app domain,
-// otherwise DEFAULT_ORIGIN. Shared by getSafeOrigin (header-based) and the
+// otherwise APP_BASE_URL. Shared by getSafeOrigin (header-based) and the
 // frontend-provided origin param (which is more reliable in preview iframes).
 export function safeOriginFromString(originStr: string | null | undefined): string {
-  if (!originStr) return DEFAULT_ORIGIN;
+  if (!originStr) return APP_BASE_URL;
   try {
     const url = new URL(originStr);
-    if (url.protocol !== 'https:') return DEFAULT_ORIGIN;
+    if (url.protocol !== 'https:') return APP_BASE_URL;
     const host = url.hostname;
-    // Accept the published app (foo.base44.app) and preview hosts, which use
-    // `--` separators (e.g. preview-sandbox--<app>--base44.app). Without the
-    // `--` check, preview sessions fall back to the published origin and
-    // Stripe cancel/success redirects bounce the user to the published app
-    // (where they aren't logged in) instead of back to the booking.
+    // Production custom domain (blockwork.online) is the primary origin.
+    // Base44 domains are kept only so the builder preview still works —
+    // production redirects always target blockwork.online via APP_BASE_URL.
     if (
+      host === 'blockwork.online' || host.endsWith('.blockwork.online') ||
       host === 'base44.app' || host.endsWith('.base44.app') || host.endsWith('--base44.app') ||
       host === 'base44.dev' || host.endsWith('.base44.dev') || host.endsWith('--base44.dev')
     ) {
@@ -23,7 +28,7 @@ export function safeOriginFromString(originStr: string | null | undefined): stri
   } catch {
     // fall through to default
   }
-  return DEFAULT_ORIGIN;
+  return APP_BASE_URL;
 }
 
 // Only redirect back to trusted app domains — never to an attacker-supplied Origin header.

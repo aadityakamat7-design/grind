@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
-import { getSafeOrigin } from '../../shared/safeOrigin.ts';
+import { APP_BASE_URL } from '../../shared/safeOrigin.ts';
 import { verifyWorkflowCall } from '../../shared/workflowAuth.ts';
 
 // Called on a schedule. Notifies the teen and buyer of confirmed bookings
@@ -25,7 +25,7 @@ Deno.serve(async (req) => {
       return start >= now && start <= soon;
     });
 
-    const origin = getSafeOrigin(req);
+    const origin = APP_BASE_URL;
 
     for (const b of due) {
       const when = new Date(b.scheduled_start).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });

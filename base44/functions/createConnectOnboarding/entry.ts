@@ -1,6 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 import { getStripeForApp } from '../../shared/stripeEnv.ts';
-import { getSafeOrigin } from '../../shared/safeOrigin.ts';
+import { getSafeOrigin, safeOriginFromString } from '../../shared/safeOrigin.ts';
 
 // Starts Stripe Connect Express hosted onboarding for a payout account.
 // Parents (of minors) and independent 18+ teens both use this — bank details
@@ -15,6 +15,7 @@ Deno.serve(async (req) => {
     const returnPath = typeof body.returnPath === 'string' && body.returnPath.startsWith('/')
       ? body.returnPath
       : '/parent/payouts';
+    const origin = body.origin ? safeOriginFromString(body.origin) : getSafeOrigin(req);
 
     const svc = base44.asServiceRole.entities;
     const [parentProfiles, teenProfiles] = await Promise.all([
@@ -62,7 +63,6 @@ Deno.serve(async (req) => {
       accountId = await createAccount();
     }
 
-    const origin = getSafeOrigin(req);
     let link;
     try {
       link = await stripe.accountLinks.create({

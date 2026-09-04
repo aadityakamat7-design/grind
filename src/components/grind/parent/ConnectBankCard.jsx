@@ -28,7 +28,7 @@ export default function ConnectBankCard({ profile, onUpdated, returnPath = "/par
   const start = async () => {
     setBusy(true);
     setError("");
-    const res = await base44.functions.invoke("createConnectOnboarding", { returnPath });
+    const res = await base44.functions.invoke("createConnectOnboarding", { returnPath, origin: window.location.origin });
     setBusy(false);
     if (!res.data?.url) {
       setError(res.data?.error || "Could not start bank setup. Please try again.");

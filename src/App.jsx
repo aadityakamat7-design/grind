@@ -9,6 +9,7 @@ import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ScrollToTop from './components/ScrollToTop';
 import TestModeBanner from "@/components/TestModeBanner";
 import RouteMeta from "@/components/RouteMeta";
+import CanonicalDomainRedirect from "@/components/CanonicalDomainRedirect";
 // Add page imports here
 import Login from '@/pages/Login';
 import Register from '@/pages/Register';
@@ -144,6 +145,7 @@ function App() {
       <QueryClientProvider client={queryClientInstance}>
         <Router>
           <ScrollToTop />
+          <CanonicalDomainRedirect />
           <TestModeBanner />
           <RouteMeta />
           <AuthenticatedApp />

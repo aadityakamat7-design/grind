@@ -3,7 +3,7 @@ import { getVerifiedAge } from '../../shared/teenAge.ts';
 import { getMinAgeForCategory } from '../../shared/categoryAgeRules.ts';
 import { getDeliveryMode, isRemovedCategory, generateSessionLink } from '../../shared/deliveryMode.ts';
 import { notifyParentJobAccepted } from '../../shared/notifyParent.ts';
-import { getSafeOrigin } from '../../shared/safeOrigin.ts';
+import { APP_BASE_URL } from '../../shared/safeOrigin.ts';
 import { enforceBookingHours } from '../../shared/workHourEnforcement.ts';
 import { calculatePlatformFee, calculateNetAmount } from '../../shared/platformFee.ts';
 
@@ -179,7 +179,7 @@ Deno.serve(async (req) => {
         jobTitle: job.title,
         buyerName: job.buyer_name,
         parentUserId: parentUserId,
-        origin: getSafeOrigin(req),
+        origin: APP_BASE_URL,
         setupNeeded,
       });
     }
