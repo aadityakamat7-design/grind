@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, AlertCircle, ChevronRight } from "lucide-react";
+import { CheckCircle2, AlertCircle, ChevronRight, Clock } from "lucide-react";
+import { format } from "date-fns";
 import IdentityVerificationGate from "@/components/grind/parent/IdentityVerificationGate";
 
 // Status card shown on the parent dashboard ONLY after setup is complete
@@ -54,6 +55,16 @@ export default function PayoutStatusCard({ profile, onUpdated, returnPath = "/pa
           Manage payout account
           <ChevronRight className="w-4 h-4" />
         </Button>
+
+        {profile?.payout_account_created_at && (Date.now() - new Date(profile.payout_account_created_at).getTime()) < 72 * 60 * 60 * 1000 && (
+          <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-xl p-2.5 text-xs text-amber-700 mt-3">
+            <Clock className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+            <span>
+              New account security hold — first payouts release 72 hours after setup.
+              Available {format(new Date(new Date(profile.payout_account_created_at).getTime() + 72 * 60 * 60 * 1000), "MMM d 'at' h:mm a")}.
+            </span>
+          </div>
+        )}
 
         {profile?.connect_status === "restricted" && (
           <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-xl p-2.5 text-xs text-amber-700 mt-3">

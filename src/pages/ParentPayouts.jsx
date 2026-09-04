@@ -15,6 +15,7 @@ const PAYOUT_LABELS = {
   transferred: { text: "In your bank in 1–2 business days", cls: "text-emerald-600", icon: CheckCircle2 },
   pending_review: { text: "Safety review — usually within 1 day", cls: "text-amber-600", icon: Clock },
   awaiting_bank: { text: "Waiting for your bank connection", cls: "text-rose-600", icon: Landmark },
+  pending_new_account_hold: { text: "New account security hold — first payouts release 72 hours after setup", cls: "text-amber-600", icon: Clock },
 };
 
 export default function ParentPayouts() {
@@ -75,7 +76,10 @@ export default function ParentPayouts() {
     const settlementReady = b.payout_status === "awaiting_settlement"
       && b.payout_eligible_at
       && new Date(b.payout_eligible_at) <= new Date();
-    return (b.payout_status === "awaiting_bank" || settlementReady);
+    const holdReady = b.payout_status === "pending_new_account_hold"
+      && b.new_account_hold_eligible_at
+      && new Date(b.new_account_hold_eligible_at) <= new Date();
+    return (b.payout_status === "awaiting_bank" || settlementReady || holdReady);
   });
   const canBatch = eligibleBookings.length > 0 && profile?.connect_status === "active";
   const [batching, setBatching] = useState(false);
@@ -153,7 +157,10 @@ export default function ParentPayouts() {
             const settlementReady = booking?.payout_status === "awaiting_settlement"
               && booking?.payout_eligible_at
               && new Date(booking.payout_eligible_at) <= new Date();
-            const canRetry = (booking?.payout_status === "awaiting_bank" || settlementReady)
+            const holdReady = booking?.payout_status === "pending_new_account_hold"
+              && booking?.new_account_hold_eligible_at
+              && new Date(booking.new_account_hold_eligible_at) <= new Date();
+            const canRetry = (booking?.payout_status === "awaiting_bank" || settlementReady || holdReady)
               && profile?.connect_status === "active";
             return (
               <div key={r.id} className="bg-card rounded-2xl border border-border shadow-soft p-4">
@@ -169,6 +176,11 @@ export default function ParentPayouts() {
                 {info && (
                   <p className={`flex items-center gap-1.5 text-[12px] font-semibold mt-2.5 ${info.cls}`}>
                     <Icon className="w-3.5 h-3.5" /> {info.text}
+                  </p>
+                )}
+                {booking?.payout_status === "pending_new_account_hold" && booking?.new_account_hold_eligible_at && (
+                  <p className="text-[11px] text-muted-foreground mt-1">
+                    Available {format(new Date(booking.new_account_hold_eligible_at), "MMM d 'at' h:mm a")}
                   </p>
                 )}
                 {canRetry && (

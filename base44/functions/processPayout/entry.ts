@@ -44,7 +44,10 @@ Deno.serve(async (req) => {
     const settlementReady = booking.payout_status === 'awaiting_settlement'
       && booking.payout_eligible_at
       && new Date(booking.payout_eligible_at) <= new Date();
-    const canWithdraw = booking.payout_status === 'awaiting_bank' || settlementReady;
+    const holdReady = booking.payout_status === 'pending_new_account_hold'
+      && booking.new_account_hold_eligible_at
+      && new Date(booking.new_account_hold_eligible_at) <= new Date();
+    const canWithdraw = booking.payout_status === 'awaiting_bank' || settlementReady || holdReady;
 
     if (isAdmin) {
       const result = await attemptBookingPayout(base44, booking, { skipReview: true });

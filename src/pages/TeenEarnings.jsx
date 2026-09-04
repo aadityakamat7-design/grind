@@ -21,6 +21,7 @@ const PAYOUT_STATUS = {
   transferred: { label: "Sent to parent's bank", color: "#00D47E" },
   pending_review: { label: "In review", color: "#F2B84B" },
   awaiting_bank: { label: "Parent connecting bank", color: "#F2B84B" },
+  pending_new_account_hold: { label: "New account hold (72h)", color: "#F2B84B" },
   not_started: { label: "Released to parent", color: "#00D47E" },
 };
 

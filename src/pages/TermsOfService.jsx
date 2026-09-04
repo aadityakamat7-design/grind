@@ -126,6 +126,9 @@ export default function TermsOfService() {
           <p>
             <strong>Payouts.</strong> Earnings are paid to the parent's connected Stripe Connect account, not directly to the teen. The parent is responsible for any tax reporting and for distributing earnings to the teen as they see fit.
           </p>
+          <p>
+            <strong>New-account security hold.</strong> The first payout from a newly created payout account is held for 72 hours as a fraud-prevention measure. Once the 72-hour window passes, the payout is released automatically — no manual action is required. This hold applies once per new account and stacks with the safety review described above; a payout subject to both is held for the 72-hour window first, then reviewed.
+          </p>
 
           <h2>8. Refunds and Disputes</h2>
           <p>

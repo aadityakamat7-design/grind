@@ -61,6 +61,18 @@
         }
       }
     },
+    "payout_account_created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the Stripe Connect payout account was first created \u2014 used for the 72-hour new-account withdrawal hold (server-set only)",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
     "identity_status": {
       "type": "string",
       "enum": [

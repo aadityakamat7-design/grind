@@ -48,6 +48,7 @@ Deno.serve(async (req) => {
       await updateEntity.update(profile.id, {
         stripe_connect_account_id: account.id,
         connect_status: 'pending',
+        payout_account_created_at: new Date().toISOString(),
       });
       return account.id;
     };

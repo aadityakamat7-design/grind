@@ -16,9 +16,22 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const svc = base44.asServiceRole.entities;
 
-    const bookings = await svc.Booking.filter({ payout_status: 'awaiting_settlement' }, '-released_at', 200);
     const now = new Date();
-    const eligible = bookings.filter((b) => b.payout_eligible_at && new Date(b.payout_eligible_at) <= now);
+    // Pick up bookings past the 7-day settlement window AND bookings past the
+    // 72-hour new-account security hold. Both auto-release here so money is
+    // never stranded between the two processes. A payout subject to both the
+    // new-account hold and the manual review is handled in order: the hold
+    // lifts here first, then attemptBookingPayout runs the review which may
+    // move it to pending_review for an admin — it never sits in an ambiguous
+    // state where neither process picks it up.
+    const [settled, held] = await Promise.all([
+      svc.Booking.filter({ payout_status: 'awaiting_settlement' }, '-released_at', 200),
+      svc.Booking.filter({ payout_status: 'pending_new_account_hold' }, '-released_at', 200),
+    ]);
+    const eligible = [
+      ...settled.filter((b) => b.payout_eligible_at && new Date(b.payout_eligible_at) <= now),
+      ...held.filter((b) => b.new_account_hold_eligible_at && new Date(b.new_account_hold_eligible_at) <= now),
+    ];
 
     let processed = 0;
     let failed = 0;

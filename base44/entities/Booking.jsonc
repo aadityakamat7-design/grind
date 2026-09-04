@@ -311,11 +311,12 @@
         "not_started",
         "awaiting_bank",
         "awaiting_settlement",
+        "pending_new_account_hold",
         "pending_review",
         "transferred"
       ],
       "default": "not_started",
-      "description": "Stage of the Stripe Connect transfer to the parent. awaiting_settlement = released but waiting for the 7-day payment settlement window before the transfer is attempted.",
+      "description": "Stage of the Stripe Connect transfer to the parent. awaiting_settlement = released but waiting for the 7-day payment settlement window; pending_new_account_hold = 72-hour new-account security hold before the first payout can be attempted.",
       "rls": {
         "write": {
           "user_condition": {
@@ -338,6 +339,18 @@
       "type": "string",
       "format": "date-time",
       "description": "When the 7-day settlement window ends and the payout becomes eligible for transfer (server-set only)",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "new_account_hold_eligible_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the 72-hour new-account security hold lifts and the payout can be attempted (server-set only)",
       "rls": {
         "write": {
           "user_condition": {

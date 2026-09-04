@@ -58,6 +58,9 @@ const SECTIONS = [
         <p>
           <strong>How long it takes.</strong> Once a payout is released, it typically arrives in the connected bank account within 1–2 business days via Stripe.
         </p>
+        <p>
+          <strong>New-account security hold.</strong> The first payout from a brand-new account is held for 72 hours as a fraud-prevention measure. After the hold lifts, the payout is released automatically — no action needed. This applies once per new account, not on every payout.
+        </p>
       </>
     ),
   },

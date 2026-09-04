@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { Landmark, CheckCircle2, AlertCircle, Loader2, Lock } from "lucide-react";
+import { Landmark, CheckCircle2, AlertCircle, Loader2, Lock, Clock } from "lucide-react";
+import { format } from "date-fns";
 import StripeBadge from "@/components/StripeBadge";
 
 // Stripe Connect Express bank linking. The parent enters bank details directly
@@ -72,6 +73,15 @@ export default function ConnectBankCard({ profile, onUpdated, returnPath = "/par
             <p className="text-xs text-slate-500">Verified — payouts enabled. Transfers arrive in 1–2 business days.</p>
           </div>
         </div>
+        {profile?.payout_account_created_at && (Date.now() - new Date(profile.payout_account_created_at).getTime()) < 72 * 60 * 60 * 1000 && (
+          <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-xl p-2.5 text-xs text-amber-700 mt-3">
+            <Clock className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+            <span>
+              New account security hold — first payouts release 72 hours after setup.
+              Available {format(new Date(new Date(profile.payout_account_created_at).getTime() + 72 * 60 * 60 * 1000), "MMM d 'at' h:mm a")}.
+            </span>
+          </div>
+        )}
       </div>
     );
 

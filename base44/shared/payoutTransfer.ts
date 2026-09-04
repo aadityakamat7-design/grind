@@ -87,6 +87,31 @@ export async function attemptBookingPayout(base44, booking, { skipReview = false
     return { status: 'awaiting_bank' };
   }
 
+  // --- New-account 72-hour security hold ---
+  // No payout may be released until 72 hours after the payout account was
+  // first created. This is a fraud-prevention measure applied to both parent
+  // and independent-teen accounts. Enforced server-side — not bypassable from
+  // the client. The scheduled settlement job picks these up automatically once
+  // the window passes, so money is never stranded.
+  const NEW_ACCOUNT_HOLD_MS = 72 * 60 * 60 * 1000;
+  const accountCreatedAt = dest.payout_account_created_at ? new Date(dest.payout_account_created_at) : null;
+  if (accountCreatedAt && (Date.now() - accountCreatedAt.getTime()) < NEW_ACCOUNT_HOLD_MS) {
+    const eligibleAt = new Date(accountCreatedAt.getTime() + NEW_ACCOUNT_HOLD_MS).toISOString();
+    await svc.Booking.update(booking.id, {
+      payout_status: 'pending_new_account_hold',
+      new_account_hold_eligible_at: eligibleAt,
+      payout_review_reason: 'New account security hold — first payouts release 72 hours after account setup',
+    });
+    await svc.Notification.create({
+      user_id: destUserId,
+      type: 'payment',
+      title: 'New account security hold',
+      body: `${money(totalAmount)} from "${booking.listing_title}" is on a 72-hour security hold for your new account. It becomes available ${new Date(eligibleAt).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })}.`,
+      link: returnLink,
+    });
+    return { status: 'pending_new_account_hold', eligibleAt };
+  }
+
   // Run the automated review agent before any transfer. The agent runs 8
   // fraud/error/compliance checks and produces a risk assessment. Critical
   // failures block the payout entirely and alert admins; medium/high risk
