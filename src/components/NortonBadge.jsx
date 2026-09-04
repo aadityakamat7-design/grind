@@ -11,7 +11,7 @@ import React from "react";
 // TODO: Once Norton approves the site, replace the rendered badge below with
 // the official embed code from the Norton Safe Web dashboard so the seal pulls
 // from Norton's hosted asset and links to the verified rating page.
-const APP_URL = "https://teenskickstart.base44.app";
+const APP_URL = "https://blockwork.online";
 const NORTON_REPORT = `https://safeweb.norton.com/report/show?url=${encodeURIComponent(APP_URL)}`;
 
 export default function NortonBadge({ className = "" }) {
