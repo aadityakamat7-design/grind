@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Outlet, NavLink, Navigate, Link, useLocation, useNavigate } from "react-router-dom";
-import { Home, List, CalendarDays, MessageCircle, Wallet, LayoutDashboard, ShieldCheck, Search, Zap, Briefcase, ArrowLeft, LifeBuoy, MoreHorizontal } from "lucide-react";
+import { Home, List, CalendarDays, MessageCircle, Wallet, LayoutDashboard, ShieldCheck, Search, Briefcase, ArrowLeft, LifeBuoy, MoreHorizontal } from "lucide-react";
 import { useAppUser } from "@/lib/useAppUser";
 import NotificationBell from "@/components/grind/NotificationBell";
 import SiteFooter from "@/components/SiteFooter";
@@ -127,10 +127,7 @@ export default function Layout() {
       {/* Desktop sidebar */}
       <aside className="hidden lg:flex fixed inset-y-0 left-0 w-[260px] flex-col border-r border-border bg-card z-40">
         <div className="h-[68px] flex items-center px-6 border-b border-border">
-          <Link to="/" className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-soft">
-              <Zap className="w-5 h-5 text-primary-foreground" />
-            </div>
+          <Link to="/" className="flex items-center">
             <span className="font-extrabold text-[19px] tracking-tight text-foreground">Blockwork</span>
           </Link>
         </div>
@@ -199,10 +196,7 @@ export default function Layout() {
               Back
             </button>
           ) : (
-            <Link to="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shadow-soft">
-                <Zap className="w-4 h-4 text-primary-foreground" />
-              </div>
+            <Link to="/" className="flex items-center">
               <span className="font-extrabold text-[17px] tracking-tight text-foreground">Blockwork</span>
             </Link>
           )}
