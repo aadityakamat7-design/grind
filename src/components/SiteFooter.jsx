@@ -8,6 +8,7 @@ export default function SiteFooter() {
   const links = [
     { to: "/terms", label: "Terms of Service" },
     { to: "/privacy", label: "Privacy Policy" },
+    { to: "/compliance", label: "Payments & Compliance" },
     { to: "/support", label: "Support" },
     { to: "/safety", label: "Safety" },
     { to: "/faq", label: "FAQ" },

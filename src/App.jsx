@@ -41,6 +41,7 @@ import Admin from '@/pages/Admin';
 import AdminRoute from '@/components/grind/AdminRoute';
 import TermsOfService from '@/pages/TermsOfService';
 import PrivacyPolicy from '@/pages/PrivacyPolicy';
+import Compliance from '@/pages/Compliance';
 import Support from '@/pages/Support';
 import Safety from '@/pages/Safety';
 import About from '@/pages/About';
@@ -96,6 +97,7 @@ const AuthenticatedApp = () => {
       <Route path="/" element={<Welcome />} />
       <Route path="/terms" element={<TermsOfService />} />
       <Route path="/privacy" element={<PrivacyPolicy />} />
+      <Route path="/compliance" element={<Compliance />} />
       <Route path="/support" element={<Support />} />
       <Route path="/safety" element={<Safety />} />
       <Route path="/about" element={<About />} />
