@@ -23,6 +23,7 @@ import ErrorRetry from "@/components/grind/ErrorRetry";
 import PullToRefresh from "@/components/PullToRefresh";
 import BuyerModeCard from "@/components/grind/parent/BuyerModeCard";
 import WithdrawalLockCard from "@/components/grind/parent/WithdrawalLockCard";
+import PayoutHistorySection from "@/components/grind/parent/PayoutHistorySection";
 export default function ParentDashboard() {
   const { user, reload } = useOutletContext();
   const [links, setLinks] = useState([]);
@@ -250,6 +251,8 @@ export default function ParentDashboard() {
         })}
 
         <SafetyPanel activeJobs={activeJobs} alerts={alerts} />
+
+        <PayoutHistorySection bookings={shownBookings} />
 
         <section>
           <h2 className="text-[17px] font-bold text-foreground mb-3 flex items-center gap-2">

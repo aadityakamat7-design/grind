@@ -67,13 +67,6 @@ export default function About() {
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-primary/10 to-transparent rounded-2xl border border-border p-6 text-center">
-          <h2 className="font-bold text-foreground">Ready to join?</h2>
-          <p className="text-sm text-muted-foreground mt-1 mb-4">Whether you're a teen ready to earn or a neighbor who needs help, getting started takes less than two minutes.</p>
-          <Link to="/register" className="inline-flex items-center gap-2 bg-primary text-primary-foreground rounded-full px-6 py-2.5 text-sm font-medium hover:bg-primary-hover transition-colors">
-            Get Started
-          </Link>
-        </div>
       </div>
       <SiteFooter />
     </div>
