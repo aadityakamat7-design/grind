@@ -1,7 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Zap } from "lucide-react";
+import { Zap, Lock } from "lucide-react";
 import StripeBadge from "@/components/StripeBadge";
+import NortonBadge from "@/components/NortonBadge";
 
 // Subtle site-wide footer with the five required links. Appears on every page.
 export default function SiteFooter() {
@@ -34,9 +35,20 @@ export default function SiteFooter() {
             ))}
           </nav>
         </div>
-        {/* Stripe trust badge on every page — reinforces payment security site-wide */}
-        <div className="flex justify-center mt-4 pt-4 border-t border-border/50">
-          <StripeBadge showText={false} />
+        {/* Trust badges + self-stated security indicators — site-wide */}
+        <div className="flex flex-col items-center gap-3 mt-4 pt-4 border-t border-border/50">
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
+            <StripeBadge showText={false} />
+            <NortonBadge />
+          </div>
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-[11px] text-muted-foreground">
+            <span className="inline-flex items-center gap-1">
+              <Lock className="w-3 h-3" /> SSL Secured
+            </span>
+            <span className="inline-flex items-center gap-1">
+              Payments processed by Stripe
+            </span>
+          </div>
         </div>
       </div>
     </footer>
