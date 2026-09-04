@@ -1,11 +1,12 @@
 const DEFAULT_ORIGIN = 'https://teenskickstart.base44.app';
 
-// Only redirect back to trusted app domains — never to an attacker-supplied Origin header.
-export function getSafeOrigin(req: Request): string {
-  const origin = req.headers.get('origin');
-  if (!origin) return DEFAULT_ORIGIN;
+// Validates an origin string and returns it if it's a trusted app domain,
+// otherwise DEFAULT_ORIGIN. Shared by getSafeOrigin (header-based) and the
+// frontend-provided origin param (which is more reliable in preview iframes).
+export function safeOriginFromString(originStr: string | null | undefined): string {
+  if (!originStr) return DEFAULT_ORIGIN;
   try {
-    const url = new URL(origin);
+    const url = new URL(originStr);
     if (url.protocol !== 'https:') return DEFAULT_ORIGIN;
     const host = url.hostname;
     // Accept the published app (foo.base44.app) and preview hosts, which use
@@ -23,4 +24,9 @@ export function getSafeOrigin(req: Request): string {
     // fall through to default
   }
   return DEFAULT_ORIGIN;
+}
+
+// Only redirect back to trusted app domains — never to an attacker-supplied Origin header.
+export function getSafeOrigin(req: Request): string {
+  return safeOriginFromString(req.headers.get('origin'));
 }

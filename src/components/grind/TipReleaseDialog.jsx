@@ -29,6 +29,7 @@ export default function TipReleaseDialog({ open, onOpenChange, booking, onReleas
       bookingId: booking.id,
       action: "confirm",
       tipAmount: tipAmt,
+      origin: window.location.origin,
     });
     if (res.data?.url) {
       if (window.self !== window.top) {

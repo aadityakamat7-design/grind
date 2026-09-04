@@ -1,6 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 import { getStripeContext } from '../../shared/stripeEnv.ts';
-import { getSafeOrigin } from '../../shared/safeOrigin.ts';
+import { getSafeOrigin, safeOriginFromString } from '../../shared/safeOrigin.ts';
 
 Deno.serve(async (req) => {
   try {
@@ -8,7 +8,7 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { bookingId } = await req.json();
+    const { bookingId, origin: clientOrigin } = await req.json();
     if (!bookingId) return Response.json({ error: 'bookingId required' }, { status: 400 });
 
     const booking = await base44.asServiceRole.entities.Booking.get(bookingId);
@@ -26,7 +26,7 @@ Deno.serve(async (req) => {
     }
 
     const { stripe, testMode } = await getStripeContext(base44);
-    const origin = getSafeOrigin(req);
+    const origin = clientOrigin ? safeOriginFromString(clientOrigin) : getSafeOrigin(req);
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
       // No payment_method_types filter — Stripe Checkout then offers every

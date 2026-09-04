@@ -127,7 +127,7 @@ export default function BookingDetail() {
     setActing(true);
     setHandshakeError("");
     try {
-      const res = await base44.functions.invoke("jobHandshake", { bookingId: booking.id, action: "start" });
+      const res = await base44.functions.invoke("jobHandshake", { bookingId: booking.id, action: "start", origin: window.location.origin });
       if (res.data?.url) {
         if (window.self !== window.top) {
           alert("Checkout only works from the published app. Open your app in a new tab to pay.");

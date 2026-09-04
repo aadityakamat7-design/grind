@@ -111,7 +111,7 @@ export default function ExpressCheckout({ bookingId, amount, onSuccess, onError,
     setCardRedirecting(true);
     setErrorMsg("");
     try {
-      const res = await base44.functions.invoke("jobHandshake", { bookingId, action: "start" });
+      const res = await base44.functions.invoke("jobHandshake", { bookingId, action: "start", origin: window.location.origin });
       if (res.data?.url) {
         window.location.href = res.data.url;
         return;

@@ -1,6 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 import { getStripeContext, getStripeForApp } from '../../shared/stripeEnv.ts';
-import { getSafeOrigin } from '../../shared/safeOrigin.ts';
+import { getSafeOrigin, safeOriginFromString } from '../../shared/safeOrigin.ts';
 import { roleFor, recordStart, recordTeenFinish, recordBuyerConfirm, recordBuyerDispute, recordBuyerStartAfterPayment } from '../../shared/jobHandshake.ts';
 
 // The single entry point for the photo-proof job completion flow.
@@ -14,7 +14,7 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { bookingId, action, completionPhotos, tipAmount, disputeReason } = await req.json();
+    const { bookingId, action, completionPhotos, tipAmount, disputeReason, origin: clientOrigin } = await req.json();
     if (!bookingId || !['start', 'finish', 'confirm', 'dispute'].includes(action)) {
       return Response.json({ error: 'bookingId and a valid action are required' }, { status: 400 });
     }
@@ -64,7 +64,7 @@ Deno.serve(async (req) => {
       }
 
       const { stripe, testMode } = await getStripeContext(base44);
-      const origin = getSafeOrigin(req);
+      const origin = clientOrigin ? safeOriginFromString(clientOrigin) : getSafeOrigin(req);
       const session = await stripe.checkout.sessions.create({
         mode: 'payment',
         line_items: [{
@@ -124,7 +124,7 @@ Deno.serve(async (req) => {
       // the tip payment succeeds.
       if (tip > 0) {
         const stripe = await getStripeForApp(base44);
-        const origin = getSafeOrigin(req);
+        const origin = clientOrigin ? safeOriginFromString(clientOrigin) : getSafeOrigin(req);
         const session = await stripe.checkout.sessions.create({
           mode: 'payment',
           line_items: [
