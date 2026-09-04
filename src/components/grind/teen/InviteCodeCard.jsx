@@ -24,7 +24,7 @@ export default function InviteCodeCard({ profile, onUpdated }) {
     }
   }, [profile]);
 
-  const isActive = profile?.status === "active";
+  const hasParent = profile?.status === "active";
 
   if (!profile) {
     return (
@@ -41,7 +41,7 @@ export default function InviteCodeCard({ profile, onUpdated }) {
   }
 
   // Already linked — small subtle badge, not a big card
-  if (isActive) {
+  if (hasParent) {
     return (
       <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
         <ShieldCheck className="w-3.5 h-3.5 text-foreground" />
@@ -58,9 +58,9 @@ export default function InviteCodeCard({ profile, onUpdated }) {
       <div className="flex items-start gap-3">
         <ShieldAlert className="w-5 h-5 text-muted-foreground mt-0.5 shrink-0" />
         <div className="flex-1">
-          <p className="font-semibold text-sm text-foreground">Waiting for your parent</p>
+          <p className="font-semibold text-sm text-foreground">Link your parent to cash out</p>
           <p className="text-xs mt-1 text-muted-foreground">
-            Your services can't go live until a parent links to your account with your code:
+            You can post services and take jobs right away. To withdraw your earnings, your parent needs to link with your code:
           </p>
           <div className="mt-3">
             <span className="font-bold tracking-[0.25em] bg-muted rounded-lg px-3 py-1.5 text-sm border border-border text-foreground">

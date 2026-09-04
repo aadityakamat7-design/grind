@@ -174,20 +174,20 @@ export default function TeenOnboarding({ user }) {
 
   return (
     <div className="space-y-4 text-center">
-      <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mx-auto">
-        <ShieldAlert className="w-8 h-8 text-muted-foreground" />
+      <div className="w-16 h-16 rounded-2xl bg-emerald-50 flex items-center justify-center mx-auto">
+        <ShieldAlert className="w-8 h-8 text-emerald-600" />
       </div>
-      <h2 className="text-xl font-bold text-foreground">Invite your parent</h2>
+      <h2 className="text-xl font-bold text-foreground">You're ready to go!</h2>
       <p className="text-sm text-muted-foreground">
-        Your account is <span className="font-semibold">waiting for a parent</span>. You can't publish services or take bookings until a parent or guardian links to your account and approves it.
+        You can <span className="font-semibold text-foreground">post services and take jobs right away</span>. When you're ready to cash out your earnings, your parent will need to link with your code below.
       </p>
       <div className="bg-muted rounded-2xl p-5">
-        <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Your parent code</p>
+        <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Your parent code (for cashing out later)</p>
         <p className="text-3xl font-bold tracking-[0.3em] text-foreground mt-1">{inviteCode}</p>
       </div>
       <ShareInvite code={inviteCode} />
       {/* Hard redirect so the freshly-set role is picked up */}
-      <Button className="w-full rounded-xl" onClick={() => { window.location.href = "/teen"; }}>Go to my dashboard</Button>
+      <Button className="w-full rounded-xl" onClick={() => { window.location.href = "/teen"; }}>Start posting services</Button>
     </div>
   );
 }

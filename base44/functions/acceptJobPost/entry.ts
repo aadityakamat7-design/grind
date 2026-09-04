@@ -56,8 +56,8 @@ Deno.serve(async (req) => {
     const teenPrivate = privateData[0];
     const buyerProfile = buyerProfiles[0];
 
-    if (profile?.status !== 'active') {
-      return Response.json({ error: "Your account isn't live yet — your parent must verify their ID and confirm your link before you can take jobs." }, { status: 403 });
+    if (profile?.status === 'suspended') {
+      return Response.json({ error: "Your account has been suspended." }, { status: 403 });
     }
     // CA-only: the teen must be in California
     if ((profile?.state || '').toUpperCase() !== 'CA') {
@@ -78,12 +78,9 @@ Deno.serve(async (req) => {
       return Response.json({ error: `This job requires workers age ${job.ai_minimum_age}+ under ${job.state} law.` }, { status: 403 });
     }
 
-    // 18+ teens are legal adults — no parent approval required, no parent
-    // link needed. 13–17 minors require a confirmed parent link.
-    const needsParent = teenAge == null || teenAge < 18;
-    if (needsParent && !link) {
-      return Response.json({ error: "Your parent must be linked and verified before you can take jobs." }, { status: 403 });
-    }
+    // No verification gate — teens can take jobs freely. Parent link is
+    // only used for notifications and payout routing at withdrawal time.
+    const parentUserId = link?.parent_user_id || '';
 
     const gross = Number(job.price) || 0;
     const platformFee = job.platform_fee != null ? job.platform_fee : calculatePlatformFee(gross);
@@ -124,7 +121,7 @@ Deno.serve(async (req) => {
       listing_title: job.title,
       teen_user_id: user.id,
       teen_display_name: profile?.display_name || user.full_name,
-      parent_user_id: needsParent ? link?.parent_user_id : undefined,
+      parent_user_id: parentUserId || undefined,
       buyer_user_id: job.buyer_user_id,
       buyer_name: job.buyer_name,
       scheduled_start: job.scheduled_start || undefined,
@@ -138,7 +135,7 @@ Deno.serve(async (req) => {
       platform_fee: platformFee,
       net_amount: netAmount,
       payment_status: 'unpaid',
-      status: needsParent ? 'pending_parent_approval' : 'confirmed',
+      status: 'confirmed',
     });
 
     await svc.JobPost.update(job.id, { booking_id: booking.id });
@@ -156,32 +153,32 @@ Deno.serve(async (req) => {
       buyer_name: job.buyer_name,
       teen_user_id: user.id,
       teen_display_name: profile?.display_name || user.full_name,
-      parent_user_id: needsParent ? link?.parent_user_id : undefined,
-      participant_ids: [job.buyer_user_id, user.id, needsParent ? link?.parent_user_id : null].filter(Boolean),
-      is_confirmed: !needsParent,
+      parent_user_id: parentUserId || undefined,
+      participant_ids: [job.buyer_user_id, user.id, parentUserId || null].filter(Boolean),
+      is_confirmed: true,
     });
 
-    if (needsParent && link?.parent_user_id) {
+    if (parentUserId) {
       await svc.Notification.create({
-        user_id: link.parent_user_id,
-        type: 'approval',
-        title: 'New job needs your approval',
-        body: `${profile?.display_name || 'Your teen'} wants to take "${job.title}" for ${job.buyer_name}.`,
+        user_id: parentUserId,
+        type: 'booking',
+        title: 'Your teen took a job',
+        body: `${profile?.display_name || 'Your teen'} accepted "${job.title}" for ${job.buyer_name}.`,
         link: `/bookings/${booking.id}`,
         read: false,
       });
 
       // Email the parent about the accepted job. If their payout setup
-      // (identity verification + bank connection) is incomplete, the email
-      // guides them through the setup flow via a deep link.
-      const parentProfiles = await svc.ParentProfile.filter({ user_id: link.parent_user_id });
+      // (bank connection) is incomplete, the email guides them through
+      // the setup flow via a deep link — needed only at withdrawal time.
+      const parentProfiles = await svc.ParentProfile.filter({ user_id: parentUserId });
       const pp = parentProfiles[0];
-      const setupNeeded = !pp?.is_identity_verified || pp?.connect_status !== 'active';
+      const setupNeeded = pp?.connect_status !== 'active';
       await notifyParentJobAccepted(base44.asServiceRole, {
         teenName: profile?.display_name || 'Your teen',
         jobTitle: job.title,
         buyerName: job.buyer_name,
-        parentUserId: link.parent_user_id,
+        parentUserId: parentUserId,
         origin: getSafeOrigin(req),
         setupNeeded,
       });
@@ -190,9 +187,7 @@ Deno.serve(async (req) => {
       user_id: job.buyer_user_id,
       type: 'booking',
       title: 'A teen took your job!',
-      body: needsParent
-        ? `${profile?.display_name || 'A teen'} accepted "${job.title}" — pending parent approval.`
-        : `${profile?.display_name || 'A teen'} accepted "${job.title}" — confirmed!`,
+      body: `${profile?.display_name || 'A teen'} accepted "${job.title}" — confirmed!`,
       link: `/bookings/${booking.id}`,
       read: false,
     });

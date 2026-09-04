@@ -15,7 +15,6 @@ export default function TeenChecklist({ profile, bookings = [] }) {
 
   const items = [
     { label: "Create your profile", done: true, to: null },
-    { label: "Get your parent's approval", done: profile.status === "active", to: "/teen" },
     { label: "Publish your first service", done: listingCount > 0, to: "/teen/listings" },
     { label: "Complete your first job", done: bookings.some((b) => b.status === "completed"), to: "/teen/bookings" },
   ];

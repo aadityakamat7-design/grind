@@ -126,7 +126,7 @@ export default function TeenHome() {
 
         <ProfileCompleteness profile={profile} />
 
-        {profile?.status === "active" && !hasParent && (
+        {!hasParent && (
           <ConnectBankCard
             profile={profile}
             identityVerified={profile?.identity_status === "verified"}
@@ -175,15 +175,11 @@ export default function TeenHome() {
           {upcoming.length === 0 ? (
             <div className="bg-card rounded-2xl border border-border p-6 text-center">
               <p className="text-[14px] text-muted-foreground">
-                {profile?.status === "active"
-                  ? "No jobs booked yet — publish a service so neighbors can find you."
-                  : "Once your parent approves your account, you can start taking jobs."}
+                No jobs booked yet — publish a service so neighbors can find you.
               </p>
-              {profile?.status === "active" && (
-                <Link to="/teen/listings" className="inline-flex items-center gap-1.5 mt-4 bg-primary text-primary-foreground text-[13px] font-semibold rounded-full px-5 h-10 shadow-soft hover:opacity-90 transition-opacity">
-                  <Plus className="w-4 h-4" /> Create a service
-                </Link>
-              )}
+              <Link to="/teen/listings" className="inline-flex items-center gap-1.5 mt-4 bg-primary text-primary-foreground text-[13px] font-semibold rounded-full px-5 h-10 shadow-soft hover:opacity-90 transition-opacity">
+                <Plus className="w-4 h-4" /> Create a service
+              </Link>
             </div>
           ) : (
             <div className="space-y-3">

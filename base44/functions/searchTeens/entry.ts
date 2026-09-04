@@ -60,7 +60,7 @@ Deno.serve(async (req) => {
     const results = listings
       .filter((l) => {
         const teen = profileByUid[l.teen_user_id];
-        return teen?.status === 'active' && teen?.is_available !== false;
+        return teen?.status !== 'suspended' && teen?.is_available !== false;
       })
       .map((l) => {
         const teen = profileByUid[l.teen_user_id];

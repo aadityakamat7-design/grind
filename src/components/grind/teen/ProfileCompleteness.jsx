@@ -8,7 +8,6 @@ export default function ProfileCompleteness({ profile }) {
     { label: "Bio", done: !!profile?.bio?.trim() },
     { label: "Photo", done: !!profile?.photo_url },
     { label: "Skills listed", done: (profile?.skills?.length || 0) > 0 },
-    { label: "Parent linked", done: profile?.status === "active" },
   ];
   const doneCount = checks.filter((c) => c.done).length;
   const pct = Math.round((doneCount / checks.length) * 100);

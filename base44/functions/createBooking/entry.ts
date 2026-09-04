@@ -41,7 +41,7 @@ Deno.serve(async (req) => {
     const buyerProfile = buyerProfiles[0];
     const teenPrivateData = teenPrivate[0];
     if (!teenProfile) return Response.json({ error: 'Teen profile not found' }, { status: 404 });
-    if (teenProfile.status !== 'active') {
+    if (teenProfile.status === 'suspended') {
       return Response.json({ error: 'This teen is not currently available for bookings.' }, { status: 400 });
     }
     if (!buyerProfile) return Response.json({ error: 'Please complete your profile first' }, { status: 400 });
@@ -124,10 +124,9 @@ Deno.serve(async (req) => {
     const net_amount = calculateNetAmount(total);
     const buyerPays = total;
 
-    // 18+ teens use the platform independently — no parent approval needed.
-    // 13–17 teens require a linked, verified parent.
+    // No verification gate — teens can receive bookings freely. Parent link
+    // is only used for notifications and payout routing at withdrawal time.
     const teenAge = getVerifiedAge(teenPrivateData) ?? 0;
-    const needsParent = teenAge < 18;
 
     // Re-validate that the teen is eligible for this listing's category in
     // their state. Uses the verified age — a direct API call can't bypass this.
@@ -154,15 +153,13 @@ Deno.serve(async (req) => {
       return Response.json({ error: hourCheck.reason, nextEligible: hourCheck.nextEligible }, { status: 403 });
     }
 
-    let parentUserId = '';
-    if (needsParent) {
-      const links = await base44.asServiceRole.entities.ParentTeenLink.filter({
-        teen_user_id: listing.teen_user_id, status: 'confirmed',
-      });
-      parentUserId = links[0]?.parent_user_id || '';
-    }
+    // Look up the parent link for notifications/payout routing — not a gate.
+    const links = await base44.asServiceRole.entities.ParentTeenLink.filter({
+      teen_user_id: listing.teen_user_id, status: 'confirmed',
+    });
+    const parentUserId = links[0]?.parent_user_id || '';
     const buyerName = user.full_name?.split(' ')[0] || 'Neighbor';
-    const bookingStatus = needsParent ? 'pending_parent_approval' : 'confirmed';
+    const bookingStatus = 'confirmed';
 
     const booking = await base44.asServiceRole.entities.Booking.create({
       listing_id: listing.id,
@@ -204,14 +201,14 @@ Deno.serve(async (req) => {
       teen_display_name: listing.teen_display_name,
       parent_user_id: parentUserId,
       participant_ids: [user.id, listing.teen_user_id, parentUserId].filter(Boolean),
-      is_confirmed: !needsParent,
+      is_confirmed: true,
     });
 
     if (parentUserId) {
       await base44.asServiceRole.entities.Notification.create({
         user_id: parentUserId,
-        type: 'approval',
-        title: 'Booking needs your approval',
+        type: 'booking',
+        title: 'New booking for your teen',
         body: `${buyerName} booked "${listing.title}" with ${listing.teen_display_name}.`,
         link: `/bookings/${booking.id}`,
         read: false,
@@ -220,10 +217,8 @@ Deno.serve(async (req) => {
     await base44.asServiceRole.entities.Notification.create({
       user_id: listing.teen_user_id,
       type: 'booking',
-      title: needsParent ? 'New booking request' : 'New booking confirmed!',
-      body: needsParent
-        ? `"${listing.title}" — waiting on parent approval.`
-        : `"${listing.title}" — the neighbor will pay to confirm.`,
+      title: 'New booking confirmed!',
+      body: `"${listing.title}" — the neighbor will pay to confirm.`,
       link: `/bookings/${booking.id}`,
       read: false,
     });

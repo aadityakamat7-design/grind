@@ -9,7 +9,6 @@ export default function ProfileStatsWidget({ profile }) {
     !!profile.bio,
     (profile.skills || []).length > 0,
     !!profile.zip,
-    profile.status === "active",
   ];
   const pct = Math.round((checks.filter(Boolean).length / checks.length) * 100);
 
