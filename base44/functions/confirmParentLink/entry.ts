@@ -1,17 +1,13 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 import { notifyAdmins } from '../../shared/notifyAdmins.ts';
-import { CONSENT_ITEMS, CONSENT_VERSION, IDENTITY_CONSENT_ITEM, FULL_TERMS_TEXT } from '../../shared/consentItems.ts';
-import { isIdentityVerificationEnabled } from '../../shared/identityVerificationEnabled.ts';
+import { CONSENT_ITEMS, CONSENT_VERSION, FULL_TERMS_TEXT } from '../../shared/consentItems.ts';
 import { getVerifiedAge } from '../../shared/teenAge.ts';
 
-// Parent-teen linking — two-factor safety model:
-//   Check 1: parent identity verified (Stripe Identity: government ID + liveness)
-//   Check 2: relationship attested (invite code + explicit attestation checkbox)
-// The link only becomes 'confirmed' and the teen only goes 'active' when BOTH
-// checks pass. If identity is not yet verified, the link stays 'pending' and
-// the teen remains unlistable/unsearchable. When the parent later completes
-// identity verification, markParentVerified (in identityVerification.ts)
-// flips the link to confirmed and activates the teen.
+// Parent-teen linking — relationship attestation model:
+//   The parent enters the teen's invite code and explicitly attests the
+//   relationship. The link becomes 'confirmed' immediately and the teen
+//   goes 'active' — they can post services and take jobs right away.
+//   Bank/payout setup is a separate step the parent completes when ready.
 //
 // Every itemized consent, the state-rules snapshot shown, the parent's IP, and
 // the user agent are recorded in a ConsentRecord for a complete audit trail.
@@ -44,8 +40,7 @@ Deno.serve(async (req) => {
     if (!consents || typeof consents !== 'object') {
       return Response.json({ error: 'All consent items are required.' }, { status: 400 });
     }
-    const identityRequired = await isIdentityVerificationEnabled(base44);
-    const allConsentItems = identityRequired ? [...CONSENT_ITEMS, IDENTITY_CONSENT_ITEM] : CONSENT_ITEMS;
+    const allConsentItems = CONSENT_ITEMS;
     for (const item of allConsentItems) {
       if (consents[item.key] !== true) {
         return Response.json({ error: 'All consent items are required before linking.' }, { status: 400 });
@@ -151,22 +146,19 @@ Deno.serve(async (req) => {
     }
 
     // --- Proceed with the link ---
-    const parentProfiles = await svc.ParentProfile.filter({ user_id: user.id });
-    const identityVerified = !!parentProfiles[0]?.is_identity_verified;
-
     const nowIso = new Date().toISOString();
-    // When identity verification is disabled (pilot), the link is fully
-    // verified without ID — the teen goes active immediately. Connect
-    // onboarding for payouts remains a separate requirement.
-    const fullyVerified = identityRequired ? identityVerified : true;
+    // The link is always confirmed — the parent attested the relationship.
+    // Bank/payout setup is a separate step the parent completes when ready.
+    const fullyVerified = true;
 
     const data = {
       teen_profile_id: teen.id,
       teen_display_name: teen.display_name,
-      identity_verified: identityVerified,
+      identity_verified: false,
       relationship_confirmed: true,
       relationship_attested_at: nowIso,
-      ...(fullyVerified ? { status: 'confirmed', confirmed_at: nowIso } : { status: 'pending' }),
+      status: 'confirmed',
+      confirmed_at: nowIso,
     };
 
     const existing = await svc.ParentTeenLink.filter({ parent_user_id: user.id, teen_user_id: teen.user_id });
@@ -180,8 +172,8 @@ Deno.serve(async (req) => {
     }
 
     await svc.TeenProfile.update(teen.id, {
-      parent_identity_verified: identityVerified,
-      ...(fullyVerified ? { status: 'active' } : {}),
+      parent_identity_verified: false,
+      status: 'active',
     });
 
     const privateRecords = await svc.TeenPrivateData.filter({ user_id: teen.user_id });
@@ -222,37 +214,20 @@ Deno.serve(async (req) => {
       status: 'active',
     });
 
-    if (fullyVerified) {
-      await svc.Notification.create({
-        user_id: teen.user_id,
-        type: 'approval',
-        title: 'Your account is live! 🎉',
-        body: `${user.full_name || 'Your parent'} confirmed your link. You can now publish services and take jobs.`,
-        link: '/teen',
-      });
-      await svc.Notification.create({
-        user_id: user.id,
-        type: 'approval',
-        title: `You're linked with ${teen.display_name}! 🎉`,
-        body: `You'll now see their bookings, income, and safety status on your dashboard.`,
-        link: '/parent',
-      });
-    } else {
-      await svc.Notification.create({
-        user_id: teen.user_id,
-        type: 'approval',
-        title: 'Parent linked — one more step',
-        body: `${user.full_name || 'Your parent'} confirmed the link. They still need to verify their ID before your account goes live.`,
-        link: '/teen',
-      });
-      await svc.Notification.create({
-        user_id: user.id,
-        type: 'approval',
-        title: 'Link started — verify your ID',
-        body: `You're linked with ${teen.display_name}. Verify your government ID to activate their account.`,
-        link: '/parent',
-      });
-    }
+    await svc.Notification.create({
+      user_id: teen.user_id,
+      type: 'approval',
+      title: 'Your account is live! 🎉',
+      body: `${user.full_name || 'Your parent'} confirmed your link. You can now publish services and take jobs.`,
+      link: '/teen',
+    });
+    await svc.Notification.create({
+      user_id: user.id,
+      type: 'approval',
+      title: `You're linked with ${teen.display_name}! 🎉`,
+      body: `You'll now see their bookings, income, and safety status on your dashboard. Connect your bank account to receive their earnings.`,
+      link: '/parent',
+    });
 
     return Response.json({ linked: true, fullyVerified, teenName: teen.display_name });
   } catch (error) {

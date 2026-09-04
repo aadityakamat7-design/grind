@@ -6,9 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { AlertCircle, UserPlus, CheckCircle2 } from "lucide-react";
 
-// Lets an already-onboarded parent link an additional teen at any time
-// (parent identity was already verified during onboarding; the server
-// re-checks it on every call, so this reuses the same double-verified flow).
+// Lets an already-onboarded parent link an additional teen at any time.
+// The parent attests the relationship via the invite code + checkbox.
 export default function LinkTeenCard({ onLinked }) {
   const [code, setCode] = useState("");
   const [tosAccepted, setTosAccepted] = useState(false);

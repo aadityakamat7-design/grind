@@ -23,11 +23,8 @@ import ErrorRetry from "@/components/grind/ErrorRetry";
 import PullToRefresh from "@/components/PullToRefresh";
 import BuyerModeCard from "@/components/grind/parent/BuyerModeCard";
 import WithdrawalLockCard from "@/components/grind/parent/WithdrawalLockCard";
-import { useIdentityVerification } from "@/lib/useIdentityVerification";
-
 export default function ParentDashboard() {
   const { user, reload } = useOutletContext();
-  const { identityVerificationEnabled } = useIdentityVerification();
   const [links, setLinks] = useState([]);
   const [bookings, setBookings] = useState([]);
   const [records, setRecords] = useState([]);
@@ -134,7 +131,7 @@ export default function ParentDashboard() {
           ))}
           <Button className="w-full rounded-xl" size="lg" onClick={() => setVerifyOpen(true)}>
             <ShieldCheck className="w-4 h-4" />
-            {identityVerificationEnabled ? "Verify my ID & set up payouts" : "Set up payouts"}
+            Set up payouts
           </Button>
           <div className="pt-2">
             <LinkTeenDialog onLinked={load} />
@@ -168,10 +165,9 @@ export default function ParentDashboard() {
         <BuyerModeCard user={user} reload={reload} />
 
         {(() => {
-          const identityDone = identityVerificationEnabled ? parentProfile?.is_identity_verified : true;
-          const setupComplete = identityDone && parentProfile?.connect_status === "active";
+          const setupComplete = parentProfile?.connect_status === "active";
           if (setupComplete) return <PayoutStatusCard profile={parentProfile} onUpdated={load} returnPath="/parent" />;
-          return <LockedSetupCard profile={parentProfile} onStartSetup={() => setVerifyOpen(true)} identityVerificationEnabled={identityVerificationEnabled} />;
+          return <LockedSetupCard profile={parentProfile} onStartSetup={() => setVerifyOpen(true)} />;
         })()}
 
         <ParentStatsGrid records={records} bookings={bookings} links={links} teenProfiles={teenProfiles} />
