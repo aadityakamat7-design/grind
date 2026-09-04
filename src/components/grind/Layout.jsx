@@ -16,6 +16,7 @@ const TABS = {
   ],
   parent: [
     { to: "/parent", label: "Dashboard", icon: LayoutDashboard, end: true },
+    { to: "/parent/approvals", label: "Approvals", icon: ShieldCheck },
     { to: "/messages", label: "Messages", icon: MessageCircle },
     { to: "/parent/payouts", label: "Payouts", icon: Wallet },
   ],

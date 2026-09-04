@@ -159,7 +159,7 @@ Deno.serve(async (req) => {
     });
     const parentUserId = links[0]?.parent_user_id || '';
     const buyerName = user.full_name?.split(' ')[0] || 'Neighbor';
-    const bookingStatus = 'confirmed';
+    const bookingStatus = 'pending_parent_approval';
 
     const booking = await base44.asServiceRole.entities.Booking.create({
       listing_id: listing.id,
@@ -201,24 +201,24 @@ Deno.serve(async (req) => {
       teen_display_name: listing.teen_display_name,
       parent_user_id: parentUserId,
       participant_ids: [user.id, listing.teen_user_id, parentUserId].filter(Boolean),
-      is_confirmed: true,
+      is_confirmed: false,
     });
 
     if (parentUserId) {
       await base44.asServiceRole.entities.Notification.create({
         user_id: parentUserId,
         type: 'booking',
-        title: 'New booking for your teen',
-        body: `${buyerName} booked "${listing.title}" with ${listing.teen_display_name}.`,
-        link: `/bookings/${booking.id}`,
+        title: 'Approval needed: new booking',
+        body: `${buyerName} booked "${listing.title}" with ${listing.teen_display_name}. Tap to review and approve.`,
+        link: '/parent/approvals',
         read: false,
       });
     }
     await base44.asServiceRole.entities.Notification.create({
       user_id: listing.teen_user_id,
       type: 'booking',
-      title: 'New booking confirmed!',
-      body: `"${listing.title}" — the neighbor will pay to confirm.`,
+      title: 'New booking — awaiting parent approval',
+      body: `"${listing.title}" was booked by ${buyerName}. Your parent needs to approve it before it's confirmed.`,
       link: `/bookings/${booking.id}`,
       read: false,
     });

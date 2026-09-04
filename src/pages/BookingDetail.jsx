@@ -191,7 +191,7 @@ export default function BookingDetail() {
             <Clock className="w-4 h-4 shrink-0 mt-0.5" />
             <span>
               {isTeen
-                ? "Waiting for your parent to approve this job. If this is your first job, your parent may need to verify their identity and connect a bank account first — ask them to check their dashboard."
+                ? "Waiting for your parent to approve this job. Ask them to check their dashboard — once they approve, you can start."
                 : "Waiting for the teen's parent to approve this job. This is a safety requirement and usually takes less than a day."}
             </span>
           </div>

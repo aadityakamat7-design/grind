@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useOutletContext, Navigate } from "react-router-dom";
+import { useOutletContext, Navigate, Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { CalendarDays, Users } from "lucide-react";
 import BookingCard from "@/components/grind/BookingCard";
@@ -151,6 +151,7 @@ export default function ParentDashboard() {
   const shownRecords = records.filter((r) => shownIds.includes(r.teen_user_id));
   const weekAgo = Date.now() - 7 * 86400000;
 
+  const pendingApprovals = bookings.filter((b) => b.status === "pending_parent_approval");
   const activeJobs = shownBookings.filter((b) => b.status === "in_progress");
   const upcoming = shownBookings
     .filter((b) => b.status === "confirmed")
@@ -163,6 +164,23 @@ export default function ParentDashboard() {
         <PageHeader title="Parent dashboard" subtitle="Full visibility into your student's activity." />
 
         <BuyerModeCard user={user} reload={reload} />
+
+        {pendingApprovals.length > 0 && (
+          <Link
+            to="/parent/approvals"
+            className="flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-2xl p-4 hover:border-amber-300 transition-colors"
+          >
+            <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center shrink-0">
+              <ShieldCheck className="w-5 h-5 text-amber-600" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="font-bold text-amber-800 text-[14px]">
+                {pendingApprovals.length} booking{pendingApprovals.length > 1 ? "s" : ""} need your approval
+              </p>
+              <p className="text-[12px] text-amber-700 mt-0.5">Tap to review and approve before the job can start.</p>
+            </div>
+          </Link>
+        )}
 
         {(() => {
           const setupComplete = parentProfile?.connect_status === "active";
