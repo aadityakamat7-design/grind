@@ -34,7 +34,8 @@ export default function JobBoard() {
         setBuyerProfile(profiles[0] || null);
       } else {
         const res = await base44.functions.invoke("getJobBoard", {});
-        setJobs(res.data.jobs);
+        // Only show jobs the teen is eligible for (age-gated per category)
+        setJobs(res.data.jobs.filter((j) => j.eligible_for_user !== false));
         setBuyerRatings(res.data.ratings);
       }
     } catch (err) {

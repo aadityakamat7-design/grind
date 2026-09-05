@@ -31,14 +31,14 @@ export type JobCategory = typeof JOB_CATEGORIES[number];
 
 export const CONSERVATIVE_DEFAULT_AGE = 16;
 
-// California category minimum ages. CA requires 14 for all casual minor work.
+// California category minimum ages. CA allows 13 for casual minor odd jobs.
 const CA_CATEGORY_AGES: Record<JobCategory, number> = {
-  tutoring: 14,
-  tech_help: 14,
-  pet_sitting: 14,
-  lawn_care: 14,
-  car_washing: 14,
-  odd_jobs: 14,
+  tutoring: 13,
+  tech_help: 13,
+  pet_sitting: 13,
+  lawn_care: 13,
+  car_washing: 13,
+  odd_jobs: 13,
 };
 
 // Only California is enabled. Adding a state here requires verified data.

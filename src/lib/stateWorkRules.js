@@ -39,7 +39,7 @@ export function isStateAvailable(stateCode) {
 }
 
 // California minimum age for casual minor work.
-export const STATE_MIN_AGES = { CA: 14 };
+export const STATE_MIN_AGES = { CA: 13 };
 
 export function calcAgeFrom(dob) {
   if (!dob) return null;
@@ -107,8 +107,8 @@ export function blockedMessage(result, stateCode) {
 export const CONSERVATIVE_DEFAULT_AGE = 16;
 
 const CA_CATEGORY_AGES = {
-  tutoring: 14, tech_help: 14, pet_sitting: 14,
-  lawn_care: 14, car_washing: 14, odd_jobs: 14,
+  tutoring: 13, tech_help: 13, pet_sitting: 13,
+  lawn_care: 13, car_washing: 13, odd_jobs: 13,
 };
 
 export const CATEGORY_AGES = { CA: CA_CATEGORY_AGES };
