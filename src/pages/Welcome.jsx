@@ -13,7 +13,6 @@ import WhyBlockwork from "@/components/landing/WhyBlockwork";
 import EarningsCalculator from "@/components/landing/EarningsCalculator";
 import SafetyGrid from "@/components/landing/SafetyGrid";
 import FaqSection from "@/components/landing/FaqSection";
-import LandingFooter from "@/components/landing/LandingFooter";
 import SiteFooter from "@/components/SiteFooter";
 import Seo from "@/components/Seo";
 
@@ -202,7 +201,6 @@ export default function Welcome() {
         </motion.div>
       </section>
 
-      <LandingFooter />
       <SiteFooter />
     </div>
   );

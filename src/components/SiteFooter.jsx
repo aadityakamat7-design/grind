@@ -9,10 +9,8 @@ export default function SiteFooter() {
   const links = [
     { to: "/terms", label: "Terms" },
     { to: "/privacy", label: "Privacy" },
-    { to: "/safety", label: "Safety" },
     { to: "/support", label: "Support" },
-    { to: "/about", label: "About" },
-    { to: "/compliance", label: "Payments & Compliance" },
+    { to: "/safety", label: "Safety" },
   ];
   return (
     <footer className="border-t border-border bg-card/40">
