@@ -11,6 +11,7 @@ export default function SiteFooter() {
     { to: "/privacy", label: "Privacy" },
     { to: "/support", label: "Support" },
     { to: "/safety", label: "Safety" },
+    { to: "/compliance", label: "Payments & Compliance" },
   ];
   return (
     <footer className="border-t border-border bg-card/40">
