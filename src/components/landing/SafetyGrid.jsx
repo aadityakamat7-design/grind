@@ -45,7 +45,7 @@ export default function SafetyGrid() {
         >
           <Star className="w-6 h-6 text-amber-500" />
         </div>
-        <h3 className="font-semibold text-lg text-foreground">Rated & reviewed</h3>
+        <h3 className="font-display font-semibold text-lg text-foreground">Rated & reviewed</h3>
         <p className="text-muted-foreground mt-2 text-[15px] leading-relaxed flex-1">
           Every teen builds a public reputation from real neighbor reviews, and neighbors earn ratings too — so trust goes both ways before anyone books.
         </p>
@@ -71,7 +71,7 @@ export default function SafetyGrid() {
         >
           <Lock className="w-6 h-6 text-success" />
         </div>
-        <h3 className="font-semibold text-lg text-foreground">Escrow payments</h3>
+        <h3 className="font-display font-semibold text-lg text-foreground">Escrow payments</h3>
         <p className="text-muted-foreground mt-2 text-[15px] leading-relaxed">
           Neighbors pay up front. We hold it. Your teen gets paid only after the work is complete and you confirm it's done right.
         </p>
@@ -91,7 +91,7 @@ export default function SafetyGrid() {
         >
           <Home className="w-6 h-6 text-foreground" />
         </div>
-        <h3 className="font-semibold text-lg text-foreground">Outdoor work only. Always.</h3>
+        <h3 className="font-display font-semibold text-lg text-foreground">Outdoor work only. Always.</h3>
         <p className="text-muted-foreground mt-2 text-[15px] leading-relaxed">
           Teens never enter a client's home — every job is outdoors or remote. It's the rule, not a suggestion.
         </p>
