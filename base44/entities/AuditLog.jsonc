@@ -1,0 +1,77 @@
+{
+  "name": "AuditLog",
+  "type": "object",
+  "properties": {
+    "actor_user_id": {
+      "type": "string",
+      "description": "User who performed the action"
+    },
+    "actor_role": {
+      "type": "string",
+      "description": "Role of the actor at time of action (teen, parent, buyer, admin, system)"
+    },
+    "action": {
+      "type": "string",
+      "description": "What happened: payout_transferred, payout_approved, payout_rejected, booking_approved, booking_denied, cashout_requested, role_changed, admin_action, security_event"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "payout",
+        "approval",
+        "admin",
+        "security",
+        "auth"
+      ],
+      "description": "Grouping for filtering and retention"
+    },
+    "target_type": {
+      "type": "string",
+      "description": "Entity type acted upon (e.g., Booking, ParentTeenLink, User)"
+    },
+    "target_id": {
+      "type": "string",
+      "description": "ID of the entity acted upon"
+    },
+    "summary": {
+      "type": "string",
+      "maxLength": 500,
+      "description": "Human-readable description of the action"
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Additional structured context (amounts, statuses, etc.) \u2014 no sensitive raw values like card numbers or full DOBs"
+    },
+    "ip": {
+      "type": "string",
+      "description": "Actor's IP address at time of action"
+    }
+  },
+  "required": [
+    "actor_user_id",
+    "action",
+    "category"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
