@@ -25,20 +25,20 @@ const SECTIONS = [
   {
     icon: ReceiptText,
     title: "2. Fees",
-    summary: "Blockwork takes 15% of each completed job. The teen receives 85%. There are no hidden fees, no signup fees, and no listing fees.",
+    summary: "Blockwork takes 12.9% plus a $0.30 flat fee per completed job. The teen receives the rest. There are no hidden fees, no signup fees, and no listing fees.",
     body: (
       <>
         <p>
-          <strong>The split is simple:</strong> Blockwork takes 15% of each completed job, and the teen receives 85%. That's it.
+          <strong>The split is simple:</strong> Blockwork takes 12.9% plus a $0.30 flat fee per completed job, and the teen receives the rest. That's it.
         </p>
         <p>
-          <strong>Worked example:</strong> On a $40 job, the teen earns $34. Blockwork keeps $6.
+          <strong>Worked example:</strong> On a $40 job, the fee is $5.46 (12.9% + $0.30), so the teen earns $34.54.
         </p>
         <p>
-          <strong>Processing fees are on us.</strong> Stripe's card-processing fees are paid by Blockwork out of its 15% — they are <em>not</em> deducted from the teen's 85%. The teen's share is the teen's share.
+          <strong>Processing fees are on us.</strong> Stripe's card-processing fees are paid by Blockwork out of its fee — they are <em>not</em> deducted from the teen's share. The teen's share is the teen's share.
         </p>
         <p>
-          <strong>No surprises.</strong> There are no signup fees, no listing fees, and no monthly fees. The 15% only applies when a job is actually completed and paid for.
+          <strong>No surprises.</strong> There are no signup fees, no listing fees, and no monthly fees. The 12.9% + $0.30 only applies when a job is actually completed and paid for.
         </p>
       </>
     ),
