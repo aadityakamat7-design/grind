@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { LifeBuoy, Mail, ArrowLeft, ShieldAlert } from "lucide-react";
+import { LifeBuoy, Mail, ArrowLeft, ShieldAlert, Clock, MapPin } from "lucide-react";
 import SiteFooter from "@/components/SiteFooter";
 import Seo from "@/components/Seo";
 
@@ -28,6 +28,18 @@ export default function Support() {
               <p className="text-sm font-semibold text-foreground">Email us</p>
               <p className="text-sm text-muted-foreground mt-0.5">
                 <a href="mailto:support@blockwork.online" className="text-foreground font-medium hover:underline">support@blockwork.online</a>
+              </p>
+              <p className="text-xs text-muted-foreground mt-1.5 flex items-center gap-1">
+                <Clock className="w-3 h-3" /> We respond within 24 hours.
+              </p>
+            </div>
+          </div>
+          <div className="flex items-start gap-3 pt-4 border-t border-border">
+            <MapPin className="w-5 h-5 text-muted-foreground mt-0.5 shrink-0" />
+            <div>
+              <p className="text-sm font-semibold text-foreground">Service area</p>
+              <p className="text-sm text-muted-foreground mt-0.5">
+                Serving California. Blockwork is built and operated by a small team in California.
               </p>
             </div>
           </div>

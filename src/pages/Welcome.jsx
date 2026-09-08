@@ -13,6 +13,7 @@ import WhyBlockwork from "@/components/landing/WhyBlockwork";
 import EarningsCalculator from "@/components/landing/EarningsCalculator";
 import SafetyGrid from "@/components/landing/SafetyGrid";
 import FaqSection from "@/components/landing/FaqSection";
+import SafetySummary from "@/components/landing/SafetySummary";
 import SiteFooter from "@/components/SiteFooter";
 import Seo from "@/components/Seo";
 
@@ -69,13 +70,23 @@ export default function Welcome() {
             "@type": "Organization",
             name: "Blockwork",
             url: "https://blockwork.online",
+            logo: "https://media.base44.com/images/public/6a5e69e14e9f3a6e92e2a0eb/9685a262a_generated_image.png",
             description: "A parent-approved local marketplace where California teens earn real paychecks doing outdoor work and online tutoring. Currently available in California only.",
             areaServed: "CA",
+            foundingDate: "2025",
+            foundingLocation: { "@type": "Place", name: "Fremont, CA" },
             contactPoint: {
               "@type": "ContactPoint",
               contactType: "customer support",
               email: "support@blockwork.online",
+              url: "https://blockwork.online/support",
+              areaServed: "CA",
               availableLanguage: "English",
+            },
+            address: {
+              "@type": "PostalAddress",
+              addressRegion: "CA",
+              addressCountry: "US",
             },
           },
           {
@@ -163,6 +174,10 @@ export default function Welcome() {
           </p>
         </motion.div>
         <SafetyGrid />
+      </section>
+
+      <section className="relative z-10 max-w-6xl mx-auto px-6 pb-10 sm:pb-16">
+        <SafetySummary />
       </section>
 
       <Section eyebrow="FAQ" title="Questions, answered">
