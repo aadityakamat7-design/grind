@@ -21,7 +21,7 @@ export default function WithdrawalAssistant() {
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [loadingConv, setLoadingConv] = useState(true);
-  const bottomRef = useRef(null);
+  const scrollRef = useRef(null);
 
   const ensureConversation = useCallback(async () => {
     setLoadingConv(true);
@@ -51,12 +51,15 @@ export default function WithdrawalAssistant() {
     if (!conversation?.id) return;
     const unsubscribe = base44.agents.subscribeToConversation(conversation.id, (data) => {
       setMessages(data.messages || []);
+      setBusy(false);
     });
     return () => unsubscribe();
   }, [conversation?.id]);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
   }, [messages]);
 
   const send = async (text) => {
@@ -65,12 +68,10 @@ export default function WithdrawalAssistant() {
     setInput("");
     setBusy(true);
     try {
-      const updated = await base44.agents.addMessage(conversation, { role: "user", content: raw });
-      setConversation(updated);
+      await base44.agents.addMessage(conversation, { role: "user", content: raw });
     } catch (err) {
       console.error("WithdrawalAssistant send error:", err);
       setInput(raw);
-    } finally {
       setBusy(false);
     }
   };
@@ -92,7 +93,7 @@ export default function WithdrawalAssistant() {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
         {loadingConv && (
           <div className="flex justify-center py-12">
             <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
@@ -155,7 +156,6 @@ export default function WithdrawalAssistant() {
             </div>
           </div>
         )}
-        <div ref={bottomRef} />
       </div>
 
       {/* Input */}
