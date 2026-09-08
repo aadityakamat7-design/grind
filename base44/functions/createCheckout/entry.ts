@@ -1,6 +1,8 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 import { getStripeContext } from '../../shared/stripeEnv.ts';
 import { getSafeOrigin, safeOriginFromString } from '../../shared/safeOrigin.ts';
+import { checkRateLimit, recordSuccess, getClientIp } from '../../shared/rateLimiter.ts';
+import { writeAuditLog } from '../../shared/auditLog.ts';
 
 Deno.serve(async (req) => {
   try {
@@ -10,6 +12,14 @@ Deno.serve(async (req) => {
 
     const { bookingId, origin: clientOrigin } = await req.json();
     if (!bookingId) return Response.json({ error: 'bookingId required' }, { status: 400 });
+
+    // Rate limit checkout creation: max 5 per 10 minutes per IP and per user.
+    const ip = getClientIp(req);
+    const rateCheck = checkRateLimit(ip, user.id);
+    if (!rateCheck.allowed) {
+      return Response.json({ error: 'Too many requests. Please wait a few minutes before trying again.' }, { status: 429 });
+    }
+    recordSuccess(ip, user.id);
 
     const booking = await base44.asServiceRole.entities.Booking.get(bookingId);
     if (!booking) return Response.json({ error: 'Booking not found' }, { status: 404 });
@@ -51,6 +61,17 @@ Deno.serve(async (req) => {
     });
 
     await base44.asServiceRole.entities.Booking.update(booking.id, { stripe_session_id: session.id, is_test_mode: testMode });
+    await writeAuditLog(base44, {
+      actor_user_id: user.id,
+      actor_role: user.app_role || 'buyer',
+      action: 'checkout_created',
+      category: 'payout',
+      target_type: 'Booking',
+      target_id: booking.id,
+      summary: `Checkout session created for $${(cents / 100).toFixed(2)} (${testMode ? 'TEST' : 'LIVE'})`,
+      metadata: { amount_cents: cents, test_mode: testMode },
+      ip,
+    });
     return Response.json({ url: session.url });
   } catch (error) {
     console.error('createCheckout error:', error.message);

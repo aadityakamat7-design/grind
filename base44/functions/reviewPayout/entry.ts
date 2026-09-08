@@ -1,6 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 import { reviewBookingPayout, saveReview } from '../../shared/payoutReview.ts';
 import { notifyAdmins } from '../../shared/notifyAdmins.ts';
+import { writeAuditLog } from '../../shared/auditLog.ts';
 
 // Reviews a single booking payout through the fraud/error/compliance agent.
 // Admin-only. Can be called on any booking with payment_status 'released' that
@@ -27,6 +28,12 @@ Deno.serve(async (req) => {
 
     // Critical failures alert admins immediately — not just a queue entry.
     if (result.is_critical) {
+      await writeAuditLog(base44, {
+        actor_user_id: user.id, actor_role: 'admin', action: 'payout_blocked_critical',
+        category: 'security', target_type: 'Booking', target_id: booking.id,
+        summary: `Critical payout blocked: ${result.flags.join('; ')}`,
+        metadata: { amount: result.amount, flags: result.flags, risk_level: result.risk_level },
+      });
       await notifyAdmins(base44, {
         type: 'payment',
         title: '🚨 Critical payout failure blocked',

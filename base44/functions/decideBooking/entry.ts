@@ -1,5 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 import { refundHeldPayment } from '../../shared/stripeRefund.ts';
+import { writeAuditLog } from '../../shared/auditLog.ts';
+import { getClientIp } from '../../shared/rateLimiter.ts';
 
 Deno.serve(async (req) => {
   try {
@@ -24,6 +26,13 @@ Deno.serve(async (req) => {
       // Wallet and cannot be withdrawn until the parent completes payout
       // setup (walletCashOut and attemptBookingPayout both enforce this).
       await base44.asServiceRole.entities.Booking.update(booking.id, { status: 'confirmed' });
+      await writeAuditLog(base44, {
+        actor_user_id: user.id, actor_role: user.app_role || 'parent', action: 'booking_approved',
+        category: 'approval', target_type: 'Booking', target_id: booking.id,
+        summary: `Approved "${booking.listing_title}" for ${booking.teen_display_name}`,
+        metadata: { price_total: booking.price_total, teen_user_id: booking.teen_user_id },
+        ip: getClientIp(req),
+      });
       const threads = await base44.asServiceRole.entities.MessageThread.filter({ booking_id: booking.id });
       if (threads[0]) {
         await base44.asServiceRole.entities.MessageThread.update(threads[0].id, { is_confirmed: true });
@@ -50,6 +59,13 @@ Deno.serve(async (req) => {
       await base44.asServiceRole.entities.Booking.update(booking.id, {
         status: 'denied',
         payment_status: refunded ? 'refunded' : booking.payment_status,
+      });
+      await writeAuditLog(base44, {
+        actor_user_id: user.id, actor_role: user.app_role || 'parent', action: 'booking_denied',
+        category: 'approval', target_type: 'Booking', target_id: booking.id,
+        summary: `Denied "${booking.listing_title}" for ${booking.teen_display_name}`,
+        metadata: { refunded, price_total: booking.price_total },
+        ip: getClientIp(req),
       });
 
       // Re-list the job post so other teens can see and accept it again.

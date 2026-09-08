@@ -14,7 +14,7 @@ export default function PrivacyPolicy() {
         </Link>
 
         <h1 className="font-heading text-3xl font-bold text-foreground mb-2">Privacy Policy</h1>
-        <p className="text-sm text-muted-foreground mb-8">Last updated: August 27, 2026</p>
+        <p className="text-sm text-muted-foreground mb-8">Last updated: September 8, 2026</p>
 
         <div className="prose prose-sm max-w-none text-muted-foreground [&_h2]:text-foreground [&_h2]:font-heading [&_h2]:font-semibold [&_h2]:mt-8 [&_h2]:mb-3 [&_p]:leading-relaxed [&_li]:leading-relaxed [&_strong]:text-foreground">
           <p className="text-base text-foreground bg-muted rounded-xl p-4 border border-border">
@@ -88,7 +88,65 @@ export default function PrivacyPolicy() {
 
           <h2>9. Security</h2>
           <p>
-            We use encryption in transit and at rest, restrict access to authorized personnel only, and never store raw government ID images or payment credentials. Identity verification is delegated to Stripe Identity. No system is perfectly secure, but we take reasonable measures to protect your data — especially data belonging to minors.
+            We take reasonable, industry-standard measures to protect your data — especially data belonging to minors. No system is perfectly secure, and we cannot guarantee absolute security, but the measures below are genuinely implemented and actively maintained.
+          </p>
+
+          <h3>9.1 Encryption</h3>
+          <p>
+            <strong>In transit.</strong> All data sent between your device and Blockwork is encrypted using HTTPS/TLS. The platform enforces TLS on every request; there is no unencrypted (HTTP) path to application data. Our Content-Security-Policy blocks mixed-content loading so page resources are never fetched over an insecure connection.
+          </p>
+          <p>
+            <strong>At rest.</strong> The database that stores your account, profile, booking, and message data is encrypted at rest by our hosting provider (Base44, backed by MongoDB Atlas), which manages transparent encryption of all stored data.
+          </p>
+          <p>
+            <strong>Application-level field encryption.</strong> A field-encryption module (AES-GCM, key stored in a server-side environment variable, never in code) is available to encrypt the most sensitive fields — verified dates of birth, addresses, and identity-verification references — so they remain unreadable even with raw database access. Numeric location coordinates cannot be encrypted at the application level without breaking the distance-matching math that depends on them; those fields rely on the database's at-rest encryption plus row-level access controls. Full field-level encryption rollout to existing data is in progress and requires a coordinated migration of every read path.
+          </p>
+
+          <h3>9.2 Payment and Identity Data</h3>
+          <p>
+            <strong>Card and bank details are never seen or stored by Blockwork.</strong> All card data flows through Stripe's PCI-DSS Level 1 certified infrastructure. Our servers receive only a Stripe token or PaymentIntent ID — never raw card numbers, CVCs, or bank routing numbers. Bank details entered during Connect onboarding go directly to Stripe's hosted form, never through our backend. We store only masked references returned by Stripe (e.g., last four digits of a bank account).
+          </p>
+          <p>
+            <strong>Raw government ID images and selfies are never stored.</strong> Identity verification is handled by Stripe Identity. We store only the verification result (verified / failed) and a masked session reference — never the ID images, ID numbers, or selfie photos. Stripe retains the full verification record on its side; we do not.
+          </p>
+
+          <h3>9.3 Access Controls</h3>
+          <p>
+            Data access is restricted per user by role, enforced on the server — not just in the UI. Every backend function verifies your identity and ownership before returning or modifying data. You can only ever see your own data and what your role permits:
+          </p>
+          <ul>
+            <li>A parent sees their linked teen's profile, bookings, messages (read-only), earnings, and live location during active outdoor jobs.</li>
+            <li>A teen sees their own profile, bookings, and earnings. Their parent sees the same.</li>
+            <li>A neighbor sees their own bookings and the teen's public profile (first name + last initial, approximate city, service area) — never the teen's exact address or contact details until a booking is confirmed.</li>
+            <li>Admins can review all data for safety, dispute resolution, and compliance.</li>
+          </ul>
+          <p>
+            No endpoint returns another user's data by changing an ID in a request — ownership is validated server-side on every call. Role checks (e.g., "admin only") are enforced in the backend, not just hidden in the interface. All money operations — prices, fees, payouts, refunds — are computed server-side; the client never sends an amount that is trusted.
+          </p>
+
+          <h3>9.4 Minors' Data Protections</h3>
+          <p>
+            We minimize public exposure of teen data. Teens are shown to neighbors by first name and last initial only — never full name, exact address, or contact details. Exact job-site addresses are hidden until a booking is confirmed, then revealed only to the teen and their parent. Contact information in pre-booking messages is automatically masked (phone numbers, emails, and addresses are redacted server-side). Parents have visibility into their teen's bookings, earnings, online session links, and live location during active outdoor jobs.
+          </p>
+
+          <h3>9.5 Rate Limiting and Brute-Force Protection</h3>
+          <p>
+            Sensitive endpoints are rate-limited per IP address and per user account, with exponential backoff between attempts. The invite-code lookup (used to link a parent to a teen) is the most aggressively protected: after repeated failed attempts, the code is locked and the teen, their parent, and admins are alerted. Payment initiation, payout requests, and wallet cash-outs are also rate-limited to prevent rapid-fire probing. Login, registration, password reset, and OTP verification are rate-limited by our hosting platform's authentication infrastructure.
+          </p>
+
+          <h3>9.6 Monitoring, Logging, and Alerts</h3>
+          <p>
+            Security events are logged and monitored, including: failed invite-code attempts, locked invite codes, Stripe webhook signature verification failures, permission-denied errors, and critical payout blocks. Repeated failures from a single IP or account trigger automatic admin alerts. An immutable audit log records sensitive actions — payouts, booking approvals and denials, cash-out requests, and critical security events — with the actor, action, target, and timestamp. Audit log entries are admin-readable and are not modified after creation.
+          </p>
+
+          <h3>9.7 Data Retention</h3>
+          <p>
+            We keep your data only as long as needed. Account data is retained while your account is active. After account closure, transaction, identity-verification, and consent records are retained for as long as required by law (typically 3–7 years for tax and safety purposes), then deleted or anonymized. Messages are deleted when the account is closed. Completion photos are retained for the life of the booking and any related dispute, then deleted. Audit log entries are retained for the legally required period for financial and safety records.
+          </p>
+
+          <h3>9.8 Honest Limitations</h3>
+          <p>
+            No system is perfectly secure. Blockwork takes reasonable and industry-standard measures to protect your data, but we cannot guarantee absolute security or that our measures will never be circumvented. Security headers such as HSTS, X-Frame-Options, and X-Content-Type-Options are set at the hosting-platform level and may vary depending on platform configuration. If you believe you have found a security vulnerability, please report it responsibly to <a href="mailto:support@blockwork.online" className="text-foreground font-medium hover:underline">support@blockwork.online</a> and we will investigate promptly.
           </p>
 
           <h2>10. Your Rights and Parental Rights</h2>

@@ -1,4 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
+import { checkRateLimit, recordSuccess, getClientIp } from '../../shared/rateLimiter.ts';
+import { writeAuditLog } from '../../shared/auditLog.ts';
 
 Deno.serve(async (req) => {
   try {
@@ -7,6 +9,14 @@ Deno.serve(async (req) => {
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
     const { amount } = await req.json();
+
+    // Rate limit cash-out requests: max 5 per 10 minutes per IP and per user.
+    const ip = getClientIp(req);
+    const rateCheck = checkRateLimit(ip, user.id);
+    if (!rateCheck.allowed) {
+      return Response.json({ error: 'Too many requests. Please wait a few minutes before trying again.' }, { status: 429 });
+    }
+    recordSuccess(ip, user.id);
     const amt = Math.round((Number(amount) || 0) * 100) / 100;
     if (amt <= 0) return Response.json({ error: 'Invalid amount' }, { status: 400 });
 
@@ -72,6 +82,18 @@ Deno.serve(async (req) => {
         link: '/parent/payouts',
       });
     }
+
+    await writeAuditLog(base44, {
+      actor_user_id: user.id,
+      actor_role: user.app_role || 'teen',
+      action: 'cashout_requested',
+      category: 'payout',
+      target_type: 'WalletAccount',
+      target_id: wallet.id,
+      summary: `Cash-out requested: $${amt.toFixed(2)}`,
+      metadata: { amount: amt, parent_user_id: link?.parent_user_id || '' },
+      ip,
+    });
 
     return Response.json({
       success: true,

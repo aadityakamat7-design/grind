@@ -1,6 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 import { attemptBookingPayout } from '../../shared/payoutTransfer.ts';
 import { checkRateLimit, recordSuccess, getClientIp } from '../../shared/rateLimiter.ts';
+import { writeAuditLog } from '../../shared/auditLog.ts';
 
 // Retries or approves a booking payout:
 // - Admins approve payouts stuck in pending_review (manual safety review).
@@ -51,15 +52,33 @@ Deno.serve(async (req) => {
 
     if (isAdmin) {
       const result = await attemptBookingPayout(base44, booking, { skipReview: true });
+      await writeAuditLog(base44, {
+        actor_user_id: user.id, actor_role: 'admin', action: 'payout_transferred',
+        category: 'payout', target_type: 'Booking', target_id: booking.id,
+        summary: `Admin payout: $${(booking.net_amount || 0).toFixed(2)} for "${booking.listing_title}"`,
+        metadata: { net_amount: booking.net_amount, tip_amount: booking.tip_amount, skip_review: true }, ip,
+      });
       return Response.json(result);
     }
     if (isParent && canWithdraw) {
       const result = await attemptBookingPayout(base44, booking);
+      await writeAuditLog(base44, {
+        actor_user_id: user.id, actor_role: 'parent', action: 'payout_transferred',
+        category: 'payout', target_type: 'Booking', target_id: booking.id,
+        summary: `Parent payout: $${(booking.net_amount || 0).toFixed(2)} for "${booking.listing_title}"`,
+        metadata: { net_amount: booking.net_amount, tip_amount: booking.tip_amount }, ip,
+      });
       return Response.json(result);
     }
     // Independent 18+ teens withdraw their own payout.
     if (isTeen && !booking.parent_user_id && canWithdraw) {
       const result = await attemptBookingPayout(base44, booking);
+      await writeAuditLog(base44, {
+        actor_user_id: user.id, actor_role: 'teen', action: 'payout_transferred',
+        category: 'payout', target_type: 'Booking', target_id: booking.id,
+        summary: `Teen payout: $${(booking.net_amount || 0).toFixed(2)} for "${booking.listing_title}"`,
+        metadata: { net_amount: booking.net_amount, tip_amount: booking.tip_amount }, ip,
+      });
       return Response.json(result);
     }
     return Response.json({ error: 'Forbidden' }, { status: 403 });

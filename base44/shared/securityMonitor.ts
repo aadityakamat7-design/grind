@@ -31,4 +31,38 @@ export const SECURITY_THRESHOLDS = {
   FAILED_LOGIN_ALERT: 5,        // alert after 5 failed logins from one IP
   FAILED_CODE_LOOKUP_ALERT: 5,  // alert after 5 failed code lookups from one IP
   FAILED_PAYOUT_ALERT: 3,       // alert after 3 failed payout attempts
+  PERMISSION_DENIED_ALERT: 5,  // alert after 5 permission-denied hits from one IP
 };
+
+// Log a permission-denied event (an authenticated user tried to access or
+// modify another user's resource). Repeated denials from one IP trigger an
+// admin alert — this catches IDOR probing and privilege escalation attempts.
+const deniedByIp = new Map<string, number>();
+export async function logPermissionDenied(base44, ip: string, userId: string, context: string) {
+  console.warn(`[SECURITY] permission_denied: user ${userId} — ${context} — IP ${ip}`);
+  const count = (deniedByIp.get(ip) || 0) + 1;
+  deniedByIp.set(ip, count);
+  if (count >= SECURITY_THRESHOLDS.PERMISSION_DENIED_ALERT) {
+    deniedByIp.delete(ip);
+    await alertSecurityEvent(base44, {
+      type: 'safety',
+      title: 'Repeated permission-denied attempts',
+      body: `${count} permission-denied attempts from IP ${ip}. Last context: ${context}.`,
+    });
+  }
+}
+
+// Alert on an unusual payout pattern (e.g., a spike in transfer volume or a
+// payout to a new/changed destination). Called by the payout review pipeline.
+export async function alertUnusualPayout(base44, details: {
+  bookingId: string;
+  amount: number;
+  reason: string;
+}) {
+  await alertSecurityEvent(base44, {
+    type: 'payment',
+    title: 'Unusual payout pattern detected',
+    body: `Booking ${details.bookingId}: $${details.amount.toFixed(2)} — ${details.reason}`,
+    link: '/admin',
+  });
+}
