@@ -4,6 +4,7 @@ import { Home, List, CalendarDays, MessageCircle, Wallet, LayoutDashboard, Shiel
 import { useAppUser } from "@/lib/useAppUser";
 import NotificationBell from "@/components/grind/NotificationBell";
 import SiteFooter from "@/components/SiteFooter";
+import BlockworkLogo from "@/components/BlockworkLogo";
 
 const TABS = {
   teen: [
@@ -127,7 +128,8 @@ export default function Layout() {
       {/* Desktop sidebar */}
       <aside className="hidden lg:flex fixed inset-y-0 left-0 w-[260px] flex-col border-r border-border bg-card z-40">
         <div className="h-[68px] flex items-center px-6 border-b border-border">
-          <Link to="/" className="flex items-center">
+          <Link to="/" className="flex items-center gap-2.5">
+            <BlockworkLogo size={32} />
             <span className="font-extrabold text-[19px] tracking-tight text-foreground">Blockwork</span>
           </Link>
         </div>
@@ -196,7 +198,8 @@ export default function Layout() {
               Back
             </button>
           ) : (
-            <Link to="/" className="flex items-center">
+            <Link to="/" className="flex items-center gap-2">
+              <BlockworkLogo size={28} />
               <span className="font-extrabold text-[17px] tracking-tight text-foreground">Blockwork</span>
             </Link>
           )}

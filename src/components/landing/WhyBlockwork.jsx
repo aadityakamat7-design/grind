@@ -2,7 +2,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Check, X, Zap } from "lucide-react";
 
-const US = ["Local jobs", "Secure payments", "Built for teens", "Easy scheduling", "Verified users", "Mobile app"];
+const US = ["Local jobs", "Secure payments", "Built for teens", "Easy scheduling", "Verified users"];
 const THEM = ["Hard to find work", "Cash only", "No trust", "No scheduling"];
 
 export default function WhyBlockwork() {

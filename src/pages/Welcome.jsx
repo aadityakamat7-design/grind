@@ -2,7 +2,7 @@ import React from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Boxes } from "lucide-react";
+import BlockworkLogo from "@/components/BlockworkLogo";
 import { useAppUser } from "@/lib/useAppUser";
 import SplitHero from "@/components/landing/SplitHero";
 import TrustBar from "@/components/landing/TrustBar";
@@ -104,9 +104,7 @@ export default function Welcome() {
       <header className="sticky top-0 inset-x-0 z-30 bg-background/80 backdrop-blur-md border-b border-border pt-[env(safe-area-inset-top)]">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-card">
-              <Boxes className="w-5 h-5 text-primary-foreground" />
-            </div>
+            <BlockworkLogo size={36} />
             <span className="font-bold text-xl tracking-tight">Blockwork</span>
           </div>
           <div className="flex items-center gap-2">
@@ -160,7 +158,7 @@ export default function Welcome() {
           <h2 className="font-display text-3xl sm:text-4xl leading-tight text-foreground">
             Safety isn't a feature. It's the foundation.
           </h2>
-          <p className="text-muted-foreground mt-3 text-lg leading-relaxed">
+          <p className="font-display text-muted-foreground mt-3 text-lg leading-relaxed">
             Every layer of Blockwork is built to protect teens and reassure parents. This is what makes us different.
           </p>
         </motion.div>

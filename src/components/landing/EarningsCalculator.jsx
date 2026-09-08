@@ -6,7 +6,6 @@ const SERVICES = [
   { label: "Lawn mowing", emoji: "🌿", price: 40 },
   { label: "Dog walking", emoji: "🐕", price: 25 },
   { label: "Tutoring", emoji: "📚", price: 30 },
-  { label: "Babysitting", emoji: "🧸", price: 45 },
 ];
 
 function useCountUp(target) {
@@ -41,7 +40,7 @@ export default function EarningsCalculator() {
       transition={{ duration: 0.6 }}
       className="max-w-xl mx-auto rounded-2xl bg-card border border-border p-6 sm:p-8 shadow-elevated"
     >
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+      <div className="grid grid-cols-3 gap-2">
         {SERVICES.map((s) => (
           <button
             key={s.label}
