@@ -146,7 +146,7 @@ export default function Welcome() {
         <EarningsCalculator />
       </Section>
 
-      <section id="safety" className="relative max-w-6xl mx-auto px-6 py-10 sm:py-24">
+      <section id="safety" className="relative max-w-6xl mx-auto px-6 py-10 sm:py-24 font-display">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
