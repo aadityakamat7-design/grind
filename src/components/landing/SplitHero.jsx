@@ -7,7 +7,7 @@ import Phone3D from "./Phone3D";
 // White split hero: Fraunces headline on a clean white panel (left), phone at a
 // fixed 3D tilt (right). No scroll-pinning — native scroll only, one-time
 // fade-and-rise on load.
-export default function SplitHero({ onGetStarted, onLogin }) {
+export default function SplitHero() {
   return (
     <section className="relative min-h-[100svh] flex items-center overflow-hidden bg-background">
       <div className="relative z-10 max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-[45%_55%] gap-8 md:gap-12 items-center w-full py-10 md:py-0">
@@ -46,26 +46,6 @@ export default function SplitHero({ onGetStarted, onLogin }) {
           >
             The local marketplace where California teens earn real paychecks doing outdoor work and online tutoring — with a parent approving every step. Now available in California.
           </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.16, ease: "easeOut" }}
-            className="flex flex-col sm:flex-row gap-3 justify-center md:justify-start mt-8"
-          >
-            <Button size="lg" onClick={onGetStarted} className="group font-semibold">
-              Get started
-              <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-0.5 transition-transform" />
-            </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              onClick={onLogin}
-              className="font-semibold"
-            >
-              Log in
-            </Button>
-          </motion.div>
 
           <motion.div
             initial={{ opacity: 0 }}
