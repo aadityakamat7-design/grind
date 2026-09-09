@@ -12,10 +12,12 @@ import { getMinAgeForCategory } from "@/lib/stateWorkRules";
 import CredentialUpload from "@/components/grind/CredentialUpload";
 import SlideToConfirm from "@/components/grind/SlideToConfirm";
 import CategoryPicker from "@/components/grind/CategoryPicker";
+import AvailabilityPicker from "@/components/grind/AvailabilityPicker";
+import { getHourLimits } from "@/lib/stateHourLimits";
 
 export default function ListingForm({ open, onOpenChange, listing, profile, onSaved }) {
   const [form, setForm] = useState(
-    listing || { category: "", title: "", description: "", price_model: "FIXED", price: "" }
+    listing || { category: "", title: "", description: "", price_model: "FIXED", price: "", availability: [] }
   );
   const [hazard, setHazard] = useState(null);
   const [saving, setSaving] = useState(false);
@@ -44,6 +46,7 @@ export default function ListingForm({ open, onOpenChange, listing, profile, onSa
 
   const categoryMinAge = getMinAgeForCategory(profile?.state, form.category);
   const categoryLocked = teenAge != null && teenAge < categoryMinAge;
+  const hourLimits = getHourLimits(profile?.state, teenAge);
 
   const save = async () => {
     if (priceError) return;
@@ -71,6 +74,7 @@ export default function ListingForm({ open, onOpenChange, listing, profile, onSa
         teenUserId: profile.user_id,
         teenProfileId: profile.id,
         teenDisplayName: profile.display_name,
+        availability: form.availability || [],
       });
     } catch (err) {
       setHazard(err.response?.data?.error || "Couldn't save this listing.");
@@ -141,6 +145,17 @@ export default function ListingForm({ open, onOpenChange, listing, profile, onSa
               {priceError && <p className="text-xs text-rose-600 mt-1 font-semibold">{priceError}</p>}
             </div>
           </div>
+          <div>
+            <Label>When can you work?</Label>
+            <p className="text-xs text-muted-foreground mb-2">
+              Set your weekly availability. Only legal hours are shown — school hours are excluded on weekdays.
+            </p>
+            <AvailabilityPicker
+              value={form.availability || []}
+              onChange={(v) => set("availability", v)}
+              hourLimits={hourLimits}
+            />
+          </div>
           {hazard && (
             <div className="flex items-start gap-2 bg-rose-50 border border-rose-200 rounded-xl p-3 text-sm text-rose-700">
               <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
@@ -154,7 +169,7 @@ export default function ListingForm({ open, onOpenChange, listing, profile, onSa
             label={listing ? "Slide to save changes" : "Slide to post"}
             loadingLabel="Saving..."
             loading={saving}
-            disabled={!form.category || !form.title || !form.price || !!priceError || categoryLocked}
+            disabled={!form.category || !form.title || !form.price || !!priceError || categoryLocked || !(form.availability && form.availability.length > 0)}
             onConfirm={save}
           />
         </div>

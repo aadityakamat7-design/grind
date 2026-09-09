@@ -3,6 +3,7 @@ import { checkHazard } from '../../shared/hazardCheck.ts';
 import { getVerifiedAge } from '../../shared/teenAge.ts';
 import { getMinAgeForCategory } from '../../shared/categoryAgeRules.ts';
 import { getDeliveryMode, isRemovedCategory } from '../../shared/deliveryMode.ts';
+import { getHourLimits } from '../../shared/stateHourLimits.ts';
 
 const MAX_UNIT_PRICE = 500;
 const MIN_TITLE = 3;
@@ -51,6 +52,7 @@ Deno.serve(async (req) => {
     // saveListing directly with a prohibited task.
     const privateData = await svc.TeenPrivateData.filter({ user_id: user.id });
     const age = getVerifiedAge(privateData[0]) ?? 18;
+    const hourLimits = getHourLimits(teenProfiles[0].state, age);
     const hazard = checkHazard(`${title} ${body.description || ''}`, age);
     if (hazard.flagged) {
       return Response.json({ error: hazard.reason }, { status: 400 });
@@ -62,6 +64,22 @@ Deno.serve(async (req) => {
         { error: 'This category is no longer available on Blockwork. All work is outdoor or online — teens do not enter clients\' homes.' },
         { status: 400 }
       );
+    }
+
+    // Validate availability — each slot needs day (0-6), start, and end
+    const availability = Array.isArray(body.availability) ? body.availability : [];
+    for (const slot of availability) {
+      if (typeof slot.day !== 'number' || slot.day < 0 || slot.day > 6) {
+        return Response.json({ error: 'Invalid availability day.' }, { status: 400 });
+      }
+      if (!slot.start || !slot.end) {
+        return Response.json({ error: 'Each availability slot needs a start and end time.' }, { status: 400 });
+      }
+      const startH = parseInt(String(slot.start).split(':')[0]);
+      const endH = parseInt(String(slot.end).split(':')[0]);
+      if (isNaN(startH) || isNaN(endH) || endH <= startH) {
+        return Response.json({ error: 'Availability end time must be after start time.' }, { status: 400 });
+      }
     }
 
     // Determine delivery mode from the category — the client can't spoof this.
@@ -91,6 +109,8 @@ Deno.serve(async (req) => {
       service_area: body.zip || '',
       teen_zip: body.zip || '',
       status: 'published',
+      availability,
+      teen_hour_limits: hourLimits,
     };
 
     let listing;

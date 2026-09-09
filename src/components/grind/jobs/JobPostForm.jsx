@@ -11,6 +11,7 @@ import { CATEGORIES, CATEGORY_LABELS, categoryMinimum, computeFees, money, MAX_U
 import { getMinAgeForCategory } from "@/lib/stateWorkRules";
 import SlideToConfirm from "@/components/grind/SlideToConfirm";
 import DateTimePicker from "@/components/grind/DateTimePicker";
+import { MOST_RESTRICTIVE_LIMITS } from "@/lib/availability";
 import { US_STATES } from "@/lib/jobScreen";
 
 export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, onPosted }) {
@@ -374,7 +375,7 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
             </div>
             <div className="space-y-1.5">
               <Label>When (optional)</Label>
-              <DateTimePicker value={form.scheduled_start} onChange={(v) => set("scheduled_start", v)} />
+              <DateTimePicker value={form.scheduled_start} onChange={(v) => set("scheduled_start", v)} hourLimits={MOST_RESTRICTIVE_LIMITS} />
             </div>
             <Button className="w-full" disabled={!valid} onClick={reviewCategory}>
               Review & post

@@ -69,7 +69,12 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
           <div>
             <Label>Date & time</Label>
             <div className="mt-1">
-              <DateTimePicker value={when} onChange={setWhen} />
+              <DateTimePicker
+                value={when}
+                onChange={setWhen}
+                availability={listing.availability}
+                hourLimits={listing.teen_hour_limits}
+              />
             </div>
           </div>
           <div>

@@ -77,6 +77,76 @@
         }
       }
     },
+    "availability": {
+      "type": "array",
+      "description": "Weekly recurring availability slots set by the teen. Each entry: { day: 0-6 (Sun-Sat), start: 'HH:mm', end: 'HH:mm' }. The booking calendar only shows these days/times, filtered to legal work hours.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "day": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 6
+          },
+          "start": {
+            "type": "string"
+          },
+          "end": {
+            "type": "string"
+          }
+        }
+      },
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "teen_hour_limits": {
+      "type": "object",
+      "description": "Snapshot of the teen's legal work-hour limits at listing creation time, so the booking calendar can filter to legal times without needing access to the teen's private age data. Set server-side only.",
+      "properties": {
+        "maxDailyHoursSchoolDay": {
+          "type": "number"
+        },
+        "maxDailyHoursNonSchoolDay": {
+          "type": "number"
+        },
+        "maxWeeklyHoursSchoolWeek": {
+          "type": "number"
+        },
+        "maxWeeklyHoursSummer": {
+          "type": "number"
+        },
+        "earliestStartHour": {
+          "type": "number"
+        },
+        "latestEndHour": {
+          "type": "number"
+        },
+        "latestEndHourSummer": {
+          "type": "number"
+        },
+        "prohibitedDuringSchoolHours": {
+          "type": "boolean"
+        },
+        "schoolHoursStart": {
+          "type": "number"
+        },
+        "schoolHoursEnd": {
+          "type": "number"
+        }
+      },
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
     "photos": {
       "type": "array",
       "items": {
