@@ -34,7 +34,7 @@ export default function SplitHero({ onGetStarted, onLogin }) {
               letterSpacing: "-0.02em",
             }}
           >
-            Neighborhood work.<br />Neighborhood teens.
+            Your block.<br />Your list.
           </motion.h1>
 
           <motion.p
