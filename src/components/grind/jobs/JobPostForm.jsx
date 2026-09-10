@@ -27,8 +27,26 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
   const [categoryError, setCategoryError] = useState("");
   const [priceRec, setPriceRec] = useState(null);
   const [priceRecLoading, setPriceRecLoading] = useState(false);
+  const [aiKeywords, setAiKeywords] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
 
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
+
+  const generateDescription = async () => {
+    if (!aiKeywords.trim()) return;
+    setAiLoading(true);
+    try {
+      const res = await base44.functions.invoke("generateJobDescription", {
+        title: form.title.trim(),
+        keywords: aiKeywords.trim(),
+      });
+      if (res.data?.description) set("description", res.data.description);
+    } catch {
+      // silent fail — user can still type manually
+    } finally {
+      setAiLoading(false);
+    }
+  };
 
   const fetchPriceRec = async () => {
     if (!form.title.trim() || !form.description.trim()) return;
@@ -49,7 +67,7 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
   };
 
   const priceError = Number(form.price) > MAX_UNIT_PRICE ? `Max ${MAX_UNIT_PRICE} per job` : "";
-  const valid = form.title.trim().length >= 3 && Number(form.price) > 0 && !priceError && form.state;
+  const valid = form.title.trim().length >= 3 && form.description.trim().length >= 10 && Number(form.price) > 0 && !priceError && form.state;
   const { platform_fee, net_amount } = computeFees(Number(form.price) || 0);
 
   // Step 1: run the AI category check, then show the category + minimum review.
@@ -296,6 +314,35 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
             <div className="space-y-1.5">
               <Label>Description</Label>
               <Textarea className="rounded-xl" maxLength={2000} placeholder="What needs to get done? Any tools or details teens should know about?" value={form.description} onChange={(e) => set("description", e.target.value)} />
+              {form.description.trim() && form.description.trim().length < 10 && <p className="text-xs text-destructive font-semibold">Description must be at least 10 characters.</p>}
+              <div className="flex gap-2">
+                <Input
+                  className="rounded-xl flex-1"
+                  maxLength={120}
+                  placeholder="A couple words… e.g. weed the front flower beds"
+                  value={aiKeywords}
+                  onChange={(e) => setAiKeywords(e.target.value)}
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="shrink-0"
+                  disabled={!aiKeywords.trim() || aiLoading}
+                  onClick={generateDescription}
+                >
+                  {aiLoading ? (
+                    <>
+                      <div className="w-3.5 h-3.5 border-2 border-muted border-t-foreground rounded-full animate-spin" />
+                      Writing…
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-3.5 h-3.5" />
+                      Write it for me
+                    </>
+                  )}
+                </Button>
+              </div>
             </div>
             <div className="space-y-1.5">
               <Label>State</Label>

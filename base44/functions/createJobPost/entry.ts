@@ -34,6 +34,11 @@ Deno.serve(async (req) => {
       return Response.json({ error: `Title must be at most ${MAX_TITLE} characters.` }, { status: 400 });
     }
 
+    const description = (body.description || '').trim();
+    if (description.length < 10) {
+      return Response.json({ error: 'Please add a description of at least 10 characters so teens know what the job involves.' }, { status: 400 });
+    }
+
     const price = Number(body.price);
     if (!Number.isFinite(price) || price < 1 || price > MAX_UNIT_PRICE) {
       return Response.json({ error: `Price must be between $1 and $${MAX_UNIT_PRICE}.` }, { status: 400 });
