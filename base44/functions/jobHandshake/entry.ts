@@ -85,7 +85,7 @@ Deno.serve(async (req) => {
           booking_id: booking.id,
           start_payment: '1',
         },
-        payment_intent_data: { metadata: { booking_id: booking.id, start_payment: '1' } },
+        payment_intent_data: { metadata: { booking_id: booking.id, start_payment: '1', base44_app_id: Deno.env.get('BASE44_APP_ID') } },
       });
       await base44.asServiceRole.entities.Booking.update(booking.id, { stripe_session_id: session.id, is_test_mode: testMode });
       return Response.json({ url: session.url });
@@ -147,6 +147,7 @@ Deno.serve(async (req) => {
             tip_booking_id: booking.id,
             tip_amount: String(tip),
           },
+          payment_intent_data: { metadata: { base44_app_id: Deno.env.get('BASE44_APP_ID'), tip_booking_id: booking.id, tip_amount: String(tip) } },
         });
         return Response.json({ url: session.url });
       }
