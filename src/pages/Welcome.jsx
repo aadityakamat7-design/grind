@@ -119,11 +119,8 @@ export default function Welcome() {
             <span className="font-bold text-xl tracking-tight">Blockwork</span>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" className="text-muted-foreground hover:text-foreground hover:bg-accent font-medium" onClick={() => navigate("/login")}>
-              Log in
-            </Button>
             <Button className="font-medium" onClick={() => navigate("/register")}>
-              Sign up
+              Get started
             </Button>
           </div>
         </div>

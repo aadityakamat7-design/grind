@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, ShieldCheck, BadgeCheck, Lock } from "lucide-react";
@@ -8,6 +9,7 @@ import Phone3D from "./Phone3D";
 // fixed 3D tilt (right). No scroll-pinning — native scroll only, one-time
 // fade-and-rise on load.
 export default function SplitHero() {
+  const navigate = useNavigate();
   return (
     <section className="relative min-h-[100svh] flex items-center overflow-hidden bg-background">
       <div className="relative z-10 max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-[45%_55%] gap-8 md:gap-12 items-center w-full py-10 md:py-0">
@@ -65,6 +67,20 @@ export default function SplitHero() {
               <Lock className="w-4 h-4 text-muted-foreground" />
               <span className="text-sm text-muted-foreground font-medium">Escrow</span>
             </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.32, ease: "easeOut" }}
+            className="flex flex-col sm:flex-row gap-3 justify-center md:justify-start mt-8"
+          >
+            <Button size="lg" onClick={() => navigate("/register")}>
+              Get Started <ArrowRight className="w-4 h-4" />
+            </Button>
+            <Button variant="outline" size="lg" onClick={() => navigate("/how-it-works")}>
+              Learn More
+            </Button>
           </motion.div>
         </div>
 
