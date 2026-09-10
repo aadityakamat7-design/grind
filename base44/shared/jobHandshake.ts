@@ -3,14 +3,10 @@ import { notifyAdmins } from './notifyAdmins.ts';
 
 // Photo-proof job completion flow:
 //   1. Both sides press Start (teen + buyer) → in_progress (unchanged)
-//   2. Teen finishes: uploads completion photos → teen_finished_at set, buyer
-//      has 12 hours to confirm or dispute.
-//   3a. Buyer confirms → buyer_finished_at set, status → completed, escrow
-//       released to the parent (auto-pay).
-//   3b. Buyer disputes → buyer_disputed_at set, status → disputed, escrow held
-//       pending admin review.
-//   4. If the buyer doesn't respond within 12 hours, the scheduled checker
-//       auto-confirms and releases (flagStaleHandshakes).
+//   2. Teen finishes: uploads completion photos → payment releases immediately,
+//      status → completed. No buyer confirmation needed.
+//   3. Buyer can dispute after completion → status → disputed, admin reviews
+//      and can refund the neighbor if the work wasn't done.
 
 export function roleFor(booking, userId) {
   if (booking.teen_user_id === userId) return 'teen';
@@ -131,35 +127,58 @@ export async function recordBuyerStartAfterPayment(base44, booking, paymentInten
   return { started: nowStarted };
 }
 
-// Teen marks the job finished and uploads completion photos as proof. This
-// starts the 12-hour buyer confirmation window — no money moves yet.
+// Teen marks the job finished and uploads completion photos as proof. The
+// photos are the proof of completion — payment releases immediately. The
+// neighbor can dispute afterward if the work wasn't done correctly.
 export async function recordTeenFinish(base44, booking, photos) {
   const svc = base44.asServiceRole.entities;
   if (booking.teen_finished_at) return { alreadyDone: true };
 
+  // Record the teen's finish + photos and mark the job completed immediately.
   await svc.Booking.update(booking.id, {
     teen_finished_at: new Date().toISOString(),
     completion_photos: Array.isArray(photos) ? photos : [],
+    status: 'completed',
+    buyer_finished_at: new Date().toISOString(),
   });
 
+  // Release escrow immediately (same atomic lock pattern as recordBuyerConfirm).
+  const lockToken = `lock_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+  await svc.Booking.updateMany(
+    { id: booking.id, payment_status: 'held' },
+    { $set: { payment_status: 'releasing', stripe_transfer_id: lockToken } },
+  );
+  const fresh = await svc.Booking.get(booking.id);
+  let released = false;
+  if (fresh.payment_status === 'releasing' && fresh.stripe_transfer_id === lockToken) {
+    try {
+      await releaseBookingPayment(base44, fresh, 0);
+      released = true;
+    } catch (err) {
+      await svc.Booking.update(booking.id, { payment_status: 'held', stripe_transfer_id: '' });
+      throw err;
+    }
+  }
+
+  // Notify the buyer — payment is released, but they can dispute if needed.
   await svc.Notification.create({
     user_id: booking.buyer_user_id,
     type: 'booking',
     title: `${booking.teen_display_name} finished the job`,
-    body: `Check the photos and confirm within 12 hours. If the work isn't done correctly, tap "Report a problem" to hold payment for review.`,
+    body: `Payment has been released to the teen. If the work isn't done correctly, tap "Report a problem" to request a refund.`,
     link: `/bookings/${booking.id}`,
   });
   if (booking.parent_user_id) {
     await svc.Notification.create({
       user_id: booking.parent_user_id,
-      type: 'booking',
-      title: `${booking.teen_display_name} finished the job`,
-      body: `"${booking.listing_title}" — waiting for the neighbor to confirm the work is done.`,
+      type: 'payment',
+      title: `${booking.teen_display_name} got paid`,
+      body: `"${booking.listing_title}" is complete — payment has been released to your account.`,
       link: `/bookings/${booking.id}`,
     });
   }
 
-  return { finished: true, waitingForBuyer: true };
+  return { finished: true, released };
 }
 
 // Buyer confirms the job was done correctly. This completes the booking and

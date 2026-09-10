@@ -121,7 +121,7 @@ export default function TermsOfService() {
             <strong>Stripe processing fee.</strong> Blockwork charges a Stripe processing fee (including payout) on each completed booking. The fee is deducted from the teen's earnings before payout to the parent. The current fee rate is shown at checkout and on the earnings screen.
           </p>
           <p>
-            <strong>Escrow.</strong> When a job starts, the neighbor's payment (including any tip) is charged through Stripe and held in escrow. The teen uploads photo proof that the work is complete. The neighbor then has 12 hours to confirm the work or report a problem. If the neighbor confirms, the funds are released to the teen's parent. If the neighbor does not respond within 12 hours, the funds are automatically released. If the neighbor reports a problem, the funds are held pending review.
+            <strong>Escrow.</strong> When a job starts, the neighbor's payment is charged through Stripe and held in escrow. The teen uploads photo proof that the work is complete, and the payment is released to the teen's parent immediately upon photo upload. If the neighbor believes the work was not done correctly, they can report a problem through the booking to request a refund.
           </p>
           <p>
             <strong>Payouts.</strong> Earnings are paid to the parent's connected Stripe Connect account, not directly to the teen. The parent is responsible for any tax reporting and for distributing earnings to the teen as they see fit.
@@ -135,7 +135,7 @@ export default function TermsOfService() {
             If a booking is denied by the parent or cancelled before the job starts, the neighbor is automatically refunded. Once a job is in progress, refunds are handled case by case. If the neighbor reports that the work was not completed satisfactorily, the escrow is held while we review the teen's completion photos and the neighbor's report.
           </p>
           <p>
-            <strong>Dispute resolution.</strong> If the neighbor disputes the completion, an administrator reviews the photo evidence and the neighbor's explanation, and decides whether to release the payment to the teen's parent or refund the neighbor. If you believe a job was not completed satisfactorily, report it through the booking within 12 hours of the teen marking it finished.
+            <strong>Dispute resolution.</strong> If the neighbor disputes the completion, an administrator reviews the photo evidence and the neighbor's explanation, and decides whether to release the payment to the teen's parent or refund the neighbor. If you believe a job was not completed satisfactorily, report it through the booking as soon as possible after the teen marks it finished.
           </p>
 
           <h2>9. Acceptable Use</h2>

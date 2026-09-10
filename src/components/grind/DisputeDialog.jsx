@@ -37,7 +37,7 @@ export default function DisputeDialog({ open, onOpenChange, booking, onDone }) {
         </DialogHeader>
         <div className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            Tell us what was wrong with the work. The payment will be held and our team will review the photos and your report before any money is released.
+            Tell us what was wrong with the work. The payment has already been released to the teen — our team will review the photos and your report, and if the work wasn't done correctly you'll get a refund.
           </p>
           <div>
             <Label>What was wrong?</Label>

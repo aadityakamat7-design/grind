@@ -156,13 +156,18 @@ Deno.serve(async (req) => {
       return Response.json(result);
     }
 
-    // action === 'dispute' — buyer reports the teen didn't do the job
+    // action === 'dispute' — buyer reports the teen didn't do the job. Allowed
+    // after the teen finishes (payment has already been released; admin reviews
+    // and can refund the neighbor if the dispute is valid).
     if (action === 'dispute') {
       if (role !== 'buyer') return Response.json({ error: 'Only the neighbor can report a problem.' }, { status: 403 });
-      if (booking.status !== 'in_progress' || !booking.teen_finished_at) {
+      if (!booking.teen_finished_at) {
         return Response.json({ error: 'The teen must finish the job before you can report a problem.' }, { status: 400 });
       }
-      if (booking.buyer_finished_at || booking.buyer_disputed_at) {
+      if (!['in_progress', 'completed'].includes(booking.status)) {
+        return Response.json({ error: 'This job can no longer be disputed.' }, { status: 400 });
+      }
+      if (booking.buyer_disputed_at) {
         return Response.json({ alreadyDone: true });
       }
       const reason = String(disputeReason || '').trim();

@@ -7,7 +7,8 @@ import ExpressCheckout from "@/components/grind/ExpressCheckout";
 
 // Photo-proof job completion UI:
 //   confirmed    → both sides press Start (buyer pays escrow)
-//   in_progress   → teen finishes with photos, buyer confirms or disputes
+//   in_progress   → teen finishes with photos → payment releases immediately
+//   completed    → buyer can dispute if the work wasn't done correctly
 //   disputed     → shows the dispute status (under admin review)
 export default function JobHandshakePanel({ booking, isTeen, isBuyer, isParent, acting, onStart, onFinish, onConfirm, onDispute, onPaymentSuccess, onPaymentError }) {
   if (!isTeen && !isBuyer && !isParent) return null;
@@ -125,34 +126,33 @@ export default function JobHandshakePanel({ booking, isTeen, isBuyer, isParent, 
       );
     }
 
-    // Teen finished — waiting for buyer confirmation
-    if (isTeen) {
-      return (
-        <div className="space-y-3">
-          <PhotosPreview photos={booking.completion_photos} />
-          <p className="flex items-center justify-center gap-1.5 text-xs text-slate-500 font-medium text-center">
-            <Clock className="w-3.5 h-3.5" /> Waiting for {otherName} to confirm your work. Payment releases once they confirm (or automatically after 12 hours).
-          </p>
-        </div>
-      );
-    }
+    // Teen finished but payment is still releasing (transient state for legacy
+    // bookings — new bookings go straight to completed on finish).
+    return (
+      <div className="space-y-3">
+        <PhotosPreview photos={booking.completion_photos} />
+        <p className="flex items-center justify-center gap-1.5 text-xs text-slate-500 font-medium text-center">
+          <Clock className="w-3.5 h-3.5" /> Payment is releasing…
+        </p>
+      </div>
+    );
+  }
 
-    if (isBuyer) {
-      return (
-        <div className="space-y-3">
-          <PhotosPreview photos={booking.completion_photos} />
-          <div className="grid grid-cols-1 gap-2">
-            <Button className="w-full rounded-xl" disabled={acting} onClick={onConfirm}>
-              <CheckCircle2 className="w-4 h-4 mr-2" /> Confirm job done & pay
-            </Button>
+  if (booking.status === "completed") {
+    const canDispute = isBuyer && !booking.buyer_disputed_at;
+    return (
+      <div className="space-y-3">
+        <PhotosPreview photos={booking.completion_photos} />
+        {canDispute && (
+          <>
             <Button variant="outline" className="w-full rounded-xl text-destructive border-destructive/20 hover:bg-destructive/10 hover:text-destructive" disabled={acting} onClick={onDispute}>
               <AlertTriangle className="w-4 h-4 mr-2" /> Report work not done
             </Button>
-          </div>
-          <p className="text-xs text-center text-slate-400">Confirm within 12 hours — payment releases automatically to the teen's parent if there's no response.</p>
-        </div>
-      );
-    }
+            <p className="text-xs text-center text-slate-400">If the work wasn't done correctly, report it to request a refund.</p>
+          </>
+        )}
+      </div>
+    );
   }
 
   if (booking.status === "disputed") {

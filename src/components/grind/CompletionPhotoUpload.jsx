@@ -73,7 +73,7 @@ export default function CompletionPhotoUpload({ open, onOpenChange, booking, onD
         </DialogHeader>
         <div className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            Upload photos showing the completed work. Your neighbor has 12 hours to confirm the job is done before payment is released to your parent.
+            Upload photos showing the completed work. Payment releases to your parent as soon as you finish — your neighbor can report a problem if the work isn't done correctly.
           </p>
           {photos.length > 0 && (
             <div className="grid grid-cols-3 gap-2">
