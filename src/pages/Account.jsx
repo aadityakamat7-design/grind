@@ -1,19 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { useOutletContext } from "react-router-dom";
+import { useOutletContext, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { LogOut, ShieldCheck } from "lucide-react";
+import { LogOut, ShieldCheck, RefreshCw } from "lucide-react";
 import PageHeader from "@/components/grind/PageHeader";
 import DeleteAccountButton from "@/components/grind/DeleteAccountButton";
 import AccountReviewsTab from "@/components/grind/AccountReviewsTab";
 import ProfileSettingsCard from "@/components/grind/ProfileSettingsCard";
 import RecoveryPhoneCard from "@/components/grind/RecoveryPhoneCard";
+import { replayTour } from "@/hooks/useTour";
 import { Image } from "@/components/ui/image";
 
 const ROLE_LABELS = { teen: "Teen", parent: "Parent / Guardian", buyer: "Neighbor", admin: "Admin" };
+const ROLE_HOME = { teen: "/teen", parent: "/parent", buyer: "/buyer", admin: "/admin" };
 
 export default function Account() {
   const { user } = useOutletContext();
+  const navigate = useNavigate();
   const [tab, setTab] = useState("profile");
   const initials = (user.full_name || user.email || "?")
     .split(" ")
@@ -79,6 +82,19 @@ export default function Account() {
           <ProfileSettingsCard user={user} />
 
           <RecoveryPhoneCard user={user} />
+
+          {(user.app_role === "teen" || user.app_role === "buyer") && (
+            <Button
+              variant="outline"
+              className="w-full rounded-full h-12"
+              onClick={() => {
+                replayTour();
+                navigate(ROLE_HOME[user.app_role] || "/");
+              }}
+            >
+              <RefreshCw className="w-4 h-4 mr-2" /> Replay tour
+            </Button>
+          )}
 
           <Button
             variant="outline"

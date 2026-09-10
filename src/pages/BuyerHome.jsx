@@ -11,6 +11,15 @@ import PageHeader from "@/components/grind/PageHeader";
 import BuyerStatsGrid from "@/components/grind/buyer/BuyerStatsGrid";
 import ErrorRetry from "@/components/grind/ErrorRetry";
 import PullToRefresh from "@/components/PullToRefresh";
+import Tour from "@/components/grind/Tour";
+import { useTour } from "@/hooks/useTour";
+
+const buyerTourSteps = [
+  { target: "tour-browse", title: "Browse", subtitle: "Find verified teens near you and see their prices and reviews." },
+  { target: "tour-bookings", title: "My Bookings", subtitle: "Track upcoming and past jobs here." },
+  { title: "How payment works", subtitle: "You're charged when the job starts, and the money is held until you confirm it's done." },
+  { target: "tour-messages", title: "Messages", subtitle: "Talk to teens you've booked. Contact details stay private until a booking is confirmed." },
+];
 
 export default function BuyerHome() {
   const { user } = useOutletContext();
@@ -19,6 +28,7 @@ export default function BuyerHome() {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const { active: tourActive, finish: finishTour } = useTour(user, "buyer", !loading);
 
   const load = useCallback(async () => {
     try {
@@ -65,13 +75,24 @@ export default function BuyerHome() {
   const past = bookings.filter((b) => ["completed", "cancelled", "denied"].includes(b.status)).slice(0, 5);
 
   return (
+    <>
     <PullToRefresh onRefresh={load}>
       <div className="space-y-6">
         <PageHeader title={`Hi, ${(user.full_name || "neighbor").split(" ")[0]} 👋`} subtitle="Trusted teen help, right in your neighborhood." />
 
         <BuyerStatsGrid bookings={bookings} profile={profile} />
 
-        <Link to="/browse" className="flex items-center gap-4 bg-primary rounded-2xl p-5 text-primary-foreground shadow-soft hover:opacity-95 active:scale-[0.99] transition-all">
+        {bookings.length === 0 && (
+          <div className="bg-primary/5 border border-primary/20 rounded-2xl p-6 text-center">
+            <h3 className="font-bold text-foreground text-[15px]">Browse teens near you</h3>
+            <p className="text-[13px] text-muted-foreground mt-1">Find verified teens for lawn care, tutoring, pet sitting, and more.</p>
+            <Link to="/browse" className="inline-flex items-center gap-1.5 mt-4 bg-primary text-primary-foreground text-[13px] font-semibold rounded-full px-5 h-10 shadow-soft hover:opacity-90 transition-opacity">
+              <Search className="w-4 h-4" /> Browse services
+            </Link>
+          </div>
+        )}
+
+        <Link to="/browse" data-tour="tour-browse" className="flex items-center gap-4 bg-primary rounded-2xl p-5 text-primary-foreground shadow-soft hover:opacity-95 active:scale-[0.99] transition-all">
           <div className="w-12 h-12 rounded-xl bg-primary-foreground/20 flex items-center justify-center shrink-0">
             <Search className="w-6 h-6" />
           </div>
@@ -153,5 +174,14 @@ export default function BuyerHome() {
         </section>
       </div>
     </PullToRefresh>
+
+      {tourActive && (
+        <Tour
+          steps={buyerTourSteps}
+          onComplete={finishTour}
+          onSkip={finishTour}
+        />
+      )}
+    </>
   );
 }

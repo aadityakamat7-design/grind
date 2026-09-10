@@ -1,38 +1,56 @@
 import React, { useState } from "react";
 import { Outlet, NavLink, Navigate, Link, useLocation, useNavigate } from "react-router-dom";
-import { Home, List, CalendarDays, MessageCircle, Wallet, LayoutDashboard, ShieldCheck, Search, Briefcase, ArrowLeft, LifeBuoy, MoreHorizontal } from "lucide-react";
+import { Home, List, CalendarDays, MessageCircle, Wallet, LayoutDashboard, ShieldCheck, Search, Briefcase, ArrowLeft, LifeBuoy, MoreHorizontal, BarChart3 } from "lucide-react";
 import { useAppUser } from "@/lib/useAppUser";
 import NotificationBell from "@/components/grind/NotificationBell";
 import SiteFooter from "@/components/SiteFooter";
 import BlockworkLogo from "@/components/BlockworkLogo";
 
+// Primary tabs = the 4–5 essential items shown in the main nav.
+// Secondary tabs = less-used items moved into the overflow/profile menu.
+// `tour` keys map to data-tour attributes consumed by the Tour component.
 const TABS = {
-  teen: [
-    { to: "/teen", label: "Home", icon: Home, end: true },
-    { to: "/teen/listings", label: "Services", icon: List },
-    { to: "/jobs", label: "Jobs", icon: Briefcase },
-    { to: "/teen/bookings", label: "Bookings", icon: CalendarDays },
-    { to: "/messages", label: "Messages", icon: MessageCircle },
-    { to: "/teen/wallet", label: "Wallet", icon: Wallet },
-  ],
-  parent: [
-    { to: "/parent", label: "Dashboard", icon: LayoutDashboard, end: true },
-    { to: "/parent/approvals", label: "Approvals", icon: ShieldCheck },
-    { to: "/messages", label: "Messages", icon: MessageCircle },
-    { to: "/parent/payouts", label: "Payouts", icon: Wallet },
-  ],
-  buyer: [
-    { to: "/buyer", label: "Home", icon: Home, end: true },
-    { to: "/browse", label: "Browse", icon: Search },
-    { to: "/jobs", label: "My Jobs", icon: Briefcase },
-    { to: "/buyer/bookings", label: "Bookings", icon: CalendarDays },
-    { to: "/messages", label: "Messages", icon: MessageCircle },
-  ],
-  admin: [
-    { to: "/admin", label: "Admin", icon: LayoutDashboard, end: true },
-    { to: "/browse", label: "Browse", icon: Search },
-    { to: "/messages", label: "Messages", icon: MessageCircle },
-  ],
+  teen: {
+    primary: [
+      { to: "/teen", label: "Home", icon: Home, end: true },
+      { to: "/teen/listings", label: "My Services", icon: List, tour: "tour-services" },
+      { to: "/jobs", label: "Jobs", icon: Briefcase, tour: "tour-jobs" },
+      { to: "/teen/earnings", label: "Earnings", icon: BarChart3 },
+      { to: "/messages", label: "Messages", icon: MessageCircle, tour: "tour-messages" },
+    ],
+    secondary: [
+      { to: "/teen/bookings", label: "Bookings", icon: CalendarDays },
+      { to: "/teen/wallet", label: "Wallet", icon: Wallet },
+    ],
+  },
+  parent: {
+    primary: [
+      { to: "/parent", label: "Home", icon: Home, end: true },
+      { to: "/parent/approvals", label: "Approvals", icon: ShieldCheck },
+      { to: "/parent/payouts", label: "Payouts", icon: Wallet },
+      { to: "/messages", label: "Messages", icon: MessageCircle },
+    ],
+    secondary: [],
+  },
+  buyer: {
+    primary: [
+      { to: "/buyer", label: "Home", icon: Home, end: true },
+      { to: "/browse", label: "Browse", icon: Search, tour: "tour-browse" },
+      { to: "/buyer/bookings", label: "My Bookings", icon: CalendarDays, tour: "tour-bookings" },
+      { to: "/messages", label: "Messages", icon: MessageCircle, tour: "tour-messages" },
+    ],
+    secondary: [
+      { to: "/jobs", label: "Job Board", icon: Briefcase },
+    ],
+  },
+  admin: {
+    primary: [
+      { to: "/admin", label: "Admin", icon: LayoutDashboard, end: true },
+      { to: "/browse", label: "Browse", icon: Search },
+      { to: "/messages", label: "Messages", icon: MessageCircle },
+    ],
+    secondary: [],
+  },
 };
 
 const ROLE_LABELS = {
@@ -68,10 +86,6 @@ export default function Layout() {
     );
   }
   if (!user) {
-    // If there's a token in localStorage but the user couldn't be loaded,
-    // this is likely a transient failure after returning from an external
-    // redirect (Stripe Identity/Connect). Show a loading state with a retry
-    // option instead of bouncing the user to the home page unsigned in.
     const token = typeof window !== 'undefined' && window.localStorage.getItem('base44_access_token');
     if (token) {
       return (
@@ -102,19 +116,17 @@ export default function Layout() {
     }
   }
 
-  let tabs = [...(TABS[user.app_role] || TABS.buyer)];
+  const roleTabs = TABS[user.app_role] || TABS.buyer;
+  let primaryTabs = [...roleTabs.primary];
+  let secondaryTabs = [...roleTabs.secondary];
   if (user.app_role === 'parent' && user.has_buyer_profile) {
-    tabs = [
-      ...TABS.parent,
-      { divider: true, label: 'Hire Services' },
+    secondaryTabs = [
+      ...secondaryTabs,
       { to: '/browse', label: 'Browse', icon: Search },
       { to: '/jobs', label: 'Post a Job', icon: Briefcase },
       { to: '/buyer/bookings', label: 'My Bookings', icon: CalendarDays },
     ];
   }
-  const mobileTabs = tabs.filter((t) => !t.divider);
-  const primaryTabs = mobileTabs.length > 5 ? mobileTabs.slice(0, 4) : mobileTabs;
-  const overflowTabs = mobileTabs.length > 5 ? mobileTabs.slice(4) : [];
   const roleLabel = ROLE_LABELS[user.app_role] || "Member";
   const initials = (user.full_name || user.email || "?")
     .split(" ")
@@ -138,20 +150,14 @@ export default function Layout() {
             {roleLabel}
           </p>
           <nav className="flex flex-col gap-1">
-            {tabs.map((tab, idx) => {
-              if (tab.divider) {
-                return (
-                  <p key={`div-${idx}`} className="px-3.5 mt-4 mb-2 text-[10px] font-bold uppercase tracking-[0.08em] text-muted-foreground/70">
-                    {tab.label}
-                  </p>
-                );
-              }
+            {primaryTabs.map((tab) => {
               const Icon = tab.icon;
               return (
                 <NavLink
                   key={tab.to}
                   to={tab.to}
                   end={tab.end}
+                  data-tour={tab.tour}
                   onClick={() => {
                     if (location.pathname === tab.to) window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
@@ -168,6 +174,36 @@ export default function Layout() {
                 </NavLink>
               );
             })}
+            {secondaryTabs.length > 0 && (
+              <>
+                <p className="px-3.5 mt-4 mb-2 text-[10px] font-bold uppercase tracking-[0.08em] text-muted-foreground/70">
+                  More
+                </p>
+                {secondaryTabs.map((tab) => {
+                  const Icon = tab.icon;
+                  return (
+                    <NavLink
+                      key={tab.to}
+                      to={tab.to}
+                      end={tab.end}
+                      onClick={() => {
+                        if (location.pathname === tab.to) window.scrollTo({ top: 0, behavior: "smooth" });
+                      }}
+                      className={({ isActive }) =>
+                        `group flex items-center gap-3 rounded-xl px-3.5 py-[11px] text-[14px] font-semibold transition-all duration-200 ${
+                          isActive
+                            ? "bg-primary text-primary-foreground shadow-soft"
+                            : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                        }`
+                      }
+                    >
+                      <Icon className="w-[18px] h-[18px] shrink-0" strokeWidth={2.2} />
+                      <span>{tab.label}</span>
+                    </NavLink>
+                  );
+                })}
+              </>
+            )}
           </nav>
         </div>
         <div className="border-t border-border p-3">
@@ -253,6 +289,7 @@ export default function Layout() {
                 key={tab.to}
                 to={tab.to}
                 end={tab.end}
+                data-tour={tab.tour}
                 onClick={() => {
                   if (location.pathname === tab.to) window.scrollTo({ top: 0, behavior: "smooth" });
                 }}
@@ -267,7 +304,7 @@ export default function Layout() {
               </NavLink>
             );
           })}
-          {overflowTabs.length > 0 && (
+          {secondaryTabs.length > 0 && (
             <button
               onClick={() => setMoreOpen(true)}
               className="flex flex-col items-center justify-center gap-1 py-2.5 px-2 text-[10px] font-semibold text-muted-foreground hover:text-foreground transition-colors duration-200 min-w-[44px] min-h-[44px]"
@@ -288,7 +325,7 @@ export default function Layout() {
               <div className="w-10 h-1.5 rounded-full bg-border" />
             </div>
             <div className="px-3 pb-3 pt-2 space-y-1">
-              {overflowTabs.map((tab) => {
+              {secondaryTabs.map((tab) => {
                 const Icon = tab.icon;
                 return (
                   <NavLink

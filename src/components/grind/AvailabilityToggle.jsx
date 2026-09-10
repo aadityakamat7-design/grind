@@ -17,7 +17,7 @@ export default function AvailabilityToggle({ profile, onChanged }) {
   };
 
   return (
-    <div className="flex items-center justify-between bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
+    <div data-tour="tour-availability" className="flex items-center justify-between bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
       <div className="flex items-center gap-2.5">
         <span className={`w-2.5 h-2.5 rounded-full ${available ? "bg-emerald-500" : "bg-slate-300"}`} />
         <div>

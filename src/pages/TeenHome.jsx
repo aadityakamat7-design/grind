@@ -18,6 +18,16 @@ import ErrorRetry from "@/components/grind/ErrorRetry";
 import { getOrCreateWallet } from "@/lib/wallet";
 import { genInviteCode } from "@/lib/grind";
 import PullToRefresh from "@/components/PullToRefresh";
+import Tour from "@/components/grind/Tour";
+import { useTour } from "@/hooks/useTour";
+
+const teenTourSteps = [
+  { target: "tour-earnings", title: "Your earnings", subtitle: "This is what you've made and what's still pending." },
+  { target: "tour-services", title: "My Services", subtitle: "List what you're good at. Neighbors book you from here." },
+  { target: "tour-jobs", title: "Jobs", subtitle: "Requests and upcoming work show up here." },
+  { target: "tour-availability", title: "Availability", subtitle: "Flip this off when you're busy and you won't appear in search." },
+  { target: "tour-safety", title: "Safety button", subtitle: "Tap this any time during a job to alert your parent or call for help." },
+];
 
 export default function TeenHome() {
   const { user } = useOutletContext();
@@ -31,6 +41,7 @@ export default function TeenHome() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [cashOutOpen, setCashOutOpen] = useState(false);
+  const { active: tourActive, finish: finishTour } = useTour(user, "teen", !loading && !!profile);
 
   const load = useCallback(async () => {
     try {
@@ -99,6 +110,7 @@ export default function TeenHome() {
   const unreadCount = threads.filter((t) => !t.last_read_by_teen).length;
 
   return (
+    <>
     <PullToRefresh onRefresh={load}>
       <div className="space-y-6">
         <PageHeader title={`Hey, ${profile?.display_name?.split(" ")[0] || "there"} 👋`} subtitle="Here's what's happening with your hustle.">
@@ -107,7 +119,19 @@ export default function TeenHome() {
           </Link>
         </PageHeader>
 
-        <TeenStatsGrid records={records} bookings={bookings} profile={profile} />
+        {listings.length === 0 && (
+          <div className="bg-primary/5 border border-primary/20 rounded-2xl p-6 text-center">
+            <h3 className="font-bold text-foreground text-[15px]">Create your first service to start getting booked</h3>
+            <p className="text-[13px] text-muted-foreground mt-1">Neighbors can't find you until you list a skill.</p>
+            <Link to="/teen/listings" className="inline-flex items-center gap-1.5 mt-4 bg-primary text-primary-foreground text-[13px] font-semibold rounded-full px-5 h-10 shadow-soft hover:opacity-90 transition-opacity">
+              <Plus className="w-4 h-4" /> Create a service
+            </Link>
+          </div>
+        )}
+
+        <div data-tour="tour-earnings">
+          <TeenStatsGrid records={records} bookings={bookings} profile={profile} />
+        </div>
 
         <TeenHoursCard profile={profile} privateData={privateData} bookings={bookings} />
 
@@ -182,5 +206,14 @@ export default function TeenHome() {
         )}
       </div>
     </PullToRefresh>
+
+      {tourActive && (
+        <Tour
+          steps={teenTourSteps}
+          onComplete={finishTour}
+          onSkip={finishTour}
+        />
+      )}
+    </>
   );
 }

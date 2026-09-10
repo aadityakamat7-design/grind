@@ -25,7 +25,7 @@ export default function AlertParentButton({ booking }) {
     );
 
   return (
-    <div className="bg-rose-50 border border-rose-200 rounded-2xl p-4">
+    <div data-tour="tour-safety" className="bg-rose-50 border border-rose-200 rounded-2xl p-4">
       <button
         onClick={alertParent}
         disabled={sending}
