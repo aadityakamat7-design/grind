@@ -4,6 +4,9 @@ import { base44 } from "@/api/base44Client";
 import { format, subDays, subWeeks, subMonths, isAfter } from "date-fns";
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip } from "recharts";
 import { Download, Wallet } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import PageHeader from "@/components/grind/PageHeader";
+import { money } from "@/lib/grind";
 
 const fmt = (n) => `$${Number(n || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 const fmtChange = (n) => `${n >= 0 ? "+" : "\u2212"}$${Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -24,19 +27,6 @@ const PAYOUT_STATUS = {
   pending_new_account_hold: { label: "New account hold (72h)", color: "#F2B84B" },
   not_started: { label: "Released to parent", color: "#00D47E" },
 };
-
-function FontLoader() {
-  useEffect(() => {
-    const id = "earnings-fonts";
-    if (document.getElementById(id)) return;
-    const link = document.createElement("link");
-    link.id = id;
-    link.rel = "stylesheet";
-    link.href = "https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap";
-    document.head.appendChild(link);
-  }, []);
-  return null;
-}
 
 function buildChartData(records, range) {
   const now = new Date();
@@ -83,21 +73,6 @@ function buildChartData(records, range) {
   return points;
 }
 
-function Shell({ children, style }) {
-  return (
-    <>
-      <FontLoader />
-      <style>{`.earnings-page *{font-family:'Inter',system-ui,sans-serif}.earnings-page .serif{font-family:'Instrument Serif',Georgia,serif}`}</style>
-      <div
-        className="earnings-page -mx-4 lg:-mx-8 -mt-5 lg:-mt-8 px-4 lg:px-8 pt-5 lg:pt-8 pb-12"
-        style={{ background: "#000", color: "#fff", minHeight: "80vh", ...style }}
-      >
-        {children}
-      </div>
-    </>
-  );
-}
-
 export default function TeenEarnings() {
   const { user } = useOutletContext();
   const navigate = useNavigate();
@@ -141,19 +116,18 @@ export default function TeenEarnings() {
 
   if (loading)
     return (
-      <Shell>
-        <div className="flex justify-center items-center" style={{ minHeight: "60vh" }}>
-          <div className="w-8 h-8 border-4 rounded-full animate-spin" style={{ borderColor: "rgba(255,255,255,0.08)", borderTopColor: "#2D9CDB" }} />
-        </div>
-      </Shell>
+      <div className="space-y-6">
+        <PageHeader title="Earnings" />
+        <div className="h-8 w-48 rounded-lg bg-muted skeleton-shimmer" />
+        <div className="bg-card rounded-2xl border border-border h-32 skeleton-shimmer" />
+      </div>
     );
   if (error)
     return (
-      <Shell>
-        <button onClick={load} className="flex flex-col items-center gap-3 py-20 w-full">
-          <p className="text-sm font-medium" style={{ color: "#FF6B6B" }}>Couldn't load — tap to retry</p>
-        </button>
-      </Shell>
+      <div className="space-y-6">
+        <PageHeader title="Earnings" />
+        <button onClick={load} className="text-sm font-medium text-destructive">Couldn't load — tap to retry</button>
+      </div>
     );
 
   const totalEarned = records.reduce((s, r) => s + (r.net_amount || 0), 0);
@@ -164,7 +138,6 @@ export default function TeenEarnings() {
     .reduce((s, r) => s + (r.net_amount || 0), 0);
 
   const chartData = buildChartData(records, range);
-  const hasData = records.length > 0 || held.length > 0;
   const payoutByBooking = Object.fromEntries(releasedBookings.map((b) => [b.id, b.payout_status]));
 
   const transactions = [
@@ -197,69 +170,44 @@ export default function TeenEarnings() {
     a.click();
   };
 
-  if (!hasData)
-    return (
-      <Shell>
-        <div className="flex items-center justify-center py-20">
-          <div className="text-center max-w-sm">
-            <div className="w-16 h-16 rounded-full mx-auto mb-5 flex items-center justify-center" style={{ background: "#0D0D0F", border: "1px solid rgba(255,255,255,0.08)" }}>
-              <Wallet style={{ color: "#8A8F98" }} className="w-7 h-7" />
-            </div>
-            <h2 className="serif" style={{ color: "#fff", fontSize: 28 }}>No earnings yet</h2>
-            <p style={{ color: "#8A8F98" }} className="text-sm mt-2 mb-6">Complete your first job and your earnings will show up here.</p>
-            <button onClick={() => navigate("/jobs")} style={{ background: "#2D9CDB", color: "#fff" }} className="px-6 py-3 rounded-full text-sm font-medium hover:opacity-90 transition-opacity">
-              Browse jobs
-            </button>
-          </div>
-        </div>
-      </Shell>
-    );
-
   return (
-    <Shell>
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="serif" style={{ color: "#fff", fontSize: 30 }}>Earnings</h1>
+    <div className="space-y-6">
+      <PageHeader title="Earnings">
         {records.length > 0 && (
-          <button onClick={exportCsv} style={{ color: "#8A8F98", border: "1px solid rgba(255,255,255,0.08)" }} className="flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium hover:bg-white/[0.03] transition-colors">
+          <Button variant="outline" size="sm" onClick={exportCsv}>
             <Download className="w-3.5 h-3.5" /> Export
-          </button>
+          </Button>
         )}
-      </div>
+      </PageHeader>
 
       {/* Hero balance */}
-      <div className="mb-5">
-        <p style={{ color: "#8A8F98" }} className="text-sm">Total balance</p>
-        <p className="serif" style={{ color: "#fff", fontSize: "clamp(40px, 9vw, 60px)", lineHeight: 1.05, marginTop: 2 }}>
+      <div>
+        <p className="text-sm text-muted-foreground">Total balance</p>
+        <p className="font-display text-4xl lg:text-5xl font-bold text-foreground mt-1">
           {fmt(totalEarned)}
         </p>
-        <p style={{ color: weekEarnings >= 0 ? "#00D47E" : "#FF4D4D" }} className="text-sm mt-1.5 font-medium">
+        <p className={`text-sm mt-1.5 font-medium ${weekEarnings >= 0 ? "text-success" : "text-destructive"}`}>
           {fmtChange(weekEarnings)} this week
         </p>
       </div>
 
       {/* Cash Out */}
-      <button
-        onClick={() => navigate("/teen/wallet")}
-        style={{ background: "#2D9CDB", color: "#fff" }}
-        className="w-full py-3.5 rounded-full font-medium text-sm mb-6 hover:opacity-90 transition-opacity"
-      >
-        Cash Out
-      </button>
+      <Button className="w-full" onClick={() => navigate("/teen/wallet")}>
+        <Wallet className="w-4 h-4 mr-1.5" /> Cash Out
+      </Button>
 
       {/* Chart */}
-      <div className="rounded-2xl p-4 mb-4" style={{ background: "#0D0D0F", border: "1px solid rgba(255,255,255,0.08)" }}>
+      <div className="bg-card rounded-2xl border border-border p-4">
         <div className="flex gap-2 mb-4 overflow-x-auto no-scrollbar">
           {RANGES.map((r) => (
             <button
               key={r}
               onClick={() => setRange(r)}
-              style={{
-                background: range === r ? "#2D9CDB" : "transparent",
-                color: range === r ? "#fff" : "#8A8F98",
-                border: `1px solid ${range === r ? "#2D9CDB" : "rgba(255,255,255,0.08)"}`,
-              }}
-              className="shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors"
+              className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                range === r
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground border border-border hover:bg-secondary"
+              }`}
             >
               {r}
             </button>
@@ -270,31 +218,31 @@ export default function TeenEarnings() {
             <AreaChart data={chartData} margin={{ top: 5, right: 5, left: 5, bottom: 0 }}>
               <defs>
                 <linearGradient id="earningsGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#2D9CDB" stopOpacity={0.35} />
-                  <stop offset="100%" stopColor="#2D9CDB" stopOpacity={0} />
+                  <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.35} />
+                  <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <YAxis domain={[0, "auto"]} hide />
               <XAxis
                 dataKey="label"
-                tick={{ fill: "#8A8F98", fontSize: 11, fontFamily: "'Inter', sans-serif" }}
+                tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }}
                 axisLine={false}
                 tickLine={false}
                 interval="preserveStartEnd"
               />
               <Tooltip
-                contentStyle={{ background: "#0D0D0F", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, color: "#fff", fontFamily: "'Inter', sans-serif", fontSize: 12 }}
-                labelStyle={{ color: "#8A8F98" }}
+                contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 12, color: "hsl(var(--foreground))", fontSize: 12 }}
+                labelStyle={{ color: "hsl(var(--muted-foreground))" }}
                 formatter={(v) => [fmt(v), "Earned"]}
               />
               <Area
                 type="monotone"
                 dataKey="amount"
-                stroke="#2D9CDB"
+                stroke="hsl(var(--primary))"
                 strokeWidth={2}
                 fill="url(#earningsGrad)"
                 dot={false}
-                activeDot={{ fill: "#2D9CDB", r: 4, strokeWidth: 0 }}
+                activeDot={{ fill: "hsl(var(--primary))", r: 4, strokeWidth: 0 }}
               />
             </AreaChart>
           </ResponsiveContainer>
@@ -302,23 +250,26 @@ export default function TeenEarnings() {
       </div>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-3 gap-2.5 mb-6">
+      <div className="grid grid-cols-3 gap-2.5">
         {[
-          { label: "Total Earned", value: totalEarned, color: "#fff" },
-          { label: "Pending", value: pending, color: "#F2B84B" },
-          { label: "Paid Out", value: paidOut, color: "#00D47E" },
+          { label: "Total Earned", value: totalEarned, color: "text-foreground" },
+          { label: "Pending", value: pending, color: "text-warning" },
+          { label: "Paid Out", value: paidOut, color: "text-success" },
         ].map((s) => (
-          <div key={s.label} className="rounded-2xl p-3.5" style={{ background: "#0D0D0F", border: "1px solid rgba(255,255,255,0.08)" }}>
-            <p style={{ color: "#8A8F98" }} className="text-[11px] font-medium">{s.label}</p>
-            <p className="serif" style={{ color: s.color, fontSize: 20, marginTop: 4 }}>{fmt(s.value)}</p>
+          <div key={s.label} className="bg-card rounded-2xl border border-border p-3.5">
+            <p className="text-[11px] font-medium text-muted-foreground">{s.label}</p>
+            <p className={`font-display text-xl font-bold mt-1 ${s.color}`}>{fmt(s.value)}</p>
           </div>
         ))}
       </div>
 
       {/* Transactions */}
       <div>
-        <h2 style={{ color: "#fff" }} className="text-sm font-semibold mb-3">Transactions</h2>
+        <h2 className="text-sm font-semibold text-foreground mb-3">Transactions</h2>
         <div className="space-y-2">
+          {transactions.length === 0 && (
+            <p className="text-sm text-muted-foreground py-8 text-center">No transactions yet.</p>
+          )}
           {transactions.map((t) => {
             const payoutStatus = t.status === "paid" && t.bookingId ? payoutByBooking[t.bookingId] : null;
             const st = payoutStatus ? (PAYOUT_STATUS[payoutStatus] || STATUS.paid) : STATUS[t.status];
@@ -327,15 +278,17 @@ export default function TeenEarnings() {
               <div
                 key={t.id}
                 onClick={() => t.bookingId && navigate(`/bookings/${t.bookingId}`)}
-                className="flex items-center justify-between rounded-xl p-3.5 cursor-pointer transition-colors hover:bg-white/[0.02]"
-                style={{ background: "#0D0D0F", border: "1px solid rgba(255,255,255,0.08)" }}
+                className="flex items-center justify-between rounded-xl p-3.5 cursor-pointer transition-colors hover:bg-secondary bg-card border border-border"
               >
                 <div className="min-w-0">
-                  <p style={{ color: "#fff" }} className="text-sm font-medium truncate">{t.title}</p>
-                  <p style={{ color: "#8A8F98" }} className="text-xs mt-0.5">{t.date}</p>
+                  <p className="text-sm font-medium text-foreground truncate">{t.title}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{t.date}</p>
                 </div>
                 <div className="flex items-center gap-2.5 shrink-0 ml-3">
-                  <span style={{ color: st.color, background: `${st.color}26` }} className="text-[10px] font-medium px-2 py-0.5 rounded-full">
+                  <span
+                    className="text-[10px] font-medium px-2 py-0.5 rounded-full"
+                    style={{ color: st.color, background: `${st.color}1a` }}
+                  >
                     {st.label}
                   </span>
                   <span style={{ color: st.color }} className="text-sm font-semibold tabular-nums">
@@ -347,6 +300,6 @@ export default function TeenEarnings() {
           })}
         </div>
       </div>
-    </Shell>
+    </div>
   );
 }
