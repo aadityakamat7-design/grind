@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { CreditCard, Lock } from "lucide-react";
+import { CreditCard } from "lucide-react";
 import { money } from "@/lib/grind";
 import StripeBadge from "@/components/StripeBadge";
 
@@ -26,12 +26,13 @@ export default function ExpressCheckout({ bookingId, amount, onSuccess, onError,
   const expressRef = useRef(null);
   const expressElementRef = useRef(null);
 
-  const inIframe = typeof window !== "undefined" && window.self !== window.top;
-
-  // Initialise the Express Checkout Element in the background (skipped in
-  // iframe — the primary "Pay and continue" button works everywhere).
+  // Initialise the Express Checkout Element in the background. Stripe's
+  // `paymentMethods: "auto"` shows only methods available on the current
+  // device: Apple Pay appears on verified domains in Safari, Link appears
+  // everywhere else (including inside the builder preview iframe). The
+  // divider + express section are hidden entirely if nothing renders.
   useEffect(() => {
-    if (inIframe || !amount || amount <= 0) return;
+    if (!amount || amount <= 0) return;
 
     let cancelled = false;
 
@@ -159,13 +160,6 @@ export default function ExpressCheckout({ bookingId, amount, onSuccess, onError,
           payment methods and render the native buttons. If none render, the div
           stays empty (0 height) and the divider above hides — no gap. */}
       <div ref={expressRef} />
-
-      {inIframe && (
-        <div className="flex items-center gap-2 rounded-xl p-3 text-xs text-muted-foreground bg-secondary border border-border mt-4">
-          <Lock className="w-4 h-4 shrink-0" />
-          Apple Pay works on the published app from Safari on iPhone. Card payment works here.
-        </div>
-      )}
 
       {errorMsg && <p className="text-xs text-destructive font-medium text-center mt-3">{errorMsg}</p>}
 
