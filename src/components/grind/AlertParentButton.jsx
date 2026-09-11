@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
-import { ShieldAlert, CheckCircle2 } from "lucide-react";
+import { ShieldAlert, CheckCircle2, Phone } from "lucide-react";
 
 export default function AlertParentButton({ booking }) {
   const [sending, setSending] = useState(false);
@@ -25,7 +25,13 @@ export default function AlertParentButton({ booking }) {
     );
 
   return (
-    <div data-tour="tour-safety" className="bg-rose-50 border border-rose-200 rounded-2xl p-4">
+    <div data-tour="tour-safety" className="bg-rose-50 border border-rose-200 rounded-2xl p-4 space-y-2">
+      <a
+        href="tel:911"
+        className="w-full flex items-center justify-center gap-2 rounded-xl bg-red-700 hover:bg-red-800 text-white font-bold py-3 transition-colors shadow-soft"
+      >
+        <Phone className="w-5 h-5" /> Call 911
+      </a>
       <button
         onClick={alertParent}
         disabled={sending}
@@ -33,8 +39,8 @@ export default function AlertParentButton({ booking }) {
       >
         <ShieldAlert className="w-5 h-5" /> {sending ? "Alerting..." : "Alert my parent"}
       </button>
-      <p className="text-[11px] text-rose-600 mt-2 text-center">
-        Feel unsafe? One tap instantly sends your parent the job details and your live location.
+      <p className="text-[11px] text-rose-600 mt-1 text-center">
+        In an emergency, call 911 first. Then alert your parent with one tap — they'll get the job details and your live location.
       </p>
     </div>
   );
