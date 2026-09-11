@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { MapPin, ShieldAlert, ShieldCheck } from "lucide-react";
+import { ShieldAlert, ShieldCheck } from "lucide-react";
+import LiveLocationCard from "@/components/grind/parent/LiveLocationCard";
 
 export default function SafetyPanel({ activeJobs, alerts }) {
   return (
@@ -22,19 +23,7 @@ export default function SafetyPanel({ activeJobs, alerts }) {
       ) : (
         <div className="space-y-3">
           {activeJobs.map((b) => (
-            <Link key={b.id} to={`/bookings/${b.id}`} className="block bg-white rounded-2xl border border-slate-100 shadow-sm p-4 hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-between">
-                <p className="font-bold text-slate-900 text-sm">{b.teen_display_name} · {b.listing_title}</p>
-                <span className="flex items-center gap-1 text-[10px] font-bold text-emerald-600 bg-emerald-50 rounded-full px-2 py-0.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> LIVE
-                </span>
-              </div>
-              <div className="mt-2.5 h-20 rounded-xl bg-gradient-to-br from-blue-50 to-sky-100 flex items-center justify-center relative overflow-hidden">
-                <MapPin className="w-6 h-6 text-blue-500" />
-                <span className="absolute bottom-1.5 right-2 text-[10px] font-semibold text-blue-600/70">Live location · updated just now</span>
-              </div>
-              <p className="text-xs text-slate-500 mt-2">At {b.address} with {b.buyer_name}</p>
-            </Link>
+            <LiveLocationCard key={b.id} booking={b} />
           ))}
         </div>
       )}

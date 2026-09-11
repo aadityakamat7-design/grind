@@ -12,6 +12,7 @@ import { money } from "@/lib/grind";
 import TipReleaseDialog from "@/components/grind/TipReleaseDialog";
 import RescheduleDialog from "@/components/grind/RescheduleDialog";
 import AlertParentButton from "@/components/grind/AlertParentButton";
+import TeenLiveLocationSharing from "@/components/grind/teen/TeenLiveLocationSharing";
 import PaymentStatusTracker from "@/components/grind/PaymentStatusTracker";
 import EarningsBreakdown from "@/components/grind/teen/EarningsBreakdown";
 import JobHandshakePanel from "@/components/grind/JobHandshakePanel";
@@ -265,6 +266,7 @@ export default function BookingDetail() {
           onPaymentError={(msg) => setHandshakeError(msg)}
         />
         {handshakeError && <p className="text-xs text-destructive font-medium text-center">{handshakeError}</p>}
+        {isTeen && booking.status === "in_progress" && <TeenLiveLocationSharing booking={booking} />}
         {isTeen && booking.status === "in_progress" && <AlertParentButton booking={booking} />}
         {(isTeen || isBuyer) && ["pending_parent_approval", "confirmed", "in_progress"].includes(booking.status) && (
           <div className="grid grid-cols-2 gap-3">
