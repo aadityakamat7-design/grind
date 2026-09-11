@@ -6,7 +6,6 @@ import BookingCard from "@/components/grind/BookingCard";
 import PageHeader from "@/components/grind/PageHeader";
 import AvailabilityToggle from "@/components/grind/AvailabilityToggle";
 import AlertParentButton from "@/components/grind/AlertParentButton";
-import EmergencyButton from "@/components/grind/teen/EmergencyButton";
 import InviteCodeCard from "@/components/grind/teen/InviteCodeCard";
 import MessagesWidget from "@/components/grind/teen/MessagesWidget";
 import CashOutDialog from "@/components/grind/wallet/CashOutDialog";
@@ -27,7 +26,6 @@ const teenTourSteps = [
   { target: "tour-services", title: "My Services", subtitle: "List what you're good at. Neighbors book you from here." },
   { target: "tour-jobs", title: "Jobs", subtitle: "Requests and upcoming work show up here." },
   { target: "tour-availability", title: "Availability", subtitle: "Flip this off when you're busy and you won't appear in search." },
-  { target: "tour-safety", title: "Safety button", subtitle: "Tap this any time during a job to alert your parent or call for help." },
 ];
 
 export default function TeenHome() {
@@ -129,10 +127,6 @@ export default function TeenHome() {
             </Link>
           </div>
         )}
-
-        <div data-tour="tour-safety">
-          <EmergencyButton />
-        </div>
 
         <div data-tour="tour-earnings">
           <TeenStatsGrid records={records} bookings={bookings} profile={profile} />
