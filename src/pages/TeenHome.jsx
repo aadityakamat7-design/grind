@@ -6,6 +6,7 @@ import BookingCard from "@/components/grind/BookingCard";
 import PageHeader from "@/components/grind/PageHeader";
 import AvailabilityToggle from "@/components/grind/AvailabilityToggle";
 import AlertParentButton from "@/components/grind/AlertParentButton";
+import EmergencyButton from "@/components/grind/teen/EmergencyButton";
 import InviteCodeCard from "@/components/grind/teen/InviteCodeCard";
 import MessagesWidget from "@/components/grind/teen/MessagesWidget";
 import CashOutDialog from "@/components/grind/wallet/CashOutDialog";
@@ -128,6 +129,10 @@ export default function TeenHome() {
             </Link>
           </div>
         )}
+
+        <div data-tour="tour-safety">
+          <EmergencyButton />
+        </div>
 
         <div data-tour="tour-earnings">
           <TeenStatsGrid records={records} bookings={bookings} profile={profile} />
