@@ -58,8 +58,8 @@ export default function ExpressCheckout({ bookingId, amount, onSuccess, onError,
           buttonType: { applePay: "plain" },
           buttonHeight: 48,
           paymentMethods: {
-            applePay: "always",
-            link: "always",
+            applePay: "auto",
+            link: "auto",
           },
         });
         expressElementRef.current = expressElement;
