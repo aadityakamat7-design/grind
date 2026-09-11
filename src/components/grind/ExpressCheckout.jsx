@@ -34,12 +34,19 @@ export default function ExpressCheckout({ bookingId, amount, onSuccess, onError,
   useEffect(() => {
     if (!amount || amount <= 0) return;
 
+    console.log("[ExpressCheckout] mounted", { bookingId, amount });
+
     let cancelled = false;
 
     (async () => {
       try {
         const res = await base44.functions.invoke("createPaymentIntent", { bookingId });
         const { client_secret, publishable_key } = res.data || {};
+        console.log("[ExpressCheckout] createPaymentIntent", {
+          hasClientSecret: !!client_secret,
+          hasPublishableKey: !!publishable_key,
+          clientSecretPrefix: client_secret ? client_secret.slice(0, 10) : null,
+        });
         if (!client_secret || !publishable_key || cancelled) return;
 
         const stripe = await loadStripe(publishable_key);
@@ -68,6 +75,14 @@ export default function ExpressCheckout({ bookingId, amount, onSuccess, onError,
         requestAnimationFrame(() => {
           if (cancelled || !expressRef.current) return;
           expressElement.mount(expressRef.current);
+          // availablepaymentmethodschange fires on initial render and reports
+          // exactly which express methods Stripe considers available on this
+          // device/domain. This is the authoritative diagnostic signal — it
+          // separates "Apple Pay not available" (domain/device issue) from
+          // "available but not rendering" (CSS/layout issue).
+          expressElement.on("availablepaymentmethodschange", (event) => {
+            console.log("[ExpressCheckout] availablePaymentMethods", event?.paymentMethods);
+          });
           expressElement.on("ready", () => {
             setTimeout(() => {
               if (cancelled) return;
