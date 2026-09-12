@@ -97,9 +97,13 @@ export default function ExpressCheckout({ bookingId, amount, onSuccess, onError,
           onSuccess?.();
         };
 
-        const mountWallet = async (pr, setReady, btnRef) => {
+        // canMakePayment() reports which specific wallets are available
+        // (e.g. { applePay: true } or { googlePay: true }). Only mount a slot
+        // when ITS wallet is available, so the two buttons stay distinct
+        // instead of both rendering whatever the browser supports first.
+        const mountWallet = async (pr, setReady, btnRef, walletKey) => {
           const can = await pr.canMakePayment();
-          if (cancelled || !can) return;
+          if (cancelled || !can || !can[walletKey]) return;
           setReady(true);
           const elements = stripe.elements();
           const btn = elements.create("paymentRequestButton", {
@@ -117,12 +121,14 @@ export default function ExpressCheckout({ bookingId, amount, onSuccess, onError,
         await mountWallet(
           stripe.paymentRequest({ country: "US", currency: "usd", total: { label, amount: cents }, requestPayerName: true, requestPayerEmail: true }),
           setApplePayReady,
-          appleBtnRef
+          appleBtnRef,
+          "applePay"
         );
         await mountWallet(
           stripe.paymentRequest({ country: "US", currency: "usd", total: { label, amount: cents }, requestPayerName: true, requestPayerEmail: true }),
           setGooglePayReady,
-          googleBtnRef
+          googleBtnRef,
+          "googlePay"
         );
       } catch (err) {
         console.error("Wallet init error:", err);
