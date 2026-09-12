@@ -30,7 +30,9 @@ export default function JobBoard() {
           base44.entities.JobPost.filter({ buyer_user_id: user.id }, "-created_date", 50),
           base44.entities.BuyerProfile.filter({ user_id: user.id }),
         ]);
-        setJobs(mine);
+        // Only show jobs that have been paid for — unpaid drafts stay hidden
+        // until the upfront escrow payment clears (status flips to "open").
+        setJobs(mine.filter((j) => j.status !== "draft"));
         setBuyerProfile(profiles[0] || null);
       } else {
         const res = await base44.functions.invoke("getJobBoard", {});

@@ -146,8 +146,24 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
     }
   };
 
+  // Abandon an unpaid draft so it never shows up on the job board. The job
+  // is only truly "posted" once the upfront escrow payment clears and the
+  // webhook flips it from draft → open.
+  const abandonDraft = async () => {
+    if (!payJob?.id) return;
+    try { await base44.entities.JobPost.delete(payJob.id); } catch {}
+    onPosted?.();
+  };
+
   const close = (v) => {
-    if (!v) { setPhase("form"); setScreening(null); setAiCategory(null); setChosenCategory(null); setCategoryError(""); setPayJob(null); }
+    if (!v) {
+      // Closing the modal during the pay step = backing out — delete the
+      // unpaid draft so it doesn't linger as an orphan.
+      if (phase === "pay" && payJob?.id) {
+        abandonDraft();
+      }
+      setPhase("form"); setScreening(null); setAiCategory(null); setChosenCategory(null); setCategoryError(""); setPayJob(null);
+    }
     onOpenChange(v);
   };
 
@@ -201,7 +217,7 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
               cardUrl={payJob.cardUrl}
               onSuccess={() => setPhase("approved")}
             />
-            <Button variant="outline" className="w-full" onClick={() => setPhase("form")}>Back</Button>
+            <Button variant="outline" className="w-full" onClick={() => { abandonDraft(); setPhase("form"); setPayJob(null); }}>Back</Button>
           </div>
         )}
 
