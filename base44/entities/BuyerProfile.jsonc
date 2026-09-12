@@ -91,6 +91,18 @@
       "type": "string",
       "maxLength": 1000
     },
+    "credit_balance": {
+      "type": "number",
+      "default": 0,
+      "description": "Platform credit the neighbor has from expired job posts they chose to keep as credit. Applied automatically to reduce the upfront charge on their next job post (server-set only).",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
     "availability": {
       "type": "array",
       "description": "Weekly recurring availability slots the neighbor set on their Availability tab \u2014 when they're usually home and available for service. Each entry: { day: 0-6 (Sun-Sat), start: 'HH:mm', end: 'HH:mm' }.",

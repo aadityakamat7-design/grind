@@ -99,6 +99,29 @@ Deno.serve(async (req) => {
         }
       }
 
+      // Upfront job-post payment cleared — flip the post from draft to open and
+      // start the 7-day no-taker window. Escrow is held until a teen completes.
+      const jobPostId = session.metadata?.job_post_id;
+      if (jobPostId) {
+        const job = await base44.asServiceRole.entities.JobPost.get(jobPostId);
+        if (job && job.status === 'draft' && job.payment_status === 'unpaid') {
+          const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+          await base44.asServiceRole.entities.JobPost.update(job.id, {
+            status: 'open',
+            payment_status: 'held',
+            stripe_payment_intent_id: session.payment_intent,
+            expires_at: expiresAt,
+            is_test_mode: isTestEvent,
+          });
+          console.log(`JobPost ${jobPostId} went live (payment ${session.payment_intent})`);
+        }
+        await notifyOwnerTransaction(base44, {
+          type: 'Job post escrow',
+          title: `"${job?.title || jobPostId}" — upfront posting payment`,
+          details: `Job: ${jobPostId}\nPayment intent: ${session.payment_intent || 'n/a'}\nMode: ${isTestEvent ? 'TEST' : 'LIVE'}`,
+        });
+      }
+
     }
 
     if (event.type === 'payment_intent.succeeded') {
@@ -118,6 +141,21 @@ Deno.serve(async (req) => {
           is_test_mode: isTestEvent,
         });
         console.log(`Booking ${bookingId} marked as held (PI ${pi.id})`);
+      }
+
+      if (pi.metadata?.job_post_id) {
+        const job = await base44.asServiceRole.entities.JobPost.get(pi.metadata.job_post_id);
+        if (job && job.status === 'draft' && job.payment_status === 'unpaid') {
+          const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+          await base44.asServiceRole.entities.JobPost.update(job.id, {
+            status: 'open',
+            payment_status: 'held',
+            stripe_payment_intent_id: pi.id,
+            expires_at: expiresAt,
+            is_test_mode: isTestEvent,
+          });
+          console.log(`JobPost ${pi.metadata.job_post_id} went live (PI ${pi.id})`);
+        }
       }
 
 

@@ -56,6 +56,9 @@ Deno.serve(async (req) => {
       };
     });
 
+    // ASAP jobs first — free neighbor flag that pushes urgent work to the top.
+    jobs.sort((a, b) => (b.is_asap ? 1 : 0) - (a.is_asap ? 1 : 0));
+
     return Response.json({ jobs, ratings });
   } catch (error) {
     console.error('getJobBoard error:', error.message);

@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useOutletContext } from "react-router-dom";
+import { useOutletContext, Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { Plus, Briefcase } from "lucide-react";
+import { Plus, Briefcase, Wallet } from "lucide-react";
 import JobPostCard from "@/components/grind/jobs/JobPostCard";
 import JobPostForm from "@/components/grind/jobs/JobPostForm";
 import AcceptJobButton from "@/components/grind/jobs/AcceptJobButton";
@@ -107,7 +107,7 @@ export default function JobBoard() {
                 buyerReviewCount={buyerRatings[job.buyer_user_id]?.count}
                 footer={
                   isBuyer ? (
-                    job.status === "open" && (
+                    job.status === "open" ? (
                       <Button
                         variant="outline"
                         size="sm"
@@ -116,7 +116,13 @@ export default function JobBoard() {
                       >
                         Cancel post
                       </Button>
-                    )
+                    ) : job.status === "expired" ? (
+                      <Link to={`/jobs/${job.id}/resolve`}>
+                        <Button size="sm" className="rounded-full">
+                          <Wallet className="w-3.5 h-3.5 mr-1.5" /> Resolve refund / credit
+                        </Button>
+                      </Link>
+                    ) : null
                   ) : (
                     <AcceptJobButton job={job} teen={user} onAccepted={load} />
                   )

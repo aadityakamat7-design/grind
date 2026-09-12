@@ -6,8 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import ResponsiveSelect from "@/components/grind/ResponsiveSelect";
-import { ShieldCheck, ShieldX, Sparkles, Lock, Tag, AlertCircle } from "lucide-react";
+import { ShieldCheck, ShieldX, Sparkles, Lock, Tag, AlertCircle, Zap } from "lucide-react";
 import { CATEGORIES, CATEGORY_LABELS, categoryMinimum, computeFees, money, MAX_UNIT_PRICE, isOnlineCategory } from "@/lib/grind";
+import { cn } from "@/lib/utils";
 import { getMinAgeForCategory } from "@/lib/stateWorkRules";
 import SlideToConfirm from "@/components/grind/SlideToConfirm";
 import DateTimePicker from "@/components/grind/DateTimePicker";
@@ -18,7 +19,7 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
   const [form, setForm] = useState({
     title: "", description: "", price: "",
     price_model: "FIXED", state: "", scheduled_start: "",
-    is_physical: true, address: "",
+    is_physical: true, address: "", is_asap: false,
   });
   const [phase, setPhase] = useState("form"); // form | category_review | screening | blocked | approved
   const [screening, setScreening] = useState(null);
@@ -103,7 +104,6 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
   const submit = async () => {
     if (belowMin) return;
     setPhase("screening");
-    let job;
     try {
       const res = await base44.functions.invoke("createJobPost", {
         buyerName: buyer.full_name || "Neighbor",
@@ -117,9 +117,27 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
         is_physical: !isOnlineCategory(chosenCategory),
         address: isOnlineCategory(chosenCategory) ? "" : form.address.trim(),
         scheduledStart: form.scheduled_start || undefined,
+        is_asap: form.is_asap,
+        origin: window.location.origin,
       });
-      job = res.data.job;
+      const job = res.data.job;
       setScreening(res.data.screening || { allowed: true, reason: "This job passed the AI safety check.", minimum_age: job.ai_minimum_age, state_law_notes: job.ai_law_notes });
+      onPosted?.();
+      // Full credit covered it — no checkout needed.
+      if (res.data.paid) {
+        setPhase("approved");
+        return;
+      }
+      // Stripe Checkout must run in the published app, not inside the builder iframe.
+      if (res.data.url) {
+        if (window.self !== window.top) {
+          setPhase("iframe_blocked");
+          return;
+        }
+        window.location.href = res.data.url;
+        return;
+      }
+      setPhase("approved");
     } catch (err) {
       const screening = err.response?.data?.screening;
       setScreening({
@@ -128,10 +146,7 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
         minimum_age: screening?.minimum_age,
       });
       setPhase("blocked");
-      return;
     }
-    onPosted?.();
-    setPhase("approved");
   };
 
   const close = (v) => {
@@ -173,6 +188,16 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
             <Button variant="outline" className="w-full" onClick={() => setPhase("form")}>
               Edit and try again
             </Button>
+          </div>
+        )}
+
+        {phase === "iframe_blocked" && (
+          <div className="py-4 space-y-4">
+            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
+              <p className="font-bold text-amber-700 text-sm">Open the published app to pay</p>
+              <p className="text-sm text-amber-600 mt-2">For your security, payment happens on blockwork.online, not inside the builder preview. Open the site in a new tab to finish posting your job.</p>
+            </div>
+            <Button variant="outline" className="w-full" onClick={() => setPhase("form")}>Back</Button>
           </div>
         )}
 
@@ -424,6 +449,25 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
               <Label>When (optional)</Label>
               <DateTimePicker value={form.scheduled_start} onChange={(v) => set("scheduled_start", v)} hourLimits={MOST_RESTRICTIVE_LIMITS} />
             </div>
+            <button
+              type="button"
+              onClick={() => set("is_asap", !form.is_asap)}
+              className={cn(
+                "w-full flex items-center justify-between rounded-xl border p-3 transition-all",
+                form.is_asap ? "border-amber bg-amber/10" : "border-border bg-card hover:border-primary/40"
+              )}
+            >
+              <div className="flex items-center gap-2 text-left">
+                <Zap className="w-4 h-4 text-amber" />
+                <div>
+                  <p className="text-sm font-semibold text-foreground">ASAP — push to more teens</p>
+                  <p className="text-xs text-muted-foreground">Free. Your job jumps to the top of the board and gets an urgent badge.</p>
+                </div>
+              </div>
+              <div className={cn("w-10 h-6 rounded-full transition-colors relative shrink-0", form.is_asap ? "bg-amber" : "bg-muted")}>
+                <div className={cn("w-5 h-5 rounded-full bg-white absolute top-0.5 transition-all", form.is_asap ? "left-[18px]" : "left-0.5")} />
+              </div>
+            </button>
             <Button className="w-full" disabled={!valid} onClick={reviewCategory}>
               Review & post
             </Button>

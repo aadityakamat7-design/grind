@@ -134,7 +134,9 @@ Deno.serve(async (req) => {
       estimated_hours: estimatedHours,
       platform_fee: platformFee,
       net_amount: netAmount,
-      payment_status: 'unpaid',
+      payment_status: 'held',
+      stripe_payment_intent_id: job.stripe_payment_intent_id || '',
+      is_test_mode: !!job.is_test_mode,
       status: 'pending_parent_approval',
     });
 

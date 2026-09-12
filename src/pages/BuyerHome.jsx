@@ -9,7 +9,6 @@ import BookingCard from "@/components/grind/BookingCard";
 import ReviewNudge from "@/components/grind/ReviewNudge";
 import PageHeader from "@/components/grind/PageHeader";
 import BuyerStatsGrid from "@/components/grind/buyer/BuyerStatsGrid";
-import AvailabilityPresets from "@/components/grind/AvailabilityPresets";
 import ErrorRetry from "@/components/grind/ErrorRetry";
 import PullToRefresh from "@/components/PullToRefresh";
 import Tour from "@/components/grind/Tour";
@@ -82,10 +81,6 @@ export default function BuyerHome() {
         <PageHeader title={`Hi, ${(user.full_name || "neighbor").split(" ")[0]} 👋`} subtitle="Trusted teen help, right in your neighborhood." />
 
         <BuyerStatsGrid bookings={bookings} profile={profile} />
-
-        {profile && (
-          <AvailabilityPresets profile={profile} entityName="BuyerProfile" onChanged={load} />
-        )}
 
         {bookings.length === 0 && (
           <div className="bg-primary/5 border border-primary/20 rounded-2xl p-6 text-center">

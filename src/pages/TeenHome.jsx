@@ -4,8 +4,6 @@ import { base44 } from "@/api/base44Client";
 import { Plus, CalendarDays, BarChart3 } from "lucide-react";
 import BookingCard from "@/components/grind/BookingCard";
 import PageHeader from "@/components/grind/PageHeader";
-import AvailabilityToggle from "@/components/grind/AvailabilityToggle";
-import AvailabilityPresets from "@/components/grind/AvailabilityPresets";
 import { getHourLimits } from "@/lib/stateHourLimits";
 import { getVerifiedAgeFromPrivate } from "@/lib/stateWorkRules";
 import AlertParentButton from "@/components/grind/AlertParentButton";
@@ -149,17 +147,6 @@ export default function TeenHome() {
         <ProfileCompleteness profile={profile} />
 
         <InviteCodeCard profile={profile} onUpdated={load} />
-
-        {profile && <AvailabilityToggle profile={profile} onChanged={load} />}
-
-        {profile && (
-          <AvailabilityPresets
-            profile={profile}
-            entityName="TeenProfile"
-            hourLimits={getHourLimits(profile.state || "CA", getVerifiedAgeFromPrivate(privateData)) || undefined}
-            onChanged={load}
-          />
-        )}
 
         {activeJobs.length > 0 && (
           <section>

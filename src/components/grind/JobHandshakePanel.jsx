@@ -73,6 +73,20 @@ export default function JobHandshakePanel({ booking, isTeen, isBuyer, isParent, 
       );
     }
 
+    // Upfront-paid job post — escrow already held, so the buyer just confirms start.
+    if (booking.payment_status === "held") {
+      return (
+        <div className="space-y-2">
+          <Button className="w-full rounded-xl" disabled={acting} onClick={onStart}>
+            <Play className="w-4 h-4 mr-2" /> Start job
+          </Button>
+          <p className="text-xs text-center text-slate-500 font-medium">
+            You paid upfront — confirm start. The job begins once the teen confirms too.
+          </p>
+        </div>
+      );
+    }
+
     // No charge needed (referral credit or free job) — show start button
     if (amount <= 0) {
       return (

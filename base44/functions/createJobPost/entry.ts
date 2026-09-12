@@ -1,6 +1,8 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 import { getDeliveryMode, isRemovedCategory } from '../../shared/deliveryMode.ts';
 import { calculatePlatformFee, calculateNetAmount } from '../../shared/platformFee.ts';
+import { getStripeContext } from '../../shared/stripeEnv.ts';
+import { getSafeOrigin, safeOriginFromString } from '../../shared/safeOrigin.ts';
 
 const MAX_UNIT_PRICE = 500;
 const MIN_TITLE = 3;
@@ -128,9 +130,22 @@ Respond with:
     const platformFee = calculatePlatformFee(gross);
     const netAmount = calculateNetAmount(gross);
 
-    // Jobs go live immediately after passing the AI screen — no posting fee.
-    // The neighbor pays via Stripe at the "Start job" handshake, and funds are
-    // held in escrow until both sides confirm completion.
+    // Apply any platform credit the neighbor has from previously expired posts.
+    // buyerProfiles was already fetched above for the CA-only check.
+    const buyerProfile = buyerProfiles[0];
+    const credit = Math.min(Number(buyerProfile?.credit_balance) || 0, gross);
+    const appliedCredit = Math.round(credit * 100) / 100;
+    const chargeAmount = Math.round((gross - appliedCredit) * 100) / 100;
+    if (appliedCredit > 0 && buyerProfile) {
+      await base44.asServiceRole.entities.BuyerProfile.update(buyerProfile.id, {
+        credit_balance: Math.round(((Number(buyerProfile.credit_balance) || 0) - appliedCredit) * 100) / 100,
+      });
+    }
+
+    // Create the post as a draft — it goes live (open) only after the upfront
+    // payment clears (handled by the Stripe webhook). The full job amount is
+    // charged upfront and held in escrow until the job is completed; if no teen
+    // takes it within 7 days, the neighbor chooses a refund or platform credit.
     const job = await base44.asServiceRole.entities.JobPost.create({
       buyer_user_id: user.id,
       buyer_name: body.buyerName || 'Neighbor',
@@ -148,13 +163,62 @@ Respond with:
       ai_approved: true,
       ai_minimum_age: screen.minimum_age || 13,
       ai_law_notes: screen.state_law_notes || '',
-      status: 'open',
-      charge_amount: gross,
+      is_asap: !!body.is_asap,
+      status: 'draft',
+      charge_amount: chargeAmount,
+      applied_credit: appliedCredit,
       platform_fee: platformFee,
       net_amount: netAmount,
+      payment_status: 'unpaid',
     });
 
-    return Response.json({ job, screening: screen });
+    const { stripe, testMode } = await getStripeContext(base44);
+    const origin = body.origin ? safeOriginFromString(body.origin) : getSafeOrigin(req);
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+
+    // Full credit covered the post — no Stripe charge, go live immediately.
+    if (chargeAmount <= 0) {
+      await base44.asServiceRole.entities.JobPost.update(job.id, {
+        status: 'open',
+        payment_status: 'held',
+        expires_at: expiresAt,
+        is_test_mode: testMode,
+      });
+      return Response.json({
+        job: { ...job, status: 'open', payment_status: 'held', expires_at: expiresAt },
+        paid: true,
+        screening: screen,
+      });
+    }
+
+    const session = await stripe.checkout.sessions.create({
+      mode: 'payment',
+      line_items: [{
+        price_data: {
+          currency: 'usd',
+          product_data: {
+            name: job.title || 'Blockwork job post',
+            description: 'Held in escrow until a teen completes the job. Refunded if no teen takes it within 7 days.',
+          },
+          unit_amount: Math.round(chargeAmount * 100),
+        },
+        quantity: 1,
+      }],
+      success_url: `${origin}/jobs?posted=1`,
+      cancel_url: `${origin}/jobs`,
+      metadata: {
+        base44_app_id: Deno.env.get('BASE44_APP_ID'),
+        job_post_id: job.id,
+      },
+      payment_intent_data: { metadata: { job_post_id: job.id, base44_app_id: Deno.env.get('BASE44_APP_ID') } },
+    });
+
+    await base44.asServiceRole.entities.JobPost.update(job.id, {
+      stripe_session_id: session.id,
+      is_test_mode: testMode,
+    });
+
+    return Response.json({ job, url: session.url, screening: screen });
   } catch (error) {
     console.error('createJobPost error:', error.message);
     return Response.json({ error: 'Something went wrong' }, { status: 500 });

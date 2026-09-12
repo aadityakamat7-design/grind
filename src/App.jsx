@@ -50,6 +50,7 @@ import Faq from '@/pages/Faq';
 import HowItWorks from '@/pages/HowItWorks';
 import OAuthConsent from '@/pages/OAuthConsent';
 import WithdrawalAssistant from '@/pages/WithdrawalAssistant';
+import ResolveExpiredJob from '@/pages/ResolveExpiredJob';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -120,6 +121,7 @@ const AuthenticatedApp = () => {
         <Route path="/buyer" element={<BuyerHome />} />
         <Route path="/browse" element={<Browse />} />
         <Route path="/jobs" element={<JobBoard />} />
+        <Route path="/jobs/:jobId/resolve" element={<ResolveExpiredJob />} />
         <Route path="/teens/:teenUserId" element={<TeenPublicProfile />} />
         <Route path="/neighbors/:buyerUserId" element={<BuyerPublicProfile />} />
         <Route path="/buyer/bookings" element={<BuyerBookings />} />

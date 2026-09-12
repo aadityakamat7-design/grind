@@ -117,16 +117,41 @@
       "type": "string",
       "description": "AI notes on state law conditions (hours, supervision, equipment)"
     },
+    "is_asap": {
+      "type": "boolean",
+      "default": false,
+      "description": "Free neighbor toggle \u2014 ASAP jobs are sorted to the top of the teen job board and badged so urgent work gets pushed harder to teens looking for work.",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the 7-day no-taker window ends. Set server-side when the posting payment clears. After this, the job auto-expires and the neighbor chooses a refund or platform credit.",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
     "status": {
       "type": "string",
       "enum": [
         "draft",
         "open",
         "assigned",
-        "cancelled"
+        "cancelled",
+        "expired"
       ],
       "default": "draft",
-      "description": "Draft until the posting fee is paid \u2014 only the server flips it to open",
+      "description": "Draft until the posting payment clears (then open). expired = no teen took it within 7 days, pending the neighbor's refund/credit choice.",
       "rls": {
         "write": {
           "user_condition": {
@@ -148,7 +173,7 @@
       "type": "number",
       "minimum": 0,
       "maximum": 2000,
-      "description": "Amount the buyer must pay to hold this job's escrow",
+      "description": "Amount the buyer paid upfront to post this job (held in escrow). Reduced by any applied platform credit.",
       "rls": {
         "write": {
           "user_condition": {
@@ -182,10 +207,11 @@
       "enum": [
         "unpaid",
         "held",
-        "refunded"
+        "refunded",
+        "credited"
       ],
       "default": "unpaid",
-      "description": "Escrow status for the posting fee \u2014 must be held before a teen can accept",
+      "description": "Escrow status for the upfront posting payment. held = paid and escrowed; refunded = expired/cancelled and refunded to the neighbor's card; credited = expired and converted to platform credit.",
       "rls": {
         "write": {
           "user_condition": {
@@ -206,6 +232,30 @@
     },
     "stripe_payment_intent_id": {
       "type": "string",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "is_test_mode": {
+      "type": "boolean",
+      "default": false,
+      "description": "True when this post's upfront charge was created under Stripe test mode (admin toggle). Test-mode posts never involve real money.",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "applied_credit": {
+      "type": "number",
+      "default": 0,
+      "description": "Platform credit applied to reduce this post's upfront charge (server-set only).",
       "rls": {
         "write": {
           "user_condition": {

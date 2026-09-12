@@ -55,6 +55,13 @@ Deno.serve(async (req) => {
       // advances to in_progress if the teen has already started.
       if (booking.buyer_started_at) return Response.json({ alreadyDone: true });
 
+      // Upfront-paid job post: escrow is already held from the posting payment,
+      // so the buyer just confirms start — no new charge moves here.
+      if (booking.payment_status === 'held') {
+        const result = await recordBuyerStartAfterPayment(base44, booking, booking.stripe_payment_intent_id || '');
+        return Response.json(result);
+      }
+
       const chargeAmount = booking.charge_amount ?? booking.price_total;
       const cents = Math.round(Number(chargeAmount) * 100);
       if (cents <= 0) {

@@ -1,5 +1,5 @@
 import React from "react";
-import { MapPin, CalendarDays, ShieldCheck, Lock, Video, Sun } from "lucide-react";
+import { MapPin, CalendarDays, ShieldCheck, Lock, Video, Sun, Zap } from "lucide-react";
 import { format } from "date-fns";
 import { CATEGORY_LABELS, money } from "@/lib/grind";
 import { getMinAgeForCategory } from "@/lib/stateWorkRules";
@@ -30,6 +30,11 @@ export default function JobPostCard({ job, footer, buyerRating, buyerReviewCount
       {job.description && <p className="text-sm text-muted-foreground mt-2 line-clamp-3">{job.description}</p>}
       <div className="flex items-center gap-2 mt-3 flex-wrap">
         <StatusBadge status={job.status} />
+        {job.is_asap && (
+          <span className="inline-flex items-center gap-1 rounded-full bg-amber/10 text-amber border border-amber/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide">
+            <Zap className="w-3 h-3" /> ASAP
+          </span>
+        )}
         <span className="inline-flex items-center gap-1 rounded-full bg-secondary text-muted-foreground border border-border px-2 py-0.5 text-[10px] font-medium">
           <ShieldCheck className="w-3 h-3" /> AI safety-checked{job.ai_minimum_age > 13 ? ` · ages ${job.ai_minimum_age}+` : ""}
         </span>
