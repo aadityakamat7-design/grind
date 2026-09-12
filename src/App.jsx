@@ -50,6 +50,7 @@ import Faq from '@/pages/Faq';
 import HowItWorks from '@/pages/HowItWorks';
 import OAuthConsent from '@/pages/OAuthConsent';
 import WithdrawalAssistant from '@/pages/WithdrawalAssistant';
+import Availability from '@/pages/Availability';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -129,6 +130,7 @@ const AuthenticatedApp = () => {
         <Route path="/notifications" element={<Notifications />} />
         <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
         <Route path="/withdrawal-assistant" element={<WithdrawalAssistant />} />
+        <Route path="/availability" element={<Availability />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
         </Routes>

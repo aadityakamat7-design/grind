@@ -90,6 +90,26 @@
     "description": {
       "type": "string",
       "maxLength": 1000
+    },
+    "availability": {
+      "type": "array",
+      "description": "Weekly recurring availability slots the neighbor set on their Availability tab \u2014 when they're usually home and available for service. Each entry: { day: 0-6 (Sun-Sat), start: 'HH:mm', end: 'HH:mm' }.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "day": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 6
+          },
+          "start": {
+            "type": "string"
+          },
+          "end": {
+            "type": "string"
+          }
+        }
+      }
     }
   },
   "required": [

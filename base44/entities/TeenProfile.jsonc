@@ -77,6 +77,26 @@
       "default": true,
       "description": "Available now toggle \u2014 controls visibility in neighbor search"
     },
+    "availability": {
+      "type": "array",
+      "description": "Weekly recurring availability slots the teen set on their Availability tab \u2014 when they're generally free to work. Each entry: { day: 0-6 (Sun-Sat), start: 'HH:mm', end: 'HH:mm' }.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "day": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 6
+          },
+          "start": {
+            "type": "string"
+          },
+          "end": {
+            "type": "string"
+          }
+        }
+      }
+    },
     "parent_identity_verified": {
       "type": "boolean",
       "default": false,
