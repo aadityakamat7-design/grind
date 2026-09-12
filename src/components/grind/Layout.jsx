@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Outlet, NavLink, Navigate, Link, useLocation, useNavigate } from "react-router-dom";
-import { Home, List, CalendarDays, MessageCircle, Wallet, LayoutDashboard, ShieldCheck, Search, Briefcase, ArrowLeft, LifeBuoy, MoreHorizontal, BarChart3, Clock } from "lucide-react";
+import { Home, List, CalendarDays, MessageCircle, Wallet, LayoutDashboard, ShieldCheck, Search, Briefcase, ArrowLeft, LifeBuoy, MoreHorizontal, BarChart3 } from "lucide-react";
 import { useAppUser } from "@/lib/useAppUser";
 import NotificationBell from "@/components/grind/NotificationBell";
 import SiteFooter from "@/components/SiteFooter";
@@ -15,11 +15,10 @@ const TABS = {
       { to: "/teen", label: "Home", icon: Home, end: true },
       { to: "/teen/listings", label: "My Services", icon: List, tour: "tour-services" },
       { to: "/jobs", label: "Jobs", icon: Briefcase, tour: "tour-jobs" },
-      { to: "/availability", label: "Availability", icon: Clock },
+      { to: "/teen/earnings", label: "Earnings", icon: BarChart3 },
       { to: "/messages", label: "Messages", icon: MessageCircle, tour: "tour-messages" },
     ],
     secondary: [
-      { to: "/teen/earnings", label: "Earnings", icon: BarChart3 },
       { to: "/teen/bookings", label: "Bookings", icon: CalendarDays },
       { to: "/teen/wallet", label: "Wallet", icon: Wallet },
     ],
@@ -38,7 +37,6 @@ const TABS = {
       { to: "/buyer", label: "Home", icon: Home, end: true },
       { to: "/browse", label: "Browse", icon: Search, tour: "tour-browse" },
       { to: "/buyer/bookings", label: "My Bookings", icon: CalendarDays, tour: "tour-bookings" },
-      { to: "/availability", label: "Availability", icon: Clock },
       { to: "/messages", label: "Messages", icon: MessageCircle, tour: "tour-messages" },
     ],
     secondary: [
