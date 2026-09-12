@@ -5,6 +5,8 @@ import { getMinAgeForCategory } from '../../shared/categoryAgeRules.ts';
 import { getDeliveryMode, isRemovedCategory, generateSessionLink } from '../../shared/deliveryMode.ts';
 import { enforceBookingHours } from '../../shared/workHourEnforcement.ts';
 import { calculatePlatformFee, calculateNetAmount } from '../../shared/platformFee.ts';
+import { notifyParentApprovalNeeded } from '../../shared/notifyParent.ts';
+import { APP_BASE_URL } from '../../shared/safeOrigin.ts';
 
 Deno.serve(async (req) => {
   try {
@@ -212,6 +214,16 @@ Deno.serve(async (req) => {
         body: `${buyerName} booked "${listing.title}" with ${listing.teen_display_name}. Tap to review and approve.`,
         link: '/parent/approvals',
         read: false,
+      });
+
+      // Email the parent so they see the approval request even without the
+      // app open. The teen-accepts-a-job path (acceptJobPost) already emails.
+      await notifyParentApprovalNeeded(base44.asServiceRole, {
+        teenName: listing.teen_display_name || 'Your teen',
+        jobTitle: listing.title,
+        buyerName,
+        parentUserId,
+        origin: APP_BASE_URL,
       });
     }
     await base44.asServiceRole.entities.Notification.create({

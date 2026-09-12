@@ -64,3 +64,29 @@ export async function notifyParentJobAccepted(base44, opts) {
     console.error('notifyParentJobAccepted error:', err.message);
   }
 }
+
+// Sends an email notification to a parent when a neighbor books their teen
+// and the booking is waiting for the parent's approval. Mirrors the in-app
+// Notification created in createBooking — email ensures the parent sees it
+// even if they don't have the app open.
+export async function notifyParentApprovalNeeded(base44, opts) {
+  const { teenName, jobTitle, buyerName, parentUserId, origin } = opts;
+  try {
+    const parents = await base44.asServiceRole.entities.User.filter({ id: parentUserId });
+    const parent = parents[0];
+    if (!parent?.email) return;
+    const deepLink = `${origin || ''}/parent/approvals`;
+    await base44.asServiceRole.integrations.Core.SendEmail({
+      to: parent.email,
+      subject: `Approval needed: ${buyerName} booked ${teenName}`,
+      body:
+        `Hi ${parent.full_name || ''},\n\n` +
+        `${buyerName} booked "${jobTitle}" with ${teenName}. ` +
+        `The booking is waiting for your approval before it's confirmed.\n\n` +
+        `Review and approve it here: ${deepLink}\n\n` +
+        `— The Blockwork team`,
+    });
+  } catch (err) {
+    console.error('notifyParentApprovalNeeded error:', err.message);
+  }
+}
