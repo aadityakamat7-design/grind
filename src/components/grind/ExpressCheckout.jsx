@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { CreditCard, ShieldCheck } from "lucide-react";
 import { money } from "@/lib/grind";
 import StripeBadge from "@/components/StripeBadge";
+import AppleIcon from "@/components/AppleIcon";
 
 // Apple Pay via the Stripe Payment Request Button.
 // The button is always visible — a styled placeholder until Stripe confirms
@@ -188,10 +189,11 @@ export default function ExpressCheckout({
       <div ref={payBtnRef} className="w-full" style={{ minHeight: 48 }}>
         {!applePayReady && (
           <div
-            className="w-full flex items-center justify-center rounded-lg text-white font-semibold text-base select-none"
+            className="w-full flex items-center justify-center gap-1.5 rounded-lg text-white font-semibold text-base select-none"
             style={{ height: 48, backgroundColor: "#000" }}
           >
-             Pay
+            <AppleIcon className="w-5 h-5" />
+            Pay
           </div>
         )}
       </div>
