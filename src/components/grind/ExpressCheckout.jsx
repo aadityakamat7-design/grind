@@ -22,7 +22,6 @@ function ExpressCheckoutInner({ onSuccess, onError }) {
   const elements = useElements();
   const [paying, setPaying] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
-  const [ready, setReady] = useState(false);
 
   const handleConfirm = async () => {
     if (!stripe || !elements) return;
@@ -53,7 +52,6 @@ function ExpressCheckoutInner({ onSuccess, onError }) {
       <div style={{ minHeight: 48 }}>
         <ExpressCheckoutElement
           onConfirm={handleConfirm}
-          onReady={() => setReady(true)}
           options={{
             paymentMethodTypes: ["apple_pay"],
             buttonType: { applePay: "plain" },
@@ -63,12 +61,6 @@ function ExpressCheckoutInner({ onSuccess, onError }) {
           }}
         />
       </div>
-      {!ready && (
-        <div
-          className="w-full bg-muted animate-pulse"
-          style={{ height: 48, borderRadius: 0, marginTop: -48 }}
-        />
-      )}
       {paying && (
         <p className="text-xs text-muted-foreground text-center mt-2">
           Processing payment…
