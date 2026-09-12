@@ -159,25 +159,9 @@ export default function ExpressCheckout({ bookingId, amount, onSuccess, onError,
         Pay {money(amount)} to start this job
       </p>
 
-      {/* Apple Pay — instant placeholder swaps to the native button when ready.
-          If Apple Pay isn't available, the placeholder redirects to Checkout. */}
+      {/* Google Pay — instant placeholder swaps to the native button when ready.
+          If Google Pay isn't available, the placeholder redirects to Checkout. */}
       <div className="h-12 mb-3">
-        {applePayReady ? (
-          <div ref={appleBtnRef} className="h-12 [&>*]:w-full" />
-        ) : (
-          <button
-            type="button"
-            disabled={isDisabled}
-            onClick={handleCardPay}
-            className="w-full h-12 rounded-full bg-black flex items-center justify-center transition-opacity hover:opacity-90 disabled:opacity-50"
-          >
-            <ApplePayMark />
-          </button>
-        )}
-      </div>
-
-      {/* Google Pay — same pattern. */}
-      <div className="h-12 mb-4">
         {googlePayReady ? (
           <div ref={googleBtnRef} className="h-12 [&>*]:w-full" />
         ) : (
@@ -188,6 +172,22 @@ export default function ExpressCheckout({ bookingId, amount, onSuccess, onError,
             className="w-full h-12 rounded-full bg-black flex items-center justify-center transition-opacity hover:opacity-90 disabled:opacity-50"
           >
             <GooglePayMark />
+          </button>
+        )}
+      </div>
+
+      {/* Apple Pay — same pattern. */}
+      <div className="h-12 mb-4">
+        {applePayReady ? (
+          <div ref={appleBtnRef} className="h-12 [&>*]:w-full" />
+        ) : (
+          <button
+            type="button"
+            disabled={isDisabled}
+            onClick={handleCardPay}
+            className="w-full h-12 rounded-full bg-black flex items-center justify-center transition-opacity hover:opacity-90 disabled:opacity-50"
+          >
+            <ApplePayMark />
           </button>
         )}
       </div>
