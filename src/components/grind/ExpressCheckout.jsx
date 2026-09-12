@@ -13,10 +13,9 @@ import ApplePayMark from "@/components/ApplePayMark";
 // show a clear message instead of a silently broken button.
 const isInIframe = typeof window !== "undefined" && window.self !== window.top;
 
-// Apple Pay via a custom black button that calls paymentRequest.show().
-// The native Apple Pay sheet opens directly on click — no redirect to
-// Stripe Checkout. On Safari/iPhone with Apple Pay set up, this triggers
-// the double-click-to-pay native sheet instantly.
+// Apple Pay via the Stripe Payment Request Button — the real, native
+// Apple Pay button element that Safari renders. On iPhone, tapping it
+// opens the native double-click-to-pay sheet directly.
 export default function ExpressCheckout({
   bookingId,
   jobId,
@@ -30,15 +29,14 @@ export default function ExpressCheckout({
 }) {
   const [cardRedirecting, setCardRedirecting] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
-  const [prReady, setPrReady] = useState(false);
+  const [applePayReady, setApplePayReady] = useState(false);
+  const [applePayUnavailable, setApplePayUnavailable] = useState(false);
   const [paying, setPaying] = useState(false);
+  const payBtnRef = useRef(null);
+  const buttonRef = useRef(null);
   const prRef = useRef(null);
-  const stripeRef = useRef(null);
-  const clientSecretRef = useRef("");
 
-  // 1. Create PaymentIntent + load Stripe + set up the PaymentRequest.
-  // We DON'T mount the Stripe Payment Request Button — instead we store
-  // the PaymentRequest in a ref and call pr.show() from our custom button.
+  // 1. Create PaymentIntent + load Stripe + mount the native Apple Pay button.
   useEffect(() => {
     if (!amount || amount <= 0) return;
     let cancelled = false;
@@ -53,10 +51,8 @@ export default function ExpressCheckout({
         const { client_secret, publishable_key } = res.data || {};
         if (!client_secret || !publishable_key || cancelled) return;
 
-        clientSecretRef.current = client_secret;
         const stripe = await loadStripe(publishable_key);
         if (cancelled || !stripe) return;
-        stripeRef.current = stripe;
 
         const cents = Math.round(Number(amount) * 100);
         const pr = stripe.paymentRequest({
@@ -68,12 +64,11 @@ export default function ExpressCheckout({
         });
         prRef.current = pr;
 
-        // Handle the payment method returned by the Apple Pay sheet.
         pr.on("paymentmethod", async (ev) => {
           setPaying(true);
           try {
             const { error, paymentIntent } = await stripe.confirmCardPayment(
-              clientSecretRef.current,
+              client_secret,
               { payment_method: ev.paymentMethod.id }
             );
             if (error) {
@@ -93,7 +88,35 @@ export default function ExpressCheckout({
           }
         });
 
-        setPrReady(true);
+        const canPay = await pr.canMakePayment();
+        if (cancelled) return;
+
+        if (canPay && canPay.applePay) {
+          const elements = stripe.elements();
+          const button = elements.create("paymentRequestButton", {
+            paymentRequest: pr,
+            style: {
+              paymentRequestButton: {
+                type: "default",
+                theme: "dark",
+                height: "48px",
+                borderRadius: "0px",
+              },
+            },
+          });
+          buttonRef.current = button;
+
+          requestAnimationFrame(() => {
+            if (payBtnRef.current && !cancelled) {
+              button.mount(payBtnRef.current);
+              setApplePayReady(true);
+            }
+          });
+        } else {
+          // Apple Pay not available on this device/browser — show the
+          // custom fallback button that tries pr.show() on click.
+          setApplePayUnavailable(true);
+        }
       } catch (err) {
         console.error("[ExpressCheckout] init error:", err);
         setErrorMsg(err.message);
@@ -103,29 +126,20 @@ export default function ExpressCheckout({
 
     return () => {
       cancelled = true;
-      prRef.current = null;
+      if (buttonRef.current) {
+        try { buttonRef.current.destroy(); } catch {}
+      }
     };
   }, [bookingId, jobId, amount, payLabel, bookingEscrow]);
 
-  // 2. Apple Pay button click — open the native sheet directly.
-  const handleApplePay = async () => {
-    if (!prRef.current) {
-      setErrorMsg("Still loading Apple Pay… Please wait a moment and try again.");
-      return;
-    }
+  // 2. Fallback Apple Pay button — calls pr.show() to try opening the sheet.
+  const handleApplePayFallback = async () => {
+    if (!prRef.current) return;
     setErrorMsg("");
     try {
-      // pr.show() opens the native Apple Pay sheet on Safari/iPhone.
-      // Must be called in response to a user click (it is).
       await prRef.current.show();
     } catch (err) {
-      console.error("[ExpressCheckout] pr.show() error:", err);
-      // canMakePayment() returned null — Apple Pay not available on this
-      // device/browser. Show a clear error instead of redirecting.
-      setErrorMsg(
-        "Apple Pay isn't available here. Use Safari on iPhone or Mac with Apple Pay set up, or pay with card below."
-      );
-      onError?.(err.message);
+      setErrorMsg("Apple Pay isn't available on this device. Use Safari on iPhone or Mac, or pay with card below.");
     }
   };
 
@@ -158,8 +172,6 @@ export default function ExpressCheckout({
     }
   };
 
-  // Inside the builder preview iframe, neither Apple Pay nor Stripe Checkout
-  // can work. Show a clear message directing the user to the published app.
   if (isInIframe) {
     return (
       <div>
@@ -197,45 +209,60 @@ export default function ExpressCheckout({
         {payLabel || `Pay ${money(amount)} to start this job`}
       </p>
 
-      {/* Apple Pay button — official Apple Pay mark on a black button.
-          Clicking opens the native Apple Pay sheet (double-click to pay on
-          iPhone) directly — no redirect. */}
-      <button
-        type="button"
-        onClick={handleApplePay}
-        disabled={disabled || paying || !prReady}
-        className="w-full flex items-center justify-center rounded-lg bg-black text-white font-semibold select-none disabled:opacity-40 active:scale-[0.98] transition-transform"
-        style={{ height: 48 }}
-      >
-        {paying ? (
-          <span className="flex items-center gap-2 text-sm">
-            <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-            Processing…
-          </span>
-        ) : (
-          <ApplePayMark className="h-6" />
-        )}
-      </button>
+      {/* Apple Pay button — the real Stripe Payment Request Button (native
+          Apple Pay element) in a square container. On Safari/iPhone this is
+          the actual Apple Pay button that opens the double-click-to-pay sheet. */}
+      <div
+        ref={payBtnRef}
+        className="w-full"
+        style={{ minHeight: 48, borderRadius: 0, overflow: "hidden" }}
+      />
+      {!applePayReady && !applePayUnavailable && (
+        <div
+          className="w-full bg-muted animate-pulse"
+          style={{ height: 48, borderRadius: 0 }}
+        />
+      )}
+      {applePayUnavailable && (
+        <button
+          type="button"
+          onClick={handleApplePayFallback}
+          disabled={disabled || paying}
+          className="w-full flex items-center justify-center bg-black text-white font-semibold select-none disabled:opacity-40 active:scale-[0.98] transition-transform"
+          style={{ height: 48, borderRadius: 0 }}
+        >
+          {paying ? (
+            <span className="flex items-center gap-2 text-sm">
+              <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              Processing…
+            </span>
+          ) : (
+            <ApplePayMark className="h-6" />
+          )}
+        </button>
+      )}
 
       {/* Divider */}
-      <div className="flex items-center gap-3 my-4">
+      <div className="flex items-center gap-3 my-3">
         <div className="h-px bg-border flex-1" />
-        <span className="text-xs text-muted-foreground">or pay with card</span>
+        <span className="text-xs text-muted-foreground">or</span>
         <div className="h-px bg-border flex-1" />
       </div>
 
-      {/* Card / Stripe Checkout redirect */}
+      {/* Smaller card button */}
       <Button
-        className="w-full h-12 rounded-full"
+        variant="outline"
+        size="sm"
+        className="w-full h-9 rounded-none text-xs"
         disabled={disabled || cardRedirecting}
         onClick={handleCardPay}
       >
-        <CreditCard className="w-4 h-4 mr-2" />
+        <CreditCard className="w-3.5 h-3.5 mr-1.5" />
         {cardRedirecting ? "Redirecting…" : "Pay with card"}
       </Button>
 
       {/* Escrow info */}
-      <p className="text-xs text-muted-foreground leading-snug flex items-center gap-1.5 mt-4">
+      <p className="text-xs text-muted-foreground leading-snug flex items-center gap-1.5 mt-3">
         <ShieldCheck className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
         Payment held in escrow until the job is confirmed complete.
       </p>
@@ -247,7 +274,7 @@ export default function ExpressCheckout({
       )}
 
       {/* Stripe trust badge */}
-      <div className="mt-5 pt-4 border-t border-border">
+      <div className="mt-4 pt-3 border-t border-border">
         <StripeBadge />
       </div>
     </div>
