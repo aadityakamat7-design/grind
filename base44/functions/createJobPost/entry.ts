@@ -11,12 +11,12 @@ const MAX_DESC = 2000;
 
 // Server-side minimum prices per category — the client can never bypass these.
 const CATEGORY_MINIMUMS: Record<string, Record<string, number>> = {
-  tutoring:    { FIXED: 15, HOURLY: 15 },
-  lawn_care:   { FIXED: 20, HOURLY: 15 },
-  pet_sitting: { FIXED: 15, HOURLY: 12 },
-  tech_help:   { FIXED: 15, HOURLY: 15 },
-  car_washing: { FIXED: 20, HOURLY: 15 },
-  odd_jobs:    { FIXED: 15, HOURLY: 12 },
+  tutoring:    { FIXED: 0.01, HOURLY: 0.01 },
+  lawn_care:   { FIXED: 0.01, HOURLY: 0.01 },
+  pet_sitting: { FIXED: 0.01, HOURLY: 0.01 },
+  tech_help:   { FIXED: 0.01, HOURLY: 0.01 },
+  car_washing: { FIXED: 0.01, HOURLY: 0.01 },
+  odd_jobs:    { FIXED: 0.01, HOURLY: 0.01 },
 };
 
 // Server-side job post creation with title + price validation.
@@ -42,8 +42,8 @@ Deno.serve(async (req) => {
     }
 
     const price = Number(body.price);
-    if (!Number.isFinite(price) || price < 1 || price > MAX_UNIT_PRICE) {
-      return Response.json({ error: `Price must be between $1 and $${MAX_UNIT_PRICE}.` }, { status: 400 });
+    if (!Number.isFinite(price) || price < 0.01 || price > MAX_UNIT_PRICE) {
+      return Response.json({ error: `Price must be between $0.01 and $${MAX_UNIT_PRICE}.` }, { status: 400 });
     }
 
     // Reject removed categories (babysitting, etc.) — teens never enter a home.

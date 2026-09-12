@@ -41,12 +41,12 @@ export function isOnlineCategory(category) {
 // immediate client-side feedback. Each category has a flat minimum and an
 // hourly minimum.
 export const CATEGORY_MINIMUMS = {
-  tutoring:    { FIXED: 15, HOURLY: 15 },
-  tech_help:   { FIXED: 15, HOURLY: 15 },
-  lawn_care:   { FIXED: 20, HOURLY: 15 },
-  car_washing: { FIXED: 20, HOURLY: 15 },
-  odd_jobs:    { FIXED: 15, HOURLY: 12 },
-  pet_sitting: { FIXED: 15, HOURLY: 12 },
+  tutoring:    { FIXED: 0.01, HOURLY: 0.01 },
+  tech_help:   { FIXED: 0.01, HOURLY: 0.01 },
+  lawn_care:   { FIXED: 0.01, HOURLY: 0.01 },
+  car_washing: { FIXED: 0.01, HOURLY: 0.01 },
+  odd_jobs:    { FIXED: 0.01, HOURLY: 0.01 },
+  pet_sitting: { FIXED: 0.01, HOURLY: 0.01 },
 };
 
 export function categoryMinimum(category, priceModel) {

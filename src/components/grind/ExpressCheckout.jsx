@@ -184,17 +184,22 @@ export default function ExpressCheckout({
         <div className="h-px bg-border flex-1" />
       </div>
 
-      {/* Apple Pay button — native Payment Request Button when available,
-          styled placeholder when not (preview iframe / non-Apple device). */}
+      {/* Apple Pay button — native Payment Request Button when available
+          (published app on Safari). In the preview iframe the native sheet
+          can't open, so the fallback button redirects to Stripe Checkout
+          (which supports Apple Pay on Safari) for the real cost. */}
       <div ref={payBtnRef} className="w-full" style={{ minHeight: 48 }}>
         {!applePayReady && (
-          <div
-            className="w-full flex items-center justify-center gap-1.5 rounded-lg text-white font-semibold text-base select-none"
+          <button
+            type="button"
+            onClick={handleCardPay}
+            disabled={isDisabled}
+            className="w-full flex items-center justify-center gap-1.5 rounded-lg text-white font-semibold text-base select-none disabled:opacity-40 active:scale-[0.98] transition-transform"
             style={{ height: 48, backgroundColor: "#000" }}
           >
             <AppleIcon className="w-5 h-5" />
             Pay
-          </div>
+          </button>
         )}
       </div>
 
