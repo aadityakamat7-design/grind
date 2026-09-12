@@ -53,11 +53,16 @@ function ExpressCheckoutInner({ onSuccess, onError }) {
         <ExpressCheckoutElement
           onConfirm={handleConfirm}
           options={{
-            paymentMethodTypes: ["apple_pay"],
+            paymentMethods: {
+              applePay: "always",
+              googlePay: "never",
+              link: "never",
+              amazonPay: "never",
+              paypal: "never",
+            },
             buttonType: { applePay: "plain" },
             buttonTheme: { applePay: "black" },
             buttonHeight: 48,
-            buttonBorderRadius: 0,
           }}
         />
       </div>
