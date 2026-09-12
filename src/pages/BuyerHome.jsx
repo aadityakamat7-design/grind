@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Link, useOutletContext } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { Search, CalendarDays, Repeat, ChevronRight, Star } from "lucide-react";
+import { Search, Briefcase, Repeat, ChevronRight, Star } from "lucide-react";
 import AppointmentCard from "@/components/grind/buyer/AppointmentCard";
 import SavedWorkers from "@/components/grind/buyer/SavedWorkers";
 import RecommendedTeens from "@/components/grind/buyer/RecommendedTeens";
@@ -16,8 +16,8 @@ import { useTour } from "@/hooks/useTour";
 
 const buyerTourSteps = [
   { target: "tour-browse", title: "Browse", subtitle: "Find verified teens near you and see their prices and reviews." },
-  { target: "tour-bookings", title: "My Bookings", subtitle: "Track upcoming and past jobs here." },
-  { title: "How payment works", subtitle: "You're charged when the job starts, and the money is held until you confirm it's done." },
+  { target: "tour-jobs", title: "Jobs", subtitle: "Post a job and a local teen will claim it. Pay upfront — held safely until the work's done." },
+  { title: "How payment works", subtitle: "You pay upfront when you post. The money is held in escrow and released to the teen only once you confirm the work is done." },
   { target: "tour-messages", title: "Messages", subtitle: "Talk to teens you've booked. Contact details stay private until a booking is confirmed." },
 ];
 
@@ -69,9 +69,6 @@ export default function BuyerHome() {
   if (error) return <ErrorRetry onRetry={load} />;
 
   const active = bookings.filter((b) => b.status === "in_progress");
-  const upcoming = bookings
-    .filter((b) => ["pending_parent_approval", "confirmed"].includes(b.status))
-    .sort((a, b) => new Date(a.scheduled_start || 0) - new Date(b.scheduled_start || 0));
   const past = bookings.filter((b) => ["completed", "cancelled", "denied"].includes(b.status)).slice(0, 5);
 
   return (
@@ -115,22 +112,17 @@ export default function BuyerHome() {
           </section>
         )}
 
-        <section>
+        <section data-tour="tour-jobs">
           <h2 className="text-[17px] font-bold text-foreground mb-3 flex items-center gap-2">
-            <CalendarDays className="w-[18px] h-[18px] text-muted-foreground" /> Upcoming appointments
+            <Briefcase className="w-[18px] h-[18px] text-muted-foreground" /> Post a job
           </h2>
-          {upcoming.length === 0 ? (
-            <div className="bg-card rounded-2xl border border-border p-6 text-center">
-              <p className="text-[14px] text-muted-foreground">Nothing booked yet — browse local services and set up your first appointment.</p>
-              <Link to="/browse" className="inline-flex items-center gap-1.5 mt-4 bg-primary text-primary-foreground text-[13px] font-semibold rounded-full px-5 h-10 shadow-soft hover:opacity-90 transition-opacity">
-                <Search className="w-4 h-4" /> Browse services
-              </Link>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {upcoming.map((b) => <AppointmentCard key={b.id} booking={b} onChanged={load} />)}
-            </div>
-          )}
+          <div className="bg-primary/5 border border-primary/20 rounded-2xl p-6 text-center">
+            <h3 className="font-bold text-foreground text-[15px]">Need something done around the house?</h3>
+            <p className="text-[13px] text-muted-foreground mt-1">Post a job and a verified local teen will claim it. Pay upfront — held safely in escrow until you confirm the work is done.</p>
+            <Link to="/jobs" className="inline-flex items-center gap-1.5 mt-4 bg-primary text-primary-foreground text-[13px] font-semibold rounded-full px-5 h-10 shadow-soft hover:opacity-90 transition-opacity">
+              <Briefcase className="w-4 h-4" /> Post a job
+            </Link>
+          </div>
         </section>
 
         <ReviewNudge user={user} bookings={bookings} />

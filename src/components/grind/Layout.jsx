@@ -36,11 +36,11 @@ const TABS = {
     primary: [
       { to: "/buyer", label: "Home", icon: Home, end: true },
       { to: "/browse", label: "Browse", icon: Search, tour: "tour-browse" },
-      { to: "/buyer/bookings", label: "My Bookings", icon: CalendarDays, tour: "tour-bookings" },
+      { to: "/jobs", label: "Jobs", icon: Briefcase, tour: "tour-jobs" },
       { to: "/messages", label: "Messages", icon: MessageCircle, tour: "tour-messages" },
     ],
     secondary: [
-      { to: "/jobs", label: "Job Board", icon: Briefcase },
+      { to: "/buyer/bookings", label: "My Bookings", icon: CalendarDays, tour: "tour-bookings" },
     ],
   },
   admin: {
