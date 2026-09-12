@@ -55,8 +55,9 @@ function ExpressCheckoutInner({ onSuccess, onError }) {
           onConfirm={handleConfirm}
           onReady={() => setReady(true)}
           options={{
-            buttonType: { applePay: "plain", googlePay: "plain" },
-            buttonTheme: { applePay: "black", googlePay: "black" },
+            paymentMethodTypes: ["apple_pay"],
+            buttonType: { applePay: "plain" },
+            buttonTheme: { applePay: "black" },
             buttonHeight: 48,
             buttonBorderRadius: 0,
           }}
