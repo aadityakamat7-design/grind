@@ -176,8 +176,9 @@ Respond with:
     const origin = body.origin ? safeOriginFromString(body.origin) : getSafeOrigin(req);
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
 
-    // Full credit covered the post — no Stripe charge, go live immediately.
-    if (chargeAmount <= 0) {
+    // Full credit covered the post, or the charge is below Stripe's $0.50
+    // minimum — no Stripe charge, go live immediately.
+    if (chargeAmount < 0.50) {
       await base44.asServiceRole.entities.JobPost.update(job.id, {
         status: 'open',
         payment_status: 'held',
