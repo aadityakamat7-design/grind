@@ -72,8 +72,11 @@ Deno.serve(async (req) => {
       if (job.buyer_user_id !== user.id) return Response.json({ error: 'Forbidden' }, { status: 403 });
       if (job.payment_status !== 'unpaid') return Response.json({ error: 'Job already paid' }, { status: 400 });
 
-      const gross = Math.round(Number(job.price) * 100) / 100;
-      const cents = Math.round(gross * 100);
+      // Use the credit-adjusted charge amount (gross minus applied platform
+      // credit), not the full price — so Apple Pay / Google Pay charge the
+      // same amount the Stripe Checkout card flow would.
+      const chargeAmount = Math.round(Number(job.charge_amount) * 100) / 100;
+      const cents = Math.round(chargeAmount * 100);
       if (cents <= 0) return Response.json({ error: 'No charge needed' }, { status: 400 });
 
       const stripe = await getStripeForApp(base44);

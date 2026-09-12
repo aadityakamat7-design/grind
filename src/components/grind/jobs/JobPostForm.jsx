@@ -11,6 +11,7 @@ import { CATEGORIES, CATEGORY_LABELS, categoryMinimum, computeFees, money, MAX_U
 import { cn } from "@/lib/utils";
 import { getMinAgeForCategory } from "@/lib/stateWorkRules";
 import SlideToConfirm from "@/components/grind/SlideToConfirm";
+import ExpressCheckout from "@/components/grind/ExpressCheckout";
 import DateTimePicker from "@/components/grind/DateTimePicker";
 import { MOST_RESTRICTIVE_LIMITS } from "@/lib/availability";
 import { US_STATES } from "@/lib/jobScreen";
@@ -30,6 +31,7 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
   const [priceRecLoading, setPriceRecLoading] = useState(false);
   const [aiKeywords, setAiKeywords] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
+  const [payJob, setPayJob] = useState(null); // { id, charge_amount, cardUrl } for the inline pay step
 
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
 
@@ -128,16 +130,11 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
         setPhase("approved");
         return;
       }
-      // Stripe Checkout must run in the published app, not inside the builder iframe.
-      if (res.data.url) {
-        if (window.self !== window.top) {
-          setPhase("iframe_blocked");
-          return;
-        }
-        window.location.href = res.data.url;
-        return;
-      }
-      setPhase("approved");
+      // Show the inline Apple Pay / card pay step. The Stripe Checkout URL is
+      // kept as the card fallback; Apple Pay / Google Pay mount natively on
+      // the published app via the Payment Request Button.
+      setPayJob({ id: job.id, charge_amount: job.charge_amount, cardUrl: res.data.url || "" });
+      setPhase("pay");
     } catch (err) {
       const screening = err.response?.data?.screening;
       setScreening({
@@ -150,7 +147,7 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
   };
 
   const close = (v) => {
-    if (!v) { setPhase("form"); setScreening(null); setAiCategory(null); setChosenCategory(null); setCategoryError(""); }
+    if (!v) { setPhase("form"); setScreening(null); setAiCategory(null); setChosenCategory(null); setCategoryError(""); setPayJob(null); }
     onOpenChange(v);
   };
 
@@ -191,12 +188,19 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
           </div>
         )}
 
-        {phase === "iframe_blocked" && (
-          <div className="py-4 space-y-4">
-            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
-              <p className="font-bold text-amber-700 text-sm">Open the published app to pay</p>
-              <p className="text-sm text-amber-600 mt-2">For your security, payment happens on blockwork.online, not inside the builder preview. Open the site in a new tab to finish posting your job.</p>
+        {phase === "pay" && payJob && (
+          <div className="space-y-4">
+            <div className="bg-secondary border border-border rounded-2xl p-3 text-xs text-muted-foreground flex items-start gap-2">
+              <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5 text-primary" />
+              Your job passed the safety check. Pay the upfront escrow to post it live — held safely until a teen completes the job.
             </div>
+            <ExpressCheckout
+              jobId={payJob.id}
+              amount={payJob.charge_amount}
+              payLabel={`Pay ${money(payJob.charge_amount)} to post this job`}
+              cardUrl={payJob.cardUrl}
+              onSuccess={() => setPhase("approved")}
+            />
             <Button variant="outline" className="w-full" onClick={() => setPhase("form")}>Back</Button>
           </div>
         )}

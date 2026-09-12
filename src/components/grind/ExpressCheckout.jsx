@@ -43,7 +43,7 @@ function GooglePayMark() {
 // and opens the native sheet on tap. When it isn't, the placeholder redirects
 // to Stripe hosted Checkout (which supports that wallet) — so every button is
 // always functional.
-export default function ExpressCheckout({ bookingId, amount, onSuccess, onError, disabled }) {
+export default function ExpressCheckout({ bookingId, jobId, amount, payLabel, cardUrl, onSuccess, onError, disabled }) {
   const [processing, setProcessing] = useState(false);
   const [cardRedirecting, setCardRedirecting] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
@@ -59,7 +59,7 @@ export default function ExpressCheckout({ bookingId, amount, onSuccess, onError,
 
     (async () => {
       try {
-        const res = await base44.functions.invoke("createPaymentIntent", { bookingId });
+        const res = await base44.functions.invoke("createPaymentIntent", { bookingId, jobId });
         const { client_secret, publishable_key } = res.data || {};
         if (!client_secret || !publishable_key || cancelled) return;
 
@@ -141,6 +141,13 @@ export default function ExpressCheckout({ bookingId, amount, onSuccess, onError,
   const handleCardPay = async () => {
     setCardRedirecting(true);
     setErrorMsg("");
+    // Job-post flow: redirect straight to the Stripe Checkout URL created at
+    // post time (the card fallback). Booking flow: create the start-payment
+    // Checkout session on demand via jobHandshake.
+    if (cardUrl) {
+      window.location.href = cardUrl;
+      return;
+    }
     try {
       const res = await base44.functions.invoke("jobHandshake", { bookingId, action: "start", origin: window.location.origin });
       if (res.data?.url) {
@@ -162,7 +169,7 @@ export default function ExpressCheckout({ bookingId, amount, onSuccess, onError,
     <div>
       {/* Amount */}
       <p className="text-center text-lg font-bold text-foreground mb-4">
-        Pay {money(amount)} to start this job
+        {payLabel || `Pay ${money(amount)} to start this job`}
       </p>
 
       {/* Google Pay — instant placeholder swaps to the native button when ready.
