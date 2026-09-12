@@ -19,18 +19,6 @@ function ApplePayMark() {
   );
 }
 
-// Google Pay mark placeholder.
-function GooglePayMark() {
-  return (
-    <span className="flex items-center gap-1.5 text-white">
-      <span className="font-bold text-lg leading-none" style={{ fontFamily: "Inter, sans-serif" }}>
-        <span style={{ color: "#4285F4" }}>G</span>
-      </span>
-      <span className="font-medium tracking-tight">Pay</span>
-    </span>
-  );
-}
-
 // Payment step layout:
 //   1. "Pay $X to start this job"
 //   2. Apple Pay button (instant placeholder → native sheet when ready)
@@ -48,10 +36,8 @@ export default function ExpressCheckout({ bookingId, jobId, amount, payLabel, ca
   const [cardRedirecting, setCardRedirecting] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [applePayReady, setApplePayReady] = useState(false);
-  const [googlePayReady, setGooglePayReady] = useState(false);
 
   const appleBtnRef = useRef(null);
-  const googleBtnRef = useRef(null);
 
   useEffect(() => {
     if (!amount || amount <= 0) return;
@@ -124,12 +110,6 @@ export default function ExpressCheckout({ bookingId, jobId, amount, payLabel, ca
           appleBtnRef,
           "applePay"
         );
-        await mountWallet(
-          stripe.paymentRequest({ country: "US", currency: "usd", total: { label, amount: cents }, requestPayerName: true, requestPayerEmail: true }),
-          setGooglePayReady,
-          googleBtnRef,
-          "googlePay"
-        );
       } catch (err) {
         console.error("Wallet init error:", err);
       }
@@ -172,24 +152,8 @@ export default function ExpressCheckout({ bookingId, jobId, amount, payLabel, ca
         {payLabel || `Pay ${money(amount)} to start this job`}
       </p>
 
-      {/* Google Pay — instant placeholder swaps to the native button when ready.
-          If Google Pay isn't available, the placeholder redirects to Checkout. */}
-      <div className="h-12 mb-3">
-        {googlePayReady ? (
-          <div ref={googleBtnRef} className="h-12 [&>*]:w-full" />
-        ) : (
-          <button
-            type="button"
-            disabled={isDisabled}
-            onClick={handleCardPay}
-            className="w-full h-12 rounded-full bg-black flex items-center justify-center transition-opacity hover:opacity-90 disabled:opacity-50"
-          >
-            <GooglePayMark />
-          </button>
-        )}
-      </div>
-
-      {/* Apple Pay — same pattern. */}
+      {/* Apple Pay — instant placeholder swaps to the native button when ready.
+          If Apple Pay isn't available, the placeholder redirects to Checkout. */}
       <div className="h-12 mb-4">
         {applePayReady ? (
           <div ref={appleBtnRef} className="h-12 [&>*]:w-full" />
