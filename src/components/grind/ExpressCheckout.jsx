@@ -2,10 +2,16 @@ import { useEffect, useState, useRef } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { CreditCard, ShieldCheck } from "lucide-react";
+import { CreditCard, ShieldCheck, ExternalLink } from "lucide-react";
 import { money } from "@/lib/grind";
 import StripeBadge from "@/components/StripeBadge";
 import AppleIcon from "@/components/AppleIcon";
+
+// Apple Pay and Stripe Checkout both fail inside a cross-origin iframe
+// (builder preview): canMakePayment() returns null and Stripe Checkout
+// refuses to load (X-Frame-Options: DENY). Detect this up front so we can
+// show a clear message instead of a silently broken button.
+const isInIframe = typeof window !== "undefined" && window.self !== window.top;
 
 // Apple Pay via the Stripe Payment Request Button.
 // The button is always visible — a styled placeholder until Stripe confirms
@@ -159,6 +165,38 @@ export default function ExpressCheckout({
   };
 
   const isDisabled = disabled || cardRedirecting;
+
+  // Inside the builder preview iframe, neither Apple Pay nor Stripe Checkout
+  // can work. Show a clear message directing the user to the published app.
+  if (isInIframe) {
+    return (
+      <div>
+        <p className="text-center text-lg font-bold text-foreground mb-4">
+          {payLabel || `Pay ${money(amount)} to start this job`}
+        </p>
+        <div className="bg-secondary border border-border rounded-2xl p-4 text-center space-y-3">
+          <p className="text-sm font-semibold text-foreground">
+            Apple Pay & checkout only work on the published app
+          </p>
+          <p className="text-xs text-muted-foreground">
+            The builder preview blocks Apple Pay and Stripe Checkout for security. Open the live app on your iPhone to pay.
+          </p>
+          <a
+            href="https://blockwork.online"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary"
+          >
+            <ExternalLink className="w-4 h-4" />
+            Open blockwork.online
+          </a>
+        </div>
+        <div className="mt-5 pt-4 border-t border-border">
+          <StripeBadge />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
