@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -16,24 +16,52 @@ import DateTimePicker from "@/components/grind/DateTimePicker";
 import { MOST_RESTRICTIVE_LIMITS } from "@/lib/availability";
 import { US_STATES } from "@/lib/jobScreen";
 
+const DRAFT_KEY = "blockwork_jobpost_draft";
+
+function loadDraft() {
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+
+function saveDraft(data) {
+  try { localStorage.setItem(DRAFT_KEY, JSON.stringify(data)); } catch {}
+}
+
+function clearDraft() {
+  try { localStorage.removeItem(DRAFT_KEY); } catch {}
+}
+
 export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, onPosted }) {
-  const [form, setForm] = useState({
+  const [form, setForm] = useState(() => loadDraft()?.form || {
     title: "", description: "", price: "",
     price_model: "FIXED", state: "", scheduled_start: "",
     is_physical: true, address: "", is_asap: false,
   });
-  const [phase, setPhase] = useState("form"); // form | category_review | screening | blocked | approved
-  const [screening, setScreening] = useState(null);
-  const [aiCategory, setAiCategory] = useState(null); // { category, confidence, reason }
-  const [chosenCategory, setChosenCategory] = useState(null);
+  const [phase, setPhase] = useState(() => {
+    const p = loadDraft()?.phase;
+    return p && p !== "screening" ? p : "form";
+  });
+  const [screening, setScreening] = useState(() => loadDraft()?.screening || null);
+  const [aiCategory, setAiCategory] = useState(() => loadDraft()?.aiCategory || null);
+  const [chosenCategory, setChosenCategory] = useState(() => loadDraft()?.chosenCategory || null);
   const [categoryError, setCategoryError] = useState("");
   const [priceRec, setPriceRec] = useState(null);
   const [priceRecLoading, setPriceRecLoading] = useState(false);
-  const [aiKeywords, setAiKeywords] = useState("");
+  const [aiKeywords, setAiKeywords] = useState(() => loadDraft()?.aiKeywords || "");
   const [aiLoading, setAiLoading] = useState(false);
-  const [payJob, setPayJob] = useState(null); // { id, charge_amount, cardUrl } for the inline pay step
+  const [payJob, setPayJob] = useState(() => loadDraft()?.payJob || null);
 
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
+
+  // Persist the draft so a page refresh resumes where the user left off.
+  // Skip the transient "screening" loading phase and empty forms.
+  useEffect(() => {
+    if (phase === "screening") return;
+    if (!form.title && !payJob) return;
+    saveDraft({ form, phase, aiCategory, chosenCategory, aiKeywords, payJob, screening });
+  }, [form, phase, aiCategory, chosenCategory, aiKeywords, payJob, screening]);
 
   const generateDescription = async () => {
     if (!aiKeywords.trim()) return;
@@ -162,6 +190,7 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
       if (phase === "pay" && payJob?.id) {
         abandonDraft();
       }
+      clearDraft();
       setPhase("form"); setScreening(null); setAiCategory(null); setChosenCategory(null); setCategoryError(""); setPayJob(null);
     }
     onOpenChange(v);

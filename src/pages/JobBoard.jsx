@@ -22,6 +22,18 @@ export default function JobBoard() {
   const [error, setError] = useState(false);
   const [postOpen, setPostOpen] = useState(false);
 
+  // Resume an in-progress job post draft after a page refresh.
+  useEffect(() => {
+    if (!isBuyer) return;
+    try {
+      const raw = localStorage.getItem("blockwork_jobpost_draft");
+      if (raw) {
+        const d = JSON.parse(raw);
+        if (d?.form?.title || d?.payJob) setPostOpen(true);
+      }
+    } catch {}
+  }, [isBuyer]);
+
   const load = useCallback(async () => {
     try {
       setError(false);
