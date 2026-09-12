@@ -311,8 +311,7 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
                 <Input
                   className="rounded-xl"
                   type="number"
-                  min={currentMin}
-                  max={MAX_UNIT_PRICE}
+                  inputMode="decimal"
                   value={form.price}
                   onChange={(e) => set("price", e.target.value)}
                 />
@@ -403,7 +402,7 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label>Pay ($)</Label>
-                <Input className="rounded-xl" type="number" min="1" max={MAX_UNIT_PRICE} placeholder="25" value={form.price} onChange={(e) => set("price", e.target.value)} />
+                <Input className="rounded-xl" type="number" inputMode="decimal" placeholder="25" value={form.price} onChange={(e) => set("price", e.target.value)} />
                 {priceError && <p className="text-xs text-destructive font-semibold">{priceError}</p>}
               </div>
               <div className="space-y-1.5">
