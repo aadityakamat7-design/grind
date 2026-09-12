@@ -16,7 +16,7 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { bookingId, jobId, getKeyOnly } = await req.json();
+    const { bookingId, jobId, getKeyOnly, bookingEscrow } = await req.json();
 
     // Rate limit payment initiation: max 5 per 10 minutes per IP and per user.
     // Prevents rapid-fire PaymentIntent creation (which could be used to probe
@@ -36,23 +36,33 @@ Deno.serve(async (req) => {
       const booking = await base44.asServiceRole.entities.Booking.get(bookingId);
       if (!booking) return Response.json({ error: 'Booking not found' }, { status: 404 });
       if (booking.buyer_user_id !== user.id) return Response.json({ error: 'Forbidden' }, { status: 403 });
-      if (booking.status !== 'confirmed') return Response.json({ error: 'This job must be approved before it can start.' }, { status: 400 });
-      if (booking.buyer_started_at) return Response.json({ error: 'Already started' }, { status: 400 });
+
+      // bookingEscrow = upfront payment at booking time (booking may still be
+      // pending_parent_approval). Without it = start payment at job start
+      // (booking must be confirmed).
+      if (bookingEscrow) {
+        if (booking.payment_status !== 'unpaid') return Response.json({ error: 'Booking already paid' }, { status: 400 });
+      } else {
+        if (booking.status !== 'confirmed') return Response.json({ error: 'This job must be approved before it can start.' }, { status: 400 });
+        if (booking.buyer_started_at) return Response.json({ error: 'Already started' }, { status: 400 });
+      }
 
       const chargeAmount = booking.charge_amount ?? booking.price_total;
       const cents = Math.round(Number(chargeAmount) * 100);
       if (cents <= 0) return Response.json({ error: 'No charge needed' }, { status: 400 });
+
+      const metadata = {
+        base44_app_id: Deno.env.get('BASE44_APP_ID'),
+        booking_id: booking.id,
+      };
+      if (!bookingEscrow) metadata.start_payment = '1';
 
       const stripe = await getStripeForApp(base44);
       const paymentIntent = await stripe.paymentIntents.create({
         amount: cents,
         currency: 'usd',
         automatic_payment_methods: { enabled: true },
-        metadata: {
-          base44_app_id: Deno.env.get('BASE44_APP_ID'),
-          booking_id: booking.id,
-          start_payment: '1',
-        },
+        metadata,
         description: booking.listing_title || 'Blockwork job',
       });
 

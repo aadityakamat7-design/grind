@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -7,11 +7,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ShieldCheck, Lock, MessageCircle, Video, Sun, MapPin, Pencil } from "lucide-react";
+import { ShieldCheck, Lock, MessageCircle, Video, Sun, MapPin, Pencil, CheckCircle2 } from "lucide-react";
 import { computeFees, money, isOnlineCategory } from "@/lib/grind";
 import SafetyAdvisorChat from "@/components/grind/SafetyAdvisorChat";
 import SlideToConfirm from "@/components/grind/SlideToConfirm";
 import DateTimePicker from "@/components/grind/DateTimePicker";
+import ExpressCheckout from "@/components/grind/ExpressCheckout";
 
 export default function BookDialog({ open, onOpenChange, listing, buyer, buyerProfile }) {
   const navigate = useNavigate();
@@ -24,6 +25,13 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [safetyOpen, setSafetyOpen] = useState(false);
+  const [phase, setPhase] = useState("form"); // form | pay | done
+  const [payBooking, setPayBooking] = useState(null); // { id, amount, cardUrl }
+
+  // Reset to the form phase every time the dialog opens.
+  useEffect(() => {
+    if (open) { setPhase("form"); setPayBooking(null); setError(""); }
+  }, [open]);
 
   const total = listing.price_model === "HOURLY" ? Number(listing.price) * Number(hours || 1) : Number(listing.price);
   const { platform_fee, net_amount } = computeFees(total);
@@ -40,10 +48,17 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
         notes,
         recurrence,
         hours,
+        origin: window.location.origin,
       });
-      const { bookingId } = res.data;
-      onOpenChange(false);
-      navigate(`/bookings/${bookingId}`);
+      const { bookingId, url, paid } = res.data;
+      // Free or sub-$0.50 job — no payment needed, go straight to done.
+      if (paid || !url) {
+        setPhase("done");
+        setPayBooking({ id: bookingId });
+        return;
+      }
+      setPayBooking({ id: bookingId, amount: total, cardUrl: url });
+      setPhase("pay");
     } catch (err) {
       const msg = err.response?.data?.error || "Couldn't create this booking. Please try again.";
       setError(msg);
@@ -52,12 +67,17 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
     }
   };
 
+  const handlePaid = () => {
+    setPhase("done");
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="rounded-2xl max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Book {listing.teen_display_name}</DialogTitle>
         </DialogHeader>
+        {phase === "form" && (
         <div className="space-y-4">
           <div className={`flex items-center gap-2 rounded-xl p-3 text-xs font-medium ${isOnline ? "bg-primary/10 text-primary" : "bg-secondary text-muted-foreground"}`}>
             {isOnline ? (
@@ -129,7 +149,7 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
           </div>
           <div className="flex items-start gap-2 bg-emerald-50 rounded-xl p-3 text-xs text-emerald-700">
             <ShieldCheck className="w-4 h-4 mt-0.5 shrink-0" />
-            No payment yet — you'll pay when both you and the teen tap "Start job." The teen's parent must approve this booking first.
+            Pay now to secure this booking — your payment is held in escrow until the job is confirmed complete. The teen's parent must approve first; if they decline, you get a full refund.
           </div>
           <Button
             variant="outline"
@@ -147,6 +167,34 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
             onConfirm={book}
           />
         </div>
+        )}
+        {phase === "pay" && payBooking && (
+          <div className="space-y-4">
+            <ExpressCheckout
+              bookingId={payBooking.id}
+              amount={payBooking.amount}
+              payLabel={`Pay ${money(payBooking.amount)} to book`}
+              cardUrl={payBooking.cardUrl}
+              bookingEscrow
+              onSuccess={handlePaid}
+            />
+            <Button variant="outline" className="w-full" onClick={() => { onOpenChange(false); navigate(`/bookings/${payBooking.id}`); }}>
+              Pay later
+            </Button>
+          </div>
+        )}
+        {phase === "done" && (
+          <div className="space-y-4 text-center py-4">
+            <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto" />
+            <p className="font-bold text-foreground">Booking created!</p>
+            <p className="text-sm text-muted-foreground">
+              Your payment is held in escrow. The teen's parent needs to approve the booking before it's confirmed.
+            </p>
+            <Button className="w-full" onClick={() => { onOpenChange(false); navigate(`/bookings/${payBooking.id}`); }}>
+              View booking
+            </Button>
+          </div>
+        )}
       </DialogContent>
 
       <Dialog open={safetyOpen} onOpenChange={setSafetyOpen}>

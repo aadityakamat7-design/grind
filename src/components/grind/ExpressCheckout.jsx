@@ -27,6 +27,7 @@ export default function ExpressCheckout({
   onSuccess,
   onError,
   disabled,
+  bookingEscrow,
 }) {
   const [cardRedirecting, setCardRedirecting] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
@@ -50,6 +51,7 @@ export default function ExpressCheckout({
         const res = await base44.functions.invoke("createPaymentIntent", {
           bookingId,
           jobId,
+          bookingEscrow,
         });
         const { client_secret, publishable_key } = res.data || {};
         if (!client_secret || !publishable_key || cancelled) return;

@@ -6,7 +6,8 @@ import { getDeliveryMode, isRemovedCategory, generateSessionLink } from '../../s
 import { enforceBookingHours } from '../../shared/workHourEnforcement.ts';
 import { calculatePlatformFee, calculateNetAmount } from '../../shared/platformFee.ts';
 import { notifyParentApprovalNeeded } from '../../shared/notifyParent.ts';
-import { APP_BASE_URL } from '../../shared/safeOrigin.ts';
+import { APP_BASE_URL, getSafeOrigin, safeOriginFromString } from '../../shared/safeOrigin.ts';
+import { getStripeContext } from '../../shared/stripeEnv.ts';
 
 Deno.serve(async (req) => {
   try {
@@ -14,7 +15,7 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { listingId, scheduledStart, address, notes, recurrence, hours } = await req.json();
+    const { listingId, scheduledStart, address, notes, recurrence, hours, origin: clientOrigin } = await req.json();
     if (!listingId) {
       return Response.json({ error: 'listingId is required' }, { status: 400 });
     }
@@ -237,7 +238,49 @@ Deno.serve(async (req) => {
 
     base44.analytics.track({ eventName: 'booking_created' });
 
-    return Response.json({ bookingId: booking.id });
+    // Create a Stripe Checkout session for the upfront escrow payment so the
+    // neighbor pays when they book (not at job start). The webhook marks the
+    // booking payment_status = 'held' when the charge clears. If the parent
+    // declines, the escrow is refunded.
+    const chargeAmount = booking.charge_amount ?? total;
+    const cents = Math.round(Number(chargeAmount) * 100);
+    if (cents >= 50) {
+      const { stripe, testMode } = await getStripeContext(base44);
+      const origin = clientOrigin ? safeOriginFromString(clientOrigin) : getSafeOrigin(req);
+      const session = await stripe.checkout.sessions.create({
+        mode: 'payment',
+        line_items: [{
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: booking.listing_title || 'Blockwork job',
+              description: 'Held in escrow until the job is confirmed complete. Refunded if the parent declines.',
+            },
+            unit_amount: cents,
+          },
+          quantity: 1,
+        }],
+        success_url: `${origin}/bookings/${booking.id}?paid=1`,
+        cancel_url: `${origin}/bookings/${booking.id}`,
+        metadata: {
+          base44_app_id: Deno.env.get('BASE44_APP_ID'),
+          booking_id: booking.id,
+        },
+        payment_intent_data: { metadata: { booking_id: booking.id, base44_app_id: Deno.env.get('BASE44_APP_ID') } },
+      });
+      await base44.asServiceRole.entities.Booking.update(booking.id, {
+        stripe_session_id: session.id,
+        is_test_mode: testMode,
+      });
+      return Response.json({ bookingId: booking.id, url: session.url });
+    }
+
+    // Charge below Stripe's $0.50 minimum — mark as held directly (no charge).
+    if (cents > 0) {
+      await base44.asServiceRole.entities.Booking.update(booking.id, { payment_status: 'held' });
+    }
+
+    return Response.json({ bookingId: booking.id, paid: cents > 0 && cents < 50 });
   } catch (error) {
     console.error('createBooking error:', error.message);
     return Response.json({ error: 'Something went wrong' }, { status: 500 });
