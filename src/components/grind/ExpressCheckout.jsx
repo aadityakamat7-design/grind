@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef, useCallback } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements, ExpressCheckoutElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { base44 } from "@/api/base44Client";
@@ -17,13 +17,37 @@ const isInIframe = typeof window !== "undefined" && window.self !== window.top;
 // (the real Apple Pay button on Safari), and opens the native payment sheet
 // on click. We confirm with redirect:'if_required' so the user never leaves
 // the app — no Stripe Checkout redirect.
+// Stable options + callbacks are critical: if the `options` object or
+// `onConfirm` callback change identity on every render, the
+// ExpressCheckoutElement re-initialises and the native button flickers /
+// disappears. We memoise both and keep onSuccess/onError in refs so the
+// confirm handler never changes identity either.
+const EC_OPTIONS = {
+  paymentMethods: {
+    applePay: "always",
+    googlePay: "never",
+    link: "never",
+    amazonPay: "never",
+    paypal: "never",
+  },
+  buttonType: { applePay: "plain" },
+  buttonTheme: { applePay: "black" },
+  buttonHeight: 48,
+};
+
 function ExpressCheckoutInner({ onSuccess, onError }) {
   const stripe = useStripe();
   const elements = useElements();
   const [paying, setPaying] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  const handleConfirm = async () => {
+  // Keep the latest callbacks in refs so handleConfirm stays stable.
+  const onSuccessRef = useRef(onSuccess);
+  const onErrorRef = useRef(onError);
+  onSuccessRef.current = onSuccess;
+  onErrorRef.current = onError;
+
+  const handleConfirm = useCallback(async () => {
     if (!stripe || !elements) return;
     setPaying(true);
     setErrorMsg("");
@@ -35,35 +59,24 @@ function ExpressCheckoutInner({ onSuccess, onError }) {
       });
       if (error) {
         setErrorMsg(error.message);
-        onError?.(error.message);
+        onErrorRef.current?.(error.message);
       } else {
-        onSuccess?.();
+        onSuccessRef.current?.();
       }
     } catch (err) {
       setErrorMsg(err.message);
-      onError?.(err.message);
+      onErrorRef.current?.(err.message);
     } finally {
       setPaying(false);
     }
-  };
+  }, [stripe, elements]);
 
   return (
     <>
       <div style={{ minHeight: 48 }}>
         <ExpressCheckoutElement
           onConfirm={handleConfirm}
-          options={{
-            paymentMethods: {
-              applePay: "always",
-              googlePay: "never",
-              link: "never",
-              amazonPay: "never",
-              paypal: "never",
-            },
-            buttonType: { applePay: "plain" },
-            buttonTheme: { applePay: "black" },
-            buttonHeight: 48,
-          }}
+          options={EC_OPTIONS}
         />
       </div>
       {paying && (
