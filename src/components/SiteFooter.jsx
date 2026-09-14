@@ -16,39 +16,39 @@ export default function SiteFooter({ compact = false }) {
     { to: "/safety", label: "Safety" },
     { to: "/compliance", label: "Payments & Compliance" },
   ];
-  const pad = compact ? "py-2" : "py-5";
-  const gap = compact ? "gap-1.5" : "gap-3";
-  const contactText = compact ? "text-[10px]" : "text-sm";
-  const linkText = compact ? "text-[10px]" : "text-sm";
-  const badgeText = compact ? "text-[9px]" : "text-sm";
-  const minH = compact ? "min-h-[20px]" : "min-h-[44px]";
+  const pad = compact ? "py-1.5" : "py-5";
+  const gap = compact ? "gap-1" : "gap-3";
+  const contactText = compact ? "text-[8px]" : "text-sm";
+  const linkText = compact ? "text-[8px]" : "text-sm";
+  const badgeText = compact ? "text-[7px]" : "text-sm";
+  const minH = compact ? "min-h-[14px]" : "min-h-[44px]";
   return (
     <footer className="border-t border-border bg-card/40">
       <div className={`max-w-5xl mx-auto px-4 lg:px-8 ${pad}`}>
         {/* Contact + identity */}
-        <div className={`flex flex-col sm:flex-row sm:items-center sm:justify-between ${gap} mb-3`}>
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground shrink-0">
+        <div className={`flex flex-col sm:flex-row sm:items-center sm:justify-between ${gap} mb-1.5`}>
+          <div className={`flex items-center gap-1 ${contactText} text-muted-foreground shrink-0`}>
             <Link to="/" className="font-semibold text-foreground hover:text-primary transition-colors">
               Blockwork
             </Link>
             <span className="text-border">·</span>
             <span>© {new Date().getFullYear()}</span>
           </div>
-          <div className={`flex flex-wrap items-center gap-x-3 gap-y-1 ${contactText} text-muted-foreground`}>
-            <a href="mailto:support@blockwork.online" className="inline-flex items-center gap-1 hover:text-foreground transition-colors">
-              <Mail className="w-2.5 h-2.5" /> support@blockwork.online
+          <div className={`flex flex-wrap items-center gap-x-2 gap-y-0.5 ${contactText} text-muted-foreground`}>
+            <a href="mailto:support@blockwork.online" className="inline-flex items-center gap-0.5 hover:text-foreground transition-colors">
+              <Mail className="w-2 h-2" /> support@blockwork.online
             </a>
-            <span className="inline-flex items-center gap-1">
-              <Clock className="w-2.5 h-2.5" /> We respond within 24 hours
+            <span className="inline-flex items-center gap-0.5">
+              <Clock className="w-2 h-2" /> We respond within 24 hours
             </span>
-            <span className="inline-flex items-center gap-1">
-              <MapPin className="w-2.5 h-2.5" /> Serving California
+            <span className="inline-flex items-center gap-0.5">
+              <MapPin className="w-2 h-2" /> Serving California
             </span>
           </div>
         </div>
 
         {/* Legal links */}
-        <nav className={`flex flex-wrap items-center gap-x-2 gap-y-1 ${linkText} text-muted-foreground mb-3`}>
+        <nav className={`flex flex-wrap items-center gap-x-1.5 gap-y-0.5 ${linkText} text-muted-foreground mb-1.5`}>
           {links.map((l, i) => (
             <React.Fragment key={l.to}>
               {i > 0 && <span className="hidden sm:inline text-border/60">·</span>}
@@ -60,12 +60,12 @@ export default function SiteFooter({ compact = false }) {
         </nav>
 
         {/* Trust badges + payment reassurance */}
-        <div className="flex flex-col items-center gap-1.5 pt-2 border-t border-border/50">
-          <div className="flex items-center justify-center gap-2 flex-wrap">
+        <div className="flex flex-col items-center gap-0.5 pt-1 border-t border-border/50">
+          <div className="flex items-center justify-center gap-1.5 flex-wrap">
             <StripeBadge showText={false} />
             <NortonBadge />
-            <span className={`inline-flex items-center gap-1 rounded-md bg-secondary border border-border px-1.5 py-0.5 ${badgeText} font-semibold text-muted-foreground leading-none whitespace-nowrap`}>
-              <Lock className="w-2.5 h-2.5" /> SSL Secured
+            <span className={`inline-flex items-center gap-0.5 rounded bg-secondary border border-border px-1 py-0 ${badgeText} font-semibold text-muted-foreground leading-none whitespace-nowrap`}>
+              <Lock className="w-2 h-2" /> SSL Secured
             </span>
           </div>
           <p className={`${badgeText} text-muted-foreground text-center leading-tight max-w-md`}>
