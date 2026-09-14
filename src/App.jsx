@@ -14,46 +14,65 @@ import { lazy, Suspense } from 'react';
 // Add page imports here
 // Route-level code splitting: lazy-load pages so the initial bundle stays
 // small. Layout and AdminRoute stay eager (they wrap/guard routes).
-const Login = lazy(() => import('@/pages/Login'));
-const Register = lazy(() => import('@/pages/Register'));
-const ForgotPassword = lazy(() => import('@/pages/ForgotPassword'));
-const ResetPassword = lazy(() => import('@/pages/ResetPassword'));
+
+// Retry wrapper for lazy imports — handles transient Vite HMR failures
+// where a stale module URL (?t=…) becomes invalid after a rebuild.
+function lazyRetry(importFn) {
+  return lazy(async () => {
+    try {
+      return await importFn();
+    } catch (err) {
+      await new Promise((r) => setTimeout(r, 200));
+      try {
+        return await importFn();
+      } catch {
+        window.location.reload();
+        throw err;
+      }
+    }
+  });
+}
+
+const Login = lazyRetry(() => import('@/pages/Login'));
+const Register = lazyRetry(() => import('@/pages/Register'));
+const ForgotPassword = lazyRetry(() => import('@/pages/ForgotPassword'));
+const ResetPassword = lazyRetry(() => import('@/pages/ResetPassword'));
 import Layout from '@/components/grind/Layout';
-const Welcome = lazy(() => import('@/pages/Welcome'));
-const Onboarding = lazy(() => import('@/pages/Onboarding'));
-const Account = lazy(() => import('@/pages/Account'));
-const TeenHome = lazy(() => import('@/pages/TeenHome'));
-const TeenListings = lazy(() => import('@/pages/TeenListings'));
-const TeenBookings = lazy(() => import('@/pages/TeenBookings'));
-const TeenEarnings = lazy(() => import('@/pages/TeenEarnings'));
-const TeenWallet = lazy(() => import('@/pages/TeenWallet'));
-const ParentDashboard = lazy(() => import('@/pages/ParentDashboard'));
-const ParentApprovals = lazy(() => import('@/pages/ParentApprovals'));
-const ParentPayouts = lazy(() => import('@/pages/ParentPayouts'));
-const Browse = lazy(() => import('@/pages/Browse'));
-const JobBoard = lazy(() => import('@/pages/JobBoard'));
-const BuyerHome = lazy(() => import('@/pages/BuyerHome'));
-const TeenPublicProfile = lazy(() => import('@/pages/TeenPublicProfile'));
-const BuyerPublicProfile = lazy(() => import('@/pages/BuyerPublicProfile'));
-const BuyerBookings = lazy(() => import('@/pages/BuyerBookings'));
-const BookingDetail = lazy(() => import('@/pages/BookingDetail'));
-const VideoRoom = lazy(() => import('@/pages/VideoRoom'));
-const Messages = lazy(() => import('@/pages/Messages'));
-const ChatThread = lazy(() => import('@/pages/ChatThread'));
-const Notifications = lazy(() => import('@/pages/Notifications'));
-const Admin = lazy(() => import('@/pages/Admin'));
+const Welcome = lazyRetry(() => import('@/pages/Welcome'));
+const Onboarding = lazyRetry(() => import('@/pages/Onboarding'));
+const Account = lazyRetry(() => import('@/pages/Account'));
+const TeenHome = lazyRetry(() => import('@/pages/TeenHome'));
+const TeenListings = lazyRetry(() => import('@/pages/TeenListings'));
+const TeenBookings = lazyRetry(() => import('@/pages/TeenBookings'));
+const TeenEarnings = lazyRetry(() => import('@/pages/TeenEarnings'));
+const TeenWallet = lazyRetry(() => import('@/pages/TeenWallet'));
+const ParentDashboard = lazyRetry(() => import('@/pages/ParentDashboard'));
+const ParentApprovals = lazyRetry(() => import('@/pages/ParentApprovals'));
+const ParentPayouts = lazyRetry(() => import('@/pages/ParentPayouts'));
+const Browse = lazyRetry(() => import('@/pages/Browse'));
+const JobBoard = lazyRetry(() => import('@/pages/JobBoard'));
+const BuyerHome = lazyRetry(() => import('@/pages/BuyerHome'));
+const TeenPublicProfile = lazyRetry(() => import('@/pages/TeenPublicProfile'));
+const BuyerPublicProfile = lazyRetry(() => import('@/pages/BuyerPublicProfile'));
+const BuyerBookings = lazyRetry(() => import('@/pages/BuyerBookings'));
+const BookingDetail = lazyRetry(() => import('@/pages/BookingDetail'));
+const VideoRoom = lazyRetry(() => import('@/pages/VideoRoom'));
+const Messages = lazyRetry(() => import('@/pages/Messages'));
+const ChatThread = lazyRetry(() => import('@/pages/ChatThread'));
+const Notifications = lazyRetry(() => import('@/pages/Notifications'));
+const Admin = lazyRetry(() => import('@/pages/Admin'));
 import AdminRoute from '@/components/grind/AdminRoute';
-const TermsOfService = lazy(() => import('@/pages/TermsOfService'));
-const PrivacyPolicy = lazy(() => import('@/pages/PrivacyPolicy'));
-const Compliance = lazy(() => import('@/pages/Compliance'));
-const Support = lazy(() => import('@/pages/Support'));
-const Safety = lazy(() => import('@/pages/Safety'));
-const About = lazy(() => import('@/pages/About'));
-const Faq = lazy(() => import('@/pages/Faq'));
-const HowItWorks = lazy(() => import('@/pages/HowItWorks'));
-const OAuthConsent = lazy(() => import('@/pages/OAuthConsent'));
-const WithdrawalAssistant = lazy(() => import('@/pages/WithdrawalAssistant'));
-const ResolveExpiredJob = lazy(() => import('@/pages/ResolveExpiredJob'));
+const TermsOfService = lazyRetry(() => import('@/pages/TermsOfService'));
+const PrivacyPolicy = lazyRetry(() => import('@/pages/PrivacyPolicy'));
+const Compliance = lazyRetry(() => import('@/pages/Compliance'));
+const Support = lazyRetry(() => import('@/pages/Support'));
+const Safety = lazyRetry(() => import('@/pages/Safety'));
+const About = lazyRetry(() => import('@/pages/About'));
+const Faq = lazyRetry(() => import('@/pages/Faq'));
+const HowItWorks = lazyRetry(() => import('@/pages/HowItWorks'));
+const OAuthConsent = lazyRetry(() => import('@/pages/OAuthConsent'));
+const WithdrawalAssistant = lazyRetry(() => import('@/pages/WithdrawalAssistant'));
+const ResolveExpiredJob = lazyRetry(() => import('@/pages/ResolveExpiredJob'));
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
