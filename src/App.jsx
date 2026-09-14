@@ -99,8 +99,62 @@ const AuthenticatedApp = () => {
           </div>
         }>
         <Routes location={location}>
-      {/* Add your page Route elements here */}
-...
+      {/* Public landing + auth */}
+      <Route path="/" element={<Welcome />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
+
+      {/* Public static pages (own footer, no Layout) */}
+      <Route path="/about" element={<About />} />
+      <Route path="/safety" element={<Safety />} />
+      <Route path="/faq" element={<Faq />} />
+      <Route path="/how-it-works" element={<HowItWorks />} />
+      <Route path="/compliance" element={<Compliance />} />
+      <Route path="/support" element={<Support />} />
+      <Route path="/terms" element={<TermsOfService />} />
+      <Route path="/privacy" element={<PrivacyPolicy />} />
+      <Route path="/oauth-consent" element={<OAuthConsent />} />
+
+      {/* Authenticated app — Layout provides nav + footer */}
+      <Route element={<Layout />}>
+        <Route path="/onboarding" element={<Onboarding />} />
+        <Route path="/account" element={<Account />} />
+        <Route path="/browse" element={<Browse />} />
+        <Route path="/jobs" element={<JobBoard />} />
+        <Route path="/messages" element={<Messages />} />
+        <Route path="/messages/:threadId" element={<ChatThread />} />
+        <Route path="/notifications" element={<Notifications />} />
+        <Route path="/bookings/:id" element={<BookingDetail />} />
+        <Route path="/bookings/:id/video" element={<VideoRoom />} />
+        <Route path="/jobs/:id/resolve" element={<ResolveExpiredJob />} />
+        <Route path="/teens/:id" element={<TeenPublicProfile />} />
+        <Route path="/neighbors/:id" element={<BuyerPublicProfile />} />
+        <Route path="/withdrawal-assistant" element={<WithdrawalAssistant />} />
+
+        {/* Teen */}
+        <Route path="/teen" element={<TeenHome />} />
+        <Route path="/teen/listings" element={<TeenListings />} />
+        <Route path="/teen/bookings" element={<TeenBookings />} />
+        <Route path="/teen/earnings" element={<TeenEarnings />} />
+        <Route path="/teen/wallet" element={<TeenWallet />} />
+
+        {/* Parent */}
+        <Route path="/parent" element={<ParentDashboard />} />
+        <Route path="/parent/approvals" element={<ParentApprovals />} />
+        <Route path="/parent/payouts" element={<ParentPayouts />} />
+
+        {/* Buyer */}
+        <Route path="/buyer" element={<BuyerHome />} />
+        <Route path="/buyer/bookings" element={<BuyerBookings />} />
+
+        {/* Admin */}
+        <Route element={<AdminRoute />}>
+          <Route path="/admin" element={<Admin />} />
+        </Route>
+      </Route>
+
       <Route path="*" element={<PageNotFound />} />
         </Routes>
         </Suspense>
