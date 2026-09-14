@@ -26,6 +26,14 @@ Deno.serve(async (req) => {
       // Wallet and cannot be withdrawn until the parent completes payout
       // setup (walletCashOut and attemptBookingPayout both enforce this).
       await base44.asServiceRole.entities.Booking.update(booking.id, { status: 'confirmed' });
+
+      // If this is the first occurrence of a recurring series, mark the
+      // series as parent-approved so future occurrences skip approval.
+      if (booking.recurring_series_id) {
+        await base44.asServiceRole.entities.RecurringSeries.update(booking.recurring_series_id, {
+          parent_approved: true,
+        });
+      }
       await writeAuditLog(base44, {
         actor_user_id: user.id, actor_role: user.app_role || 'parent', action: 'booking_approved',
         category: 'approval', target_type: 'Booking', target_id: booking.id,

@@ -12,6 +12,7 @@ import BuyerStatsGrid from "@/components/grind/buyer/BuyerStatsGrid";
 import ErrorRetry from "@/components/grind/ErrorRetry";
 import PullToRefresh from "@/components/PullToRefresh";
 import ReferralShare from "@/components/grind/ReferralShare";
+import RecurringSeriesCard from "@/components/grind/RecurringSeriesCard";
 import Tour from "@/components/grind/Tour";
 import { useTour } from "@/hooks/useTour";
 
@@ -144,6 +145,7 @@ export default function BuyerHome() {
 
         <RecommendedTeens zip={profile?.zip || ""} />
         <ReferralShare user={user} />
+        <RecurringSeriesCard user={user} />
 
         <section>
           <h2 className="text-[17px] font-bold text-foreground mb-3">Past appointments</h2>

@@ -22,6 +22,7 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
   const [overrideAddress, setOverrideAddress] = useState(false);
   const [notes, setNotes] = useState("");
   const [recurrence, setRecurrence] = useState("none");
+  const [endDate, setEndDate] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [safetyOpen, setSafetyOpen] = useState(false);
@@ -48,6 +49,7 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
         notes,
         recurrence,
         hours,
+        endDate: recurrence !== "none" ? endDate || undefined : undefined,
         origin: window.location.origin,
       });
       const { bookingId, url, paid } = res.data;
@@ -81,9 +83,9 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
         <div className="space-y-4">
           <div className={`flex items-center gap-2 rounded-xl p-3 text-xs font-medium ${isOnline ? "bg-primary/10 text-primary" : "bg-secondary text-muted-foreground"}`}>
             {isOnline ? (
-              <><Video className="w-4 h-4" /> Online session — conducted via video, no in-person meeting</>
+              <><Video className="w-4 h-4" /> Online video session</>
             ) : (
-              <><Sun className="w-4 h-4" /> Outdoor work — at your residence exterior, no home entry</>
+              <><Sun className="w-4 h-4" /> Outdoor — at your home, no entry</>
             )}
           </div>
           <div>
@@ -98,7 +100,7 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
             </div>
           </div>
           <div>
-            <Label>How often?</Label>
+            <Label>Repeat</Label>
             <Select value={recurrence} onValueChange={setRecurrence}>
               <SelectTrigger className="rounded-xl mt-1"><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -109,6 +111,18 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
               </SelectContent>
             </Select>
           </div>
+          {recurrence !== "none" && (
+            <div>
+              <Label>End date (optional)</Label>
+              <Input
+                type="date"
+                className="rounded-xl mt-1"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+              />
+              <p className="text-xs text-muted-foreground mt-1">We'll stop scheduling after this date.</p>
+            </div>
+          )}
           {listing.price_model === "HOURLY" && (
             <div>
               <Label>Hours</Label>
@@ -134,7 +148,7 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
                 </div>
               )}
               <p className="text-xs text-slate-400 mt-1 flex items-center gap-1">
-                <Lock className="w-3 h-3" /> Using your saved address. Only shared after the parent approves.
+                <Lock className="w-3 h-3" /> Shared only after parent approval.
               </p>
             </div>
           )}
@@ -144,12 +158,11 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
           </div>
           <div className="bg-slate-50 rounded-xl p-4 text-sm space-y-1.5">
             <div className="flex justify-between"><span className="text-slate-500">Total (held in escrow)</span><span className="font-bold">{money(total)}</span></div>
-            <div className="flex justify-between text-xs text-slate-400"><span>Stripe processing fee (incl. payout)</span><span>{money(platform_fee)}</span></div>
             <div className="flex justify-between text-xs text-slate-400"><span>Teen earns</span><span>{money(net_amount)}</span></div>
           </div>
           <div className="flex items-start gap-2 bg-emerald-50 rounded-xl p-3 text-xs text-emerald-700">
             <ShieldCheck className="w-4 h-4 mt-0.5 shrink-0" />
-            Pay now to secure this booking — your payment is held in escrow until the job is confirmed complete. The teen's parent must approve first; if they decline, you get a full refund.
+            Payment is held in escrow until the job is done. Full refund if the parent declines.
           </div>
           <Button
             variant="outline"
@@ -188,7 +201,7 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
             <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto" />
             <p className="font-bold text-foreground">Booking created!</p>
             <p className="text-sm text-muted-foreground">
-              Your payment is held in escrow. The teen's parent needs to approve the booking before it's confirmed.
+              Held in escrow — the parent needs to approve before it's confirmed.
             </p>
             <Button className="w-full" onClick={() => { onOpenChange(false); navigate(`/bookings/${payBooking.id}`); }}>
               View booking

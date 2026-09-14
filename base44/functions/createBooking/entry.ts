@@ -16,7 +16,7 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { listingId, scheduledStart, address, notes, recurrence, hours, origin: clientOrigin } = await req.json();
+    const { listingId, scheduledStart, address, notes, recurrence, hours, endDate, origin: clientOrigin } = await req.json();
     if (!listingId) {
       return Response.json({ error: 'listingId is required' }, { status: 400 });
     }
@@ -217,6 +217,7 @@ Deno.serve(async (req) => {
         address: isOnline ? '' : address,
         notes: notes || '',
         price_total: total,
+        end_date: endDate || undefined,
         parent_approved: false,
         status: 'active',
         next_occurrence_at: nextAt.toISOString(),

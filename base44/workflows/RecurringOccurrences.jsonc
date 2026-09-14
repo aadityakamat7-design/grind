@@ -1,0 +1,44 @@
+{
+  "name": "Recurring Occurrences",
+  "description": "Daily: generate upcoming recurring-series booking occurrences and send reminders",
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "recurring",
+      "cron_expression": "0 6 * * *",
+      "one_time_date": null,
+      "timezone": "America/Los_Angeles",
+      "interval_value": null,
+      "interval_unit": null,
+      "interval_anchor": null,
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "recurring_occurrences",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "generate": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "generateRecurringOccurrences"
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Generate recurring occurrences",
+            "description": "Create upcoming bookings from active series"
+          }
+        }
+      }
+    ]
+  }
+}

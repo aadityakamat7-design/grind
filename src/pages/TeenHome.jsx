@@ -9,6 +9,7 @@ import { getVerifiedAgeFromPrivate } from "@/lib/stateWorkRules";
 import AlertParentButton from "@/components/grind/AlertParentButton";
 import InviteCodeCard from "@/components/grind/teen/InviteCodeCard";
 import ReferralShare from "@/components/grind/ReferralShare";
+import RecurringSeriesCard from "@/components/grind/RecurringSeriesCard";
 import MessagesWidget from "@/components/grind/teen/MessagesWidget";
 import CashOutDialog from "@/components/grind/wallet/CashOutDialog";
 import TeenStatsGrid from "@/components/grind/teen/TeenStatsGrid";
@@ -149,6 +150,7 @@ export default function TeenHome() {
 
         <InviteCodeCard profile={profile} onUpdated={load} />
         <ReferralShare user={user} />
+        <RecurringSeriesCard user={user} />
 
         {activeJobs.length > 0 && (
           <section>

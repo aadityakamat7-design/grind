@@ -18,6 +18,8 @@ import EarningsBreakdown from "@/components/grind/teen/EarningsBreakdown";
 import JobHandshakePanel from "@/components/grind/JobHandshakePanel";
 import CompletionPhotoUpload from "@/components/grind/CompletionPhotoUpload";
 import DisputeDialog from "@/components/grind/DisputeDialog";
+import RecurringSeriesManager from "@/components/grind/RecurringSeriesManager";
+import BookDialog from "@/components/grind/BookDialog";
 import CheckInTimeline from "@/components/grind/parent/CheckInTimeline";
 import VideoSessionPanel from "@/components/grind/VideoSessionPanel";
 import ErrorRetry from "@/components/grind/ErrorRetry";
@@ -37,6 +39,8 @@ export default function BookingDetail() {
   const [reschedOpen, setReschedOpen] = useState(false);
   const [photoUploadOpen, setPhotoUploadOpen] = useState(false);
   const [disputeOpen, setDisputeOpen] = useState(false);
+  const [bookAgainOpen, setBookAgainOpen] = useState(false);
+  const [bookAgainListing, setBookAgainListing] = useState(null);
   const [handshakeError, setHandshakeError] = useState("");
   const autoPromptedRef = useRef(false);
 
@@ -246,8 +250,11 @@ export default function BookingDetail() {
 
         <CheckInTimeline booking={booking} />
 
-
       </div>
+
+      {booking.recurring_series_id && (
+        <RecurringSeriesManager booking={booking} user={user} onChanged={load} />
+      )}
 
       <div className="space-y-3">
         {thread && (isTeen || isBuyer || isParent) && (
@@ -303,11 +310,14 @@ export default function BookingDetail() {
           </div>
         )}
         {isBuyer && booking.status === "completed" && (
-          <Link to={`/teens/${booking.teen_user_id}`}>
-            <Button variant="outline" className="w-full rounded-xl">
-              <Repeat className="w-4 h-4 mr-2" /> Book {booking.teen_display_name} again
-            </Button>
-          </Link>
+          <Button variant="outline" className="w-full rounded-xl" onClick={async () => {
+            try {
+              const listing = await base44.entities.Listing.get(booking.listing_id);
+              if (listing) { setBookAgainListing(listing); setBookAgainOpen(true); }
+            } catch { /* silent */ }
+          }}>
+            <Repeat className="w-4 h-4 mr-2" /> Book again
+          </Button>
         )}
         {canReview && booking.payment_status === "released" && (
           <Button variant="outline" className="w-full rounded-xl" onClick={() => setReviewOpen(true)}>
@@ -388,6 +398,15 @@ export default function BookingDetail() {
           onOpenChange={setDisputeOpen}
           booking={booking}
           onDone={load}
+        />
+      )}
+      {bookAgainOpen && bookAgainListing && (
+        <BookDialog
+          open={bookAgainOpen}
+          onOpenChange={setBookAgainOpen}
+          listing={bookAgainListing}
+          buyer={user}
+          buyerProfile={{ address: booking.address }}
         />
       )}
     </div>
