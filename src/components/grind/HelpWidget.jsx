@@ -35,9 +35,9 @@ export default function HelpWidget() {
       <button
         onClick={() => setOpen(true)}
         aria-label="Help & FAQ"
-        className="fixed bottom-[88px] lg:bottom-6 right-4 z-40 w-12 h-12 rounded-full bg-primary text-primary-foreground shadow-floating flex items-center justify-center active:scale-95 transition-transform"
+        className="fixed bottom-[80px] lg:bottom-4 right-3 z-40 w-9 h-9 rounded-full bg-primary text-primary-foreground shadow-floating flex items-center justify-center active:scale-95 transition-transform"
       >
-        <HelpCircle className="w-6 h-6" />
+        <HelpCircle className="w-4 h-4" />
       </button>
 
       {/* Sheet */}

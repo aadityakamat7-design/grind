@@ -16,12 +16,12 @@ export default function SiteFooter({ compact = false }) {
     { to: "/safety", label: "Safety" },
     { to: "/compliance", label: "Payments & Compliance" },
   ];
-  const pad = compact ? "py-3" : "py-5";
-  const gap = compact ? "gap-2" : "gap-3";
-  const contactText = compact ? "text-[11px]" : "text-sm";
-  const linkText = compact ? "text-[11px]" : "text-sm";
-  const badgeText = compact ? "text-[10px]" : "text-sm";
-  const minH = compact ? "min-h-[28px]" : "min-h-[44px]";
+  const pad = compact ? "py-2" : "py-5";
+  const gap = compact ? "gap-1.5" : "gap-3";
+  const contactText = compact ? "text-[10px]" : "text-sm";
+  const linkText = compact ? "text-[10px]" : "text-sm";
+  const badgeText = compact ? "text-[9px]" : "text-sm";
+  const minH = compact ? "min-h-[20px]" : "min-h-[44px]";
   return (
     <footer className="border-t border-border bg-card/40">
       <div className={`max-w-5xl mx-auto px-4 lg:px-8 ${pad}`}>
