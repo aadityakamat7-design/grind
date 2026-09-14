@@ -72,6 +72,17 @@
         "monthly"
       ]
     },
+    "recurring_series_id": {
+      "type": "string",
+      "description": "Links this booking to its RecurringSeries when it is part of a recurring schedule (server-set only)",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
     "teen_started_at": {
       "type": "string",
       "format": "date-time",

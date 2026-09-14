@@ -1,0 +1,241 @@
+{
+  "name": "RecurringSeries",
+  "type": "object",
+  "properties": {
+    "listing_id": {
+      "type": "string",
+      "description": "Listing this recurring series is based on"
+    },
+    "listing_title": {
+      "type": "string",
+      "description": "Denormalized for dashboard display"
+    },
+    "teen_user_id": {
+      "type": "string"
+    },
+    "teen_display_name": {
+      "type": "string"
+    },
+    "buyer_user_id": {
+      "type": "string"
+    },
+    "buyer_name": {
+      "type": "string"
+    },
+    "parent_user_id": {
+      "type": "string"
+    },
+    "recurrence": {
+      "type": "string",
+      "enum": [
+        "weekly",
+        "biweekly",
+        "monthly"
+      ],
+      "description": "How often occurrences are generated"
+    },
+    "day_of_week": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 6,
+      "description": "0=Sun through 6=Sat. Used for weekly and biweekly."
+    },
+    "day_of_month": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 31,
+      "description": "Day of month for monthly recurrence. If the month doesn't have that day, the last day of the month is used."
+    },
+    "start_time": {
+      "type": "string",
+      "description": "HH:mm \u2014 the time of day each occurrence starts"
+    },
+    "hours": {
+      "type": "number",
+      "description": "Estimated hours per occurrence (for hourly listings and work-hour limit checks)"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Optional last occurrence date \u2014 no occurrences are generated after this"
+    },
+    "next_occurrence_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the next booking occurrence should be generated (server-set only)",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "last_occurrence_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the most recent occurrence booking was generated (server-set only)",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "occurrence_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Total occurrences generated so far (server-set only)",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "delivery_mode": {
+      "type": "string",
+      "enum": [
+        "outdoor",
+        "online"
+      ]
+    },
+    "address": {
+      "type": "string",
+      "description": "Job address for outdoor occurrences (same as the first booking)"
+    },
+    "notes": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "price_total": {
+      "type": "number",
+      "description": "Per-occurrence price snapshot at series creation"
+    },
+    "parent_approved": {
+      "type": "boolean",
+      "default": false,
+      "description": "True once the first occurrence's parent approves \u2014 future occurrences skip parent approval and go straight to confirmed (server-set only)",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "paused",
+        "cancelled",
+        "ended"
+      ],
+      "default": "active",
+      "description": "active = generating occurrences; paused = temporarily stopped (can resume); cancelled = stopped permanently; ended = reached the end date (server-set only)",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "paused_at": {
+      "type": "string",
+      "format": "date-time",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "cancelled_at": {
+      "type": "string",
+      "format": "date-time",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "skip_next": {
+      "type": "boolean",
+      "default": false,
+      "description": "When true, the next occurrence is skipped and the flag is cleared after advancing (server-set only)",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    }
+  },
+  "required": [
+    "listing_id",
+    "teen_user_id",
+    "buyer_user_id",
+    "recurrence",
+    "start_time"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "$or": [
+        {
+          "data.buyer_user_id": "{{user.id}}"
+        },
+        {
+          "data.teen_user_id": "{{user.id}}"
+        },
+        {
+          "data.parent_user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.buyer_user_id": "{{user.id}}"
+        },
+        {
+          "data.teen_user_id": "{{user.id}}"
+        },
+        {
+          "data.parent_user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

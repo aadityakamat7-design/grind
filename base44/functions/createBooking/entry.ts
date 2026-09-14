@@ -7,6 +7,7 @@ import { enforceBookingHours } from '../../shared/workHourEnforcement.ts';
 import { calculatePlatformFee, calculateNetAmount } from '../../shared/platformFee.ts';
 import { notifyParentApprovalNeeded } from '../../shared/notifyParent.ts';
 import { APP_BASE_URL, getSafeOrigin, safeOriginFromString } from '../../shared/safeOrigin.ts';
+import { nextOccurrenceDate } from '../../shared/recurringDates.ts';
 import { getStripeContext } from '../../shared/stripeEnv.ts';
 
 Deno.serve(async (req) => {
@@ -164,6 +165,8 @@ Deno.serve(async (req) => {
     const buyerName = user.full_name?.split(' ')[0] || 'Neighbor';
     const bookingStatus = 'pending_parent_approval';
 
+    const isRecurring = !!recurrence && recurrence !== 'none';
+
     const booking = await base44.asServiceRole.entities.Booking.create({
       listing_id: listing.id,
       listing_title: listing.title,
@@ -177,8 +180,8 @@ Deno.serve(async (req) => {
       address: isOnline ? '' : address,
       is_physical: !isOnline,
       notes: notes || '',
-      is_recurring: !!recurrence && recurrence !== 'none',
-      recurrence: recurrence && recurrence !== 'none' ? recurrence : undefined,
+      is_recurring: isRecurring,
+      recurrence: isRecurring ? recurrence : undefined,
       status: bookingStatus,
       price_total: total,
       charge_amount: buyerPays,
@@ -186,6 +189,44 @@ Deno.serve(async (req) => {
       platform_fee,
       net_amount,
     });
+
+    // When recurring, create a RecurringSeries to track and generate
+    // future occurrences. The first booking is the first occurrence.
+    let recurringSeriesId: string | undefined;
+    if (isRecurring && scheduledStart) {
+      const startDate = new Date(scheduledStart);
+      const dayOfWeek = startDate.getDay();
+      const dayOfMonth = startDate.getDate();
+      const timeOfDay = `${startDate.getHours().toString().padStart(2, '0')}:${startDate.getMinutes().toString().padStart(2, '0')}`;
+      const nextAt = nextOccurrenceDate(recurrence, startDate, dayOfWeek, dayOfMonth, timeOfDay);
+
+      const series = await base44.asServiceRole.entities.RecurringSeries.create({
+        listing_id: listing.id,
+        listing_title: listing.title,
+        teen_user_id: listing.teen_user_id,
+        teen_display_name: listing.teen_display_name,
+        buyer_user_id: user.id,
+        buyer_name: buyerName,
+        parent_user_id: parentUserId,
+        recurrence,
+        day_of_week: dayOfWeek,
+        day_of_month: dayOfMonth,
+        start_time: timeOfDay,
+        hours: estimatedHours,
+        delivery_mode: deliveryMode,
+        address: isOnline ? '' : address,
+        notes: notes || '',
+        price_total: total,
+        parent_approved: false,
+        status: 'active',
+        next_occurrence_at: nextAt.toISOString(),
+        occurrence_count: 1,
+      });
+      recurringSeriesId = series.id;
+      await base44.asServiceRole.entities.Booking.update(booking.id, {
+        recurring_series_id: series.id,
+      });
+    }
 
     // For online jobs, generate the video session link now that we have the
     // booking ID, and attach it to the booking.
