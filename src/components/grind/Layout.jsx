@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Outlet, NavLink, Navigate, Link, useLocation, useNavigate } from "react-router-dom";
 import { Home, List, CalendarDays, MessageCircle, Wallet, LayoutDashboard, ShieldCheck, Search, Briefcase, ArrowLeft, LifeBuoy, MoreHorizontal, BarChart3 } from "lucide-react";
 import { useAppUser } from "@/lib/useAppUser";
@@ -69,12 +69,33 @@ const RESTRICTED_PREFIXES = [
   { prefix: "/admin", role: "admin" },
 ];
 
+// All primary tab paths across every role — used to save/restore scroll
+// positions when switching tabs so each tab remembers where it was.
+const PRIMARY_TAB_PATHS = new Set(
+  Object.values(TABS).flatMap((role) => role.primary.map((t) => t.to))
+);
+
 export default function Layout() {
   const { user, loading, reload } = useAppUser();
   const location = useLocation();
   const navigate = useNavigate();
   const [moreOpen, setMoreOpen] = useState(false);
   const isChildPage = /^\/(bookings|messages|teens|neighbors)\/.+/.test(location.pathname);
+
+  // Preserve per-tab scroll offset: save when leaving a primary tab,
+  // restore when returning. ScrollToTop still fires for first visits.
+  const scrollPositions = useRef({});
+  useEffect(() => {
+    const path = location.pathname;
+    if (!PRIMARY_TAB_PATHS.has(path)) return;
+    const saved = scrollPositions.current[path];
+    if (saved != null) {
+      requestAnimationFrame(() => window.scrollTo({ top: saved, behavior: "auto" }));
+    }
+    return () => {
+      scrollPositions.current[path] = window.scrollY;
+    };
+  }, [location.pathname]);
 
   if (loading) {
     return (
@@ -146,7 +167,7 @@ export default function Layout() {
           </Link>
         </div>
         <div className="flex-1 overflow-y-auto px-3.5 py-5">
-          <p className="px-3 mb-2.5 text-[10px] font-bold uppercase tracking-[0.08em] text-muted-foreground/70">
+          <p className="px-3 mb-2.5 text-sm font-bold uppercase tracking-[0.08em] text-muted-foreground/70">
             {roleLabel}
           </p>
           <nav className="flex flex-col gap-1">
@@ -176,7 +197,7 @@ export default function Layout() {
             })}
             {secondaryTabs.length > 0 && (
               <>
-                <p className="px-3.5 mt-4 mb-2 text-[10px] font-bold uppercase tracking-[0.08em] text-muted-foreground/70">
+                <p className="px-3.5 mt-4 mb-2 text-sm font-bold uppercase tracking-[0.08em] text-muted-foreground/70">
                   More
                 </p>
                 {secondaryTabs.map((tab) => {
@@ -213,7 +234,7 @@ export default function Layout() {
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-[13px] font-semibold truncate text-foreground">{user.full_name || user.email}</p>
-              <p className="text-[11px] text-muted-foreground truncate">{roleLabel}</p>
+              <p className="text-sm text-muted-foreground truncate">{roleLabel}</p>
             </div>
           </Link>
           <Link to="/support" className="flex items-center gap-3 rounded-xl px-3 py-2 mt-1 text-[13px] font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors">
@@ -294,7 +315,7 @@ export default function Layout() {
                   if (location.pathname === tab.to) window.scrollTo({ top: 0, behavior: "smooth" });
                 }}
                 className={({ isActive }) =>
-                  `flex flex-col items-center justify-center gap-1 py-2.5 px-2 text-[10px] font-semibold transition-colors duration-200 min-w-[44px] min-h-[44px] ${
+                  `flex flex-col items-center justify-center gap-1 py-2.5 px-2 text-sm font-semibold transition-colors duration-200 min-w-[44px] min-h-[44px] ${
                     isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
                   }`
                 }
@@ -307,7 +328,7 @@ export default function Layout() {
           {secondaryTabs.length > 0 && (
             <button
               onClick={() => setMoreOpen(true)}
-              className="flex flex-col items-center justify-center gap-1 py-2.5 px-2 text-[10px] font-semibold text-muted-foreground hover:text-foreground transition-colors duration-200 min-w-[44px] min-h-[44px]"
+              className="flex flex-col items-center justify-center gap-1 py-2.5 px-2 text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors duration-200 min-w-[44px] min-h-[44px]"
             >
               <MoreHorizontal className="w-[22px] h-[22px]" strokeWidth={2.2} />
               More

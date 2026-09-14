@@ -1,6 +1,7 @@
 import React from "react";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
+import ResponsiveSelect from "@/components/grind/ResponsiveSelect";
 import { DAY_LABELS, WEEKDAY_ORDER, getLegalSlotsForDayOfWeek } from "@/lib/availability";
 
 export default function AvailabilityPicker({ value = [], onChange, hourLimits }) {
@@ -79,30 +80,23 @@ export default function AvailabilityPicker({ value = [], onChange, hourLimits })
               </button>
               {enabled && legal.length > 0 && (
                 <div className="flex items-center gap-1.5">
-                  <select
-                    value={slot.start}
-                    onChange={(e) => updateSlot(day, "start", e.target.value)}
-                    className="text-xs rounded-lg border border-border bg-background px-2 py-1.5"
-                  >
-                    {legal.map((s) => (
-                      <option key={s.value} value={s.value}>
-                        {s.label}
-                      </option>
-                    ))}
-                  </select>
-                  <span className="text-xs text-muted-foreground">–</span>
-                  <select
-                    value={slot.end}
-                    onChange={(e) => updateSlot(day, "end", e.target.value)}
-                    className="text-xs rounded-lg border border-border bg-background px-2 py-1.5"
-                  >
-                    {endOptions.map((s) => (
-                      <option key={s.value} value={s.value}>
-                        {s.label}
-                      </option>
-                    ))}
-                    {!endValid && <option value={slot.end}>{slot.end}</option>}
-                  </select>
+                  <div className="flex-1 min-w-0">
+                    <ResponsiveSelect
+                      value={slot.start}
+                      onValueChange={(v) => updateSlot(day, "start", v)}
+                      options={legal}
+                      title="Start time"
+                    />
+                  </div>
+                  <span className="text-xs text-muted-foreground shrink-0">–</span>
+                  <div className="flex-1 min-w-0">
+                    <ResponsiveSelect
+                      value={slot.end}
+                      onValueChange={(v) => updateSlot(day, "end", v)}
+                      options={endValid ? endOptions : [...endOptions, { value: slot.end, label: slot.end }]}
+                      title="End time"
+                    />
+                  </div>
                 </div>
               )}
             </div>

@@ -64,7 +64,7 @@ function ChartCard({ title, data, valueKey, dateKey, color, moneyFormat }) {
             <button
               key={r}
               onClick={() => setRange(r)}
-              className={`px-2.5 py-1 rounded-full text-[11px] font-semibold transition-colors ${
+              className={`px-2.5 py-1 rounded-full text-sm font-semibold transition-colors ${
                 range === r ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground hover:text-foreground"
               }`}
             >
@@ -83,9 +83,9 @@ function ChartCard({ title, data, valueKey, dateKey, color, moneyFormat }) {
               </linearGradient>
             </defs>
             <YAxis domain={[0, "auto"]} hide />
-            <XAxis dataKey="label" tick={{ fill: "hsl(210 19% 45%)", fontSize: 11 }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
+            <XAxis dataKey="label" tick={{ fill: "hsl(210 19% 45%)", fontSize: 14 }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
             <Tooltip
-              contentStyle={{ background: "hsl(214 60% 98%)", border: "1px solid hsl(213 56% 93%)", borderRadius: 12, color: "hsl(213 66% 17%)", fontSize: 12 }}
+              contentStyle={{ background: "hsl(214 60% 98%)", border: "1px solid hsl(213 56% 93%)", borderRadius: 12, color: "hsl(213 66% 17%)", fontSize: 14 }}
               formatter={(v) => [fmt(v), moneyFormat ? "Value" : "Count"]}
             />
             <Area type="monotone" dataKey="amount" stroke={color} strokeWidth={2} fill={`url(#grad-${title.replace(/\s/g, "")})`} dot={false} activeDot={{ fill: color, r: 4, strokeWidth: 0 }} />

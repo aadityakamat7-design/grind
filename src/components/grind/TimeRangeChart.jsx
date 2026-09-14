@@ -63,7 +63,7 @@ export function EarningsAreaChart({ data, valueKey = "net_amount", dateKey = "oc
           <button
             key={r}
             onClick={() => setRange(r)}
-            className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+            className={`shrink-0 px-3 py-1.5 rounded-full text-sm font-semibold transition-colors ${
               range === r ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground hover:text-foreground"
             }`}
           >
@@ -81,9 +81,9 @@ export function EarningsAreaChart({ data, valueKey = "net_amount", dateKey = "oc
               </linearGradient>
             </defs>
             <YAxis domain={[0, "auto"]} hide />
-            <XAxis dataKey="label" tick={{ fill: "hsl(210 19% 45%)", fontSize: 11 }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
+            <XAxis dataKey="label" tick={{ fill: "hsl(210 19% 45%)", fontSize: 14 }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
             <Tooltip
-              contentStyle={{ background: "hsl(214 60% 98%)", border: "1px solid hsl(213 56% 93%)", borderRadius: 12, color: "hsl(213 66% 17%)", fontSize: 12 }}
+              contentStyle={{ background: "hsl(214 60% 98%)", border: "1px solid hsl(213 56% 93%)", borderRadius: 12, color: "hsl(213 66% 17%)", fontSize: 14 }}
               formatter={(v) => [fmt(v), "Amount"]}
             />
             <Area type="monotone" dataKey="amount" stroke={color} strokeWidth={2} fill="url(#areaGrad)" dot={false} activeDot={{ fill: color, r: 4, strokeWidth: 0 }} />
@@ -103,9 +103,9 @@ export function CategoryBarChart({ data, height = 200 }) {
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} layout="vertical" margin={{ top: 0, right: 16, left: 0, bottom: 0 }}>
             <XAxis type="number" hide />
-            <YAxis type="category" dataKey="label" tick={{ fill: "hsl(210 19% 45%)", fontSize: 12 }} axisLine={false} tickLine={false} width={100} />
+            <YAxis type="category" dataKey="label" tick={{ fill: "hsl(210 19% 45%)", fontSize: 14 }} axisLine={false} tickLine={false} width={100} />
             <Tooltip
-              contentStyle={{ background: "hsl(214 60% 98%)", border: "1px solid hsl(213 56% 93%)", borderRadius: 12, color: "hsl(213 66% 17%)", fontSize: 12 }}
+              contentStyle={{ background: "hsl(214 60% 98%)", border: "1px solid hsl(213 56% 93%)", borderRadius: 12, color: "hsl(213 66% 17%)", fontSize: 14 }}
               formatter={(v) => [`$${Number(v || 0).toFixed(2)}`, "Earned"]}
               cursor={{ fill: "hsl(213 56% 95%)" }}
             />

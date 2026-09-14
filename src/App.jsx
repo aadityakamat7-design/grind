@@ -10,47 +10,50 @@ import ScrollToTop from './components/ScrollToTop';
 import TestModeBanner from "@/components/TestModeBanner";
 import RouteMeta from "@/components/RouteMeta";
 import CanonicalDomainRedirect from "@/components/CanonicalDomainRedirect";
+import { lazy, Suspense } from 'react';
 // Add page imports here
-import Login from '@/pages/Login';
-import Register from '@/pages/Register';
-import ForgotPassword from '@/pages/ForgotPassword';
-import ResetPassword from '@/pages/ResetPassword';
+// Route-level code splitting: lazy-load pages so the initial bundle stays
+// small. Layout and AdminRoute stay eager (they wrap/guard routes).
+const Login = lazy(() => import('@/pages/Login'));
+const Register = lazy(() => import('@/pages/Register'));
+const ForgotPassword = lazy(() => import('@/pages/ForgotPassword'));
+const ResetPassword = lazy(() => import('@/pages/ResetPassword'));
 import Layout from '@/components/grind/Layout';
-import Welcome from '@/pages/Welcome';
-import Onboarding from '@/pages/Onboarding';
-import Account from '@/pages/Account';
-import TeenHome from '@/pages/TeenHome';
-import TeenListings from '@/pages/TeenListings';
-import TeenBookings from '@/pages/TeenBookings';
-import TeenEarnings from '@/pages/TeenEarnings';
-import TeenWallet from '@/pages/TeenWallet';
-import ParentDashboard from '@/pages/ParentDashboard';
-import ParentApprovals from '@/pages/ParentApprovals';
-import ParentPayouts from '@/pages/ParentPayouts';
-import Browse from '@/pages/Browse';
-import JobBoard from '@/pages/JobBoard';
-import BuyerHome from '@/pages/BuyerHome';
-import TeenPublicProfile from '@/pages/TeenPublicProfile';
-import BuyerPublicProfile from '@/pages/BuyerPublicProfile';
-import BuyerBookings from '@/pages/BuyerBookings';
-import BookingDetail from '@/pages/BookingDetail';
-import VideoRoom from '@/pages/VideoRoom';
-import Messages from '@/pages/Messages';
-import ChatThread from '@/pages/ChatThread';
-import Notifications from '@/pages/Notifications';
-import Admin from '@/pages/Admin';
+const Welcome = lazy(() => import('@/pages/Welcome'));
+const Onboarding = lazy(() => import('@/pages/Onboarding'));
+const Account = lazy(() => import('@/pages/Account'));
+const TeenHome = lazy(() => import('@/pages/TeenHome'));
+const TeenListings = lazy(() => import('@/pages/TeenListings'));
+const TeenBookings = lazy(() => import('@/pages/TeenBookings'));
+const TeenEarnings = lazy(() => import('@/pages/TeenEarnings'));
+const TeenWallet = lazy(() => import('@/pages/TeenWallet'));
+const ParentDashboard = lazy(() => import('@/pages/ParentDashboard'));
+const ParentApprovals = lazy(() => import('@/pages/ParentApprovals'));
+const ParentPayouts = lazy(() => import('@/pages/ParentPayouts'));
+const Browse = lazy(() => import('@/pages/Browse'));
+const JobBoard = lazy(() => import('@/pages/JobBoard'));
+const BuyerHome = lazy(() => import('@/pages/BuyerHome'));
+const TeenPublicProfile = lazy(() => import('@/pages/TeenPublicProfile'));
+const BuyerPublicProfile = lazy(() => import('@/pages/BuyerPublicProfile'));
+const BuyerBookings = lazy(() => import('@/pages/BuyerBookings'));
+const BookingDetail = lazy(() => import('@/pages/BookingDetail'));
+const VideoRoom = lazy(() => import('@/pages/VideoRoom'));
+const Messages = lazy(() => import('@/pages/Messages'));
+const ChatThread = lazy(() => import('@/pages/ChatThread'));
+const Notifications = lazy(() => import('@/pages/Notifications'));
+const Admin = lazy(() => import('@/pages/Admin'));
 import AdminRoute from '@/components/grind/AdminRoute';
-import TermsOfService from '@/pages/TermsOfService';
-import PrivacyPolicy from '@/pages/PrivacyPolicy';
-import Compliance from '@/pages/Compliance';
-import Support from '@/pages/Support';
-import Safety from '@/pages/Safety';
-import About from '@/pages/About';
-import Faq from '@/pages/Faq';
-import HowItWorks from '@/pages/HowItWorks';
-import OAuthConsent from '@/pages/OAuthConsent';
-import WithdrawalAssistant from '@/pages/WithdrawalAssistant';
-import ResolveExpiredJob from '@/pages/ResolveExpiredJob';
+const TermsOfService = lazy(() => import('@/pages/TermsOfService'));
+const PrivacyPolicy = lazy(() => import('@/pages/PrivacyPolicy'));
+const Compliance = lazy(() => import('@/pages/Compliance'));
+const Support = lazy(() => import('@/pages/Support'));
+const Safety = lazy(() => import('@/pages/Safety'));
+const About = lazy(() => import('@/pages/About'));
+const Faq = lazy(() => import('@/pages/Faq'));
+const HowItWorks = lazy(() => import('@/pages/HowItWorks'));
+const OAuthConsent = lazy(() => import('@/pages/OAuthConsent'));
+const WithdrawalAssistant = lazy(() => import('@/pages/WithdrawalAssistant'));
+const ResolveExpiredJob = lazy(() => import('@/pages/ResolveExpiredJob'));
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -90,50 +93,17 @@ const AuthenticatedApp = () => {
         exit={{ opacity: 0, x: -24 }}
         transition={{ duration: 0.2, ease: "easeOut" }}
       >
+        <Suspense fallback={
+          <div className="flex justify-center py-24">
+            <div className="w-10 h-10 border-[3px] border-muted border-t-primary rounded-full animate-spin" />
+          </div>
+        }>
         <Routes location={location}>
       {/* Add your page Route elements here */}
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route path="/reset-password" element={<ResetPassword />} />
-      <Route path="/" element={<Welcome />} />
-      <Route path="/terms" element={<TermsOfService />} />
-      <Route path="/privacy" element={<PrivacyPolicy />} />
-      <Route path="/compliance" element={<Compliance />} />
-      <Route path="/support" element={<Support />} />
-      <Route path="/safety" element={<Safety />} />
-      <Route path="/about" element={<About />} />
-      <Route path="/faq" element={<Faq />} />
-      <Route path="/how-it-works" element={<HowItWorks />} />
-      <Route path="/oauth/consent" element={<OAuthConsent />} />
-      <Route path="/onboarding" element={<Onboarding />} />
-      <Route path="/bookings/:bookingId/video" element={<VideoRoom />} />
-      <Route element={<Layout />}>
-        <Route path="/account" element={<Account />} />
-        <Route path="/teen" element={<TeenHome />} />
-        <Route path="/teen/listings" element={<TeenListings />} />
-        <Route path="/teen/bookings" element={<TeenBookings />} />
-        <Route path="/teen/earnings" element={<TeenEarnings />} />
-        <Route path="/teen/wallet" element={<TeenWallet />} />
-        <Route path="/parent" element={<ParentDashboard />} />
-        <Route path="/parent/approvals" element={<ParentApprovals />} />
-        <Route path="/parent/payouts" element={<ParentPayouts />} />
-        <Route path="/buyer" element={<BuyerHome />} />
-        <Route path="/browse" element={<Browse />} />
-        <Route path="/jobs" element={<JobBoard />} />
-        <Route path="/jobs/:jobId/resolve" element={<ResolveExpiredJob />} />
-        <Route path="/teens/:teenUserId" element={<TeenPublicProfile />} />
-        <Route path="/neighbors/:buyerUserId" element={<BuyerPublicProfile />} />
-        <Route path="/buyer/bookings" element={<BuyerBookings />} />
-        <Route path="/bookings/:bookingId" element={<BookingDetail />} />
-        <Route path="/messages" element={<Messages />} />
-        <Route path="/messages/:threadId" element={<ChatThread />} />
-        <Route path="/notifications" element={<Notifications />} />
-        <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
-        <Route path="/withdrawal-assistant" element={<WithdrawalAssistant />} />
-      </Route>
+...
       <Route path="*" element={<PageNotFound />} />
         </Routes>
+        </Suspense>
       </motion.div>
     </AnimatePresence>
   );

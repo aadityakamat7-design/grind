@@ -7,6 +7,7 @@ import { Download, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/grind/PageHeader";
 import { money } from "@/lib/grind";
+import PullToRefresh from "@/components/PullToRefresh";
 
 const fmt = (n) => `$${Number(n || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 const fmtChange = (n) => `${n >= 0 ? "+" : "\u2212"}$${Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -171,6 +172,7 @@ export default function TeenEarnings() {
   };
 
   return (
+    <PullToRefresh onRefresh={load}>
     <div className="space-y-6">
       <PageHeader title="Earnings">
         {records.length > 0 && (
@@ -225,13 +227,13 @@ export default function TeenEarnings() {
               <YAxis domain={[0, "auto"]} hide />
               <XAxis
                 dataKey="label"
-                tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }}
+                tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 14 }}
                 axisLine={false}
                 tickLine={false}
                 interval="preserveStartEnd"
               />
               <Tooltip
-                contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 12, color: "hsl(var(--foreground))", fontSize: 12 }}
+                contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 12, color: "hsl(var(--foreground))", fontSize: 14 }}
                 labelStyle={{ color: "hsl(var(--muted-foreground))" }}
                 formatter={(v) => [fmt(v), "Earned"]}
               />
@@ -257,7 +259,7 @@ export default function TeenEarnings() {
           { label: "Paid Out", value: paidOut, color: "text-success" },
         ].map((s) => (
           <div key={s.label} className="bg-card rounded-2xl border border-border p-3.5">
-            <p className="text-[11px] font-medium text-muted-foreground">{s.label}</p>
+            <p className="text-sm font-medium text-muted-foreground">{s.label}</p>
             <p className={`font-display text-xl font-bold mt-1 ${s.color}`}>{fmt(s.value)}</p>
           </div>
         ))}
@@ -286,7 +288,7 @@ export default function TeenEarnings() {
                 </div>
                 <div className="flex items-center gap-2.5 shrink-0 ml-3">
                   <span
-                    className="text-[10px] font-medium px-2 py-0.5 rounded-full"
+                    className="text-sm font-medium px-2 py-0.5 rounded-full"
                     style={{ color: st.color, background: `${st.color}1a` }}
                   >
                     {st.label}
@@ -301,5 +303,6 @@ export default function TeenEarnings() {
         </div>
       </div>
     </div>
+    </PullToRefresh>
   );
 }

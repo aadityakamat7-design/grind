@@ -8,13 +8,13 @@ function ProfileMock() {
       <div className="flex items-center gap-2">
         <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground text-xs font-bold">A</div>
         <div>
-          <div className="text-[11px] font-semibold text-foreground">Ava R.</div>
-          <div className="text-[9px] text-muted-foreground">Tutoring · Pet sitting</div>
+          <div className="text-sm font-semibold text-foreground">Ava R.</div>
+          <div className="text-sm text-muted-foreground">Tutoring · Pet sitting</div>
         </div>
       </div>
       <div className="flex gap-1.5">
         {["Math", "Dogs", "Weekends"].map((t) => (
-          <span key={t} className="rounded-full bg-secondary px-2 py-0.5 text-[9px] font-medium text-muted-foreground">{t}</span>
+          <span key={t} className="rounded-full bg-secondary px-2 py-0.5 text-sm font-medium text-muted-foreground">{t}</span>
         ))}
       </div>
     </div>
@@ -25,10 +25,10 @@ function HiredMock() {
   return (
     <div className="rounded-xl bg-muted border border-border p-3 space-y-2">
       <div className="flex items-center justify-between">
-        <span className="text-[11px] font-semibold text-foreground">Lawn mowing</span>
-        <span className="text-[11px] font-bold text-foreground">$40</span>
+        <span className="text-sm font-semibold text-foreground">Lawn mowing</span>
+        <span className="text-sm font-bold text-foreground">$40</span>
       </div>
-      <div className="rounded-lg bg-primary px-2 py-1.5 text-center text-[10px] font-medium text-primary-foreground">
+      <div className="rounded-lg bg-primary px-2 py-1.5 text-center text-sm font-medium text-primary-foreground">
         Booking confirmed ✓
       </div>
     </div>
@@ -38,9 +38,9 @@ function HiredMock() {
 function PaidMock() {
   return (
     <div className="rounded-xl bg-muted border border-border p-3 space-y-2">
-      <div className="text-[9px] text-muted-foreground">Wallet balance</div>
+      <div className="text-sm text-muted-foreground">Wallet balance</div>
       <div className="text-lg font-bold text-foreground">$262.50</div>
-      <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+      <div className="flex items-center gap-1 text-sm text-muted-foreground">
         <Star className="w-3 h-3 fill-foreground text-foreground" /> New 5-star review
       </div>
     </div>
@@ -50,16 +50,16 @@ function PaidMock() {
 function BrowseMock() {
   return (
     <div className="rounded-xl bg-muted border border-border p-3 space-y-2">
-      <div className="flex items-center gap-1.5 text-[9px] text-muted-foreground">
+      <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
         <Search className="w-3 h-3" /> Services near 30327
       </div>
       {[["Jordan P.", "Lawn care", "4.9"], ["Ava R.", "Tutoring", "5.0"]].map(([n, s, r]) => (
         <div key={n} className="flex items-center justify-between rounded-lg bg-card border border-border px-2 py-1.5">
           <div>
-            <span className="text-[10px] font-semibold text-foreground">{n}</span>
-            <span className="text-[9px] text-muted-foreground ml-1.5">{s}</span>
+            <span className="text-sm font-semibold text-foreground">{n}</span>
+            <span className="text-sm text-muted-foreground ml-1.5">{s}</span>
           </div>
-          <span className="flex items-center gap-0.5 text-[9px] font-semibold text-foreground">
+          <span className="flex items-center gap-0.5 text-sm font-semibold text-foreground">
             <Star className="w-2.5 h-2.5 fill-foreground" /> {r}
           </span>
         </div>
@@ -74,13 +74,13 @@ function ChooseMock() {
       <div className="flex items-center gap-2">
         <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground text-xs font-bold">J</div>
         <div>
-          <div className="text-[11px] font-semibold text-foreground">Jordan P. <span className="text-[9px] text-muted-foreground">✓ Verified</span></div>
-          <div className="flex items-center gap-0.5 text-[9px] font-semibold text-foreground">
+          <div className="text-sm font-semibold text-foreground">Jordan P. <span className="text-sm text-muted-foreground">✓ Verified</span></div>
+          <div className="flex items-center gap-0.5 text-sm font-semibold text-foreground">
             <Star className="w-2.5 h-2.5 fill-foreground" /> 4.9 · 32 jobs
           </div>
         </div>
       </div>
-      <div className="rounded-lg bg-primary px-2 py-1.5 text-center text-[10px] font-medium text-primary-foreground">Book for Saturday</div>
+      <div className="rounded-lg bg-primary px-2 py-1.5 text-center text-sm font-medium text-primary-foreground">Book for Saturday</div>
     </div>
   );
 }
@@ -88,14 +88,14 @@ function ChooseMock() {
 function PaySecureMock() {
   return (
     <div className="rounded-xl bg-muted border border-border p-3 space-y-2">
-      <div className="flex items-center gap-1.5 text-[9px] text-muted-foreground">
+      <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
         <Lock className="w-3 h-3" /> Paid to Blockwork — held securely
       </div>
       <div className="flex items-center justify-between">
-        <span className="text-[10px] font-semibold text-foreground">Lawn mowing</span>
-        <span className="text-[11px] font-bold text-foreground">$40.00</span>
+        <span className="text-sm font-semibold text-foreground">Lawn mowing</span>
+        <span className="text-sm font-bold text-foreground">$40.00</span>
       </div>
-      <div className="rounded-lg bg-primary px-2 py-1.5 text-center text-[10px] font-medium text-primary-foreground">
+      <div className="rounded-lg bg-primary px-2 py-1.5 text-center text-sm font-medium text-primary-foreground">
         Job done → teen paid ✓
       </div>
     </div>

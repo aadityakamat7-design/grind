@@ -28,24 +28,24 @@ export default function SafetyEscrowCenter({ bookings, reports, onResolveReport,
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           <div className="rounded-xl bg-amber-50 border border-amber-100 p-4">
-            <p className="text-[11px] font-semibold text-amber-700 uppercase tracking-wide">Held in escrow</p>
+            <p className="text-sm font-semibold text-amber-700 uppercase tracking-wide">Held in escrow</p>
             <p className="text-2xl font-bold text-foreground mt-1">{money(totalHeld)}</p>
-            <p className="text-[11px] text-muted-foreground mt-0.5">{escrowHeld.length} bookings</p>
+            <p className="text-sm text-muted-foreground mt-0.5">{escrowHeld.length} bookings</p>
           </div>
           <div className="rounded-xl bg-primary/5 border border-primary/10 p-4">
-            <p className="text-[11px] font-semibold text-primary uppercase tracking-wide">Releasing</p>
+            <p className="text-sm font-semibold text-primary uppercase tracking-wide">Releasing</p>
             <p className="text-2xl font-bold text-foreground mt-1">{money(totalReleasing)}</p>
-            <p className="text-[11px] text-muted-foreground mt-0.5">{escrowReleasing.length} bookings</p>
+            <p className="text-sm text-muted-foreground mt-0.5">{escrowReleasing.length} bookings</p>
           </div>
           <div className="rounded-xl bg-emerald-50 border border-emerald-100 p-4">
-            <p className="text-[11px] font-semibold text-emerald-700 uppercase tracking-wide">Released</p>
+            <p className="text-sm font-semibold text-emerald-700 uppercase tracking-wide">Released</p>
             <p className="text-2xl font-bold text-foreground mt-1">{escrowReleased.length}</p>
-            <p className="text-[11px] text-muted-foreground mt-0.5">all time</p>
+            <p className="text-sm text-muted-foreground mt-0.5">all time</p>
           </div>
           <div className="rounded-xl bg-red-50 border border-red-100 p-4">
-            <p className="text-[11px] font-semibold text-red-700 uppercase tracking-wide">Refunded</p>
+            <p className="text-sm font-semibold text-red-700 uppercase tracking-wide">Refunded</p>
             <p className="text-2xl font-bold text-foreground mt-1">{escrowRefunded.length}</p>
-            <p className="text-[11px] text-muted-foreground mt-0.5">all time</p>
+            <p className="text-sm text-muted-foreground mt-0.5">all time</p>
           </div>
         </div>
       </div>
@@ -59,7 +59,7 @@ export default function SafetyEscrowCenter({ bookings, reports, onResolveReport,
               <h2 className="text-[17px] font-bold text-foreground">Pending Safety Reports</h2>
             </div>
             {urgentReports.length > 0 && (
-              <span className="text-[10px] font-bold px-2 py-1 rounded-full bg-red-600 text-white">
+              <span className="text-sm font-bold px-2 py-1 rounded-full bg-red-600 text-white">
                 {urgentReports.length} URGENT
               </span>
             )}
@@ -84,7 +84,7 @@ export default function SafetyEscrowCenter({ bookings, reports, onResolveReport,
                           {r.subject_name || "General report"}
                         </p>
                       </div>
-                      <p className="text-[11px] text-muted-foreground mt-0.5">
+                      <p className="text-sm text-muted-foreground mt-0.5">
                         {r.reason?.replace(/_/g, " ")} · {new Date(r.created_date).toLocaleDateString()}
                       </p>
                       {r.details && <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{r.details}</p>}
@@ -92,7 +92,7 @@ export default function SafetyEscrowCenter({ bookings, reports, onResolveReport,
                     <button
                       onClick={() => onResolveReport(r)}
                       disabled={acting}
-                      className="text-[11px] font-semibold text-primary hover:underline shrink-0 disabled:opacity-50"
+                      className="text-sm font-semibold text-primary hover:underline shrink-0 disabled:opacity-50"
                     >
                       Resolve
                     </button>
@@ -125,20 +125,20 @@ export default function SafetyEscrowCenter({ bookings, reports, onResolveReport,
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
                       <p className="text-sm font-semibold text-foreground truncate">{b.listing_title || "Booking"}</p>
-                      <p className="text-[11px] text-muted-foreground mt-0.5">
+                      <p className="text-sm text-muted-foreground mt-0.5">
                         {b.teen_display_name} · {b.buyer_name || "Neighbor"}
                       </p>
-                      <p className="text-[11px] text-muted-foreground mt-0.5">
+                      <p className="text-sm text-muted-foreground mt-0.5">
                         {b.dispute_flagged_at && `Flagged ${new Date(b.dispute_flagged_at).toLocaleDateString()}`}
                         {b.buyer_disputed_at && `${b.dispute_flagged_at ? " · " : ""}Disputed ${new Date(b.buyer_disputed_at).toLocaleDateString()}`}
                       </p>
                       {b.dispute_reason && <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{b.dispute_reason}</p>}
                     </div>
                     <div className="shrink-0 text-right">
-                      <span className="text-[10px] font-bold px-2 py-1 rounded-full bg-amber-100 text-amber-700">
+                      <span className="text-sm font-bold px-2 py-1 rounded-full bg-amber-100 text-amber-700">
                         {b.status === "disputed" ? "DISPUTED" : "FLAGGED"}
                       </span>
-                      <p className="text-[11px] text-muted-foreground mt-1">{money(b.charge_amount || b.price_total || 0)}</p>
+                      <p className="text-sm text-muted-foreground mt-1">{money(b.charge_amount || b.price_total || 0)}</p>
                     </div>
                   </div>
                 </Link>

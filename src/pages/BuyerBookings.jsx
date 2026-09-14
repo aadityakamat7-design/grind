@@ -6,6 +6,7 @@ import BookingCard from "@/components/grind/BookingCard";
 import EmptyState from "@/components/grind/EmptyState";
 import PageHeader from "@/components/grind/PageHeader";
 import ErrorRetry from "@/components/grind/ErrorRetry";
+import PullToRefresh from "@/components/PullToRefresh";
 
 export default function BuyerBookings() {
   const { user } = useOutletContext();
@@ -45,6 +46,7 @@ export default function BuyerBookings() {
   const past = bookings.filter((b) => ["completed", "cancelled", "denied"].includes(b.status));
 
   return (
+    <PullToRefresh onRefresh={load}>
     <div className="space-y-6">
       <PageHeader title="My bookings" subtitle="All your active and past appointments." />
 
@@ -88,5 +90,6 @@ export default function BuyerBookings() {
         </>
       )}
     </div>
+    </PullToRefresh>
   );
 }

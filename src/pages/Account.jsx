@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useOutletContext, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import ProfileSettingsCard from "@/components/grind/ProfileSettingsCard";
 import RecoveryPhoneCard from "@/components/grind/RecoveryPhoneCard";
 import { replayTour } from "@/hooks/useTour";
 import { Image } from "@/components/ui/image";
+import PullToRefresh from "@/components/PullToRefresh";
 
 const ROLE_LABELS = { teen: "Teen", parent: "Parent / Guardian", buyer: "Neighbor", admin: "Admin" };
 const ROLE_HOME = { teen: "/teen", parent: "/parent", buyer: "/buyer", admin: "/admin" };
@@ -27,12 +28,15 @@ export default function Account() {
 
   const [teenPhoto, setTeenPhoto] = useState(null);
 
-  useEffect(() => {
+  const load = useCallback(async () => {
     if (user.app_role !== "teen") return;
-    base44.entities.TeenProfile.filter({ user_id: user.id })
-      .then((profiles) => setTeenPhoto(profiles[0]?.photo_url || null))
-      .catch(() => {});
+    try {
+      const profiles = await base44.entities.TeenProfile.filter({ user_id: user.id });
+      setTeenPhoto(profiles[0]?.photo_url || null);
+    } catch {}
   }, [user.id, user.app_role]);
+
+  useEffect(() => { load(); }, [load]);
 
   const tabs = [
     { key: "profile", label: "Profile" },
@@ -40,6 +44,7 @@ export default function Account() {
   ];
 
   return (
+    <PullToRefresh onRefresh={load}>
     <div className="space-y-5">
       <PageHeader title="Account" subtitle="Your profile, settings, and reviews." />
 
@@ -110,5 +115,6 @@ export default function Account() {
         <AccountReviewsTab user={user} />
       )}
     </div>
+    </PullToRefresh>
   );
 }

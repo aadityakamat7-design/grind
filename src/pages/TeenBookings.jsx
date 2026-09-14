@@ -6,6 +6,7 @@ import BookingCard from "@/components/grind/BookingCard";
 import EmptyState from "@/components/grind/EmptyState";
 import PageHeader from "@/components/grind/PageHeader";
 import ErrorRetry from "@/components/grind/ErrorRetry";
+import PullToRefresh from "@/components/PullToRefresh";
 
 export default function TeenBookings() {
   const { user } = useOutletContext();
@@ -45,6 +46,7 @@ export default function TeenBookings() {
   const past = bookings.filter((b) => ["completed", "cancelled", "denied"].includes(b.status));
 
   return (
+    <PullToRefresh onRefresh={load}>
     <div className="space-y-6">
       <PageHeader title="Bookings" subtitle="All your active and past jobs." />
 
@@ -71,5 +73,6 @@ export default function TeenBookings() {
         </>
       )}
     </div>
+    </PullToRefresh>
   );
 }

@@ -28,7 +28,7 @@ export default function SiteFooter() {
             <span className="text-border">·</span>
             <span>© {new Date().getFullYear()}</span>
           </div>
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[11px] text-muted-foreground">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-muted-foreground">
             <a href="mailto:support@blockwork.online" className="inline-flex items-center gap-1 hover:text-foreground transition-colors">
               <Mail className="w-3 h-3" /> support@blockwork.online
             </a>
@@ -42,11 +42,11 @@ export default function SiteFooter() {
         </div>
 
         {/* Legal links */}
-        <nav className="flex flex-wrap items-center gap-x-2 gap-y-1.5 text-[11px] text-muted-foreground mb-4">
+        <nav className="flex flex-wrap items-center gap-x-2 gap-y-1.5 text-sm text-muted-foreground mb-4">
           {links.map((l, i) => (
             <React.Fragment key={l.to}>
               {i > 0 && <span className="hidden sm:inline text-border/60">·</span>}
-              <Link to={l.to} className="hover:text-foreground transition-colors min-h-[28px] inline-flex items-center">
+              <Link to={l.to} className="hover:text-foreground transition-colors min-h-[44px] inline-flex items-center">
                 {l.label}
               </Link>
             </React.Fragment>
@@ -58,14 +58,14 @@ export default function SiteFooter() {
           <div className="flex items-center justify-center gap-3 flex-wrap">
             <StripeBadge showText={false} />
             <NortonBadge />
-            <span className="inline-flex items-center gap-1 rounded-md bg-secondary border border-border px-2 py-1 text-[10px] font-semibold text-muted-foreground leading-none whitespace-nowrap">
+            <span className="inline-flex items-center gap-1 rounded-md bg-secondary border border-border px-2 py-1 text-sm font-semibold text-muted-foreground leading-none whitespace-nowrap">
               <Lock className="w-3 h-3" /> SSL Secured
             </span>
           </div>
-          <p className="text-[11px] text-muted-foreground text-center leading-tight max-w-md">
+          <p className="text-sm text-muted-foreground text-center leading-tight max-w-md">
             Payments processed by Stripe. We never store card or bank details.
           </p>
-          <p className="text-[10px] text-muted-foreground/70 text-center">
+          <p className="text-sm text-muted-foreground/70 text-center">
             Blockwork is built and operated by a small team in California.
           </p>
         </div>

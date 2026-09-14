@@ -63,7 +63,7 @@ export default function ReviewCard({ review, viewer, onChanged }) {
         <div className="flex items-center gap-2 min-w-0">
           <p className="font-bold text-foreground text-sm truncate">{review.author_label || "Neighbor"}</p>
           {review.booking_id && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-secondary text-muted-foreground border border-border px-2 py-0.5 text-[10px] font-bold shrink-0">
+            <span className="inline-flex items-center gap-1 rounded-full bg-secondary text-muted-foreground border border-border px-2 py-0.5 text-sm font-bold shrink-0">
               <BadgeCheck className="w-3 h-3" /> Verified job
             </span>
           )}
@@ -71,7 +71,7 @@ export default function ReviewCard({ review, viewer, onChanged }) {
         {!editing && <RatingStars rating={review.rating} />}
       </div>
       {review.category && (
-        <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide mt-1">
+        <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mt-1">
           {CATEGORY_LABELS[review.category] || review.category}
         </p>
       )}
@@ -85,7 +85,7 @@ export default function ReviewCard({ review, viewer, onChanged }) {
             maxLength={MAX_LENGTH}
             onChange={(e) => setEditText(e.target.value)}
           />
-          <p className="text-[11px] text-muted-foreground text-right">{editText.length}/{MAX_LENGTH}</p>
+          <p className="text-sm text-muted-foreground text-right">{editText.length}/{MAX_LENGTH}</p>
           <div className="flex gap-2">
             <Button size="sm" className="rounded-xl" disabled={!editRating || saving} onClick={submitEdit}>
               {saving ? "Saving..." : "Save changes"}
@@ -101,7 +101,7 @@ export default function ReviewCard({ review, viewer, onChanged }) {
           {review.tags?.length > 0 && (
             <div className="flex flex-wrap gap-1.5 mt-2">
               {review.tags.map((tag) => (
-                <span key={tag} className="px-2 py-0.5 rounded-full bg-secondary border border-border text-[11px] font-semibold text-muted-foreground">
+                <span key={tag} className="px-2 py-0.5 rounded-full bg-secondary border border-border text-sm font-semibold text-muted-foreground">
                   {tag}
                 </span>
               ))}
@@ -110,17 +110,17 @@ export default function ReviewCard({ review, viewer, onChanged }) {
         </>
       )}
 
-      <p className="text-[11px] text-muted-foreground mt-2">
+      <p className="text-sm text-muted-foreground mt-2">
         {review.created_date ? format(new Date(review.created_date), "MMM d, yyyy") : ""}
         {review.edited_at && " · edited"}
       </p>
 
       {review.reply_text && (
         <div className="mt-3 bg-secondary rounded-xl p-3 border-l-2 border-foreground/30">
-          <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wide">Reply from the teen</p>
+          <p className="text-sm font-bold text-muted-foreground uppercase tracking-wide">Reply from the teen</p>
           <p className="text-sm text-muted-foreground mt-1">{review.reply_text}</p>
           {review.reply_at && (
-            <p className="text-[11px] text-muted-foreground mt-1">{format(new Date(review.reply_at), "MMM d, yyyy")}</p>
+            <p className="text-sm text-muted-foreground mt-1">{format(new Date(review.reply_at), "MMM d, yyyy")}</p>
           )}
         </div>
       )}

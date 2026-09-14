@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { ShieldAlert, ShieldCheck } from "lucide-react";
 import { US_STATES, checkEligibility, blockedMessage } from "@/lib/stateWorkRules";
 import WaitlistCapture from "@/components/grind/WaitlistCapture";
+import ResponsiveSelect from "@/components/grind/ResponsiveSelect";
 
 export default function TeenEligibilityStep({ initialDob = "", initialState = "", onEligible }) {
   const [dob, setDob] = useState(initialDob);
@@ -36,16 +37,14 @@ export default function TeenEligibilityStep({ initialDob = "", initialState = ""
       </p>
       <div>
         <Label className="text-foreground">Your state</Label>
-        <select
+        <ResponsiveSelect
           value={usState}
-          onChange={(e) => { setUsState(e.target.value); setError(""); setShowWaitlist(false); }}
-          className="mt-1 flex h-11 w-full rounded-xl border border-input bg-transparent px-3.5 text-sm font-normal shadow-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-ring"
-        >
-          <option value="">Select your state…</option>
-          {US_STATES.map((s) => (
-            <option key={s.code} value={s.code}>{s.name}</option>
-          ))}
-        </select>
+          onValueChange={(v) => { setUsState(v); setError(""); setShowWaitlist(false); }}
+          options={[{ value: "", label: "Select your state…" }, ...US_STATES.map((s) => ({ value: s.code, label: s.name }))]}
+          placeholder="Select your state…"
+          title="Your state"
+          className="mt-1 h-11 rounded-xl"
+        />
       </div>
       <div>
         <Label className="text-foreground">Date of birth</Label>

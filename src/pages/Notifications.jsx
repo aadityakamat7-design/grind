@@ -7,6 +7,7 @@ import { formatDistanceToNow } from "date-fns";
 import { parseUTC } from "@/lib/grind";
 import EmptyState from "@/components/grind/EmptyState";
 import PageHeader from "@/components/grind/PageHeader";
+import PullToRefresh from "@/components/PullToRefresh";
 
 const TYPE_ICONS = {
   approval: ShieldCheck,
@@ -52,6 +53,7 @@ export default function Notifications() {
   const hasUnread = items.some((n) => !n.read);
 
   return (
+    <PullToRefresh onRefresh={load}>
     <div className="space-y-5">
       <PageHeader title="Notifications" subtitle="Approvals, bookings, payments, and messages.">
         {hasUnread && (
@@ -90,5 +92,6 @@ export default function Notifications() {
         </div>
       )}
     </div>
+    </PullToRefresh>
   );
 }

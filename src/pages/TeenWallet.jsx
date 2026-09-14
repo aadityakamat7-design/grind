@@ -9,6 +9,7 @@ import TransactionList from "@/components/grind/wallet/TransactionList";
 import CashOutDialog from "@/components/grind/wallet/CashOutDialog";
 import PageHeader from "@/components/grind/PageHeader";
 import ErrorRetry from "@/components/grind/ErrorRetry";
+import PullToRefresh from "@/components/PullToRefresh";
 
 export default function TeenWallet() {
   const { user } = useOutletContext();
@@ -53,6 +54,7 @@ export default function TeenWallet() {
   if (error) return <ErrorRetry onRetry={load} />;
 
   return (
+    <PullToRefresh onRefresh={load}>
     <div className="space-y-6">
       <PageHeader title="Blockwork Wallet" subtitle="Your earnings, ready to cash out." />
 
@@ -109,5 +111,6 @@ export default function TeenWallet() {
         <CashOutDialog open={cashOutOpen} onOpenChange={setCashOutOpen} wallet={wallet} onDone={load} />
       )}
     </div>
+    </PullToRefresh>
   );
 }

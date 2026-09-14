@@ -111,9 +111,9 @@
     --sidebar-ring: 224 76% 48%;
   }
 
-  /* The app is light-only. .dark and .force-light mirror :root so any
-     `dark` class on <html> never flips the surface. */
-  .dark,
+  /* Light mode is forced when .force-light is present on <html>.
+     Dark mode activates via @media (prefers-color-scheme: dark) or the
+     .dark class — both define the same dark token values. */
   .force-light {
     --background: 40 30% 99%;
     --foreground: 222 26% 14%;
@@ -163,6 +163,114 @@
     --sidebar-border: 36 22% 90%;
     --sidebar-ring: 224 76% 48%;
   }
+
+  .dark {
+    --background: 222 26% 10%;
+    --foreground: 38 30% 92%;
+    --card: 222 24% 13%;
+    --card-foreground: 38 30% 92%;
+    --popover: 222 24% 12%;
+    --popover-foreground: 38 30% 92%;
+    --secondary: 222 20% 16%;
+    --secondary-foreground: 38 30% 92%;
+    --muted: 222 20% 15%;
+    --muted-foreground: 38 16% 62%;
+    --accent: 222 20% 18%;
+    --accent-foreground: 38 30% 92%;
+    --border: 222 16% 22%;
+    --input: 222 16% 22%;
+    --ring: 224 76% 58%;
+    --surface: 222 24% 13%;
+    --surface-2: 222 20% 16%;
+    --primary: 224 76% 56%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 224 70% 48%;
+    --accent-amber: 38 92% 55%;
+    --accent-amber-foreground: 222 26% 14%;
+    --accent-amber-hover: 38 85% 48%;
+    --brand-dark: 222 26% 10%;
+    --destructive: 4 72% 56%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 152 56% 45%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 55%;
+    --warning-foreground: 222 26% 14%;
+    --error: 4 72% 56%;
+    --error-foreground: 0 0% 100%;
+    --shadow-1: 0 1px 2px 0 rgba(0, 0, 0, 0.2), 0 1px 3px 0 rgba(0, 0, 0, 0.15);
+    --shadow-2: 0 2px 8px -2px rgba(0, 0, 0, 0.25), 0 6px 18px -6px rgba(0, 0, 0, 0.2);
+    --shadow-3: 0 4px 14px -3px rgba(0, 0, 0, 0.3), 0 14px 32px -8px rgba(0, 0, 0, 0.25);
+    --shadow-4: 0 14px 44px -10px rgba(0, 0, 0, 0.4), 0 6px 16px -4px rgba(0, 0, 0, 0.2);
+    --shadow-soft: var(--shadow-1);
+    --shadow-card: var(--shadow-2);
+    --shadow-elevated: var(--shadow-3);
+    --shadow-floating: var(--shadow-4);
+    --shadow-glow: 0 2px 12px -3px hsl(var(--primary) / 0.35);
+    --shadow-glow-accent: 0 2px 12px -3px hsl(var(--accent-amber) / 0.35);
+    --sidebar-background: 222 26% 10%;
+    --sidebar-foreground: 38 30% 92%;
+    --sidebar-primary: 224 76% 56%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 222 20% 18%;
+    --sidebar-accent-foreground: 38 30% 92%;
+    --sidebar-border: 222 16% 22%;
+    --sidebar-ring: 224 76% 58%;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not(.force-light):not(.dark) {
+      --background: 222 26% 10%;
+      --foreground: 38 30% 92%;
+      --card: 222 24% 13%;
+      --card-foreground: 38 30% 92%;
+      --popover: 222 24% 12%;
+      --popover-foreground: 38 30% 92%;
+      --secondary: 222 20% 16%;
+      --secondary-foreground: 38 30% 92%;
+      --muted: 222 20% 15%;
+      --muted-foreground: 38 16% 62%;
+      --accent: 222 20% 18%;
+      --accent-foreground: 38 30% 92%;
+      --border: 222 16% 22%;
+      --input: 222 16% 22%;
+      --ring: 224 76% 58%;
+      --surface: 222 24% 13%;
+      --surface-2: 222 20% 16%;
+      --primary: 224 76% 56%;
+      --primary-foreground: 0 0% 100%;
+      --primary-hover: 224 70% 48%;
+      --accent-amber: 38 92% 55%;
+      --accent-amber-foreground: 222 26% 14%;
+      --accent-amber-hover: 38 85% 48%;
+      --brand-dark: 222 26% 10%;
+      --destructive: 4 72% 56%;
+      --destructive-foreground: 0 0% 100%;
+      --success: 152 56% 45%;
+      --success-foreground: 0 0% 100%;
+      --warning: 38 92% 55%;
+      --warning-foreground: 222 26% 14%;
+      --error: 4 72% 56%;
+      --error-foreground: 0 0% 100%;
+      --shadow-1: 0 1px 2px 0 rgba(0, 0, 0, 0.2), 0 1px 3px 0 rgba(0, 0, 0, 0.15);
+      --shadow-2: 0 2px 8px -2px rgba(0, 0, 0, 0.25), 0 6px 18px -6px rgba(0, 0, 0, 0.2);
+      --shadow-3: 0 4px 14px -3px rgba(0, 0, 0, 0.3), 0 14px 32px -8px rgba(0, 0, 0, 0.25);
+      --shadow-4: 0 14px 44px -10px rgba(0, 0, 0, 0.4), 0 6px 16px -4px rgba(0, 0, 0, 0.2);
+      --shadow-soft: var(--shadow-1);
+      --shadow-card: var(--shadow-2);
+      --shadow-elevated: var(--shadow-3);
+      --shadow-floating: var(--shadow-4);
+      --shadow-glow: 0 2px 12px -3px hsl(var(--primary) / 0.35);
+      --shadow-glow-accent: 0 2px 12px -3px hsl(var(--accent-amber) / 0.35);
+      --sidebar-background: 222 26% 10%;
+      --sidebar-foreground: 38 30% 92%;
+      --sidebar-primary: 224 76% 56%;
+      --sidebar-primary-foreground: 0 0% 100%;
+      --sidebar-accent: 222 20% 18%;
+      --sidebar-accent-foreground: 38 30% 92%;
+      --sidebar-border: 222 16% 22%;
+      --sidebar-ring: 224 76% 58%;
+    }
+  }
 }
 
 @layer base {
@@ -196,7 +304,8 @@
   }
 
   *:focus-visible {
-    outline: none;
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
   }
 
   ::selection {
@@ -352,3 +461,99 @@ button, a, [role="button"] {
 
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ============================================================
+   Dark-mode legacy utility shim — mirrors the light shim above with
+   dark-appropriate values so every screen stays readable when the OS
+   or .dark class activates dark mode. Applies via both
+   @media (prefers-color-scheme: dark) and the .dark class.
+   ============================================================ */
+@media (prefers-color-scheme: dark) {
+  :root:not(.force-light):not(.dark) .bg-slate-50 { background-color: hsl(222 26% 10%); }
+  :root:not(.force-light):not(.dark) .bg-slate-100 { background-color: hsl(222 24% 13%); }
+  :root:not(.force-light):not(.dark) .bg-slate-200 { background-color: hsl(222 20% 16%); }
+  :root:not(.force-light):not(.dark) .bg-slate-800 { background-color: hsl(38 30% 92%); }
+  :root:not(.force-light):not(.dark) .bg-white { background-color: hsl(222 24% 13%); }
+  :root:not(.force-light):not(.dark) .text-slate-900, :root:not(.force-light):not(.dark) .text-slate-800 { color: hsl(38 30% 92%); }
+  :root:not(.force-light):not(.dark) .text-slate-700 { color: hsl(38 24% 80%); }
+  :root:not(.force-light):not(.dark) .text-slate-600 { color: hsl(38 18% 70%); }
+  :root:not(.force-light):not(.dark) .text-slate-500 { color: hsl(38 16% 62%); }
+  :root:not(.force-light):not(.dark) .text-slate-400 { color: hsl(38 14% 52%); }
+  :root:not(.force-light):not(.dark) .text-slate-300 { color: hsl(38 12% 42%); }
+  :root:not(.force-light):not(.dark) .text-slate-200 { color: hsl(38 10% 35%); }
+  :root:not(.force-light):not(.dark) .border-slate-100 { border-color: hsl(222 16% 20%); }
+  :root:not(.force-light):not(.dark) .border-slate-200 { border-color: hsl(222 16% 22%); }
+  :root:not(.force-light):not(.dark) .border-slate-300 { border-color: hsl(222 16% 26%); }
+  :root:not(.force-light):not(.dark) .divide-slate-100 > * + * { border-color: hsl(222 16% 20%); }
+  :root:not(.force-light):not(.dark) .divide-slate-200 > * + * { border-color: hsl(222 16% 22%); }
+  :root:not(.force-light):not(.dark) .divide-slate-50 > * + * { border-color: hsl(222 16% 18%); }
+  :root:not(.force-light):not(.dark) .bg-blue-50, :root:not(.force-light):not(.dark) .bg-sky-50, :root:not(.force-light):not(.dark) .bg-blue-100, :root:not(.force-light):not(.dark) .bg-sky-100 { background-color: hsl(224 30% 16%); }
+  :root:not(.force-light):not(.dark) .bg-blue-50\/50 { background-color: hsl(224 30% 16% / 0.6); }
+  :root:not(.force-light):not(.dark) .text-blue-600, :root:not(.force-light):not(.dark) .text-blue-700, :root:not(.force-light):not(.dark) .text-blue-800, :root:not(.force-light):not(.dark) .text-blue-900, :root:not(.force-light):not(.dark) .text-sky-600, :root:not(.force-light):not(.dark) .text-sky-700 { color: hsl(224 76% 64%); }
+  :root:not(.force-light):not(.dark) .text-blue-500, :root:not(.force-light):not(.dark) .text-sky-500 { color: hsl(224 76% 68%); }
+  :root:not(.force-light):not(.dark) .text-blue-400, :root:not(.force-light):not(.dark) .text-sky-400, :root:not(.force-light):not(.dark) .text-blue-300, :root:not(.force-light):not(.dark) .text-sky-300 { color: hsl(224 70% 72%); }
+  :root:not(.force-light):not(.dark) .border-blue-100, :root:not(.force-light):not(.dark) .border-blue-200, :root:not(.force-light):not(.dark) .border-sky-100, :root:not(.force-light):not(.dark) .border-sky-200 { border-color: hsl(224 30% 22%); }
+  :root:not(.force-light):not(.dark) .bg-emerald-50, :root:not(.force-light):not(.dark) .bg-emerald-100 { background-color: hsl(152 30% 14%); }
+  :root:not(.force-light):not(.dark) .text-emerald-600, :root:not(.force-light):not(.dark) .text-emerald-700, :root:not(.force-light):not(.dark) .text-emerald-500 { color: hsl(152 56% 60%); }
+  :root:not(.force-light):not(.dark) .border-emerald-100, :root:not(.force-light):not(.dark) .border-emerald-200 { border-color: hsl(152 30% 22%); }
+  :root:not(.force-light):not(.dark) .bg-amber-50, :root:not(.force-light):not(.dark) .bg-amber-100 { background-color: hsl(38 40% 14%); }
+  :root:not(.force-light):not(.dark) .text-amber-600, :root:not(.force-light):not(.dark) .text-amber-700, :root:not(.force-light):not(.dark) .text-amber-500 { color: hsl(38 92% 62%); }
+  :root:not(.force-light):not(.dark) .border-amber-100, :root:not(.force-light):not(.dark) .border-amber-200 { border-color: hsl(38 40% 22%); }
+  :root:not(.force-light):not(.dark) .bg-red-50, :root:not(.force-light):not(.dark) .bg-red-100, :root:not(.force-light):not(.dark) .bg-rose-50 { background-color: hsl(4 30% 14%); }
+  :root:not(.force-light):not(.dark) .text-red-600, :root:not(.force-light):not(.dark) .text-red-700, :root:not(.force-light):not(.dark) .text-rose-600, :root:not(.force-light):not(.dark) .text-rose-700 { color: hsl(4 72% 64%); }
+  :root:not(.force-light):not(.dark) .border-red-100, :root:not(.force-light):not(.dark) .border-red-200, :root:not(.force-light):not(.dark) .border-rose-200 { border-color: hsl(4 30% 22%); }
+  :root:not(.force-light):not(.dark) .bg-teal-50, :root:not(.force-light):not(.dark) .bg-teal-100 { background-color: hsl(190 30% 14%); }
+  :root:not(.force-light):not(.dark) .text-teal-600, :root:not(.force-light):not(.dark) .text-teal-700 { color: hsl(190 70% 60%); }
+  :root:not(.force-light):not(.dark) .bg-indigo-50, :root:not(.force-light):not(.dark) .bg-indigo-100, :root:not(.force-light):not(.dark) .bg-violet-50, :root:not(.force-light):not(.dark) .bg-violet-100, :root:not(.force-light):not(.dark) .bg-purple-50, :root:not(.force-light):not(.dark) .bg-purple-100 { background-color: hsl(224 30% 16%); }
+  :root:not(.force-light):not(.dark) .text-indigo-600, :root:not(.force-light):not(.dark) .text-indigo-700, :root:not(.force-light):not(.dark) .text-violet-600, :root:not(.force-light):not(.dark) .text-violet-700, :root:not(.force-light):not(.dark) .text-purple-600, :root:not(.force-light):not(.dark) .text-purple-700 { color: hsl(224 76% 64%); }
+  :root:not(.force-light):not(.dark) .bg-green-50, :root:not(.force-light):not(.dark) .bg-green-100 { background-color: hsl(152 30% 14%); }
+  :root:not(.force-light):not(.dark) .text-green-600, :root:not(.force-light):not(.dark) .text-green-700 { color: hsl(152 56% 60%); }
+  :root:not(.force-light):not(.dark) .bg-orange-50, :root:not(.force-light):not(.dark) .bg-orange-100 { background-color: hsl(38 40% 14%); }
+  :root:not(.force-light):not(.dark) .text-orange-600, :root:not(.force-light):not(.dark) .text-orange-700 { color: hsl(38 92% 62%); }
+  :root:not(.force-light):not(.dark) .bg-blue-950, :root:not(.force-light):not(.dark) .bg-blue-900 { background-color: hsl(222 26% 10%); }
+  :root:not(.force-light):not(.dark) .bg-blue-600\/20, :root:not(.force-light):not(.dark) .bg-blue-500\/20, :root:not(.force-light):not(.dark) .bg-sky-500\/20, :root:not(.force-light):not(.dark) .bg-blue-600\/10, :root:not(.force-light):not(.dark) .bg-sky-500\/10 { background-color: hsl(224 76% 56% / 0.15); }
+}
+
+.dark .bg-slate-50 { background-color: hsl(222 26% 10%); }
+.dark .bg-slate-100 { background-color: hsl(222 24% 13%); }
+.dark .bg-slate-200 { background-color: hsl(222 20% 16%); }
+.dark .bg-slate-800 { background-color: hsl(38 30% 92%); }
+.dark .bg-white { background-color: hsl(222 24% 13%); }
+.dark .text-slate-900, .dark .text-slate-800 { color: hsl(38 30% 92%); }
+.dark .text-slate-700 { color: hsl(38 24% 80%); }
+.dark .text-slate-600 { color: hsl(38 18% 70%); }
+.dark .text-slate-500 { color: hsl(38 16% 62%); }
+.dark .text-slate-400 { color: hsl(38 14% 52%); }
+.dark .text-slate-300 { color: hsl(38 12% 42%); }
+.dark .text-slate-200 { color: hsl(38 10% 35%); }
+.dark .border-slate-100 { border-color: hsl(222 16% 20%); }
+.dark .border-slate-200 { border-color: hsl(222 16% 22%); }
+.dark .border-slate-300 { border-color: hsl(222 16% 26%); }
+.dark .divide-slate-100 > * + * { border-color: hsl(222 16% 20%); }
+.dark .divide-slate-200 > * + * { border-color: hsl(222 16% 22%); }
+.dark .divide-slate-50 > * + * { border-color: hsl(222 16% 18%); }
+.dark .bg-blue-50, .dark .bg-sky-50, .dark .bg-blue-100, .dark .bg-sky-100 { background-color: hsl(224 30% 16%); }
+.dark .bg-blue-50\/50 { background-color: hsl(224 30% 16% / 0.6); }
+.dark .text-blue-600, .dark .text-blue-700, .dark .text-blue-800, .dark .text-blue-900, .dark .text-sky-600, .dark .text-sky-700 { color: hsl(224 76% 64%); }
+.dark .text-blue-500, .dark .text-sky-500 { color: hsl(224 76% 68%); }
+.dark .text-blue-400, .dark .text-sky-400, .dark .text-blue-300, .dark .text-sky-300 { color: hsl(224 70% 72%); }
+.dark .border-blue-100, .dark .border-blue-200, .dark .border-sky-100, .dark .border-sky-200 { border-color: hsl(224 30% 22%); }
+.dark .bg-emerald-50, .dark .bg-emerald-100 { background-color: hsl(152 30% 14%); }
+.dark .text-emerald-600, .dark .text-emerald-700, .dark .text-emerald-500 { color: hsl(152 56% 60%); }
+.dark .border-emerald-100, .dark .border-emerald-200 { border-color: hsl(152 30% 22%); }
+.dark .bg-amber-50, .dark .bg-amber-100 { background-color: hsl(38 40% 14%); }
+.dark .text-amber-600, .dark .text-amber-700, .dark .text-amber-500 { color: hsl(38 92% 62%); }
+.dark .border-amber-100, .dark .border-amber-200 { border-color: hsl(38 40% 22%); }
+.dark .bg-red-50, .dark .bg-red-100, .dark .bg-rose-50 { background-color: hsl(4 30% 14%); }
+.dark .text-red-600, .dark .text-red-700, .dark .text-rose-600, .dark .text-rose-700 { color: hsl(4 72% 64%); }
+.dark .border-red-100, .dark .border-red-200, .dark .border-rose-200 { border-color: hsl(4 30% 22%); }
+.dark .bg-teal-50, .dark .bg-teal-100 { background-color: hsl(190 30% 14%); }
+.dark .text-teal-600, .dark .text-teal-700 { color: hsl(190 70% 60%); }
+.dark .bg-indigo-50, .dark .bg-indigo-100, .dark .bg-violet-50, .dark .bg-violet-100, .dark .bg-purple-50, .dark .bg-purple-100 { background-color: hsl(224 30% 16%); }
+.dark .text-indigo-600, .dark .text-indigo-700, .dark .text-violet-600, .dark .text-violet-700, .dark .text-purple-600, .dark .text-purple-700 { color: hsl(224 76% 64%); }
+.dark .bg-green-50, .dark .bg-green-100 { background-color: hsl(152 30% 14%); }
+.dark .text-green-600, .dark .text-green-700 { color: hsl(152 56% 60%); }
+.dark .bg-orange-50, .dark .bg-orange-100 { background-color: hsl(38 40% 14%); }
+.dark .text-orange-600, .dark .text-orange-700 { color: hsl(38 92% 62%); }
+.dark .bg-blue-950, .dark .bg-blue-900 { background-color: hsl(222 26% 10%); }
+.dark .bg-blue-600\/20, .dark .bg-blue-500\/20, .dark .bg-sky-500\/20, .dark .bg-blue-600\/10, .dark .bg-sky-500\/10 { background-color: hsl(224 76% 56% / 0.15); }

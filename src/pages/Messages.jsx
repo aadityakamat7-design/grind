@@ -6,6 +6,7 @@ import { format } from "date-fns";
 import { parseUTC } from "@/lib/grind";
 import EmptyState from "@/components/grind/EmptyState";
 import PageHeader from "@/components/grind/PageHeader";
+import PullToRefresh from "@/components/PullToRefresh";
 
 export default function Messages() {
   const { user } = useOutletContext();
@@ -34,6 +35,7 @@ export default function Messages() {
   const isParent = user.app_role === "parent";
 
   return (
+    <PullToRefresh onRefresh={load}>
     <div className="space-y-5">
       <PageHeader title="Messages" subtitle={isParent ? "You can read all of your teen's conversations." : "Your conversations with neighbors and teens."}>
         {isParent && <span className="flex items-center gap-1.5 text-[13px] text-muted-foreground"><Eye className="w-4 h-4" /> Read-only</span>}
@@ -71,5 +73,6 @@ export default function Messages() {
         </div>
       )}
     </div>
+    </PullToRefresh>
   );
 }
