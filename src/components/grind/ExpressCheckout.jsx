@@ -6,6 +6,28 @@ import { Button } from "@/components/ui/button";
 import { CreditCard, ShieldCheck, ExternalLink } from "lucide-react";
 import { money } from "@/lib/grind";
 import StripeBadge from "@/components/StripeBadge";
+import ApplePayMark from "@/components/ApplePayMark";
+
+// Pre-load the Stripe publishable key + Stripe.js at module level so the
+// library starts downloading the instant this module is imported, not when
+// a component mounts. The key is the same for every payment, so we fetch it
+// once and cache the promise.
+let _publishableKeyPromise = null;
+function getPublishableKey() {
+  if (!_publishableKeyPromise) {
+    _publishableKeyPromise = (async () => {
+      try {
+        const res = await base44.functions.invoke("createPaymentIntent", {
+          getKeyOnly: true,
+        });
+        return res.data?.publishable_key || "";
+      } catch {
+        return "";
+      }
+    })();
+  }
+  return _publishableKeyPromise;
+}
 
 // Apple Pay and Stripe Checkout both fail inside a cross-origin iframe
 // (builder preview). Detect this up front so we can show a clear message.
@@ -109,10 +131,12 @@ export default function ExpressCheckout({
   const [cardRedirecting, setCardRedirecting] = useState(false);
   const [initError, setInitError] = useState("");
 
-  const stripePromise = useMemo(
-    () => (publishableKey ? loadStripe(publishableKey) : null),
-    [publishableKey]
-  );
+  // Kick off the publishable-key fetch + Stripe.js load immediately on mount
+  // (the key promise is cached at module level so it's shared across mounts).
+  const stripePromise = useMemo(() => {
+    let p = getPublishableKey().then((key) => (key ? loadStripe(key) : null));
+    return p;
+  }, []);
 
   // 1. Create the PaymentIntent via the backend function.
   useEffect(() => {
@@ -120,15 +144,18 @@ export default function ExpressCheckout({
     let cancelled = false;
     (async () => {
       try {
+        // Ensure the publishable key is cached for the stripePromise above.
+        const key = await getPublishableKey();
+        if (key && !publishableKey) setPublishableKey(key);
+
         const res = await base44.functions.invoke("createPaymentIntent", {
           bookingId,
           jobId,
           bookingEscrow,
         });
-        const { client_secret, publishable_key } = res.data || {};
-        if (!client_secret || !publishable_key || cancelled) return;
+        const { client_secret } = res.data || {};
+        if (!client_secret || cancelled) return;
         setClientSecret(client_secret);
-        setPublishableKey(publishable_key);
       } catch (err) {
         console.error("[ExpressCheckout] init error:", err);
         setInitError(err.message);
@@ -218,9 +245,12 @@ export default function ExpressCheckout({
         </Elements>
       ) : (
         <div
-          className="w-full bg-muted animate-pulse"
+          className="w-full flex items-center justify-center bg-black"
           style={{ height: 48, borderRadius: 0 }}
-        />
+          aria-label="Loading Apple Pay"
+        >
+          <ApplePayMark className="h-6" />
+        </div>
       )}
 
       {/* Divider */}
