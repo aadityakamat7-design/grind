@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Navigate } from "react-router-dom";
 import { Zap } from "lucide-react";
 import { useAppUser } from "@/lib/useAppUser";
+import { base44 } from "@/api/base44Client";
 import RolePicker from "@/components/grind/onboarding/RolePicker";
 import TeenOnboarding from "@/components/grind/onboarding/TeenOnboarding";
 import ParentOnboarding from "@/components/grind/onboarding/ParentOnboarding";
@@ -15,6 +16,7 @@ export default function Onboarding() {
   const urlParams = new URLSearchParams(window.location.search);
   const inviteCode = urlParams.get("code") || "";
   const identityReturn = urlParams.get("identity_return") === "1";
+  const refCode = urlParams.get("ref") || "";
   // Persist the invite code so it survives the register/login redirect — an
   // unauthenticated parent clicking the shared link would otherwise lose it
   // when bounced to auth, and arrive at onboarding with an empty code box.
@@ -28,8 +30,21 @@ export default function Onboarding() {
   // Persist the code for the auth redirect, then clear the stored signup role.
   useEffect(() => {
     if (inviteCode) localStorage.setItem("grind_invite_code", inviteCode);
+    if (refCode) localStorage.setItem("grind_referral", refCode);
     localStorage.removeItem("grind_signup_role");
-  }, [inviteCode]);
+  }, [inviteCode, refCode]);
+
+  // Record a referral when the user completes onboarding after signing up
+  // via someone's invite link. Fire-and-forget — the backend processes it
+  // even after the redirect navigates away.
+  useEffect(() => {
+    const ref = localStorage.getItem("grind_referral");
+    if (user?.onboarded && ref && user?.id !== ref) {
+      base44.functions.invoke("trackReferral", { referrerId: ref, referredEmail: user.email })
+        .catch(() => {})
+        .finally(() => localStorage.removeItem("grind_referral"));
+    }
+  }, [user?.onboarded, user?.id, user?.email]);
 
   if (loading)
     return (
@@ -38,10 +53,12 @@ export default function Onboarding() {
       </div>
     );
   if (!user) {
-    // Carry the invite code forward through sign-up so the parent lands back
-    // here with the code already filled in.
-    if (pendingCode) {
-      const returnTo = `/onboarding?code=${encodeURIComponent(pendingCode)}`;
+    // Carry the invite code + referral code forward through sign-up.
+    const params = new URLSearchParams();
+    if (pendingCode) params.set("code", pendingCode);
+    if (refCode) params.set("ref", refCode);
+    if (params.toString()) {
+      const returnTo = `/onboarding?${params.toString()}`;
       return <Navigate to={`/register?returnTo=${encodeURIComponent(returnTo)}`} replace />;
     }
     return <Navigate to="/" replace />;

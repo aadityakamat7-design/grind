@@ -37,8 +37,14 @@ export default function DisputeDialog({ open, onOpenChange, booking, onDone }) {
         </DialogHeader>
         <div className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            Tell us what was wrong with the work. The payment has already been released to the teen — our team will review the photos and your report, and if the work wasn't done correctly you'll get a refund.
+            Tell us what was wrong with the work. Our team will review the photos and your report, and if the work wasn't done correctly you'll get a refund.
           </p>
+          <div className="bg-secondary rounded-xl p-3 space-y-1.5 text-xs text-muted-foreground">
+            <p className="font-semibold text-foreground">How disputes work</p>
+            <p>• Report within 7 days of the job being marked complete.</p>
+            <p>• Our team reviews the teen's completion photos and your report.</p>
+            <p>• We communicate the resolution to both you and the teen — typically within 48 hours.</p>
+          </div>
           <div>
             <Label>What was wrong?</Label>
             <Textarea

@@ -96,12 +96,18 @@ function ChartCard({ title, data, valueKey, dateKey, color, moneyFormat }) {
   );
 }
 
-export default function AdminCharts({ bookings }) {
+export default function AdminCharts({ bookings, teens = [], buyers = [], parents = [] }) {
   const gmvData = bookings.filter((b) => !["cancelled", "denied"].includes(b.status));
+  const signups = [
+    ...teens.map((t) => ({ created_date: t.created_date, count: 1 })),
+    ...buyers.map((b) => ({ created_date: b.created_date, count: 1 })),
+    ...parents.map((p) => ({ created_date: p.created_date, count: 1 })),
+  ];
   return (
     <div className="grid lg:grid-cols-2 gap-4">
       <ChartCard title="Bookings over time" data={bookings} valueKey="price_total" dateKey="created_date" color="#2E6BE0" moneyFormat={false} />
       <ChartCard title="GMV over time" data={gmvData} valueKey="price_total" dateKey="created_date" color="#00A878" moneyFormat={true} />
+      <ChartCard title="Signups over time" data={signups} valueKey="count" dateKey="created_date" color="#9333EA" moneyFormat={false} />
     </div>
   );
 }

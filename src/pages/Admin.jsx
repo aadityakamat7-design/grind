@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useOutletContext } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { Users, Search, CalendarDays, Wallet, Flag, BadgeCheck, TrendingUp, CheckCircle2, AlertTriangle, ShieldCheck } from "lucide-react";
+import { Users, Search, CalendarDays, Wallet, Flag, BadgeCheck, TrendingUp, CheckCircle2, AlertTriangle, ShieldCheck, Repeat } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/grind/PageHeader";
 import ReportRow from "@/components/grind/admin/ReportRow";
@@ -26,6 +26,7 @@ export default function Admin() {
   const [bookings, setBookings] = useState([]);
   const [reports, setReports] = useState([]);
   const [credentials, setCredentials] = useState([]);
+  const [referrals, setReferrals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [acting, setActing] = useState(false);
@@ -34,13 +35,14 @@ export default function Admin() {
     if (user?.email !== "aaditya.kamat7@gmail.com") { setLoading(false); return; }
     try {
       setError(false);
-      const [t, b, p, bk, r, creds] = await Promise.all([
+      const [t, b, p, bk, r, creds, refs] = await Promise.all([
         base44.entities.TeenProfile.list("-created_date", 500),
         base44.entities.BuyerProfile.list("-created_date", 500),
         base44.entities.ParentProfile.list("-created_date", 500),
         base44.entities.Booking.list("-created_date", 500),
         base44.entities.Report.list("-created_date", 100),
         base44.entities.Credential.filter({ status: "pending" }, "-created_date", 100),
+        base44.entities.Referral.list("-created_date", 100),
       ]);
       setTeens(t);
       setBuyers(b);
@@ -48,6 +50,7 @@ export default function Admin() {
       setBookings(bk);
       setReports(r);
       setCredentials(creds);
+      setReferrals(refs);
     } catch (err) {
       console.error("Admin load failed:", err);
       setError(true);
@@ -131,6 +134,19 @@ export default function Admin() {
   const openReports = reports.filter((r) => r.status === "open");
   const pendingCreds = credentials.filter((c) => c.status === "pending");
 
+  // Repeat-booking rate: % of buyers who booked more than once
+  const buyerBookingCounts = {};
+  validBookings.forEach((b) => {
+    if (b.buyer_user_id) buyerBookingCounts[b.buyer_user_id] = (buyerBookingCounts[b.buyer_user_id] || 0) + 1;
+  });
+  const totalBuyersWithBookings = Object.keys(buyerBookingCounts).length;
+  const repeatBuyers = Object.values(buyerBookingCounts).filter((c) => c >= 2).length;
+  const repeatBookingRate = totalBuyersWithBookings > 0 ? Math.round((repeatBuyers / totalBuyersWithBookings) * 100) : 0;
+
+  // Low-rating flag: teens/buyers below 3.5 with 3+ reviews
+  const lowRatedTeens = teens.filter((t) => t.avg_rating > 0 && t.avg_rating < 3.5 && (t.review_count || 0) >= 3);
+  const lowRatedBuyers = buyers.filter((b) => b.avg_rating > 0 && b.avg_rating < 3.5 && (b.review_count || 0) >= 3);
+
   const bookingsByStatus = {
     pending_parent_approval: bookings.filter((b) => b.status === "pending_parent_approval").length,
     confirmed: bookings.filter((b) => b.status === "confirmed").length,
@@ -169,6 +185,8 @@ export default function Admin() {
           <StatCard icon={Wallet} label="GMV" value={money(gmv)} subtitle="gross booking value" accent="text-emerald-600" />
           <StatCard icon={TrendingUp} label="Platform revenue" value={money(platformRevenue)} subtitle="12.9% + $0.30 take rate" accent="text-amber-600" />
           <StatCard icon={CheckCircle2} label="Completion rate" value={`${completionRate}%`} subtitle={`${completed.length} completed`} accent="text-emerald-600" />
+          <StatCard icon={CheckCircle2} label="Completed jobs" value={completed.length} subtitle="all time" accent="text-emerald-600" />
+          <StatCard icon={Repeat} label="Repeat-booking rate" value={`${repeatBookingRate}%`} subtitle={`${repeatBuyers} repeat buyers`} accent="text-primary" />
           <StatCard icon={CalendarDays} label="Avg booking value" value={money(avgBookingValue)} subtitle="per job" accent="text-primary" />
           <StatCard icon={CheckCircle2} label="Pending approval" value={bookingsByStatus.pending_parent_approval} subtitle="awaiting parent" accent="text-amber-600" />
           <StatCard icon={CalendarDays} label="Confirmed" value={bookingsByStatus.confirmed} subtitle="upcoming" accent="text-primary" />
@@ -176,7 +194,7 @@ export default function Admin() {
         </div>
       </div>
 
-      <AdminCharts bookings={bookings} />
+      <AdminCharts bookings={bookings} teens={teens} buyers={buyers} parents={parents} />
 
       <div>
         <h2 className="text-[17px] font-bold text-foreground mb-3">Pending review</h2>
@@ -207,6 +225,58 @@ export default function Admin() {
           </div>
         )}
       </section>
+
+      {(lowRatedTeens.length > 0 || lowRatedBuyers.length > 0) && (
+        <section>
+          <h2 className="text-[17px] font-bold text-foreground mb-3 flex items-center gap-2">
+            <AlertTriangle className="w-[18px] h-[18px] text-amber-500" /> Low-rating flags
+          </h2>
+          <div className="space-y-2.5">
+            {lowRatedTeens.map((t) => (
+              <div key={t.id} className="flex items-center justify-between bg-card rounded-2xl border border-amber-200 shadow-soft p-4">
+                <div className="min-w-0">
+                  <p className="font-bold text-foreground text-[14px] truncate">{t.display_name}</p>
+                  <p className="text-[12px] text-muted-foreground mt-0.5">{t.avg_rating.toFixed(1)}★ · {t.review_count} reviews · {t.jobs_completed || 0} jobs</p>
+                </div>
+                <Button variant="outline" size="sm" className="rounded-full text-amber-600 border-amber-200" disabled={acting}
+                  onClick={async () => { setActing(true); await base44.entities.TeenProfile.update(t.id, { status: "suspended" }); setActing(false); load(); }}>
+                  Suspend
+                </Button>
+              </div>
+            ))}
+            {lowRatedBuyers.map((b) => (
+              <div key={b.id} className="flex items-center justify-between bg-card rounded-2xl border border-amber-200 shadow-soft p-4">
+                <div className="min-w-0">
+                  <p className="font-bold text-foreground text-[14px] truncate">{b.full_name || "Neighbor"}</p>
+                  <p className="text-[12px] text-muted-foreground mt-0.5">{b.avg_rating.toFixed(1)}★ · {b.review_count} reviews · {b.jobs_completed || 0} jobs</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {referrals.length > 0 && (
+        <section>
+          <h2 className="text-[17px] font-bold text-foreground mb-3 flex items-center gap-2">
+            <TrendingUp className="w-[18px] h-[18px] text-primary" /> Referrals ({referrals.length})
+          </h2>
+          <div className="space-y-2.5">
+            {referrals.map((r) => (
+              <div key={r.id} className="flex items-center justify-between bg-card rounded-2xl border border-border shadow-soft p-4">
+                <div className="min-w-0">
+                  <p className="font-bold text-foreground text-[14px] truncate">
+                    {r.referrer_name || "Unknown"} → {r.referred_email || "New user"}
+                  </p>
+                  <p className="text-[12px] text-muted-foreground mt-0.5">
+                    {r.referrer_role} referred {r.referred_role || "—"} · {r.status}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       <section>
         <h2 className="text-[17px] font-bold text-foreground mb-3 flex items-center gap-2">

@@ -1,0 +1,26 @@
+{
+  "name": "Blockwork — Teens earn. Neighbors get things done.",
+  "short_name": "Blockwork",
+  "description": "A parent-approved local marketplace where California teens earn real paychecks doing outdoor work and online tutoring. Every job is parent-approved, every user is verified, and every payment is protected by escrow.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FBFAF7",
+  "theme_color": "#2E6BE0",
+  "categories": ["business", "lifestyle", "social"],
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "https://media.base44.com/images/public/6a5e69e14e9f3a6e92e2a0eb/ee8a10a45_generated_image.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

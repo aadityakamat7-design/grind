@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useOutletContext, Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Input } from "@/components/ui/input";
-import { Search, MapPin } from "lucide-react";
+import { Search, MapPin, SlidersHorizontal } from "lucide-react";
 import ListingCard from "@/components/grind/ListingCard";
 import EmptyState from "@/components/grind/EmptyState";
 import SavedTeensRow from "@/components/grind/SavedTeensRow";
@@ -19,6 +19,11 @@ export default function Browse() {
   const [error, setError] = useState(false);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
+  const [maxDistance, setMaxDistance] = useState(null);
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+  const [availableOnly, setAvailableOnly] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -70,13 +75,24 @@ export default function Browse() {
         !search ||
         `${l.title} ${l.description}`.toLowerCase().includes(search.toLowerCase())
     )
+    .filter((l) => !maxDistance || l.delivery_mode === "online" || (l._distance != null && l._distance <= maxDistance))
+    .filter((l) => {
+      const p = Number(l.price) || 0;
+      if (minPrice && p < Number(minPrice)) return false;
+      if (maxPrice && p > Number(maxPrice)) return false;
+      return true;
+    })
+    .filter((l) => !availableOnly || l.teen_is_available !== false)
     .sort((a, b) => {
       const aInArea = a.delivery_mode === "online" || a._inArea;
       const bInArea = b.delivery_mode === "online" || b._inArea;
       if (aInArea !== bInArea) return aInArea ? -1 : 1;
       if (a._distance != null && b._distance != null) return a._distance - b._distance;
-      return 0;
+      // Same area + distance: higher-rated teens rank first
+      return (b.teen_avg_rating || 0) - (a.teen_avg_rating || 0);
     });
+
+  const activeFilterCount = [maxDistance, minPrice, maxPrice, availableOnly].filter(Boolean).length;
 
   return (
     <PullToRefresh onRefresh={load}>
@@ -94,14 +110,30 @@ export default function Browse() {
 
         <SavedTeensRow userId={user.id} />
 
-        <div className="relative">
-          <Search className="w-4 h-4 text-muted-foreground absolute left-4 top-1/2 -translate-y-1/2" />
-          <Input
-            className="rounded-full pl-11 h-12 bg-card"
-            placeholder="Search services..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+        <div className="flex items-center gap-2">
+          <div className="relative flex-1">
+            <Search className="w-4 h-4 text-muted-foreground absolute left-4 top-1/2 -translate-y-1/2" />
+            <Input
+              className="rounded-full pl-11 h-12 bg-card"
+              placeholder="Search services..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className={`h-12 px-4 rounded-full font-semibold text-sm flex items-center gap-1.5 border transition-colors shrink-0 ${
+              showFilters || activeFilterCount > 0
+                ? "bg-primary text-primary-foreground border-primary shadow-soft"
+                : "bg-card text-muted-foreground border-border"
+            }`}
+          >
+            <SlidersHorizontal className="w-4 h-4" />
+            <span className="hidden sm:inline">Filters</span>
+            {activeFilterCount > 0 && (
+              <span className="bg-primary-foreground/20 rounded-full px-1.5 text-xs font-bold">{activeFilterCount}</span>
+            )}
+          </button>
         </div>
 
         <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-4 px-4 pb-1">
@@ -125,6 +157,81 @@ export default function Browse() {
             </button>
           ))}
         </div>
+
+        {showFilters && (
+          <div className="bg-card rounded-2xl border border-border shadow-soft p-4 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="font-bold text-foreground text-sm">Filters</h3>
+              {activeFilterCount > 0 && (
+                <button
+                  onClick={() => { setMaxDistance(null); setMinPrice(""); setMaxPrice(""); setAvailableOnly(false); }}
+                  className="text-xs font-semibold text-primary"
+                >
+                  Clear all
+                </button>
+              )}
+            </div>
+
+            <div>
+              <label className="text-xs font-semibold text-muted-foreground mb-2 block">Distance</label>
+              <div className="flex gap-2 flex-wrap">
+                {[
+                  { label: "Any", value: null },
+                  { label: "≤ 1 mi", value: 1 },
+                  { label: "≤ 3 mi", value: 3 },
+                  { label: "≤ 5 mi", value: 5 },
+                  { label: "≤ 10 mi", value: 10 },
+                ].map((opt) => (
+                  <button
+                    key={String(opt.value)}
+                    onClick={() => setMaxDistance(opt.value)}
+                    className={`px-3.5 h-9 rounded-full text-[13px] font-semibold border transition-colors ${
+                      maxDistance === opt.value
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "bg-card text-muted-foreground border-border"
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="text-xs font-semibold text-muted-foreground mb-2 block">Price range</label>
+              <div className="flex items-center gap-2">
+                <Input
+                  type="number"
+                  placeholder="Min $"
+                  className="rounded-xl h-10"
+                  value={minPrice}
+                  onChange={(e) => setMinPrice(e.target.value)}
+                />
+                <span className="text-muted-foreground">—</span>
+                <Input
+                  type="number"
+                  placeholder="Max $"
+                  className="rounded-xl h-10"
+                  value={maxPrice}
+                  onChange={(e) => setMaxPrice(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <button
+              onClick={() => setAvailableOnly(!availableOnly)}
+              className="w-full flex items-center justify-between rounded-xl bg-secondary p-3.5 min-h-[48px]"
+            >
+              <div className="text-left">
+                <p className="text-sm font-medium text-foreground">Available now only</p>
+                <p className="text-xs text-muted-foreground">Show only teens free to work this week</p>
+              </div>
+              <div className={`w-11 h-6 rounded-full transition-colors flex items-center ${availableOnly ? "bg-primary" : "bg-border"}`}>
+                <div className={`w-5 h-5 rounded-full bg-white shadow-soft transition-transform ${availableOnly ? "translate-x-[22px]" : "translate-x-0.5"}`} />
+              </div>
+            </button>
+          </div>
+        )}
 
         {filtered.length === 0 ? (
           <EmptyState icon={Search} title="No services found" subtitle="Try a different search or category — or check back as more services in your area join." />

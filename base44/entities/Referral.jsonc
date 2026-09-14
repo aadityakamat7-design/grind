@@ -1,0 +1,94 @@
+{
+  "name": "Referral",
+  "type": "object",
+  "properties": {
+    "referrer_id": {
+      "type": "string",
+      "description": "User who shared the referral link"
+    },
+    "referrer_role": {
+      "type": "string",
+      "enum": [
+        "teen",
+        "parent",
+        "buyer"
+      ],
+      "description": "Role of the referrer at the time the link was shared"
+    },
+    "referrer_name": {
+      "type": "string",
+      "description": "Denormalized referrer display name for admin view"
+    },
+    "referred_user_id": {
+      "type": "string",
+      "description": "User who signed up using the referral link"
+    },
+    "referred_email": {
+      "type": "string",
+      "description": "Email of the referred user at signup"
+    },
+    "referred_role": {
+      "type": "string",
+      "enum": [
+        "teen",
+        "parent",
+        "buyer"
+      ],
+      "description": "Role the referred user chose during onboarding"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "signed_up",
+        "first_booking",
+        "completed"
+      ],
+      "default": "signed_up",
+      "description": "signed_up = user registered via the link; first_booking = they completed their first booking; completed = the referral is considered successful",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    }
+  },
+  "required": [
+    "referrer_id",
+    "referred_user_id"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "$or": [
+        {
+          "data.referrer_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

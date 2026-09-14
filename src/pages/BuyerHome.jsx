@@ -11,6 +11,7 @@ import PageHeader from "@/components/grind/PageHeader";
 import BuyerStatsGrid from "@/components/grind/buyer/BuyerStatsGrid";
 import ErrorRetry from "@/components/grind/ErrorRetry";
 import PullToRefresh from "@/components/PullToRefresh";
+import ReferralShare from "@/components/grind/ReferralShare";
 import Tour from "@/components/grind/Tour";
 import { useTour } from "@/hooks/useTour";
 
@@ -142,6 +143,7 @@ export default function BuyerHome() {
         <SavedWorkers saved={saved} />
 
         <RecommendedTeens zip={profile?.zip || ""} />
+        <ReferralShare user={user} />
 
         <section>
           <h2 className="text-[17px] font-bold text-foreground mb-3">Past appointments</h2>
