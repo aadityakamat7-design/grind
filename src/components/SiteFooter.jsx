@@ -1,12 +1,11 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Lock, Mail, Clock, MapPin } from "lucide-react";
 import StripeBadge from "@/components/StripeBadge";
 import NortonBadge from "@/components/NortonBadge";
 
-// Site-wide footer with visible contact information, service area, trust
-// badges, and legal links — the trust signals automated reputation checkers
-// and skeptical users look for. Appears on every page.
+// Compact, professional site footer — a quiet closing line.
+// Single row of legal links + copyright + trust badges on desktop,
+// wrapping cleanly on mobile with 44px tap targets.
 export default function SiteFooter({ compact = false }) {
   const links = [
     { to: "/about", label: "About" },
@@ -16,65 +15,40 @@ export default function SiteFooter({ compact = false }) {
     { to: "/safety", label: "Safety" },
     { to: "/compliance", label: "Payments & Compliance" },
   ];
-  const pad = compact ? "py-1.5" : "py-5";
-  const gap = compact ? "gap-1" : "gap-3";
-  const contactText = compact ? "text-[8px]" : "text-sm";
-  const linkText = compact ? "text-[8px]" : "text-sm";
-  const badgeText = compact ? "text-[7px]" : "text-sm";
-  const minH = compact ? "min-h-[14px]" : "min-h-[44px]";
+
+  const size = compact ? "text-[11px]" : "text-xs";
+  const pad = compact ? "py-2.5" : "py-4";
+
   return (
-    <footer className="border-t border-border bg-card/40">
+    <footer className="border-t border-border/60 bg-card/30">
       <div className={`max-w-5xl mx-auto px-4 lg:px-8 ${pad}`}>
-        {/* Contact + identity */}
-        <div className={`flex flex-col sm:flex-row sm:items-center sm:justify-between ${gap} mb-1.5`}>
-          <div className={`flex items-center gap-1 ${contactText} text-muted-foreground shrink-0`}>
-            <Link to="/" className="font-semibold text-foreground hover:text-primary transition-colors">
-              Blockwork
-            </Link>
-            <span className="text-border">·</span>
-            <span>© {new Date().getFullYear()}</span>
-          </div>
-          <div className={`flex flex-wrap items-center gap-x-2 gap-y-0.5 ${contactText} text-muted-foreground`}>
-            <a href="mailto:support@blockwork.online" className="inline-flex items-center gap-0.5 hover:text-foreground transition-colors">
-              <Mail className="w-2 h-2" /> support@blockwork.online
-            </a>
-            <span className="inline-flex items-center gap-0.5">
-              <Clock className="w-2 h-2" /> We respond within 24 hours
-            </span>
-            <span className="inline-flex items-center gap-0.5">
-              <MapPin className="w-2 h-2" /> Serving California
-            </span>
-          </div>
+        {/* Trust badges — centered, small */}
+        <div className="flex items-center justify-center gap-2 mb-2">
+          <StripeBadge showText={false} />
+          <NortonBadge />
         </div>
 
-        {/* Legal links */}
-        <nav className={`flex flex-wrap items-center gap-x-1.5 gap-y-0.5 ${linkText} text-muted-foreground mb-1.5`}>
+        {/* Copyright */}
+        <p className={`${size} text-muted-foreground/70 text-center mb-1.5 leading-none`}>
+          © {new Date().getFullYear()} Blockwork
+        </p>
+
+        {/* Legal links — single row on desktop, wraps on mobile */}
+        <nav className={`flex flex-wrap items-center justify-center gap-x-1 gap-y-0 ${size} text-muted-foreground`}>
           {links.map((l, i) => (
             <React.Fragment key={l.to}>
-              {i > 0 && <span className="hidden sm:inline text-border/60">·</span>}
-              <Link to={l.to} className={`hover:text-foreground transition-colors ${minH} inline-flex items-center`}>
+              <Link
+                to={l.to}
+                className="min-h-[44px] inline-flex items-center px-1.5 hover:text-foreground hover:underline underline-offset-2 transition-colors"
+              >
                 {l.label}
               </Link>
+              {i < links.length - 1 && (
+                <span className="text-border/50 select-none hidden sm:inline">·</span>
+              )}
             </React.Fragment>
           ))}
         </nav>
-
-        {/* Trust badges + payment reassurance */}
-        <div className="flex flex-col items-center gap-0.5 pt-1 border-t border-border/50">
-          <div className="flex items-center justify-center gap-1.5 flex-wrap">
-            <StripeBadge showText={false} />
-            <NortonBadge />
-            <span className={`inline-flex items-center gap-0.5 rounded bg-secondary border border-border px-1 py-0 ${badgeText} font-semibold text-muted-foreground leading-none whitespace-nowrap`}>
-              <Lock className="w-2 h-2" /> SSL Secured
-            </span>
-          </div>
-          <p className={`${badgeText} text-muted-foreground text-center leading-tight max-w-md`}>
-            Payments processed by Stripe. We never store card or bank details.
-          </p>
-          <p className={`${badgeText} text-muted-foreground/70 text-center`}>
-            Blockwork is built and operated by a small team in California.
-          </p>
-        </div>
       </div>
     </footer>
   );
