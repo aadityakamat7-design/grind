@@ -196,8 +196,8 @@ export default function BookingDetail() {
             <Clock className="w-4 h-4 shrink-0 mt-0.5" />
             <span>
               {isTeen
-                ? "Waiting for your parent to approve this job. Ask them to check their dashboard — once they approve, you can start."
-                : "Waiting for the teen's parent to approve this job. This is a safety requirement and usually takes less than a day."}
+                ? "Waiting for your parent to approve. Ask them to check their dashboard."
+                : "Waiting for the parent to approve — usually within a day."}
             </span>
           </div>
         )}
@@ -268,7 +268,7 @@ export default function BookingDetail() {
         {isBuyer && booking.status === "confirmed" && !booking.buyer_started_at && !booking.teen_started_at && (booking.charge_amount ?? booking.price_total) > 0 && (
           <div className="flex items-center gap-2 rounded-xl p-3 text-xs text-muted-foreground bg-secondary border border-border">
             <Lock className="w-4 h-4 shrink-0" />
-            Waiting for {booking.teen_display_name} to confirm they're ready. Payment unlocks once the teen starts.
+            Waiting for {booking.teen_display_name} to confirm.
           </div>
         )}
         <JobHandshakePanel
