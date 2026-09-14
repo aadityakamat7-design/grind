@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Outlet, NavLink, Navigate, Link, useLocation, useNavigate } from "react-router-dom";
-import { Home, List, CalendarDays, MessageCircle, Wallet, LayoutDashboard, ShieldCheck, Search, Briefcase, ArrowLeft, LifeBuoy } from "lucide-react";
+import { Home, List, CalendarDays, MessageCircle, Wallet, LayoutDashboard, ShieldCheck, Search, Briefcase, ArrowLeft, LifeBuoy, Settings } from "lucide-react";
 import { useAppUser } from "@/lib/useAppUser";
 import NotificationBell from "@/components/grind/NotificationBell";
 import SiteFooter from "@/components/SiteFooter";
@@ -200,6 +200,26 @@ export default function Layout() {
               <p className="text-sm text-muted-foreground truncate">{roleLabel}</p>
             </div>
           </Link>
+          <div className="mt-1 space-y-0.5">
+            <Link to="/account" className="flex items-center gap-3 rounded-xl px-3 py-2 text-[13px] font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors">
+              <Settings className="w-4 h-4 shrink-0" /> Settings
+            </Link>
+            {user.app_role === "teen" && (
+              <Link to="/teen/bookings" className="flex items-center gap-3 rounded-xl px-3 py-2 text-[13px] font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors">
+                <CalendarDays className="w-4 h-4 shrink-0" /> Bookings
+              </Link>
+            )}
+            {user.app_role === "parent" && user.has_buyer_profile && (
+              <>
+                <Link to="/jobs" className="flex items-center gap-3 rounded-xl px-3 py-2 text-[13px] font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors">
+                  <Briefcase className="w-4 h-4 shrink-0" /> Post a Job
+                </Link>
+                <Link to="/buyer/bookings" className="flex items-center gap-3 rounded-xl px-3 py-2 text-[13px] font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors">
+                  <CalendarDays className="w-4 h-4 shrink-0" /> My Bookings
+                </Link>
+              </>
+            )}
+          </div>
           <Link to="/support" className="flex items-center gap-3 rounded-xl px-3 py-2 mt-1 text-[13px] font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors">
             <LifeBuoy className="w-4 h-4 shrink-0" /> Support
           </Link>

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useOutletContext, useNavigate, Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { LogOut, ShieldCheck, RefreshCw, ExternalLink } from "lucide-react";
+import { LogOut, ShieldCheck, RefreshCw, ExternalLink, Settings, CalendarDays, Briefcase, LifeBuoy } from "lucide-react";
 import PageHeader from "@/components/grind/PageHeader";
 import DeleteAccountButton from "@/components/grind/DeleteAccountButton";
 import AccountReviewsTab from "@/components/grind/AccountReviewsTab";
@@ -40,6 +40,7 @@ export default function Account() {
 
   const tabs = [
     { key: "profile", label: "Profile" },
+    { key: "settings", label: "Settings" },
     { key: "reviews", label: "Reviews" },
   ];
 
@@ -95,6 +96,53 @@ export default function Account() {
           )}
 
           <ProfileSettingsCard user={user} />
+        </>
+      ) : tab === "settings" ? (
+        <>
+          <div className="space-y-2">
+            {user.app_role === "teen" && (
+              <Link to="/teen/bookings" className="flex items-center gap-3 bg-card rounded-2xl border border-border shadow-soft p-4 hover:shadow-card transition-shadow">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                  <CalendarDays className="w-5 h-5 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <p className="font-semibold text-foreground text-[14px]">My bookings</p>
+                  <p className="text-[12px] text-muted-foreground">All upcoming and past jobs</p>
+                </div>
+              </Link>
+            )}
+            {user.app_role === "parent" && user.has_buyer_profile && (
+              <>
+                <Link to="/jobs" className="flex items-center gap-3 bg-card rounded-2xl border border-border shadow-soft p-4 hover:shadow-card transition-shadow">
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                    <Briefcase className="w-5 h-5 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-semibold text-foreground text-[14px]">Post a job</p>
+                    <p className="text-[12px] text-muted-foreground">Find help for a one-time task</p>
+                  </div>
+                </Link>
+                <Link to="/buyer/bookings" className="flex items-center gap-3 bg-card rounded-2xl border border-border shadow-soft p-4 hover:shadow-card transition-shadow">
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                    <CalendarDays className="w-5 h-5 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-semibold text-foreground text-[14px]">My bookings</p>
+                    <p className="text-[12px] text-muted-foreground">Jobs you've posted as a neighbor</p>
+                  </div>
+                </Link>
+              </>
+            )}
+            <Link to="/support" className="flex items-center gap-3 bg-card rounded-2xl border border-border shadow-soft p-4 hover:shadow-card transition-shadow">
+              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                <LifeBuoy className="w-5 h-5 text-primary" />
+              </div>
+              <div className="flex-1">
+                <p className="font-semibold text-foreground text-[14px]">Support</p>
+                <p className="text-[12px] text-muted-foreground">Get help and view FAQs</p>
+              </div>
+            </Link>
+          </div>
 
           <RecoveryPhoneCard user={user} />
 
