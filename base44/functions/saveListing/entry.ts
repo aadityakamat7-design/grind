@@ -6,6 +6,7 @@ import { getDeliveryMode, isRemovedCategory } from '../../shared/deliveryMode.ts
 import { getHourLimits } from '../../shared/stateHourLimits.ts';
 
 const MAX_UNIT_PRICE = 500;
+const MIN_UNIT_PRICE = 5;
 const MIN_TITLE = 3;
 const MAX_TITLE = 80;
 const MAX_DESC = 1000;
@@ -30,8 +31,8 @@ Deno.serve(async (req) => {
     }
 
     const price = Number(body.price);
-    if (!Number.isFinite(price) || price < 1 || price > MAX_UNIT_PRICE) {
-      return Response.json({ error: `Price must be between $1 and $${MAX_UNIT_PRICE}.` }, { status: 400 });
+    if (!Number.isFinite(price) || price < MIN_UNIT_PRICE || price > MAX_UNIT_PRICE) {
+      return Response.json({ error: `Price must be at least $${MIN_UNIT_PRICE} and at most $${MAX_UNIT_PRICE}.` }, { status: 400 });
     }
 
     const svc = base44.asServiceRole.entities;

@@ -7,6 +7,7 @@ export const PLATFORM_FEE_FIXED = 0.30;
 // client-side validation so users get immediate feedback before Stripe.
 export const MAX_UNIT_PRICE = 500;   // per-job or per-hour rate (Listing, JobPost)
 export const MAX_TOTAL_PRICE = 2000; // escrow total incl. multi-hour (Booking, JobPost.charge)
+export const MIN_UNIT_PRICE = 5;    // sensible floor — no job worth less than $5
 
 export const CATEGORIES = [
   { value: "tutoring", label: "Online Tutoring", icon: "GraduationCap", deliveryMode: "online" },
@@ -41,12 +42,12 @@ export function isOnlineCategory(category) {
 // immediate client-side feedback. Each category has a flat minimum and an
 // hourly minimum.
 export const CATEGORY_MINIMUMS = {
-  tutoring:    { FIXED: 0.01, HOURLY: 0.01 },
-  tech_help:   { FIXED: 0.01, HOURLY: 0.01 },
-  lawn_care:   { FIXED: 0.01, HOURLY: 0.01 },
-  car_washing: { FIXED: 0.01, HOURLY: 0.01 },
-  odd_jobs:    { FIXED: 0.01, HOURLY: 0.01 },
-  pet_sitting: { FIXED: 0.01, HOURLY: 0.01 },
+  tutoring:    { FIXED: MIN_UNIT_PRICE, HOURLY: MIN_UNIT_PRICE },
+  tech_help:   { FIXED: MIN_UNIT_PRICE, HOURLY: MIN_UNIT_PRICE },
+  lawn_care:   { FIXED: MIN_UNIT_PRICE, HOURLY: MIN_UNIT_PRICE },
+  car_washing: { FIXED: MIN_UNIT_PRICE, HOURLY: MIN_UNIT_PRICE },
+  odd_jobs:    { FIXED: MIN_UNIT_PRICE, HOURLY: MIN_UNIT_PRICE },
+  pet_sitting: { FIXED: MIN_UNIT_PRICE, HOURLY: MIN_UNIT_PRICE },
 };
 
 export function categoryMinimum(category, priceModel) {

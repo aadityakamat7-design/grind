@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import ResponsiveSelect from "@/components/grind/ResponsiveSelect";
 import { ShieldCheck, ShieldX, Sparkles, Lock, Tag, AlertCircle, Zap } from "lucide-react";
-import { CATEGORIES, CATEGORY_LABELS, categoryMinimum, computeFees, money, MAX_UNIT_PRICE, isOnlineCategory } from "@/lib/grind";
+import { CATEGORIES, CATEGORY_LABELS, categoryMinimum, computeFees, money, MAX_UNIT_PRICE, MIN_UNIT_PRICE, isOnlineCategory } from "@/lib/grind";
 import { cn } from "@/lib/utils";
 import { getMinAgeForCategory } from "@/lib/stateWorkRules";
 import SlideToConfirm from "@/components/grind/SlideToConfirm";
@@ -97,8 +97,12 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
     }
   };
 
-  const priceError = Number(form.price) > MAX_UNIT_PRICE ? `Max ${MAX_UNIT_PRICE} per job` : "";
-  const valid = form.title.trim().length >= 3 && form.description.trim().length >= 10 && Number(form.price) > 0 && !priceError && form.state;
+  const priceError = Number(form.price) > MAX_UNIT_PRICE
+    ? `Max $${MAX_UNIT_PRICE} per job`
+    : Number(form.price) > 0 && Number(form.price) < MIN_UNIT_PRICE
+      ? `Minimum $${MIN_UNIT_PRICE} per job`
+      : "";
+  const valid = form.title.trim().length >= 3 && form.description.trim().length >= 10 && Number(form.price) >= MIN_UNIT_PRICE && !priceError && form.state;
   const { platform_fee, net_amount } = computeFees(Number(form.price) || 0);
 
   // Step 1: run the AI category check, then show the category + minimum review.
@@ -431,7 +435,8 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label>Pay ($)</Label>
-                <Input className="rounded-xl" type="number" inputMode="decimal" placeholder="25" value={form.price} onChange={(e) => set("price", e.target.value)} />
+                <Input className="rounded-xl" type="number" inputMode="decimal" min={MIN_UNIT_PRICE} max={MAX_UNIT_PRICE} placeholder="25" value={form.price} onChange={(e) => set("price", e.target.value)} />
+                <p className="text-xs text-muted-foreground">Minimum ${MIN_UNIT_PRICE} · Maximum ${MAX_UNIT_PRICE}</p>
                 {priceError && <p className="text-xs text-destructive font-semibold">{priceError}</p>}
               </div>
               <div className="space-y-1.5">

@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import ResponsiveSelect from "@/components/grind/ResponsiveSelect";
 import { AlertTriangle } from "lucide-react";
-import { checkHazard, MAX_UNIT_PRICE, SKILL_CATEGORIES } from "@/lib/grind";
+import { checkHazard, MAX_UNIT_PRICE, MIN_UNIT_PRICE, SKILL_CATEGORIES } from "@/lib/grind";
 import { getMinAgeForCategory } from "@/lib/stateWorkRules";
 import CredentialUpload from "@/components/grind/CredentialUpload";
 import SlideToConfirm from "@/components/grind/SlideToConfirm";
@@ -24,7 +24,11 @@ export default function ListingForm({ open, onOpenChange, listing, profile, onSa
   const [credential, setCredential] = useState(null);
   const [teenAge, setTeenAge] = useState(null);
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
-  const priceError = Number(form.price) > MAX_UNIT_PRICE ? `Max ${MAX_UNIT_PRICE} per job` : "";
+  const priceError = Number(form.price) > MAX_UNIT_PRICE
+    ? `Max $${MAX_UNIT_PRICE} per job`
+    : Number(form.price) > 0 && Number(form.price) < MIN_UNIT_PRICE
+      ? `Minimum $${MIN_UNIT_PRICE} per job`
+      : "";
 
   // Fetch the teen's verified age so we can show locked categories. The
   // server re-checks with the verified DOB on save — this is just for UI.
@@ -141,7 +145,8 @@ export default function ListingForm({ open, onOpenChange, listing, profile, onSa
             </div>
             <div>
               <Label>Price ($)</Label>
-              <Input type="number" min="1" max={MAX_UNIT_PRICE} className="rounded-xl mt-1" value={form.price} onChange={(e) => set("price", e.target.value)} />
+              <Input type="number" min={MIN_UNIT_PRICE} max={MAX_UNIT_PRICE} className="rounded-xl mt-1" value={form.price} onChange={(e) => set("price", e.target.value)} />
+              <p className="text-xs text-muted-foreground mt-1">Minimum ${MIN_UNIT_PRICE} · Maximum ${MAX_UNIT_PRICE}</p>
               {priceError && <p className="text-xs text-rose-600 mt-1 font-semibold">{priceError}</p>}
             </div>
           </div>
@@ -169,7 +174,7 @@ export default function ListingForm({ open, onOpenChange, listing, profile, onSa
             label={listing ? "Slide to save changes" : "Slide to post"}
             loadingLabel="Saving..."
             loading={saving}
-            disabled={!form.category || !form.title || !form.price || !!priceError || categoryLocked || !(form.availability && form.availability.length > 0)}
+            disabled={!form.category || !form.title || !form.price || Number(form.price) < MIN_UNIT_PRICE || !!priceError || categoryLocked || !(form.availability && form.availability.length > 0)}
             onConfirm={save}
           />
         </div>
