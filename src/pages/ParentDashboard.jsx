@@ -5,7 +5,7 @@ import { CalendarDays, Users } from "lucide-react";
 import BookingCard from "@/components/grind/BookingCard";
 import PageHeader from "@/components/grind/PageHeader";
 import EmptyState from "@/components/grind/EmptyState";
-import StudentIncomeCard from "@/components/grind/parent/StudentIncomeCard";
+import MyListingsSection from "@/components/grind/parent/MyListingsSection";
 import SafetyPanel from "@/components/grind/parent/SafetyPanel";
 
 import PayoutStatusCard from "@/components/grind/parent/PayoutStatusCard";
@@ -15,7 +15,6 @@ import LinkTeenCard from "@/components/grind/parent/LinkTeenCard";
 import IdentityVerificationGate from "@/components/grind/parent/IdentityVerificationGate";
 import { Button } from "@/components/ui/button";
 import { ShieldCheck } from "lucide-react";
-import ParentStatsGrid from "@/components/grind/parent/ParentStatsGrid";
 import WeeklyHoursCard from "@/components/grind/parent/WeeklyHoursCard";
 import { getVerifiedAgeFromPrivate } from "@/lib/stateWorkRules";
 import { EarningsAreaChart } from "@/components/grind/TimeRangeChart";
@@ -34,6 +33,7 @@ export default function ParentDashboard() {
   const [notifications, setNotifications] = useState([]);
   const [teenProfiles, setTeenProfiles] = useState([]);
   const [teenPrivates, setTeenPrivates] = useState([]);
+  const [jobPosts, setJobPosts] = useState([]);
   const [selected, setSelected] = useState("all");
   const [pendingLinks, setPendingLinks] = useState([]);
   const [verifyOpen, setVerifyOpen] = useState(false);
@@ -58,13 +58,14 @@ export default function ParentDashboard() {
       const confirmed = allLinks.filter((l) => l.status === "confirmed");
       const pending = allLinks.filter((l) => l.status === "pending");
       const teenIds = confirmed.map((l) => l.teen_user_id);
-      const [b, r, profiles, notifs, tp, tpd] = await Promise.all([
+      const [b, r, profiles, notifs, tp, tpd, jp] = await Promise.all([
         teenIds.length ? base44.entities.Booking.filter({ teen_user_id: { $in: teenIds } }, "-created_date", 100) : [],
         teenIds.length ? base44.entities.EarningsRecord.filter({ teen_user_id: { $in: teenIds } }, "-occurred_at", 200) : [],
         base44.entities.ParentProfile.filter({ user_id: user.id }),
         base44.entities.Notification.filter({ user_id: user.id }, "-created_date", 20),
         teenIds.length ? base44.entities.TeenProfile.filter({ user_id: { $in: teenIds } }) : [],
         teenIds.length ? base44.entities.TeenPrivateData.filter({ user_id: { $in: teenIds } }) : [],
+        base44.entities.JobPost.filter({ buyer_user_id: user.id }, "-created_date", 10),
       ]);
       setLinks(confirmed);
       setPendingLinks(pending);
@@ -75,6 +76,7 @@ export default function ParentDashboard() {
       setNotifications(notifs);
       setTeenProfiles(tp);
       setTeenPrivates(tpd);
+      setJobPosts(jp);
     } catch (err) {
       console.error("ParentDashboard load failed:", err);
       setError(true);
@@ -150,7 +152,6 @@ export default function ParentDashboard() {
   const shownIds = shownLinks.map((l) => l.teen_user_id);
   const shownBookings = bookings.filter((b) => shownIds.includes(b.teen_user_id));
   const shownRecords = records.filter((r) => shownIds.includes(r.teen_user_id));
-  const weekAgo = Date.now() - 7 * 86400000;
 
   const pendingApprovals = bookings.filter((b) => b.status === "pending_parent_approval");
   const activeJobs = shownBookings.filter((b) => b.status === "in_progress");
@@ -189,7 +190,7 @@ export default function ParentDashboard() {
           return <LockedSetupCard profile={parentProfile} onStartSetup={() => setVerifyOpen(true)} />;
         })()}
 
-        <ParentStatsGrid records={records} bookings={bookings} links={links} teenProfiles={teenProfiles} />
+        <MyListingsSection listings={jobPosts} />
 
         {links.length > 1 && (
           <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-4 px-4">
@@ -215,14 +216,6 @@ export default function ParentDashboard() {
         )}
 
         {shownLinks.map((l) => {
-          const teenRecords = records.filter((r) => r.teen_user_id === l.teen_user_id);
-          const total = teenRecords.reduce((s, r) => s + (r.net_amount || 0), 0);
-          const week = teenRecords
-            .filter((r) => r.occurred_at && new Date(r.occurred_at) > weekAgo)
-            .reduce((s, r) => s + (r.net_amount || 0), 0);
-          const pendingEscrow = bookings
-            .filter((b) => b.teen_user_id === l.teen_user_id && b.payment_status === "held" && ["confirmed", "in_progress", "completed"].includes(b.status))
-            .reduce((s, b) => s + (b.net_amount || 0), 0);
           const teenProfile = teenProfiles.find((p) => p.user_id === l.teen_user_id);
           const teenPrivate = teenPrivates.find((p) => p.user_id === l.teen_user_id);
           const teenAge = getVerifiedAgeFromPrivate(teenPrivate);
@@ -236,16 +229,6 @@ export default function ParentDashboard() {
                 bookings={teenBookings}
               />
               <WithdrawalLockCard link={l} onUpdated={load} />
-              <StudentIncomeCard
-                name={l.teen_display_name?.split(" ")[0]}
-                total={total}
-                week={week}
-                pending={pendingEscrow}
-                connectStatus={connectStatus}
-                rating={teenProfile?.avg_rating}
-                reviewCount={teenProfile?.review_count}
-                jobsCompleted={teenProfile?.jobs_completed}
-              />
             </div>
           );
         })}
