@@ -10,69 +10,47 @@ import ScrollToTop from './components/ScrollToTop';
 import TestModeBanner from "@/components/TestModeBanner";
 import RouteMeta from "@/components/RouteMeta";
 import CanonicalDomainRedirect from "@/components/CanonicalDomainRedirect";
-import { lazy, Suspense } from 'react';
 // Add page imports here
-// Route-level code splitting: lazy-load pages so the initial bundle stays
-// small. Layout and AdminRoute stay eager (they wrap/guard routes).
-
-// Retry wrapper for lazy imports — handles transient Vite HMR failures
-// where a stale module URL (?t=…) becomes invalid after a rebuild.
-function lazyRetry(importFn) {
-  return lazy(async () => {
-    try {
-      return await importFn();
-    } catch (err) {
-      await new Promise((r) => setTimeout(r, 200));
-      try {
-        return await importFn();
-      } catch {
-        window.location.reload();
-        throw err;
-      }
-    }
-  });
-}
-
-const Login = lazyRetry(() => import('@/pages/Login'));
-const Register = lazyRetry(() => import('@/pages/Register'));
-const ForgotPassword = lazyRetry(() => import('@/pages/ForgotPassword'));
-const ResetPassword = lazyRetry(() => import('@/pages/ResetPassword'));
+import Login from '@/pages/Login';
+import Register from '@/pages/Register';
+import ForgotPassword from '@/pages/ForgotPassword';
+import ResetPassword from '@/pages/ResetPassword';
 import Layout from '@/components/grind/Layout';
-const Welcome = lazyRetry(() => import('@/pages/Welcome'));
-const Onboarding = lazyRetry(() => import('@/pages/Onboarding'));
-const Account = lazyRetry(() => import('@/pages/Account'));
-const TeenHome = lazyRetry(() => import('@/pages/TeenHome'));
-const TeenListings = lazyRetry(() => import('@/pages/TeenListings'));
-const TeenBookings = lazyRetry(() => import('@/pages/TeenBookings'));
-const TeenEarnings = lazyRetry(() => import('@/pages/TeenEarnings'));
-const TeenWallet = lazyRetry(() => import('@/pages/TeenWallet'));
-const ParentDashboard = lazyRetry(() => import('@/pages/ParentDashboard'));
-const ParentApprovals = lazyRetry(() => import('@/pages/ParentApprovals'));
-const ParentPayouts = lazyRetry(() => import('@/pages/ParentPayouts'));
-const Browse = lazyRetry(() => import('@/pages/Browse'));
-const JobBoard = lazyRetry(() => import('@/pages/JobBoard'));
-const BuyerHome = lazyRetry(() => import('@/pages/BuyerHome'));
-const TeenPublicProfile = lazyRetry(() => import('@/pages/TeenPublicProfile'));
-const BuyerPublicProfile = lazyRetry(() => import('@/pages/BuyerPublicProfile'));
-const BuyerBookings = lazyRetry(() => import('@/pages/BuyerBookings'));
-const BookingDetail = lazyRetry(() => import('@/pages/BookingDetail'));
-const VideoRoom = lazyRetry(() => import('@/pages/VideoRoom'));
-const Messages = lazyRetry(() => import('@/pages/Messages'));
-const ChatThread = lazyRetry(() => import('@/pages/ChatThread'));
-const Notifications = lazyRetry(() => import('@/pages/Notifications'));
-const Admin = lazyRetry(() => import('@/pages/Admin'));
+import Welcome from '@/pages/Welcome';
+import Onboarding from '@/pages/Onboarding';
+import Account from '@/pages/Account';
+import TeenHome from '@/pages/TeenHome';
+import TeenListings from '@/pages/TeenListings';
+import TeenBookings from '@/pages/TeenBookings';
+import TeenEarnings from '@/pages/TeenEarnings';
+import TeenWallet from '@/pages/TeenWallet';
+import ParentDashboard from '@/pages/ParentDashboard';
+import ParentApprovals from '@/pages/ParentApprovals';
+import ParentPayouts from '@/pages/ParentPayouts';
+import Browse from '@/pages/Browse';
+import JobBoard from '@/pages/JobBoard';
+import BuyerHome from '@/pages/BuyerHome';
+import TeenPublicProfile from '@/pages/TeenPublicProfile';
+import BuyerPublicProfile from '@/pages/BuyerPublicProfile';
+import BuyerBookings from '@/pages/BuyerBookings';
+import BookingDetail from '@/pages/BookingDetail';
+import VideoRoom from '@/pages/VideoRoom';
+import Messages from '@/pages/Messages';
+import ChatThread from '@/pages/ChatThread';
+import Notifications from '@/pages/Notifications';
+import Admin from '@/pages/Admin';
 import AdminRoute from '@/components/grind/AdminRoute';
-const TermsOfService = lazyRetry(() => import('@/pages/TermsOfService'));
-const PrivacyPolicy = lazyRetry(() => import('@/pages/PrivacyPolicy'));
-const Compliance = lazyRetry(() => import('@/pages/Compliance'));
-const Support = lazyRetry(() => import('@/pages/Support'));
-const Safety = lazyRetry(() => import('@/pages/Safety'));
-const About = lazyRetry(() => import('@/pages/About'));
-const Faq = lazyRetry(() => import('@/pages/Faq'));
-const HowItWorks = lazyRetry(() => import('@/pages/HowItWorks'));
-const OAuthConsent = lazyRetry(() => import('@/pages/OAuthConsent'));
-const WithdrawalAssistant = lazyRetry(() => import('@/pages/WithdrawalAssistant'));
-const ResolveExpiredJob = lazyRetry(() => import('@/pages/ResolveExpiredJob'));
+import TermsOfService from '@/pages/TermsOfService';
+import PrivacyPolicy from '@/pages/PrivacyPolicy';
+import Compliance from '@/pages/Compliance';
+import Support from '@/pages/Support';
+import Safety from '@/pages/Safety';
+import About from '@/pages/About';
+import Faq from '@/pages/Faq';
+import HowItWorks from '@/pages/HowItWorks';
+import OAuthConsent from '@/pages/OAuthConsent';
+import WithdrawalAssistant from '@/pages/WithdrawalAssistant';
+import ResolveExpiredJob from '@/pages/ResolveExpiredJob';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -112,11 +90,6 @@ const AuthenticatedApp = () => {
         exit={{ opacity: 0, x: -24 }}
         transition={{ duration: 0.2, ease: "easeOut" }}
       >
-        <Suspense fallback={
-          <div className="flex justify-center py-24">
-            <div className="w-10 h-10 border-[3px] border-muted border-t-primary rounded-full animate-spin" />
-          </div>
-        }>
         <Routes location={location}>
       {/* Public landing + auth */}
       <Route path="/" element={<Welcome />} />
@@ -176,7 +149,6 @@ const AuthenticatedApp = () => {
 
       <Route path="*" element={<PageNotFound />} />
         </Routes>
-        </Suspense>
       </motion.div>
     </AnimatePresence>
   );
