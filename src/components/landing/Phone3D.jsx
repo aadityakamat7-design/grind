@@ -1,9 +1,10 @@
 import React from "react";
-import { ShieldCheck, Star } from "lucide-react";
+import { ShieldCheck, Star, Zap, Video } from "lucide-react";
 
-const JOBS = [
-  { title: "Lawn mowing", price: "+$40.00", meta: "Completed · Sat" },
-  { title: "Dog walking", price: "+$25.00", meta: "Completed · Mon" },
+const LISTINGS = [
+  { title: "Lawn mowing", price: "$40", meta: "Fixed · ZIP 94536", badge: null },
+  { title: "Algebra 2 tutoring", price: "$25/hr", meta: "Online · ASAP", badge: "ASAP" },
+  { title: "SUV wash & vacuum", price: "$35", meta: "Fixed · ZIP 94536", badge: null },
 ];
 
 // Pure visual phone mockup — no animation logic. The parent component
@@ -36,27 +37,31 @@ export default function Phone3D() {
               </div>
             </div>
 
-            {/* Earnings card — serif figure in amber */}
-            <div className="rounded-2xl bg-card border border-border p-3.5 mb-3 shadow-soft">
-              <p className="text-sm font-medium text-muted-foreground">This week's earnings</p>
-              <p className="font-display text-3xl text-amber leading-none mt-1">$142.50</p>
-              <div className="flex items-end gap-1 mt-2.5 h-6">
-                {[40, 65, 30, 80, 55, 90, 70].map((h, i) => (
-                  <div key={i} className="flex-1 bg-foreground/15 rounded-sm" style={{ height: `${h}%` }} />
-                ))}
-              </div>
+            {/* My listings */}
+            <div className="flex items-center justify-between mb-1.5">
+              <p className="text-sm font-semibold text-muted-foreground">My listings</p>
+              <span className="text-xs font-semibold text-primary">Post a job</span>
             </div>
-
-            {/* Recent jobs */}
-            <p className="text-sm font-semibold text-muted-foreground mb-1.5">Recent jobs</p>
             <div className="space-y-2">
-              {JOBS.map((j) => (
-                <div key={j.title} className="flex items-center justify-between rounded-xl bg-card border border-border px-3 py-2">
-                  <div>
-                    <p className="text-sm font-semibold text-foreground">{j.title}</p>
-                    <p className="text-sm text-muted-foreground">{j.meta}</p>
+              {LISTINGS.map((l) => (
+                <div key={l.title} className="rounded-xl bg-card border border-border px-3 py-2">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-semibold text-foreground">{l.title}</p>
+                    <span className="text-sm font-bold text-foreground">{l.price}</span>
                   </div>
-                  <span className="text-sm font-bold text-foreground">{j.price}</span>
+                  <div className="flex items-center gap-1.5 mt-1">
+                    {l.badge && (
+                      <span className="inline-flex items-center gap-0.5 rounded-full bg-amber/15 text-amber px-1.5 py-0.5 text-[10px] font-bold uppercase">
+                        <Zap className="w-2.5 h-2.5" /> {l.badge}
+                      </span>
+                    )}
+                    {l.meta.includes("Online") && (
+                      <span className="inline-flex items-center gap-0.5 rounded-full bg-primary/10 text-primary px-1.5 py-0.5 text-[10px] font-medium">
+                        <Video className="w-2.5 h-2.5" /> Online
+                      </span>
+                    )}
+                    <span className="text-[11px] text-muted-foreground">{l.meta}</span>
+                  </div>
                 </div>
               ))}
             </div>
