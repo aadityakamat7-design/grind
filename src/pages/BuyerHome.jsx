@@ -8,7 +8,6 @@ import RecommendedTeens from "@/components/grind/buyer/RecommendedTeens";
 import BookingCard from "@/components/grind/BookingCard";
 import ReviewNudge from "@/components/grind/ReviewNudge";
 import PageHeader from "@/components/grind/PageHeader";
-import BuyerStatsGrid from "@/components/grind/buyer/BuyerStatsGrid";
 import ErrorRetry from "@/components/grind/ErrorRetry";
 import PullToRefresh from "@/components/PullToRefresh";
 import ReferralShare from "@/components/grind/ReferralShare";
@@ -62,9 +61,6 @@ export default function BuyerHome() {
     return (
       <div className="space-y-5">
         <div className="h-8 w-56 rounded-lg bg-muted skeleton-shimmer" />
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          {Array.from({ length: 6 }).map((_, i) => <div key={i} className="bg-card rounded-2xl border border-border p-4 h-24 skeleton-shimmer" />)}
-        </div>
         <div className="bg-card rounded-2xl border border-border h-32 skeleton-shimmer" />
       </div>
     );
@@ -78,8 +74,6 @@ export default function BuyerHome() {
     <PullToRefresh onRefresh={load}>
       <div className="space-y-6">
         <PageHeader title={`Hi, ${(user.full_name || "neighbor").split(" ")[0]} 👋`} subtitle="Trusted teen help, right in your neighborhood." />
-
-        <BuyerStatsGrid bookings={bookings} profile={profile} />
 
         {bookings.length === 0 && (
           <div className="bg-primary/5 border border-primary/20 rounded-2xl p-6 text-center">

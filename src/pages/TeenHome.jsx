@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Link, useOutletContext } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { Plus, CalendarDays, BarChart3 } from "lucide-react";
+import { Plus, CalendarDays } from "lucide-react";
 import BookingCard from "@/components/grind/BookingCard";
 import PageHeader from "@/components/grind/PageHeader";
 import { getHourLimits } from "@/lib/stateHourLimits";
@@ -12,11 +12,8 @@ import ReferralShare from "@/components/grind/ReferralShare";
 import RecurringSeriesCard from "@/components/grind/RecurringSeriesCard";
 import MessagesWidget from "@/components/grind/teen/MessagesWidget";
 import CashOutDialog from "@/components/grind/wallet/CashOutDialog";
-import TeenStatsGrid from "@/components/grind/teen/TeenStatsGrid";
 import TeenHoursCard from "@/components/grind/teen/TeenHoursCard";
-import CategoryBreakdown from "@/components/grind/teen/CategoryBreakdown";
 import ProfileCompleteness from "@/components/grind/teen/ProfileCompleteness";
-import { EarningsAreaChart } from "@/components/grind/TimeRangeChart";
 import ErrorRetry from "@/components/grind/ErrorRetry";
 import { getOrCreateWallet } from "@/lib/wallet";
 import { genInviteCode } from "@/lib/grind";
@@ -25,7 +22,6 @@ import Tour from "@/components/grind/Tour";
 import { useTour } from "@/hooks/useTour";
 
 const teenTourSteps = [
-  { target: "tour-earnings", title: "Your earnings", subtitle: "This is what you've made and what's still pending." },
   { target: "tour-services", title: "My Services", subtitle: "List what you're good at. Neighbors book you from here." },
   { target: "tour-jobs", title: "Jobs", subtitle: "Requests and upcoming work show up here." },
   { target: "tour-availability", title: "Availability", subtitle: "Flip this off when you're busy and you won't appear in search." },
@@ -37,7 +33,6 @@ export default function TeenHome() {
   const [bookings, setBookings] = useState([]);
   const [listings, setListings] = useState([]);
   const [wallet, setWallet] = useState(null);
-  const [records, setRecords] = useState([]);
   const [threads, setThreads] = useState([]);
   const [privateData, setPrivateData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -48,12 +43,11 @@ export default function TeenHome() {
   const load = useCallback(async () => {
     try {
       setError(false);
-      const [profiles, myBookings, myListings, w, txns, myThreads, myPrivate] = await Promise.all([
+      const [profiles, myBookings, myListings, w, myThreads, myPrivate] = await Promise.all([
         base44.entities.TeenProfile.filter({ user_id: user.id }),
         base44.entities.Booking.filter({ teen_user_id: user.id }, "-created_date", 100),
         base44.entities.Listing.filter({ teen_user_id: user.id }, "-created_date"),
         getOrCreateWallet(user.id),
-        base44.entities.EarningsRecord.filter({ teen_user_id: user.id }, "-occurred_at", 200),
         base44.entities.MessageThread.filter({ teen_user_id: user.id }, "-last_message_at", 5),
         base44.entities.TeenPrivateData.filter({ user_id: user.id }),
       ]);
@@ -75,7 +69,6 @@ export default function TeenHome() {
       setBookings(myBookings);
       setListings(myListings);
       setWallet(w);
-      setRecords(txns);
       setThreads(myThreads);
       setPrivateData(myPrivate[0] || null);
     } catch (err) {
@@ -90,8 +83,7 @@ export default function TeenHome() {
 
   useEffect(() => {
     const unsubBooking = base44.entities.Booking.subscribe(() => load());
-    const unsubEarn = base44.entities.EarningsRecord.subscribe(() => load());
-    return () => { unsubBooking(); unsubEarn(); };
+    return unsubBooking;
   }, [load]);
 
   if (loading)
@@ -131,20 +123,7 @@ export default function TeenHome() {
           </div>
         )}
 
-        <div data-tour="tour-earnings">
-          <TeenStatsGrid records={records} bookings={bookings} profile={profile} />
-        </div>
-
         <TeenHoursCard profile={profile} privateData={privateData} bookings={bookings} />
-
-        <div>
-          <h2 className="text-[17px] font-bold text-foreground mb-3 flex items-center gap-2">
-            <BarChart3 className="w-[18px] h-[18px] text-muted-foreground" /> Earnings over time
-          </h2>
-          <EarningsAreaChart data={records} valueKey="net_amount" dateKey="occurred_at" color="#2E6BE0" height={180} />
-        </div>
-
-        <CategoryBreakdown bookings={bookings} listings={listings} />
 
         <ProfileCompleteness profile={profile} />
 

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Outlet, NavLink, Navigate, Link, useLocation, useNavigate } from "react-router-dom";
-import { Home, List, CalendarDays, MessageCircle, Wallet, LayoutDashboard, ShieldCheck, Search, Briefcase, ArrowLeft, LifeBuoy, MoreHorizontal, BarChart3 } from "lucide-react";
+import { Home, List, CalendarDays, MessageCircle, Wallet, LayoutDashboard, ShieldCheck, Search, Briefcase, ArrowLeft, LifeBuoy } from "lucide-react";
 import { useAppUser } from "@/lib/useAppUser";
 import NotificationBell from "@/components/grind/NotificationBell";
 import SiteFooter from "@/components/SiteFooter";
@@ -17,12 +17,8 @@ const TABS = {
       { to: "/teen", label: "Home", icon: Home, end: true },
       { to: "/teen/listings", label: "My Services", icon: List, tour: "tour-services" },
       { to: "/jobs", label: "Jobs", icon: Briefcase, tour: "tour-jobs" },
-      { to: "/teen/earnings", label: "Earnings", icon: BarChart3 },
-      { to: "/messages", label: "Messages", icon: MessageCircle, tour: "tour-messages" },
-    ],
-    secondary: [
-      { to: "/teen/bookings", label: "Bookings", icon: CalendarDays },
       { to: "/teen/wallet", label: "Wallet", icon: Wallet },
+      { to: "/messages", label: "Messages", icon: MessageCircle, tour: "tour-messages" },
     ],
   },
   parent: {
@@ -32,17 +28,14 @@ const TABS = {
       { to: "/parent/payouts", label: "Payouts", icon: Wallet },
       { to: "/messages", label: "Messages", icon: MessageCircle },
     ],
-    secondary: [],
   },
   buyer: {
     primary: [
       { to: "/buyer", label: "Home", icon: Home, end: true },
       { to: "/browse", label: "Browse", icon: Search, tour: "tour-browse" },
       { to: "/jobs", label: "Jobs", icon: Briefcase, tour: "tour-jobs" },
+      { to: "/buyer/bookings", label: "Bookings", icon: CalendarDays, tour: "tour-bookings" },
       { to: "/messages", label: "Messages", icon: MessageCircle, tour: "tour-messages" },
-    ],
-    secondary: [
-      { to: "/buyer/bookings", label: "My Bookings", icon: CalendarDays, tour: "tour-bookings" },
     ],
   },
   admin: {
@@ -51,7 +44,6 @@ const TABS = {
       { to: "/browse", label: "Browse", icon: Search },
       { to: "/messages", label: "Messages", icon: MessageCircle },
     ],
-    secondary: [],
   },
 };
 
@@ -81,7 +73,6 @@ export default function Layout() {
   const { user, loading, reload } = useAppUser();
   const location = useLocation();
   const navigate = useNavigate();
-  const [moreOpen, setMoreOpen] = useState(false);
   const isChildPage = /^\/(bookings|messages|teens|neighbors)\/.+/.test(location.pathname);
 
   // Preserve per-tab scroll offset: save when leaving a primary tab,
@@ -141,13 +132,13 @@ export default function Layout() {
 
   const roleTabs = TABS[user.app_role] || TABS.buyer;
   let primaryTabs = [...roleTabs.primary];
-  let secondaryTabs = [...roleTabs.secondary];
   if (user.app_role === 'parent' && user.has_buyer_profile) {
-    secondaryTabs = [
-      ...secondaryTabs,
+    primaryTabs = [
+      primaryTabs[0],
+      primaryTabs[1],
+      primaryTabs[2],
       { to: '/browse', label: 'Browse', icon: Search },
-      { to: '/jobs', label: 'Post a Job', icon: Briefcase },
-      { to: '/buyer/bookings', label: 'My Bookings', icon: CalendarDays },
+      primaryTabs[3],
     ];
   }
   const roleLabel = ROLE_LABELS[user.app_role] || "Member";
@@ -197,36 +188,6 @@ export default function Layout() {
                 </NavLink>
               );
             })}
-            {secondaryTabs.length > 0 && (
-              <>
-                <p className="px-3.5 mt-4 mb-2 text-sm font-bold uppercase tracking-[0.08em] text-muted-foreground/70">
-                  More
-                </p>
-                {secondaryTabs.map((tab) => {
-                  const Icon = tab.icon;
-                  return (
-                    <NavLink
-                      key={tab.to}
-                      to={tab.to}
-                      end={tab.end}
-                      onClick={() => {
-                        if (location.pathname === tab.to) window.scrollTo({ top: 0, behavior: "smooth" });
-                      }}
-                      className={({ isActive }) =>
-                        `group flex items-center gap-3 rounded-xl px-3.5 py-[11px] text-[14px] font-semibold transition-all duration-200 ${
-                          isActive
-                            ? "bg-primary text-primary-foreground shadow-soft"
-                            : "text-muted-foreground hover:bg-accent hover:text-foreground"
-                        }`
-                      }
-                    >
-                      <Icon className="w-[18px] h-[18px] shrink-0" strokeWidth={2.2} />
-                      <span>{tab.label}</span>
-                    </NavLink>
-                  );
-                })}
-              </>
-            )}
           </nav>
         </div>
         <div className="border-t border-border p-3">
@@ -327,61 +288,8 @@ export default function Layout() {
               </NavLink>
             );
           })}
-          {secondaryTabs.length > 0 && (
-            <button
-              onClick={() => setMoreOpen(true)}
-              className="flex flex-col items-center justify-center gap-1 py-2.5 px-2 text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors duration-200 min-w-[44px] min-h-[44px]"
-            >
-              <MoreHorizontal className="w-[22px] h-[22px]" strokeWidth={2.2} />
-              More
-            </button>
-          )}
         </div>
       </nav>
-
-      {/* Mobile overflow sheet */}
-      {moreOpen && (
-        <div className="lg:hidden fixed inset-0 z-50">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setMoreOpen(false)} />
-          <div className="absolute bottom-0 inset-x-0 bg-card border-t border-border rounded-t-2xl pb-[env(safe-area-inset-bottom)] animate-[sheet-up_0.25s_ease-out] max-h-[80vh] overflow-y-auto">
-            <div className="flex justify-center pt-3 pb-1">
-              <div className="w-10 h-1.5 rounded-full bg-border" />
-            </div>
-            <div className="px-3 pb-3 pt-2 space-y-1">
-              {secondaryTabs.map((tab) => {
-                const Icon = tab.icon;
-                return (
-                  <NavLink
-                    key={tab.to}
-                    to={tab.to}
-                    end={tab.end}
-                    onClick={() => setMoreOpen(false)}
-                    className={({ isActive }) =>
-                      `flex items-center gap-3 rounded-xl px-3.5 py-3 text-[15px] font-semibold transition-colors min-h-[48px] ${
-                        isActive ? "bg-primary/10 text-primary" : "text-foreground hover:bg-accent"
-                      }`
-                    }
-                  >
-                    <Icon className="w-5 h-5 shrink-0" strokeWidth={2.2} />
-                    {tab.label}
-                  </NavLink>
-                );
-              })}
-              <div className="border-t border-border my-2" />
-              <Link to="/account" onClick={() => setMoreOpen(false)} className="flex items-center gap-3 rounded-xl px-3.5 py-3 text-[15px] font-semibold text-foreground hover:bg-accent transition-colors min-h-[48px]">
-                <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm shrink-0">{initials}</div>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate">{user.full_name || user.email}</p>
-                  <p className="text-xs text-muted-foreground font-normal">{roleLabel}</p>
-                </div>
-              </Link>
-              <Link to="/support" onClick={() => setMoreOpen(false)} className="flex items-center gap-3 rounded-xl px-3.5 py-3 text-[15px] font-semibold text-foreground hover:bg-accent transition-colors min-h-[48px]">
-                <LifeBuoy className="w-5 h-5 shrink-0" /> Support
-              </Link>
-            </div>
-          </div>
-        </div>
-      )}
 
       <OfflineBanner />
       <HelpWidget />
