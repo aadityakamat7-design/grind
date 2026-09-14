@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useOutletContext, useNavigate } from "react-router-dom";
+import { useOutletContext, useNavigate, Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { LogOut, ShieldCheck, RefreshCw } from "lucide-react";
+import { LogOut, ShieldCheck, RefreshCw, ExternalLink } from "lucide-react";
 import PageHeader from "@/components/grind/PageHeader";
 import DeleteAccountButton from "@/components/grind/DeleteAccountButton";
 import AccountReviewsTab from "@/components/grind/AccountReviewsTab";
@@ -83,6 +83,16 @@ export default function Account() {
               </span>
             </div>
           </div>
+
+          {(user.app_role === "teen" || user.app_role === "buyer") && (
+            <Link
+              to={user.app_role === "teen" ? `/teens/${user.id}` : `/neighbors/${user.id}`}
+              className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline"
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+              Preview my public profile
+            </Link>
+          )}
 
           <ProfileSettingsCard user={user} />
 
