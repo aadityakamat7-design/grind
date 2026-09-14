@@ -8,20 +8,20 @@ export default function TermsOfService() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Seo title="Terms of Service" description="The rules for using Blockwork: eligibility, parental consent, no-home-entry policy, escrow payments, minor work-hour limits, and dispute resolution." path="/terms" />
-      <div className="max-w-3xl mx-auto px-6 py-16">
-        <Link to="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-8">
-          <ArrowLeft className="w-4 h-4" /> Back to home
+      <div className="max-w-3xl mx-auto px-6 py-10">
+        <Link to="/" className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground mb-6">
+          <ArrowLeft className="w-3.5 h-3.5" /> Back to home
         </Link>
 
-        <h1 className="font-heading text-3xl font-bold text-foreground mb-2">Terms of Service</h1>
-        <p className="text-sm text-muted-foreground mb-8">Last updated: August 27, 2026</p>
+        <h1 className="font-heading text-2xl font-bold text-foreground mb-1">Terms of Service</h1>
+        <p className="text-xs text-muted-foreground mb-6">Last updated: August 27, 2026</p>
 
-        <div className="prose prose-sm max-w-none text-muted-foreground [&_h2]:text-foreground [&_h2]:font-heading [&_h2]:font-semibold [&_h2]:mt-8 [&_h2]:mb-3 [&_p]:leading-relaxed [&_li]:leading-relaxed [&_strong]:text-foreground">
-          <p className="text-base text-foreground bg-muted rounded-xl p-4 border border-border">
+        <div className="text-[13px] leading-relaxed text-muted-foreground space-y-3 [&_h2]:text-foreground [&_h2]:font-heading [&_h2]:font-semibold [&_h2]:text-[15px] [&_h2]:mt-6 [&_h2]:mb-2 [&_p]:leading-relaxed [&_li]:leading-relaxed [&_strong]:text-foreground [&_ul]:space-y-1 [&_ul]:pl-4 [&_ul]:list-disc">
+          <p className="text-[13px] text-foreground bg-muted rounded-lg p-3 border border-border">
             <strong>Plain-language summary:</strong> Blockwork is a marketplace where adult neighbors hire local teens for outdoor tasks (like lawn care and car washing) performed outside the residence, and for online tutoring and tech help conducted over video. Every teen account is linked to a verified parent or guardian who approves each job and receives the earnings. Teens never enter a client's home — all in-person work happens outdoors, and all tutoring happens remotely. We hold your payment in escrow until the teen uploads photo proof of completion and the neighbor confirms the work. We are a venue — not a party to the work itself. These terms explain the rules for using Blockwork.
           </p>
 
-          <p className="text-base text-foreground bg-muted rounded-xl p-4 border border-border">
+          <p className="text-[13px] text-foreground bg-muted rounded-lg p-3 border border-border">
             <strong>California only.</strong> Blockwork currently operates only in California. All services, features, and terms described here are available and apply solely to California residents. We do not currently offer services in any other state.
           </p>
 
@@ -164,7 +164,7 @@ export default function TermsOfService() {
           <p>
             <strong>Platform's role.</strong> Blockwork does not supervise, direct, or control how any work is performed. We do not inspect job sites, verify the safety of any property, or guarantee the competence of any teen. Our safety features are risk-reduction measures, not supervision.
           </p>
-          <p className="bg-muted rounded-xl p-4 border border-border text-foreground">
+          <p className="bg-muted rounded-lg p-3 border border-border text-foreground">
             <strong>[PENDING LEGAL REVIEW]</strong> The assumption-of-risk and waiver language as applied to minors requires review by legal counsel. Parental pre-injury waivers on behalf of minors are of limited or no enforceability in many states, including California. No binding waiver language is in effect until counsel approves it. The acknowledgments above describe responsibilities and awareness of risk, not a waiver of claims.
           </p>
 
@@ -198,12 +198,12 @@ export default function TermsOfService() {
           </p>
 
           <h2>15. Limitation of Liability</h2>
-          <p className="bg-muted rounded-xl p-4 border border-border text-foreground">
+          <p className="bg-muted rounded-lg p-3 border border-border text-foreground">
             <strong>[PENDING LEGAL REVIEW]</strong> The limitation-of-liability cap (including the proposed cap of fees paid in the preceding 12 months) and its applicability to minors and personal-injury claims require review by legal counsel. Many jurisdictions restrict or prohibit limiting liability for gross negligence, willful misconduct, or personal injury, and may not enforce liability caps against minors. No binding limitation language is in effect until counsel approves it.
           </p>
 
           <h2>16. Indemnification</h2>
-          <p className="bg-muted rounded-xl p-4 border border-border text-foreground">
+          <p className="bg-muted rounded-lg p-3 border border-border text-foreground">
             <strong>[PENDING LEGAL REVIEW]</strong> The scope of indemnification — including whether it covers personal-injury claims, whether it is mutual, and whether it is enforceable against minors and parents acting on their behalf — requires review by legal counsel. No binding indemnification language is in effect until counsel approves it.
           </p>
 
@@ -211,7 +211,7 @@ export default function TermsOfService() {
           <p>
             <strong>No insurance provided.</strong> Blockwork does not provide any insurance coverage — including general liability, workers' compensation, accident, health, or property insurance — for teens, parents, or neighbors. Blockwork is not an insurer and does not imply or represent that any coverage exists. Participants are solely responsible for obtaining and maintaining any insurance coverage they deem appropriate for their situation. Do not rely on Blockwork for any insurance protection.
           </p>
-          <p className="bg-muted rounded-xl p-4 border border-border text-foreground">
+          <p className="bg-muted rounded-lg p-3 border border-border text-foreground">
             <strong>[PENDING LEGAL REVIEW]</strong> Whether Blockwork should carry general liability, errors-and-omissions, or other insurance as a business, and whether users should be required to carry their own insurance as a condition of using the platform, requires review by legal counsel and a determination of business needs. The disclaimer above is in effect regardless.
           </p>
 
@@ -219,7 +219,7 @@ export default function TermsOfService() {
           <p>
             These terms are governed by the laws of the State of California, United States, without regard to conflict-of-law principles. Any dispute will first be attempted through good-faith negotiation.
           </p>
-          <p className="bg-muted rounded-xl p-4 border border-border text-foreground">
+          <p className="bg-muted rounded-lg p-3 border border-border text-foreground">
             <strong>[PENDING LEGAL REVIEW]</strong> The arbitration clause and class-action waiver — including their enforceability as applied to minors, whether they can be imposed on parents acting on behalf of minors, and whether they survive California's restrictions on arbitration of claims involving minors — require review by legal counsel. No binding arbitration or class-action waiver language is in effect until counsel approves it.
           </p>
 
@@ -232,9 +232,62 @@ export default function TermsOfService() {
           <p>
             Questions about these terms? Contact us through the in-app support or at <a href="mailto:support@blockwork.online" className="text-foreground font-medium hover:underline">support@blockwork.online</a>.
           </p>
+
+          {/* ===== Per-Service Terms ===== */}
+          <h2 className="!mt-10 !mb-1">Service-Specific Terms</h2>
+          <p className="text-[12px] text-muted-foreground !mb-4">
+            The following terms apply to each type of service offered on Blockwork, in addition to the general terms above.
+          </p>
+
+          <h3 className="text-foreground font-heading font-semibold text-[14px] mt-5 mb-1.5">A. Lawn Care & Yard Maintenance</h3>
+          <ul>
+            <li><strong>Scope.</strong> Mowing, edging, leaf raking, yard debris cleanup, weed pulling, and light landscaping performed entirely outdoors on the exterior of the property.</li>
+            <li><strong>Equipment.</strong> The neighbor must provide all equipment (mower, rake, bags, etc.) or arrange for it to be available outdoors. Teens may not operate power equipment restricted to adults under California law. The parent is responsible for confirming their teen is trained and permitted to use any equipment provided.</li>
+            <li><strong>Prohibited.</strong> Use of ride-on mowers by teens under 16, tree trimming above shoulder height, work on slopes requiring harnesses, and any work requiring entry into the residence or garage.</li>
+            <li><strong>Completion.</strong> The teen uploads photos of the completed work before leaving the property. The neighbor confirms the work is done correctly to release payment.</li>
+          </ul>
+
+          <h3 className="text-foreground font-heading font-semibold text-[14px] mt-5 mb-1.5">B. Car Washing & Detailing</h3>
+          <ul>
+            <li><strong>Scope.</strong> Exterior hand washing, drying, window cleaning, and interior vacuuming of vehicles parked outdoors in the driveway or street. All work is performed outside.</li>
+            <li><strong>Equipment.</strong> The neighbor provides hoses, buckets, soap, sponges, towels, and a vacuum. The teen does not supply cleaning materials unless agreed in advance.</li>
+            <li><strong>Prohibited.</strong> Use of mechanical buffers or power washers by teens under 16, work inside a garage or enclosed structure, and any work requiring the teen to enter the residence.</li>
+            <li><strong>Liability.</strong> The teen is not responsible for pre-existing vehicle damage. The neighbor must disclose any known damage before the job begins.</li>
+          </ul>
+
+          <h3 className="text-foreground font-heading font-semibold text-[14px] mt-5 mb-1.5">C. Odd Jobs & Light Outdoor Tasks</h3>
+          <ul>
+            <li><strong>Scope.</strong> Snow shoveling, moving outdoor furniture, sweeping patios, cleaning gutters from ground level, trash removal, and similar light outdoor tasks performed entirely outside the residence.</li>
+            <li><strong>Prohibited.</strong> Any task requiring entry into the home, attic, or crawlspace; heavy lifting beyond the teen's capacity; and work involving hazardous materials, chemicals requiring certification, or conditions posing a safety risk.</li>
+            <li><strong>Parental judgment.</strong> The parent is responsible for assessing whether each odd job is suitable for their teen and for declining any job that is unsafe or inappropriate.</li>
+          </ul>
+
+          <h3 className="text-foreground font-heading font-semibold text-[14px] mt-5 mb-1.5">D. Academic Tutoring (Online)</h3>
+          <ul>
+            <li><strong>Scope.</strong> One-on-one academic tutoring, homework help, and test preparation conducted entirely over a remote video session. No in-person meetings.</li>
+            <li><strong>Session conduct.</strong> Both parties must be appropriately dressed and join from a safe, appropriate location. The teen's parent may join or monitor any session. Recording the session without the other party's consent is prohibited.</li>
+            <li><strong>No guarantee of results.</strong> The teen is not a licensed educator. Tutoring is peer-to-peer help and does not guarantee improved grades or test scores. The neighbor is responsible for evaluating the teen's qualifications and reviews.</li>
+            <li><strong>Prohibited.</strong> In-person tutoring, overnight sessions, and any session involving content that is inappropriate, illegal, or outside the teen's academic competence.</li>
+          </ul>
+
+          <h3 className="text-foreground font-heading font-semibold text-[14px] mt-5 mb-1.5">E. Tech Help & Device Support (Online)</h3>
+          <ul>
+            <li><strong>Scope.</strong> Basic technology guidance, device setup help, software troubleshooting, and app instruction conducted entirely over a remote video session. No in-person meetings.</li>
+            <li><strong>No remote access.</strong> The teen may not request remote control of the neighbor's device, passwords, or account credentials. Guidance is instructional only — the neighbor performs all actions on their own device.</li>
+            <li><strong>No guarantee.</strong> The teen is not a certified technician. Help is peer-to-peer guidance and does not guarantee resolution of any technical issue. The neighbor is responsible for backing up data before following any instructions.</li>
+            <li><strong>Prohibited.</strong> In-person tech support, accessing the neighbor's accounts, handling payment information, and any work involving data recovery from damaged devices.</li>
+          </ul>
+
+          <h3 className="text-foreground font-heading font-semibold text-[14px] mt-5 mb-1.5">F. Pet Sitting & Dog Walking (Outdoor Only)</h3>
+          <ul>
+            <li><strong>Scope.</strong> Dog walking, outdoor pet feeding, and yard cleanup for pets — performed entirely outdoors. The teen may not enter the residence to care for pets.</li>
+            <li><strong>Outdoor only.</strong> If pet care requires entering the home (indoor feeding, medication, overnight stays), the job is not permitted on Blockwork. Pet sitting that requires the teen to remain on the property inside the home is prohibited.</li>
+            <li><strong>Safety.</strong> The neighbor must disclose any pet's behavioral issues, vaccination status, and temperament before the job. The teen may decline any job involving an animal they are not comfortable handling. The parent is responsible for confirming their teen is capable of safely handling the specific animal.</li>
+            <li><strong>Leash requirement.</strong> All dog walking must use a leash provided by the neighbor. The teen is not responsible for providing leashes, harnesses, or waste bags unless agreed in advance.</li>
+          </ul>
         </div>
       </div>
-      <SiteFooter />
+      <SiteFooter compact />
     </div>
   );
 }

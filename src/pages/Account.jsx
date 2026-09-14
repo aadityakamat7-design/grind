@@ -8,6 +8,7 @@ import DeleteAccountButton from "@/components/grind/DeleteAccountButton";
 import AccountReviewsTab from "@/components/grind/AccountReviewsTab";
 import ProfileSettingsCard from "@/components/grind/ProfileSettingsCard";
 import RecoveryPhoneCard from "@/components/grind/RecoveryPhoneCard";
+import ThemeToggle from "@/components/grind/ThemeToggle";
 import { replayTour } from "@/hooks/useTour";
 import { Image } from "@/components/ui/image";
 import PullToRefresh from "@/components/PullToRefresh";
@@ -153,16 +154,18 @@ export default function Account() {
         )}
 
         {tab === "settings" && (
-          <>
-            <Link to="/support" className="flex items-center gap-3 bg-card rounded-2xl border border-border shadow-soft p-4 hover:shadow-card transition-shadow">
-              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                <LifeBuoy className="w-5 h-5 text-primary" />
+          <div className="space-y-2.5">
+            <ThemeToggle />
+
+            <Link to="/support" className="flex items-center gap-2.5 bg-card rounded-xl border border-border shadow-soft p-3 hover:shadow-card transition-shadow">
+              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                <LifeBuoy className="w-4 h-4 text-primary" />
               </div>
-              <div className="flex-1">
-                <p className="font-semibold text-foreground text-[14px]">Support</p>
-                <p className="text-[12px] text-muted-foreground">Get help and view FAQs</p>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-foreground text-[13px]">Support</p>
+                <p className="text-[11px] text-muted-foreground">Get help and view FAQs</p>
               </div>
-              <ArrowUpRight className="w-4 h-4 text-muted-foreground shrink-0" />
+              <ArrowUpRight className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
             </Link>
 
             <RecoveryPhoneCard user={user} />
@@ -170,26 +173,28 @@ export default function Account() {
             {(user.app_role === "teen" || user.app_role === "buyer") && (
               <Button
                 variant="outline"
-                className="w-full rounded-full h-12"
+                size="sm"
+                className="w-full rounded-full h-10"
                 onClick={() => {
                   replayTour();
                   navigate(ROLE_HOME[user.app_role] || "/");
                 }}
               >
-                <RefreshCw className="w-4 h-4 mr-2" /> Replay tour
+                <RefreshCw className="w-3.5 h-3.5 mr-1.5" /> Replay tour
               </Button>
             )}
 
             <Button
               variant="outline"
-              className="w-full rounded-full h-12 text-destructive border-destructive/20 hover:bg-destructive/10 hover:text-destructive"
+              size="sm"
+              className="w-full rounded-full h-10 text-destructive border-destructive/20 hover:bg-destructive/10 hover:text-destructive"
               onClick={() => base44.auth.logout("/")}
             >
-              <LogOut className="w-4 h-4 mr-2" /> Log out
+              <LogOut className="w-3.5 h-3.5 mr-1.5" /> Log out
             </Button>
 
             <DeleteAccountButton user={user} />
-          </>
+          </div>
         )}
       </div>
     </PullToRefresh>
