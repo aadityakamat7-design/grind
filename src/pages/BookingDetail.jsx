@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useOutletContext, Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { CalendarDays, MapPin, Lock, MessageCircle, FileText, Repeat, Clock, Video, Sun } from "lucide-react";
+import { CalendarDays, MapPin, Lock, MessageCircle, FileText, Repeat, Clock, Video, Sun, MessageSquare, User } from "lucide-react";
 import { format } from "date-fns";
 import StatusBadge from "@/components/grind/StatusBadge";
 import TrustBadge from "@/components/grind/TrustBadge";
@@ -220,6 +220,18 @@ export default function BookingDetail() {
             <p className="flex items-start gap-2">
               <FileText className="w-4 h-4 text-muted-foreground mt-0.5" /> {booking.notes}
             </p>
+          )}
+          {booking.teen_pitch && (isBuyer || isParent) && (
+            <div className="mt-3 bg-secondary/60 border border-border rounded-xl p-3">
+              <p className="text-xs font-semibold text-foreground mb-1 flex items-center gap-1.5">
+                <MessageSquare className="w-3.5 h-3.5 text-primary" />
+                {booking.teen_display_name}'s pitch
+              </p>
+              <p className="text-sm text-foreground/90 leading-relaxed">{booking.teen_pitch}</p>
+              <Link to={`/teens/${booking.teen_user_id}`} className="inline-flex items-center gap-1 mt-2 text-xs font-semibold text-primary hover:underline">
+                <User className="w-3.5 h-3.5" /> View {booking.teen_display_name}'s profile
+              </Link>
+            </div>
           )}
           {booking.tip_amount > 0 && (
             <p className="flex items-center gap-2 font-medium text-foreground">

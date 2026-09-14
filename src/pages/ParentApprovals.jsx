@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useOutletContext } from "react-router-dom";
+import { useOutletContext, Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { ShieldCheck, MapPin, CalendarDays, FileText, Lock } from "lucide-react";
+import { ShieldCheck, MapPin, CalendarDays, FileText, Lock, MessageSquare, User } from "lucide-react";
 import { format } from "date-fns";
 import EmptyState from "@/components/grind/EmptyState";
 import PageHeader from "@/components/grind/PageHeader";
@@ -106,6 +106,19 @@ export default function ParentApprovals() {
                     </p>
                   )}
                 </div>
+
+                {b.teen_pitch && (
+                  <div className="mt-3 bg-secondary/60 border border-border rounded-xl p-3">
+                    <p className="text-[11px] font-semibold text-foreground mb-1 flex items-center gap-1.5">
+                      <MessageSquare className="w-3.5 h-3.5 text-primary" />
+                      Why {b.teen_display_name} wants this job
+                    </p>
+                    <p className="text-[13px] text-foreground/90 leading-relaxed">{b.teen_pitch}</p>
+                    <Link to={`/teens/${b.teen_user_id}`} className="inline-flex items-center gap-1 mt-2 text-[12px] font-semibold text-primary hover:underline">
+                      <User className="w-3.5 h-3.5" /> View {b.teen_display_name}'s profile
+                    </Link>
+                  </div>
+                )}
 
                 <p className="text-[12px] text-muted-foreground/70 mt-3">
                   No payment yet — the neighbor pays when both sides start the job. Denying cancels the booking.

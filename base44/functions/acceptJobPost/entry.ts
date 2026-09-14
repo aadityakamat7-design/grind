@@ -16,8 +16,14 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { jobId } = await req.json();
+    const { jobId, pitch } = await req.json();
     if (!jobId) return Response.json({ error: 'jobId required' }, { status: 400 });
+    // The teen must explain why they're credible for the job — shown to the
+    // neighbor and parent during approval.
+    const trimmedPitch = (pitch || '').trim();
+    if (trimmedPitch.length < 20) {
+      return Response.json({ error: 'Please write at least a sentence about why you\'re a good fit for this job.' }, { status: 400 });
+    }
 
     const svc = base44.asServiceRole.entities;
 
@@ -127,6 +133,7 @@ Deno.serve(async (req) => {
       scheduled_start: job.scheduled_start || undefined,
       delivery_mode: deliveryMode,
       notes: job.description,
+      teen_pitch: trimmedPitch.slice(0, 500),
       address: isOnline ? '' : (job.is_physical ? job.address : ''),
       is_physical: !isOnline,
       price_total: job.price,

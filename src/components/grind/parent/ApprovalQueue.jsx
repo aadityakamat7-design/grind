@@ -54,6 +54,12 @@ export default function ApprovalQueue({ pending, onDecided }) {
                     <p className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 text-muted-foreground/60" /> {b.address}</p>
                   )}
                 </div>
+                {b.teen_pitch && (
+                  <div className="mt-2.5 bg-card border border-border rounded-xl p-2.5">
+                    <p className="text-[11px] font-semibold text-foreground mb-0.5">Why {b.teen_display_name} wants this job:</p>
+                    <p className="text-xs text-muted-foreground leading-relaxed">{b.teen_pitch}</p>
+                  </div>
+                )}
                 <div className="grid grid-cols-2 gap-2.5 mt-3">
                   <Button
                     variant="outline"
