@@ -92,11 +92,12 @@ export default class LiveLocation extends Actor {
     if (typeof msg !== 'object' || msg === null) return;
     if (msg.type !== 'location') return;
 
-    // Only an authenticated user may send location.
+    // Only an authenticated, authorized participant may send location.
     if (!conn.identity || conn.identity.type !== 'authenticated') return;
-
-    // And only the teen assigned to THIS booking.
     await this.ensureParticipants();
+    if (!this.isAuthorized(conn.identity.userId)) return;
+
+    // And only the teen assigned to THIS booking may broadcast their location.
     if (this.teenUserId && conn.identity.userId !== this.teenUserId) return;
 
     // Validate coordinates.
