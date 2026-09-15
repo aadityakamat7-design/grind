@@ -13,6 +13,7 @@ import PullToRefresh from "@/components/PullToRefresh";
 import ReferralShare from "@/components/grind/ReferralShare";
 import RecurringSeriesCard from "@/components/grind/RecurringSeriesCard";
 import Tour from "@/components/grind/Tour";
+import GetStartedCard from "@/components/grind/GetStartedCard";
 import { useTour } from "@/hooks/useTour";
 
 const buyerTourSteps = [
@@ -74,6 +75,16 @@ export default function BuyerHome() {
     <PullToRefresh onRefresh={load}>
       <div className="space-y-6">
         <PageHeader title={`Hi, ${(user.full_name || "neighbor").split(" ")[0]} 👋`} subtitle="Trusted teen help, right in your neighborhood." />
+
+        <GetStartedCard
+          storageKey="bw_gs_buyer"
+          steps={[
+            { label: "Browse available teens", to: "/browse", completed: saved.length > 0 || bookings.length > 0 },
+            { label: "Save a favorite teen", completed: saved.length > 0 },
+            { label: "Book your first job", to: "/jobs", completed: bookings.length > 0 },
+            { label: "Add your home address", to: "/account", completed: !!(profile?.address) },
+          ]}
+        />
 
         {bookings.length === 0 && (
           <div className="bg-primary/5 border border-primary/20 rounded-2xl p-6 text-center">
