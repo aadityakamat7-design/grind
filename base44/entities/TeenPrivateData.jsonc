@@ -31,6 +31,10 @@
       "type": "number",
       "description": "Self-reported age (derived from date_of_birth at onboarding). Superseded by verified_dob once identity is verified."
     },
+    "address": {
+      "type": "string",
+      "description": "Teen home address \u2014 never exposed publicly; readable only by the owning teen, their linked parent, and admins. Used only server-side for precise distance matching."
+    },
     "zip": {
       "type": "string"
     },

@@ -43,7 +43,12 @@ export default function ProfileSettingsCard({ user }) {
           setForm({
             full_name: p.full_name || user.full_name || "",
             phone: p.phone || "",
+            address: p.address || "",
+            zip: p.zip || "",
+            description: p.description || "",
           });
+          setOrigAddress(p.address || "");
+          setOrigZip(p.zip || "");
         } else if (role === "teen") {
           const [profiles, privates] = await Promise.all([
             base44.entities.TeenProfile.filter({ user_id: user.id }),
@@ -58,9 +63,11 @@ export default function ProfileSettingsCard({ user }) {
             skills: p.skills || [],
             service_radius_miles: p.service_radius_miles ?? 3,
             is_available: p.is_available !== false,
+            address: pd.address || "",
             zip: pd.zip || "",
             date_of_birth: pd.date_of_birth || "",
           });
+          setOrigAddress(pd.address || "");
           setOrigZip(pd.zip || "");
         }
       } catch (err) {
@@ -112,10 +119,28 @@ export default function ProfileSettingsCard({ user }) {
         const profiles = await base44.entities.ParentProfile.filter({ user_id: user.id });
         const p = profiles[0];
         if (!p) return;
-        await base44.entities.ParentProfile.update(p.id, {
+        const addressChanged = form.address !== origAddress || form.zip !== origZip;
+        let geo = null;
+        if (addressChanged && form.address && form.zip) {
+          try {
+            const res = await base44.functions.invoke("geocodeAddress", { query: `${form.address}, ${form.zip}` });
+            geo = res.data;
+          } catch (err) {
+            setGeoError(err.response?.data?.error || "Couldn't verify that address. Please check it and try again.");
+            setSaving(false);
+            return;
+          }
+        }
+        const update = {
           full_name: form.full_name,
           phone: form.phone,
-        });
+          address: form.address,
+          zip: form.zip,
+          description: form.description,
+        };
+        await base44.entities.ParentProfile.update(p.id, update);
+        setOrigAddress(form.address);
+        setOrigZip(form.zip);
       } else if (role === "teen") {
         const [profiles, privates] = await Promise.all([
           base44.entities.TeenProfile.filter({ user_id: user.id }),
@@ -133,19 +158,20 @@ export default function ProfileSettingsCard({ user }) {
           is_available: form.is_available,
         });
         if (pd) {
-          const zipChanged = form.zip !== origZip;
+          const locChanged = form.address !== origAddress || form.zip !== origZip;
           let geo = null;
-          if (zipChanged && form.zip) {
+          if (locChanged && form.zip) {
             try {
-              const res = await base44.functions.invoke("geocodeAddress", { query: form.zip });
+              const query = form.address ? `${form.address}, ${form.zip}` : form.zip;
+              const res = await base44.functions.invoke("geocodeAddress", { query });
               geo = res.data;
             } catch (err) {
-              setGeoError(err.response?.data?.error || "Couldn't verify that ZIP. Please check it and try again.");
+              setGeoError(err.response?.data?.error || "Couldn't verify that address. Please check it and try again.");
               setSaving(false);
               return;
             }
           }
-          const pdUpdate = { zip: form.zip, date_of_birth: form.date_of_birth };
+          const pdUpdate = { address: form.address, zip: form.zip, date_of_birth: form.date_of_birth };
           if (geo) {
             pdUpdate.latitude = geo.lat;
             pdUpdate.longitude = geo.lng;
@@ -210,6 +236,15 @@ export default function ProfileSettingsCard({ user }) {
           <Field label="Phone number" hint="Used for safety and account recovery.">
             <Input className="rounded-xl" type="tel" value={form.phone || ""} onChange={(e) => set("phone", e.target.value)} />
           </Field>
+          <Field label="Home address" hint="Re-verified when changed. Only visible to you and admins.">
+            <Input className="rounded-xl" value={form.address || ""} onChange={(e) => set("address", e.target.value)} />
+          </Field>
+          <Field label="ZIP code">
+            <Input className="rounded-xl" value={form.zip || ""} onChange={(e) => set("zip", e.target.value)} />
+          </Field>
+          <Field label="About you (optional)">
+            <Textarea className="rounded-xl" rows={3} value={form.description || ""} onChange={(e) => set("description", e.target.value)} />
+          </Field>
         </>
       )}
 
@@ -238,6 +273,9 @@ export default function ProfileSettingsCard({ user }) {
           </div>
           <Field label="Service radius (miles)">
             <Input className="rounded-xl" type="number" min="1" max="25" value={form.service_radius_miles ?? ""} onChange={(e) => set("service_radius_miles", e.target.value)} />
+          </Field>
+          <Field label="Home address (optional)" hint="Your exact address is never shared — only your city is shown. Re-verified when changed.">
+            <Input className="rounded-xl" value={form.address || ""} onChange={(e) => set("address", e.target.value)} />
           </Field>
           <Field label="ZIP code" hint="Your location is never shared — only your city is shown. Re-verified when changed.">
             <Input className="rounded-xl" value={form.zip || ""} onChange={(e) => set("zip", e.target.value)} />

@@ -11,6 +11,42 @@
     "phone": {
       "type": "string"
     },
+    "address": {
+      "type": "string",
+      "description": "Parent home address \u2014 readable only by the owner and admins.",
+      "rls": {
+        "read": {
+          "$or": [
+            {
+              "data.user_id": "{{user.id}}"
+            },
+            {
+              "user_condition": {
+                "role": "admin"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "zip": {
+      "type": "string",
+      "description": "Parent ZIP code \u2014 readable only by the owner and admins.",
+      "rls": {
+        "read": {
+          "$or": [
+            {
+              "data.user_id": "{{user.id}}"
+            },
+            {
+              "user_condition": {
+                "role": "admin"
+              }
+            }
+          ]
+        }
+      }
+    },
     "connect_status": {
       "type": "string",
       "enum": [
