@@ -63,19 +63,28 @@ function ExpressCheckoutInner({ onSuccess, onError }) {
   const [paying, setPaying] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  // Keep the latest callbacks in refs so handleConfirm stays stable.
+  // Keep the latest callbacks + Stripe objects in refs so handleConfirm stays
+  // stable. If handleConfirm changes identity (e.g. when stripe/elements become
+  // available), the ExpressCheckoutElement re-initialises and the native Apple
+  // Pay button flickers / requires a second click to fire.
   const onSuccessRef = useRef(onSuccess);
   const onErrorRef = useRef(onError);
+  const stripeRef = useRef(stripe);
+  const elementsRef = useRef(elements);
   onSuccessRef.current = onSuccess;
   onErrorRef.current = onError;
+  stripeRef.current = stripe;
+  elementsRef.current = elements;
 
   const handleConfirm = useCallback(async () => {
-    if (!stripe || !elements) return;
+    const s = stripeRef.current;
+    const e = elementsRef.current;
+    if (!s || !e) return;
     setPaying(true);
     setErrorMsg("");
     try {
-      const { error } = await stripe.confirmPayment({
-        elements,
+      const { error } = await s.confirmPayment({
+        elements: e,
         confirmParams: { return_url: window.location.href },
         redirect: "if_required",
       });
@@ -91,7 +100,7 @@ function ExpressCheckoutInner({ onSuccess, onError }) {
     } finally {
       setPaying(false);
     }
-  }, [stripe, elements]);
+  }, []);
 
   return (
     <>

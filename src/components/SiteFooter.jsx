@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import StripeBadge from "@/components/StripeBadge";
-import NortonBadge from "@/components/NortonBadge";
+import SSLBadge from "@/components/SSLBadge";
 
 // Compact, professional site footer — a quiet closing line.
 // Single row of legal links + copyright + trust badges on desktop,
@@ -25,7 +25,7 @@ export default function SiteFooter({ compact = false }) {
         {/* Trust badges — centered, small */}
         <div className="flex items-center justify-center gap-2 mb-2">
           <StripeBadge showText={false} />
-          <NortonBadge />
+          <SSLBadge />
         </div>
 
         {/* Copyright */}
