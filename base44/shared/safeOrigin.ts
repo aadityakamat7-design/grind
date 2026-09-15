@@ -20,8 +20,8 @@ export function safeOriginFromString(originStr: string | null | undefined): stri
     // production redirects always target blockwork.online via APP_BASE_URL.
     if (
       host === 'blockwork.online' || host.endsWith('.blockwork.online') ||
-      host === 'base44.app' || host.endsWith('.base44.app') || host.endsWith('--base44.app') ||
-      host === 'base44.dev' || host.endsWith('.base44.dev') || host.endsWith('--base44.dev')
+      host === 'base44.app' || host.endsWith('.base44.app') ||
+      host === 'base44.dev' || host.endsWith('.base44.dev')
     ) {
       return url.origin;
     }
