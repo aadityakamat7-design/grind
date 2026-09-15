@@ -62,7 +62,9 @@ Deno.serve(async (req) => {
         // The buyer's tip cleared Stripe — now record their confirmation and
         // release escrow + tip to the parent.
         const booking = await base44.asServiceRole.entities.Booking.get(tipBookingId);
-        if (booking && booking.payment_status === 'held' && !booking.buyer_finished_at) {
+        // The teen must have finished AND the buyer must not have already confirmed.
+        // recordBuyerConfirm also checks teen_finished_at internally (defense-in-depth).
+        if (booking && booking.payment_status === 'held' && !booking.buyer_finished_at && booking.teen_finished_at) {
           const tip = Number(session.metadata?.tip_amount) || 0;
           const result = await recordBuyerConfirm(base44, booking, tip, session.payment_intent || '');
           console.log(`Booking ${tipBookingId} buyer confirm recorded with tip ${tip}:`, JSON.stringify(result));

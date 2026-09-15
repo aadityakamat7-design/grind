@@ -18,15 +18,15 @@
           },
           "then": "end",
           "x-base44": {
-            "title": "Auto-release stale completions",
-            "description": "Auto-releases escrow for jobs where the teen finished and uploaded photos but the neighbor didn't respond within 12 hours"
+            "title": "Flag stale completions for review",
+            "description": "Flags bookings for admin review when the teen finished and uploaded photos but the neighbor didn't confirm or dispute within 72 hours"
           }
         }
       }
     ]
   },
   "name": "Dispute Review",
-  "description": "Every hour, auto-releases escrow for jobs where the teen finished and uploaded photos but the neighbor didn't respond within 12 hours.",
+  "description": "Every hour, flags bookings for admin review when the teen finished but the neighbor didn't confirm or dispute within 72 hours.",
   "trigger": {
     "condition": null,
     "config": {

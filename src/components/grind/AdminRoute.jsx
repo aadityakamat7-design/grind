@@ -15,7 +15,7 @@ export default function AdminRoute({ children }) {
     );
   }
 
-  if (user?.email !== "aaditya.kamat7@gmail.com") {
+  if (user?.app_role !== "admin") {
     return <Navigate to="/" replace />;
   }
 

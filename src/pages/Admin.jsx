@@ -32,7 +32,7 @@ export default function Admin() {
   const [acting, setActing] = useState(false);
 
   const load = useCallback(async () => {
-    if (user?.email !== "aaditya.kamat7@gmail.com") { setLoading(false); return; }
+    if (user?.app_role !== "admin") { setLoading(false); return; }
     try {
       setError(false);
       const [t, b, p, bk, r, creds, refs] = await Promise.all([
@@ -67,7 +67,7 @@ export default function Admin() {
     return () => { unsubBooking(); unsubReport(); };
   }, [load]);
 
-  if (user?.email !== "aaditya.kamat7@gmail.com") {
+  if (user?.app_role !== "admin") {
     return (
       <div className="flex flex-col items-center justify-center py-24 text-center">
         <div className="w-14 h-14 rounded-2xl bg-muted flex items-center justify-center mb-4">

@@ -4,8 +4,6 @@ import { base44 } from "@/api/base44Client";
 import { Plus, CalendarDays } from "lucide-react";
 import BookingCard from "@/components/grind/BookingCard";
 import PageHeader from "@/components/grind/PageHeader";
-import { getHourLimits } from "@/lib/stateHourLimits";
-import { getVerifiedAgeFromPrivate } from "@/lib/stateWorkRules";
 import AlertParentButton from "@/components/grind/AlertParentButton";
 import InviteCodeCard from "@/components/grind/teen/InviteCodeCard";
 import ReferralShare from "@/components/grind/ReferralShare";

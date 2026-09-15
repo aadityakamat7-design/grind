@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 
 // Reusable per-page SEO: sets <title>, meta description, canonical link,
 // Open Graph + Twitter Card tags, and injects JSON-LD structured data.

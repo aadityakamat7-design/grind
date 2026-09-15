@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { CalendarDays, MapPin, Lock, MessageCircle, FileText, Repeat, Clock, Video, Sun, MessageSquare, User } from "lucide-react";
 import { format } from "date-fns";
 import StatusBadge from "@/components/grind/StatusBadge";
-import TrustBadge from "@/components/grind/TrustBadge";
 import ReviewDialog from "@/components/grind/ReviewDialog";
 import ReviewCard from "@/components/grind/ReviewCard";
 import { money } from "@/lib/grind";

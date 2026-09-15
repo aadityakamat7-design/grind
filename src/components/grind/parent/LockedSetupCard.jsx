@@ -1,5 +1,5 @@
 import React from "react";
-import { Landmark, CheckCircle2 } from "lucide-react";
+import { Landmark } from "lucide-react";
 
 // Payout-setup card shown on the parent dashboard when the bank connection
 // is not yet complete. The button is always active so the parent can set up

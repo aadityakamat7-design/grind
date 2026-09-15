@@ -48,7 +48,7 @@ const EC_OPTIONS = {
   paymentMethods: {
     applePay: "always",
     googlePay: "never",
-    link: "never",
+    link: "auto",
     amazonPay: "never",
     paypal: "never",
   },

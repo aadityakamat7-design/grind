@@ -6,7 +6,7 @@ import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip } from "rec
 import { Download, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/grind/PageHeader";
-import { money } from "@/lib/grind";
+import { PLATFORM_FEE_RATE, PLATFORM_FEE_FIXED } from "@/lib/grind";
 import PullToRefresh from "@/components/PullToRefresh";
 
 const fmt = (n) => `$${Number(n || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -132,7 +132,16 @@ export default function TeenEarnings() {
     );
 
   const totalEarned = records.reduce((s, r) => s + (r.net_amount || 0), 0);
-  const pending = held.reduce((s, b) => s + (b.net_amount || b.price_total || 0), 0);
+  const pending = held.reduce((s, b) => {
+    // Use the actual net_amount if already computed (released bookings), otherwise
+    // estimate the expected net from the gross price_total using the known fee rate.
+    // Never fall back to the raw gross — teens only see net.
+    if (b.net_amount) return s + b.net_amount;
+    const gross = Number(b.price_total) || 0;
+    if (gross <= 0) return s;
+    const estNet = Math.max(0, Math.round((gross - gross * PLATFORM_FEE_RATE - PLATFORM_FEE_FIXED) * 100) / 100);
+    return s + estNet;
+  }, 0);
   const paidOut = cashouts.reduce((s, c) => s + (c.amount || 0), 0);
   const weekEarnings = records
     .filter((r) => r.occurred_at && isAfter(new Date(r.occurred_at), subDays(new Date(), 7)))
@@ -158,10 +167,10 @@ export default function TeenEarnings() {
 
   const exportCsv = () => {
     const rows = [
-      ["Date", "Job", "Neighbor", "Gross", "Net"],
+      ["Date", "Job", "Neighbor", "Net", "Status"],
       ...records.map((r) => [
         r.occurred_at ? format(new Date(r.occurred_at), "yyyy-MM-dd") : "",
-        r.listing_title || "", r.buyer_name || "", r.amount, r.net_amount,
+        r.listing_title || "", r.buyer_name || "", r.net_amount, "paid",
       ]),
     ];
     const csv = rows.map((row) => row.map((c) => `"${String(c ?? "").replace(/"/g, '""')}"`).join(",")).join("\n");

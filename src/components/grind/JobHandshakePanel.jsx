@@ -2,12 +2,12 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Play, CheckCircle2, Clock, Camera, AlertTriangle, Image as ImageIcon } from "lucide-react";
 import { Image } from "@/components/ui/image";
-import { money } from "@/lib/grind";
+
 import ExpressCheckout from "@/components/grind/ExpressCheckout";
 
 // Photo-proof job completion UI:
 //   confirmed    → both sides press Start (buyer pays escrow)
-//   in_progress   → teen finishes with photos → payment releases immediately
+//   in_progress   → teen finishes with photos, then buyer confirms → payment releases
 //   completed    → buyer can dispute if the work wasn't done correctly
 //   disputed     → shows the dispute status (under admin review)
 export default function JobHandshakePanel({ booking, isTeen, isBuyer, isParent, acting, onStart, onFinish, onConfirm, onDispute, onPaymentSuccess, onPaymentError }) {
@@ -140,13 +140,40 @@ export default function JobHandshakePanel({ booking, isTeen, isBuyer, isParent, 
       );
     }
 
-    // Teen finished but payment is still releasing (transient state for legacy
-    // bookings — new bookings go straight to completed on finish).
+    // Teen finished — the buyer must now confirm the work is done before
+    // payment is released. This is the mutual completion handshake.
+    if (isBuyer) {
+      return (
+        <div className="space-y-3">
+          <PhotosPreview photos={booking.completion_photos} />
+          <Button className="w-full rounded-xl" disabled={acting} onClick={onConfirm}>
+            <CheckCircle2 className="w-4 h-4 mr-2" /> Confirm done & release payment
+          </Button>
+          <Button variant="outline" className="w-full rounded-xl text-destructive border-destructive/20 hover:bg-destructive/10 hover:text-destructive" disabled={acting} onClick={onDispute}>
+            <AlertTriangle className="w-4 h-4 mr-2" /> Report a problem
+          </Button>
+          <p className="text-xs text-center text-slate-500 font-medium">
+            {booking.teen_display_name} uploaded photos showing the finished work. Confirm to release payment, or report if it's not right.
+          </p>
+        </div>
+      );
+    }
+    if (isTeen) {
+      return (
+        <div className="space-y-3">
+          <PhotosPreview photos={booking.completion_photos} />
+          <p className="flex items-center justify-center gap-1.5 text-xs text-slate-500 font-medium text-center">
+            <Clock className="w-3.5 h-3.5" /> Waiting for the neighbor to confirm the work.
+          </p>
+        </div>
+      );
+    }
+    // Parent
     return (
       <div className="space-y-3">
         <PhotosPreview photos={booking.completion_photos} />
         <p className="flex items-center justify-center gap-1.5 text-xs text-slate-500 font-medium text-center">
-          <Clock className="w-3.5 h-3.5" /> Payment is releasing…
+          <Clock className="w-3.5 h-3.5" /> Waiting for the neighbor to confirm the work.
         </p>
       </div>
     );
