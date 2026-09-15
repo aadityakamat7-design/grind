@@ -54,28 +54,20 @@ export default function Login() {
     }
   };
 
-  // Google OAuth can't run inside an embedded preview frame — open the app in
-  // a real tab and auto-start Google sign-in there via ?google=1.
+  // Auto-start Google sign-in when redirected back with ?google=1 (used by
+  // the iframe-blocked fallback link). The SDK handles iframe popup auth.
   useEffect(() => {
     const wantsGoogle = new URLSearchParams(window.location.search).get("google") === "1";
-    if (wantsGoogle && window.self === window.top) {
+    if (wantsGoogle) {
       base44.auth.loginWithProvider("google", safeReturnTo());
     }
   }, []);
 
   const handleGoogle = () => {
-    if (window.self !== window.top) {
-      setError("Google sign-in isn't available inside the preview. Use email and password here, or open the published app to use Google.");
-      return;
-    }
     base44.auth.loginWithProvider("google", safeReturnTo());
   };
 
-  const handleProvider = (provider, label) => {
-    if (window.self !== window.top) {
-      setError(`${label} sign-in isn't available inside the preview. Use email and password here, or open the published app to use ${label}.`);
-      return;
-    }
+  const handleProvider = (provider) => {
     base44.auth.loginWithProvider(provider, safeReturnTo());
   };
 
@@ -118,7 +110,7 @@ export default function Login() {
         <Button
           variant="outline"
           className="h-12 text-sm font-medium"
-          onClick={() => handleProvider("apple", "Apple")}
+          onClick={() => handleProvider("apple")}
         >
           <AppleIcon className="w-5 h-5 mr-2" />
           Apple
@@ -126,7 +118,7 @@ export default function Login() {
         <Button
           variant="outline"
           className="h-12 text-sm font-medium"
-          onClick={() => handleProvider("facebook", "Facebook")}
+          onClick={() => handleProvider("facebook")}
         >
           <FacebookIcon className="w-5 h-5 mr-2" />
           Facebook
