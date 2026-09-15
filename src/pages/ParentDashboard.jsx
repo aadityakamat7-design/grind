@@ -23,7 +23,6 @@ import PullToRefresh from "@/components/PullToRefresh";
 import BuyerModeCard from "@/components/grind/parent/BuyerModeCard";
 import WithdrawalLockCard from "@/components/grind/parent/WithdrawalLockCard";
 import PayoutHistorySection from "@/components/grind/parent/PayoutHistorySection";
-import GetStartedCard from "@/components/grind/GetStartedCard";
 export default function ParentDashboard() {
   const { user, reload } = useOutletContext();
   const [links, setLinks] = useState([]);
@@ -165,16 +164,6 @@ export default function ParentDashboard() {
     <PullToRefresh onRefresh={load}>
       <div className="space-y-6">
         <PageHeader title="Parent dashboard" subtitle="Full visibility into your student's activity." />
-
-        <GetStartedCard
-          storageKey="bw_gs_parent"
-          steps={[
-            { label: "Link your teen", completed: links.length > 0 },
-            { label: "Verify your identity", completed: !!parentProfile?.is_identity_verified },
-            { label: "Set up payouts to your bank", completed: parentProfile?.connect_status === "active" },
-            { label: "Browse local services", to: "/browse", completed: !!user.has_buyer_profile },
-          ]}
-        />
 
         <BuyerModeCard user={user} reload={reload} />
 

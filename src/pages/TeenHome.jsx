@@ -17,7 +17,6 @@ import { getOrCreateWallet } from "@/lib/wallet";
 import { genInviteCode } from "@/lib/grind";
 import PullToRefresh from "@/components/PullToRefresh";
 import Tour from "@/components/grind/Tour";
-import GetStartedCard from "@/components/grind/GetStartedCard";
 import { useTour } from "@/hooks/useTour";
 
 const teenTourSteps = [
@@ -111,16 +110,6 @@ export default function TeenHome() {
             <Plus className="w-4 h-4" /> New service
           </Link>
         </PageHeader>
-
-        <GetStartedCard
-          storageKey="bw_gs_teen"
-          steps={[
-            { label: "Create your first service", to: "/teen/listings", completed: listings.length > 0 },
-            { label: "Link your parent for payouts", completed: profile?.status === "active" },
-            { label: "Add your bio and photo", to: "/account", completed: !!(profile?.bio && profile?.photo_url) },
-            { label: "Set your weekly availability", to: "/account", completed: !!(profile?.availability?.length > 0) },
-          ]}
-        />
 
         {listings.length === 0 && (
           <div className="bg-primary/5 border border-primary/20 rounded-2xl p-6 text-center">
