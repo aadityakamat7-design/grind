@@ -116,7 +116,10 @@ export default function Layout() {
     }
     return <Navigate to="/" replace />;
   }
-  if (!user.app_role || !user.onboarded) return <Navigate to="/onboarding" replace />;
+  if (!user.app_role || !user.onboarded) {
+    if (location.pathname !== "/onboarding") return <Navigate to="/onboarding" replace />;
+    // Already on /onboarding — let the Onboarding page render instead of looping.
+  }
 
   // Block cross-role access — but allow parents with buyer mode to access
   // buyer routes so they can browse, book, and manage their own bookings.
