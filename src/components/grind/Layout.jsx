@@ -223,8 +223,11 @@ export default function Layout() {
               <span className="font-extrabold text-[17px] tracking-tight text-foreground">Blockwork</span>
             </Link>
           )}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
             <NotificationBell userId={user.id} />
+            <Link to="/account" aria-label="Settings" className="flex items-center justify-center w-9 h-9 rounded-full text-muted-foreground hover:bg-accent hover:text-foreground transition-colors">
+              <Settings className="w-[18px] h-[18px]" strokeWidth={2.2} />
+            </Link>
             <Link to="/account" className="text-muted-foreground hover:text-foreground transition-colors">
               <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-[11px]">
                 {initials}
