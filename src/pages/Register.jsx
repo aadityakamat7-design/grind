@@ -66,7 +66,11 @@ export default function Register() {
         // Verification succeeded but no session returned — log in with the credentials we have
         await base44.auth.loginViaEmailPassword(email, password);
       }
-      window.location.href = safeReturnTo();
+      // New users must complete onboarding (birthday, profile, etc.) before
+      // reaching the app. If a returnTo was set (e.g. from the onboarding
+      // redirect), honor it; otherwise default to /onboarding, not "/".
+      const dest = safeReturnTo();
+      window.location.href = dest === "/" ? "/onboarding" : dest;
     } catch (err) {
       setError(err.message || "Invalid verification code");
     } finally {
@@ -87,12 +91,19 @@ export default function Register() {
     }
   };
 
+  // New users must complete onboarding after social sign-up too. Default to
+  // /onboarding when there's no explicit returnTo.
+  const registerReturnTo = () => {
+    const dest = safeReturnTo();
+    return dest === "/" ? "/onboarding" : dest;
+  };
+
   const handleGoogle = () => {
-    base44.auth.loginWithProvider("google", safeReturnTo());
+    base44.auth.loginWithProvider("google", registerReturnTo());
   };
 
   const handleProvider = (provider) => {
-    base44.auth.loginWithProvider(provider, safeReturnTo());
+    base44.auth.loginWithProvider(provider, registerReturnTo());
   };
 
   const pickRole = (r) => {
