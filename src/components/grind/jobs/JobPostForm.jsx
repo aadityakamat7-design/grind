@@ -384,6 +384,29 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
               Our AI will read your description, pick the right category, and check it against your state's child labor laws before it goes live.
             </div>
             <div className="space-y-1.5">
+              <Label>When (optional)</Label>
+              <DateTimePicker value={form.scheduled_start} onChange={(v) => set("scheduled_start", v)} hourLimits={MOST_RESTRICTIVE_LIMITS} />
+            </div>
+            <button
+              type="button"
+              onClick={() => set("is_asap", !form.is_asap)}
+              className={cn(
+                "w-full flex items-center justify-between rounded-xl border p-3 transition-all",
+                form.is_asap ? "border-amber bg-amber/10" : "border-border bg-card hover:border-primary/40"
+              )}
+            >
+              <div className="flex items-center gap-2 text-left">
+                <Zap className="w-4 h-4 text-amber" />
+                <div>
+                  <p className="text-sm font-semibold text-foreground">ASAP — push to more teens</p>
+                  <p className="text-xs text-muted-foreground">Free. Your job jumps to the top of the board and gets an urgent badge.</p>
+                </div>
+              </div>
+              <div className={cn("w-10 h-6 rounded-full transition-colors relative shrink-0", form.is_asap ? "bg-amber" : "bg-muted")}>
+                <div className={cn("w-5 h-5 rounded-full bg-white absolute top-0.5 transition-all", form.is_asap ? "left-[18px]" : "left-0.5")} />
+              </div>
+            </button>
+            <div className="space-y-1.5">
               <Label>Job title</Label>
               <Input className="rounded-xl" maxLength={120} placeholder="e.g. Weed the front flower beds" value={form.title} onChange={(e) => set("title", e.target.value)} />
               {form.title.trim() && form.title.trim().length < 3 && <p className="text-xs text-destructive font-semibold">Title must be at least 3 characters.</p>}
@@ -498,29 +521,6 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
                 </Button>
               )}
             </div>
-            <div className="space-y-1.5">
-              <Label>When (optional)</Label>
-              <DateTimePicker value={form.scheduled_start} onChange={(v) => set("scheduled_start", v)} hourLimits={MOST_RESTRICTIVE_LIMITS} />
-            </div>
-            <button
-              type="button"
-              onClick={() => set("is_asap", !form.is_asap)}
-              className={cn(
-                "w-full flex items-center justify-between rounded-xl border p-3 transition-all",
-                form.is_asap ? "border-amber bg-amber/10" : "border-border bg-card hover:border-primary/40"
-              )}
-            >
-              <div className="flex items-center gap-2 text-left">
-                <Zap className="w-4 h-4 text-amber" />
-                <div>
-                  <p className="text-sm font-semibold text-foreground">ASAP — push to more teens</p>
-                  <p className="text-xs text-muted-foreground">Free. Your job jumps to the top of the board and gets an urgent badge.</p>
-                </div>
-              </div>
-              <div className={cn("w-10 h-6 rounded-full transition-colors relative shrink-0", form.is_asap ? "bg-amber" : "bg-muted")}>
-                <div className={cn("w-5 h-5 rounded-full bg-white absolute top-0.5 transition-all", form.is_asap ? "left-[18px]" : "left-0.5")} />
-              </div>
-            </button>
             <Button className="w-full" disabled={!valid} onClick={reviewCategory}>
               Review & post
             </Button>
