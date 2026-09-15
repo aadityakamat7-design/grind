@@ -104,6 +104,19 @@ export default function Account() {
             )}
 
             <ProfileSettingsCard user={user} />
+
+            {/* Always-visible account actions on mobile so logout/delete
+                aren't buried behind the Settings tab. */}
+            <div className="pt-2 space-y-2.5">
+              <Button
+                variant="outline"
+                className="w-full rounded-xl h-11 text-destructive border-destructive/20 hover:bg-destructive/10 hover:text-destructive"
+                onClick={() => base44.auth.logout("/")}
+              >
+                <LogOut className="w-4 h-4 mr-2" /> Log out
+              </Button>
+              <DeleteAccountButton user={user} />
+            </div>
           </>
         )}
 
