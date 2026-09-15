@@ -29,13 +29,13 @@
   </head>
   <body>
     <script>
-      // Apply theme before React renders to avoid a flash. Apple devices default
-      // to light mode; Android and everything else default to dark. The user's
-      // explicit choice in Settings always takes precedence once saved.
+      // Apply theme before React renders to avoid a flash. Every device defaults
+      // to light mode; the user's explicit choice in Settings persists and takes
+      // precedence on return visits.
       (function () {
         try {
           var saved = localStorage.getItem("blockwork-theme");
-          var theme = saved || (/iPhone|iPad|iPod|Macintosh|Mac OS X/i.test(navigator.userAgent) ? "light" : "dark");
+          var theme = saved || "light";
           if (!saved) localStorage.setItem("blockwork-theme", theme);
           var root = document.documentElement;
           if (theme === "light") root.classList.add("force-light");

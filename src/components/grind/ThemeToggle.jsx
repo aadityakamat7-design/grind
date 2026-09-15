@@ -6,9 +6,7 @@ import { Sun, Moon, Monitor } from "lucide-react";
 const STORAGE_KEY = "blockwork-theme";
 
 function defaultTheme() {
-  const ua = navigator.userAgent || "";
-  const isApple = /iPhone|iPad|iPod|Macintosh|Mac OS X/i.test(ua);
-  return isApple ? "light" : "dark";
+  return "light";
 }
 
 function applyTheme(theme) {
