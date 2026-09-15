@@ -184,16 +184,17 @@ export default function Account() {
               </Button>
             )}
 
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full rounded-full h-10 text-destructive border-destructive/20 hover:bg-destructive/10 hover:text-destructive"
-              onClick={() => base44.auth.logout("/")}
-            >
-              <LogOut className="w-3.5 h-3.5 mr-1.5" /> Log out
-            </Button>
+            <div className="pt-2 space-y-2.5">
+              <Button
+                variant="outline"
+                className="w-full rounded-xl h-11 text-destructive border-destructive/20 hover:bg-destructive/10 hover:text-destructive"
+                onClick={() => base44.auth.logout("/")}
+              >
+                <LogOut className="w-4 h-4 mr-2" /> Log out
+              </Button>
 
-            <DeleteAccountButton user={user} />
+              <DeleteAccountButton user={user} />
+            </div>
           </div>
         )}
       </div>
