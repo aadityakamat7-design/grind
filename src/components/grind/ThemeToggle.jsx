@@ -5,6 +5,12 @@ import { Sun, Moon, Monitor } from "lucide-react";
 // applies .force-light or .dark on <html> (system = neither class).
 const STORAGE_KEY = "blockwork-theme";
 
+function defaultTheme() {
+  const ua = navigator.userAgent || "";
+  const isApple = /iPhone|iPad|iPod|Macintosh|Mac OS X/i.test(ua);
+  return isApple ? "light" : "dark";
+}
+
 function applyTheme(theme) {
   const root = document.documentElement;
   root.classList.remove("force-light", "dark");
@@ -17,7 +23,7 @@ export default function ThemeToggle() {
   const [theme, setTheme] = useState("system");
 
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY) || "system";
+    const saved = localStorage.getItem(STORAGE_KEY) || defaultTheme();
     setTheme(saved);
     applyTheme(saved);
   }, []);
