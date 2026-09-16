@@ -38,7 +38,14 @@ Deno.serve(async (req) => {
         type: 'express',
         email: user.email,
         business_type: 'individual',
-        business_profile: { name: 'Blockwork' },
+        individual: user.full_name ? {
+          first_name: user.full_name.split(' ')[0] || undefined,
+          last_name: user.full_name.split(' ').slice(1).join(' ') || undefined,
+        } : undefined,
+        business_profile: {
+          name: 'Blockwork',
+          product_description: 'Local neighborhood services (lawn care, tutoring, pet sitting, tech help, odd jobs) facilitated through the Blockwork marketplace platform.',
+        },
         capabilities: { transfers: { requested: true } },
         metadata: {
           base44_app_id: Deno.env.get('BASE44_APP_ID'),
