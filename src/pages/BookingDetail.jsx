@@ -53,10 +53,17 @@ export default function BookingDetail() {
   const load = useCallback(async () => {
     try {
       setError(false);
-      // Booking is the critical call — reviews and threads are secondary.
-      // If reviews or threads fail, still show the booking so the user isn't
-      // blocked with "Couldn't load" when the booking itself loaded fine.
-      const bookingRes = await base44.functions.invoke("getBookingDetail", { bookingId });
+      // Booking is the critical call. When the user navigates here straight
+      // from the booking dialog ("Pay later"), the booking may have just been
+      // created and not yet readable — retry once after a brief delay before
+      // showing the error screen.
+      let bookingRes;
+      try {
+        bookingRes = await base44.functions.invoke("getBookingDetail", { bookingId });
+      } catch (firstErr) {
+        await new Promise((r) => setTimeout(r, 800));
+        bookingRes = await base44.functions.invoke("getBookingDetail", { bookingId });
+      }
       setBooking(bookingRes.data?.booking || null);
       try {
         const threads = await base44.entities.MessageThread.filter({ booking_id: bookingId });
