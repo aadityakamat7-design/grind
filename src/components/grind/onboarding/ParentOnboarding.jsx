@@ -196,11 +196,7 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
           {teenInfo?.teenState && ` · ${teenInfo?.teenState}`}
           {teenInfo?.teenAge != null && ` · Age ${teenInfo?.teenAge}`}
         </p>
-        {!teenInfo?.ageVerified && (
-          <p className="text-[11px] text-amber-600 mt-1">
-            ⚠ Age not yet verified — your teen will need to verify their ID before the link is fully confirmed.
-          </p>
-        )}
+
       </div>
 
       <div>
