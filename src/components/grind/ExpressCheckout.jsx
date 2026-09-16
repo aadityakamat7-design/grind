@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { CreditCard, ShieldCheck, ExternalLink } from "lucide-react";
 import { money } from "@/lib/grind";
 import StripeBadge from "@/components/StripeBadge";
-import ApplePayMark from "@/components/ApplePayMark";
 
 // Pre-load the Stripe publishable key + Stripe.js at module level so the
 // library starts downloading the instant this module is imported, not when
@@ -248,23 +247,11 @@ export default function ExpressCheckout({
           This is the modern Stripe component that automatically detects and
           renders the native Apple Pay button (on Safari) and opens the
           native double-click-to-pay sheet directly — no redirect. */}
-      <div style={{ position: "relative", minHeight: 48 }}>
-        {/* Always-visible Apple Pay placeholder — stays on screen from the
-            first paint and only gets covered when the real native button
-            renders on top, so there's never a blank gap. */}
-        <div
-          className="w-full flex items-center justify-center bg-black"
-          style={{ height: 48 }}
-          aria-hidden={!!(clientSecret && stripePromise)}
-        >
-          <ApplePayMark className="h-6" />
-        </div>
+      <div style={{ minHeight: 48 }}>
         {clientSecret && stripePromise && (
-          <div style={{ position: "absolute", top: 0, left: 0, right: 0, minHeight: 48 }}>
-            <Elements stripe={stripePromise} options={{ clientSecret }}>
-              <ExpressCheckoutInner onSuccess={onSuccess} onError={onError} />
-            </Elements>
-          </div>
+          <Elements stripe={stripePromise} options={{ clientSecret }}>
+            <ExpressCheckoutInner onSuccess={onSuccess} onError={onError} />
+          </Elements>
         )}
       </div>
 
