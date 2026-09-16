@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
+import { verifyWorkflowCall } from '../../shared/workflowAuth.ts';
 import { haversineMiles } from '../../shared/geo.ts';
 import { getVerifiedAge } from '../../shared/teenAge.ts';
 import { getMinAgeForCategory } from '../../shared/categoryAgeRules.ts';
@@ -16,8 +17,12 @@ import { nextOccurrenceDate } from '../../shared/recurringDates.ts';
 // new Booking occurrence — each with its own escrow charge.
 Deno.serve(async (req) => {
   try {
+    const body = await req.json();
+    const authError = verifyWorkflowCall(body);
+    if (authError) return authError;
+
     const base44 = createClientFromRequest(req);
-    // System-level function — no user auth needed (called by workflow).
+    // System-level function — guarded by workflow secret (called by workflow).
     const now = new Date();
     const horizon = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000); // 3 days ahead
 
