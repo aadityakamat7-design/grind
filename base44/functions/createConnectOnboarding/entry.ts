@@ -34,14 +34,38 @@ Deno.serve(async (req) => {
     const stripe = await getStripeForApp(base44);
 
     const createAccount = async () => {
+      // Pre-fill everything we already know (name, DOB, address) so the
+      // Stripe onboarding form is as short as possible — the parent just
+      // confirms the pre-filled data, adds their bank account, and enters
+      // the last 4 of their SSN. KYC is legally required, so identity
+      // details can't be skipped, but we eliminate redundant data entry.
+      const fullName = (isParent ? profile.full_name : user.full_name) || user.full_name || '';
+      const nameParts = fullName.trim().split(/\s+/);
+      const firstName = nameParts[0] || undefined;
+      const lastName = nameParts.slice(1).join(' ') || undefined;
+      const dob = isParent ? profile.dob : undefined; // teen DOB lives in TeenPrivateData, not TeenProfile
+
+      const individual = {};
+      if (firstName) individual.first_name = firstName;
+      if (lastName) individual.last_name = lastName;
+      if (dob) {
+        const d = new Date(dob);
+        if (!isNaN(d.getTime())) {
+          individual.dob = { day: d.getUTCDate(), month: d.getUTCMonth() + 1, year: d.getUTCFullYear() };
+        }
+      }
+      if (isParent && profile.address) {
+        individual.address = {
+          line1: profile.address,
+          postal_code: profile.zip || undefined,
+        };
+      }
+
       const account = await stripe.accounts.create({
         type: 'express',
         email: user.email,
         business_type: 'individual',
-        individual: user.full_name ? {
-          first_name: user.full_name.split(' ')[0] || undefined,
-          last_name: user.full_name.split(' ').slice(1).join(' ') || undefined,
-        } : undefined,
+        individual: Object.keys(individual).length ? individual : undefined,
         business_profile: {
           name: 'Blockwork',
           product_description: 'Local neighborhood services (lawn care, tutoring, pet sitting, tech help, odd jobs) facilitated through the Blockwork marketplace platform.',
