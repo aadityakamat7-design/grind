@@ -17,7 +17,7 @@ import { Image } from "@/components/ui/image";
 import { Star } from "lucide-react";
 
 export default function TeenPublicProfile() {
-  const { teenUserId } = useParams();
+  const { id: teenUserId } = useParams();
   const { user } = useOutletContext();
   const [profile, setProfile] = useState(null);
   const [listings, setListings] = useState([]);
