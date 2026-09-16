@@ -216,6 +216,8 @@ export async function reviewBookingPayout(base44, booking: any): Promise<PayoutR
   const isFirstPayout = pastTransferred.length === 0;
 
   // --- Risk level + recommended action ---
+  // First-time payouts and payouts at/above the review threshold are ALWAYS
+  // routed to manual review — they never auto-transfer regardless of risk.
   const failedChecks = checks.filter((c) => !c.passed);
   const nonCriticalFailures = failedChecks.filter((c) => !CRITICAL_CHECKS.includes(c.name));
   let risk_level: 'low' | 'medium' | 'high' = 'low';
@@ -223,6 +225,10 @@ export async function reviewBookingPayout(base44, booking: any): Promise<PayoutR
   if (isCritical) {
     risk_level = 'high';
     recommended_action = 'reject';
+  } else if (isFirstPayout || totalAmount >= REVIEW_THRESHOLD) {
+    // Force manual review for first-time payouts and large amounts
+    risk_level = risk_level === 'low' ? 'medium' : risk_level;
+    recommended_action = 'hold_for_admin';
   } else if (failedChecks.length > 0) {
     risk_level = nonCriticalFailures.length >= 2 ? 'high' : 'medium';
     recommended_action = 'hold_for_admin';

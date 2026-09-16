@@ -80,14 +80,14 @@ export async function releaseBookingPayment(base44, booking, tip) {
     link: '/teen/wallet',
   });
   // Delay the actual Stripe Connect transfer by 7 days to allow the buyer's
-  // charge to fully settle. The payout_status is set to awaiting_settlement
-  // with a payout_eligible_at timestamp; a daily scheduled workflow
+  // charge to fully settle. The payout_status is set to pending_release
+  // with a payout_eligible_at timestamp; the reconciliation pass
   // (processSettledPayouts) picks it up and calls attemptBookingPayout once
   // the settlement period passes.
   const SETTLEMENT_DAYS = 7;
   const eligibleAt = new Date(Date.now() + SETTLEMENT_DAYS * 24 * 60 * 60 * 1000).toISOString();
   await svc.Booking.update(booking.id, {
-    payout_status: 'awaiting_settlement',
+    payout_status: 'pending_release',
     payout_eligible_at: eligibleAt,
   });
 

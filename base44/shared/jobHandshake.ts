@@ -167,11 +167,11 @@ export async function recordTeenFinish(base44, booking, photos) {
   return { finished: true, released: false };
 }
 
-// Buyer confirms the job was done correctly. This completes the booking and
-// releases the escrowed payment to the parent (auto-pay). The tip amount
-// passed here must already have been charged through Stripe (or be zero).
-// Payment releases ONLY here — when both teen_finished_at AND buyer_finished_at
-// are set. The teen's finish alone never releases payment.
+// Buyer confirms the job was done correctly. Sets ONLY buyer_finished_at and
+// status → completed. Does NOT release payment directly — that happens in
+// releaseIfBothFinished, the single function that checks both timestamps exist.
+// The tip amount passed here must already have been charged through Stripe
+// (or be zero).
 export async function recordBuyerConfirm(base44, booking, tip = 0, tipPaymentIntentId = '') {
   const svc = base44.asServiceRole.entities;
   if (booking.buyer_finished_at) return { alreadyDone: true, released: false };
@@ -188,22 +188,39 @@ export async function recordBuyerConfirm(base44, booking, tip = 0, tipPaymentInt
   if (tipPaymentIntentId) patch.tip_stripe_payment_intent_id = tipPaymentIntentId;
   await svc.Booking.update(booking.id, patch);
 
-  // Release escrow exactly once — atomic lock so a concurrent webhook tip
-  // confirmation and a direct confirm can never double-release.
+  // Release payment through the single function that checks BOTH timestamps.
+  return await releaseIfBothFinished(base44, booking.id);
+}
+
+// THE SINGLE FUNCTION that releases payment. Checks that both teen_finished_at
+// AND buyer_finished_at exist before releasing — never called from either
+// party's action alone. Uses an atomic lock to prevent double-release from
+// concurrent webhook tip confirmations.
+export async function releaseIfBothFinished(base44, bookingId) {
+  const svc = base44.asServiceRole.entities;
+  const fresh = await svc.Booking.get(bookingId);
+
+  // Both timestamps must exist — this is the mutual completion gate.
+  if (!fresh.teen_finished_at || !fresh.buyer_finished_at) {
+    return { confirmed: true, released: false };
+  }
+
+  // Atomic lock so a concurrent webhook tip confirmation and a direct confirm
+  // can never double-release.
   const lockToken = `lock_${Date.now()}_${Math.random().toString(36).slice(2)}`;
   await svc.Booking.updateMany(
-    { id: booking.id, payment_status: 'held' },
+    { id: bookingId, payment_status: 'held' },
     { $set: { payment_status: 'releasing', stripe_transfer_id: lockToken } },
   );
-  const fresh = await svc.Booking.get(booking.id);
-  if (fresh.payment_status !== 'releasing' || fresh.stripe_transfer_id !== lockToken) {
+  const locked = await svc.Booking.get(bookingId);
+  if (locked.payment_status !== 'releasing' || locked.stripe_transfer_id !== lockToken) {
     return { confirmed: true, released: false };
   }
   try {
-    const teenGets = await releaseBookingPayment(base44, fresh, Number(fresh.tip_amount) || 0);
+    const teenGets = await releaseBookingPayment(base44, locked, Number(locked.tip_amount) || 0);
     return { confirmed: true, released: true, teenGets };
   } catch (err) {
-    await svc.Booking.update(booking.id, { payment_status: 'held', stripe_transfer_id: '' });
+    await svc.Booking.update(bookingId, { payment_status: 'held', stripe_transfer_id: '' });
     throw err;
   }
 }
