@@ -42,9 +42,13 @@ self.addEventListener("fetch", (event) => {
       .catch(async () => {
         const cached = await caches.match(req);
         if (cached) return cached;
-        // Last resort: the cached app shell so the user sees the app, not a browser error.
-        const shell = await caches.match("/index.html");
-        if (shell) return shell;
+        // Only serve the app shell for navigation requests. Serving HTML
+        // for a JS/CSS/asset request makes the browser parse HTML as
+        // JavaScript → "SyntaxError: Unexpected token '<'".
+        if (req.mode === "navigate") {
+          const shell = await caches.match("/index.html");
+          if (shell) return shell;
+        }
         return new Response("You are offline.", { status: 503, headers: { "Content-Type": "text/plain" } });
       })
   );
