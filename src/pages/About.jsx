@@ -17,7 +17,7 @@ export default function About() {
     <div className="min-h-screen bg-background flex flex-col">
       <Seo
         title="About"
-        description="Blockwork is a parent-approved marketplace built in California by a small team of parents and technologists. Learn who built it, why, and what it does — and doesn't — do."
+        description="Blockwork is a parent-approved marketplace built in California by a teen who wanted a safer way to earn. Learn who built it, why, and what it does — and doesn't — do."
         path="/about"
         jsonLd={{
           "@context": "https://schema.org",
@@ -40,7 +40,7 @@ export default function About() {
           <h2 className="font-bold text-foreground text-lg mb-3">Why we built this</h2>
           <div className="space-y-4 text-sm text-foreground/90 leading-relaxed">
             <p>
-              Blockwork was started in Fremont, California by a parent who wanted a safer way for their teenager to earn money. The existing options weren't good enough — Craigslist is anonymous, Facebook Marketplace has no protections, and adult gig platforms like TaskRabbit aren't built for minors. Meanwhile, neighbors were already asking in community groups for a reliable teen to mow a lawn, walk a dog, or help with homework.
+              Blockwork was started in Fremont, California by a teen who wanted a safer way to earn money. The existing options weren't good enough — Craigslist is anonymous, Facebook Marketplace has no protections, and adult gig platforms like TaskRabbit aren't built for minors. Meanwhile, neighbors were already asking in community groups for a reliable teen to mow a lawn, walk a dog, or help with homework.
             </p>
             <p>
               The idea was simple: build a marketplace where every job is approved by a parent, every user is verified, and every payment is protected by escrow. No teen walks into a stranger's home. No neighbor gets ghosted. No parent has to wonder where their kid is or whether they'll get paid.
@@ -121,7 +121,7 @@ export default function About() {
         <div className="bg-secondary border border-border rounded-2xl p-5">
           <h2 className="font-bold text-foreground text-sm mb-2">Who runs Blockwork</h2>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            Blockwork is built and operated by a small team based in California. We're parents and technologists who care about doing this right. If you have questions, concerns, or ideas, email us at{" "}
+            Blockwork is built and operated by a small team based in California. We're teens and technologists who care about doing this right. If you have questions, concerns, or ideas, email us at{" "}
             <a href="mailto:support@blockwork.online" className="text-foreground font-medium hover:underline">support@blockwork.online</a>
             {" "}— we respond within 24 hours.
           </p>
