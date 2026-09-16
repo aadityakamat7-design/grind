@@ -40,7 +40,7 @@ export default function TeenEligibilityStep({ initialDob = "", initialState = ""
         <ResponsiveSelect
           value={usState}
           onValueChange={(v) => { setUsState(v); setError(""); setShowWaitlist(false); }}
-          options={[{ value: "", label: "Select your state…" }, ...US_STATES.map((s) => ({ value: s.code, label: s.name }))]}
+          options={US_STATES.map((s) => ({ value: s.code, label: s.name }))}
           placeholder="Select your state…"
           title="Your state"
           className="mt-1 h-11 rounded-xl"
