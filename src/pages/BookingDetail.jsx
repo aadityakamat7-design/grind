@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { useParams, useOutletContext, Link } from "react-router-dom";
+import { useParams, useOutletContext, Link, useSearchParams } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { CalendarDays, MapPin, Lock, MessageCircle, FileText, Repeat, Clock, Video, Sun, MessageSquare, User } from "lucide-react";
+import { CalendarDays, MapPin, Lock, MessageCircle, FileText, Repeat, Clock, Video, Sun, MessageSquare, User, CheckCircle2, Receipt } from "lucide-react";
 import { format } from "date-fns";
 import StatusBadge from "@/components/grind/StatusBadge";
 import ReviewDialog from "@/components/grind/ReviewDialog";
@@ -26,6 +26,7 @@ import ErrorRetry from "@/components/grind/ErrorRetry";
 export default function BookingDetail() {
   const { bookingId } = useParams();
   const { user } = useOutletContext();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [booking, setBooking] = useState(null);
   const [thread, setThread] = useState(null);
   const [myReview, setMyReview] = useState(null);
@@ -43,19 +44,30 @@ export default function BookingDetail() {
   const [handshakeError, setHandshakeError] = useState("");
   const autoPromptedRef = useRef(false);
 
+  // Success banner from Stripe Checkout redirect: ?started=1 (escrow paid)
+  // or ?paid=1 (tip paid → payment released). Cleared after first show.
+  const startedParam = searchParams.get("started") === "1";
+  const paidParam = searchParams.get("paid") === "1";
+  const [showReceipt, setShowReceipt] = useState(startedParam || paidParam);
+
   const load = useCallback(async () => {
     try {
       setError(false);
-      const [bookingRes, threads, reviewsRes] = await Promise.all([
-        base44.functions.invoke("getBookingDetail", { bookingId }),
-        base44.entities.MessageThread.filter({ booking_id: bookingId }),
-        base44.functions.invoke("getReviews", { booking_id: bookingId }),
-      ]);
+      // Booking is the critical call — reviews and threads are secondary.
+      // If reviews or threads fail, still show the booking so the user isn't
+      // blocked with "Couldn't load" when the booking itself loaded fine.
+      const bookingRes = await base44.functions.invoke("getBookingDetail", { bookingId });
       setBooking(bookingRes.data?.booking || null);
-      setThread(threads[0] || null);
-      const allReviews = reviewsRes.data?.reviews || [];
-      setReviews(allReviews);
-      setMyReview(allReviews.find((r) => r.is_mine) || null);
+      try {
+        const threads = await base44.entities.MessageThread.filter({ booking_id: bookingId });
+        setThread(threads[0] || null);
+      } catch (e) { /* non-blocking */ }
+      try {
+        const reviewsRes = await base44.functions.invoke("getReviews", { booking_id: bookingId });
+        const allReviews = reviewsRes.data?.reviews || [];
+        setReviews(allReviews);
+        setMyReview(allReviews.find((r) => r.is_mine) || null);
+      } catch (e) { /* non-blocking */ }
     } catch (err) {
       console.error("BookingDetail load failed:", err);
       setError(true);
@@ -65,6 +77,18 @@ export default function BookingDetail() {
   }, [bookingId, user.id]);
 
   useEffect(() => { load(); }, [load]);
+
+  // Clear the success params after showing the banner so a manual refresh
+  // doesn't keep re-triggering it.
+  useEffect(() => {
+    if (startedParam || paidParam) {
+      setShowReceipt(true);
+      const t = setTimeout(() => {
+        setSearchParams({}, { replace: true });
+      }, 4000);
+      return () => clearTimeout(t);
+    }
+  }, [startedParam, paidParam, setSearchParams]);
 
   // Auto-prompt both sides to leave a review the moment a job is completed
   // and paid out — they can close it and revisit via the button below.
@@ -156,6 +180,23 @@ export default function BookingDetail() {
 
   return (
     <div className="space-y-5">
+      {showReceipt && (
+        <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 flex items-start gap-3 animate-fade-in">
+          <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center shrink-0">
+            <Receipt className="w-5 h-5 text-emerald-600" />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-bold text-emerald-700 flex items-center gap-1.5">
+              <CheckCircle2 className="w-4 h-4" /> Receipt sent — booking confirmed
+            </p>
+            <p className="text-xs text-emerald-600 mt-0.5">
+              {paidParam
+                ? "Payment released to the teen. A receipt and notification have been sent."
+                : "Payment held in escrow. A receipt has been sent and the teen has been notified to start the job."}
+            </p>
+          </div>
+        </div>
+      )}
       <div className="bg-card rounded-2xl border border-border shadow-soft p-6">
         <div className="flex items-start justify-between gap-2">
           <div>
