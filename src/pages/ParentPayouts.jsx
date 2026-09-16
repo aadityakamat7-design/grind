@@ -11,11 +11,19 @@ import { toast } from "@/components/ui/use-toast";
 import ErrorRetry from "@/components/grind/ErrorRetry";
 
 const PAYOUT_LABELS = {
-  awaiting_settlement: { text: "Ready to withdraw — tap below to send to your bank", cls: "text-amber-600", icon: Clock },
-  transferred: { text: "In your bank in 1–2 business days", cls: "text-emerald-600", icon: CheckCircle2 },
-  pending_review: { text: "Safety review — usually within 1 day", cls: "text-amber-600", icon: Clock },
-  awaiting_bank: { text: "Waiting for your bank connection", cls: "text-rose-600", icon: Landmark },
+  pending_release: { text: "Held until your teen completes the job", cls: "text-amber-600", icon: Clock },
+  blocked_no_destination: { text: "Waiting for your bank setup", cls: "text-rose-600", icon: Landmark },
+  awaiting_active_account: { text: "Waiting for your bank setup to finish", cls: "text-amber-600", icon: Clock },
+  awaiting_new_account_hold: { text: "New account security hold — first payouts release 72 hours after setup", cls: "text-amber-600", icon: Clock },
+  pending_review: { text: "Under review — usually clears within 24 hours", cls: "text-amber-600", icon: Clock },
+  duplicate_blocked: { text: "Already sent", cls: "text-emerald-600", icon: CheckCircle2 },
+  transferred: { text: "Sent — arrives in 1–2 business days", cls: "text-emerald-600", icon: CheckCircle2 },
+  paid_out: { text: "In your bank", cls: "text-emerald-600", icon: CheckCircle2 },
+  // Legacy
+  awaiting_settlement: { text: "Held until your teen completes the job", cls: "text-amber-600", icon: Clock },
+  awaiting_bank: { text: "Waiting for your bank setup to finish", cls: "text-rose-600", icon: Landmark },
   pending_new_account_hold: { text: "New account security hold — first payouts release 72 hours after setup", cls: "text-amber-600", icon: Clock },
+  not_started: { text: "Released", cls: "text-emerald-600", icon: CheckCircle2 },
 };
 
 export default function ParentPayouts() {
@@ -73,13 +81,13 @@ export default function ParentPayouts() {
   };
 
   const eligibleBookings = Object.values(payoutByBooking).filter((b) => {
-    const settlementReady = b.payout_status === "awaiting_settlement"
+    const settlementReady = (b.payout_status === "pending_release" || b.payout_status === "awaiting_settlement")
       && b.payout_eligible_at
       && new Date(b.payout_eligible_at) <= new Date();
-    const holdReady = b.payout_status === "pending_new_account_hold"
+    const holdReady = (b.payout_status === "awaiting_new_account_hold" || b.payout_status === "pending_new_account_hold")
       && b.new_account_hold_eligible_at
       && new Date(b.new_account_hold_eligible_at) <= new Date();
-    return (b.payout_status === "awaiting_bank" || settlementReady || holdReady);
+    return (b.payout_status === "awaiting_active_account" || b.payout_status === "awaiting_bank" || b.payout_status === "blocked_no_destination" || settlementReady || holdReady);
   });
   const canBatch = eligibleBookings.length > 0 && profile?.connect_status === "active";
   const [batching, setBatching] = useState(false);
@@ -154,13 +162,13 @@ export default function ParentPayouts() {
             const booking = r.booking_id ? payoutByBooking[r.booking_id] : null;
             const info = booking ? PAYOUT_LABELS[booking.payout_status] : null;
             const Icon = info?.icon;
-            const settlementReady = booking?.payout_status === "awaiting_settlement"
+            const settlementReady = (booking?.payout_status === "pending_release" || booking?.payout_status === "awaiting_settlement")
               && booking?.payout_eligible_at
               && new Date(booking.payout_eligible_at) <= new Date();
-            const holdReady = booking?.payout_status === "pending_new_account_hold"
+            const holdReady = (booking?.payout_status === "awaiting_new_account_hold" || booking?.payout_status === "pending_new_account_hold")
               && booking?.new_account_hold_eligible_at
               && new Date(booking.new_account_hold_eligible_at) <= new Date();
-            const canRetry = (booking?.payout_status === "awaiting_bank" || settlementReady || holdReady)
+            const canRetry = (booking?.payout_status === "awaiting_active_account" || booking?.payout_status === "awaiting_bank" || booking?.payout_status === "blocked_no_destination" || settlementReady || holdReady)
               && profile?.connect_status === "active";
             return (
               <div key={r.id} className="bg-card rounded-2xl border border-border shadow-soft p-4">
@@ -178,7 +186,7 @@ export default function ParentPayouts() {
                     <Icon className="w-3.5 h-3.5" /> {info.text}
                   </p>
                 )}
-                {booking?.payout_status === "pending_new_account_hold" && booking?.new_account_hold_eligible_at && (
+                {(booking?.payout_status === "awaiting_new_account_hold" || booking?.payout_status === "pending_new_account_hold") && booking?.new_account_hold_eligible_at && (
                   <p className="text-[11px] text-muted-foreground mt-1">
                     Available {format(new Date(booking.new_account_hold_eligible_at), "MMM d 'at' h:mm a")}
                   </p>

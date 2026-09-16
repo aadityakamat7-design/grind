@@ -3,11 +3,19 @@ import { Wallet } from "lucide-react";
 import { money } from "@/lib/grind";
 
 const PAYOUT_LABELS = {
-  not_started: { label: "Pending", className: "bg-secondary text-muted-foreground border-border" },
-  awaiting_bank: { label: "Awaiting bank", className: "bg-amber-100 text-amber-700 border-amber-200" },
-  awaiting_settlement: { label: "Settling", className: "bg-secondary text-foreground border-border" },
+  pending_release: { label: "Held until job is done", className: "bg-secondary text-muted-foreground border-border" },
+  blocked_no_destination: { label: "Needs bank setup", className: "bg-red-100 text-red-700 border-red-200" },
+  awaiting_active_account: { label: "Finishing bank setup", className: "bg-amber-100 text-amber-700 border-amber-200" },
+  awaiting_new_account_hold: { label: "72-hour hold", className: "bg-amber-100 text-amber-700 border-amber-200" },
   pending_review: { label: "Under review", className: "bg-amber-100 text-amber-700 border-amber-200" },
-  transferred: { label: "Paid out", className: "bg-emerald-100 text-emerald-700 border-emerald-200" },
+  duplicate_blocked: { label: "Already sent", className: "bg-secondary text-muted-foreground border-border" },
+  transferred: { label: "Sent to bank", className: "bg-emerald-100 text-emerald-700 border-emerald-200" },
+  paid_out: { label: "Paid out", className: "bg-emerald-100 text-emerald-700 border-emerald-200" },
+  // Legacy
+  not_started: { label: "Pending", className: "bg-secondary text-muted-foreground border-border" },
+  awaiting_bank: { label: "Needs bank setup", className: "bg-amber-100 text-amber-700 border-amber-200" },
+  awaiting_settlement: { label: "Held until job is done", className: "bg-secondary text-foreground border-border" },
+  pending_new_account_hold: { label: "72-hour hold", className: "bg-amber-100 text-amber-700 border-amber-200" },
 };
 
 function formatDate(iso) {

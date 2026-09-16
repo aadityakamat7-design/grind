@@ -52,32 +52,64 @@ async function createTransfer(stripe, { amount, sourceTransaction, destination, 
 
 // Attempts the Stripe Connect transfer of a released booking's net payout
 // (net_amount + tip) to the destination Connect account. For minors the
-// destination is the parent's Connect account; for independent 18+ teens
-// (no parent on the booking) it is the teen's own Connect account.
+// destination is the parent's Connect account (requires a confirmed
+// ParentTeenLink); for independent 18+ teens (no parent on the booking) it
+// is the teen's own Connect account.
 //
-// The base payout and tip are transferred separately, each tied to its own
-// charge, so tip funds are never left stranded in the platform balance.
+// Pre-transfer eligibility checks run in order:
+//   1. Destination resolution (blocked_no_destination if none)
+//   2. Account active (awaiting_active_account if pending/restricted)
+//   3. 72-hour new-account hold (awaiting_new_account_hold)
+//   4. Duplicate detection (duplicate_blocked if transfer already exists)
+//   5. Review agent + first-payout/over-$100 routing (pending_review)
+//
+// Transfer failures are caught and left in a retryable pending_review state.
 export async function attemptBookingPayout(base44, booking, { skipReview = false } = {}) {
   const svc = base44.asServiceRole.entities;
   const baseAmount = Math.round((Number(booking.net_amount) || 0) * 100) / 100;
-  // The tip transfer is the NET tip after the 3.5% + $0.50 processing fee —
-  // the fee stays in the platform balance to cover Stripe's charge cost.
   const tipAmount = calculateTipNet(Math.round((Number(booking.tip_amount) || 0) * 100) / 100);
   const totalAmount = Math.round((baseAmount + tipAmount) * 100) / 100;
-  if (totalAmount <= 0) return { status: 'not_started' };
+  if (totalAmount <= 0) return { status: 'pending_release' };
 
-  // Payouts route to the parent's Connect account for minors, or the teen's
-  // own Connect account for independent 18+ teens (no parent on the booking).
+  // --- 1. Resolve the correct destination ---
   const isIndependent = !booking.parent_user_id;
   const destUserId = isIndependent ? booking.teen_user_id : booking.parent_user_id;
   const returnLink = isIndependent ? '/teen' : '/parent/payouts';
-  const profiles = isIndependent
-    ? await svc.TeenProfile.filter({ user_id: booking.teen_user_id })
-    : await svc.ParentProfile.filter({ user_id: booking.parent_user_id });
-  const dest = profiles[0];
 
-  if (!dest?.stripe_connect_account_id || dest.connect_status !== 'active') {
-    await svc.Booking.update(booking.id, { payout_status: 'awaiting_bank' });
+  let dest;
+  if (isIndependent) {
+    const profiles = await svc.TeenProfile.filter({ user_id: booking.teen_user_id });
+    dest = profiles[0];
+  } else {
+    // For a minor teen: require a confirmed ParentTeenLink before routing to the parent
+    const links = await svc.ParentTeenLink.filter({
+      parent_user_id: booking.parent_user_id,
+      teen_user_id: booking.teen_user_id,
+    });
+    const confirmedLink = links.find((l) => l.status === 'confirmed');
+    if (!confirmedLink) {
+      await svc.Booking.update(booking.id, {
+        payout_status: 'blocked_no_destination',
+        payout_review_reason: 'No confirmed parent-teen link — cannot resolve payout destination',
+      });
+      await notifyAdmins(base44, {
+        type: 'payment',
+        title: 'Payout blocked — no confirmed parent link',
+        body: `"${booking.listing_title}" — the parent-teen link is not confirmed. Payout cannot proceed until the link is verified.`,
+        link: '/admin',
+      });
+      return { status: 'blocked_no_destination', reason: 'No confirmed parent-teen link' };
+    }
+    const profiles = await svc.ParentProfile.filter({ user_id: booking.parent_user_id });
+    dest = profiles[0];
+  }
+
+  // No Connect account at all
+  if (!dest?.stripe_connect_account_id) {
+    await svc.Booking.update(booking.id, {
+      payout_status: 'blocked_no_destination',
+      payout_review_reason: `No Connect account for ${isIndependent ? 'teen' : 'parent'}`,
+    });
     await svc.Notification.create({
       user_id: destUserId,
       type: 'payment',
@@ -85,21 +117,32 @@ export async function attemptBookingPayout(base44, booking, { skipReview = false
       body: `${money(totalAmount)} from "${booking.listing_title}" is waiting. Connect your bank in Payouts to receive it.`,
       link: returnLink,
     });
-    return { status: 'awaiting_bank' };
+    return { status: 'blocked_no_destination', reason: 'No Connect account' };
   }
 
-  // --- New-account 72-hour security hold ---
-  // No payout may be released until 72 hours after the payout account was
-  // first created. This is a fraud-prevention measure applied to both parent
-  // and independent-teen accounts. Enforced server-side — not bypassable from
-  // the client. The scheduled settlement job picks these up automatically once
-  // the window passes, so money is never stranded.
+  // --- 2. Account must be active (not pending/restricted) ---
+  if (dest.connect_status !== 'active') {
+    await svc.Booking.update(booking.id, {
+      payout_status: 'awaiting_active_account',
+      payout_review_reason: `Connect account status: ${dest.connect_status}`,
+    });
+    await svc.Notification.create({
+      user_id: destUserId,
+      type: 'payment',
+      title: 'Finish bank setup to receive this payout',
+      body: `${money(totalAmount)} from "${booking.listing_title}" is waiting. Complete your bank setup in Payouts to receive it.`,
+      link: returnLink,
+    });
+    return { status: 'awaiting_active_account' };
+  }
+
+  // --- 3. 72-hour new-account withdrawal hold ---
   const NEW_ACCOUNT_HOLD_MS = 72 * 60 * 60 * 1000;
   const accountCreatedAt = dest.payout_account_created_at ? new Date(dest.payout_account_created_at) : null;
   if (accountCreatedAt && (Date.now() - accountCreatedAt.getTime()) < NEW_ACCOUNT_HOLD_MS) {
     const eligibleAt = new Date(accountCreatedAt.getTime() + NEW_ACCOUNT_HOLD_MS).toISOString();
     await svc.Booking.update(booking.id, {
-      payout_status: 'pending_new_account_hold',
+      payout_status: 'awaiting_new_account_hold',
       new_account_hold_eligible_at: eligibleAt,
       payout_review_reason: 'New account security hold — first payouts release 72 hours after account setup',
     });
@@ -110,16 +153,34 @@ export async function attemptBookingPayout(base44, booking, { skipReview = false
       body: `${money(totalAmount)} from "${booking.listing_title}" is on a 72-hour security hold for your new account. It becomes available ${new Date(eligibleAt).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })}.`,
       link: returnLink,
     });
-    return { status: 'pending_new_account_hold', eligibleAt };
+    return { status: 'awaiting_new_account_hold', eligibleAt };
   }
 
-  // Run the automated review agent before any transfer. The agent runs 8
-  // fraud/error/compliance checks and produces a risk assessment. Critical
-  // failures block the payout entirely and alert admins; medium/high risk
-  // holds for admin approval. skipReview is set only when an admin has
-  // already approved a held payout — their decision overrides the agent.
+  // --- 4. Duplicate transfer prevention ---
+  // If a real Stripe transfer ID already exists (not a lock token), this
+  // payout was already sent. Block it to prevent a duplicate.
+  if (booking.stripe_transfer_id && !booking.stripe_transfer_id.startsWith('lock_')) {
+    await svc.Booking.update(booking.id, {
+      payout_status: 'duplicate_blocked',
+      payout_review_reason: `Transfer already exists: ${booking.stripe_transfer_id}`,
+    });
+    await notifyAdmins(base44, {
+      type: 'payment',
+      title: 'Duplicate payout blocked',
+      body: `"${booking.listing_title}" already has transfer ID ${booking.stripe_transfer_id}. Payout blocked to prevent a duplicate.`,
+      link: '/admin',
+    });
+    return { status: 'duplicate_blocked', reason: 'Transfer already exists' };
+  }
+
+  // --- 5. Review agent + first-payout/over-$100 routing ---
+  // First-time payouts and payouts over $100 are ALWAYS routed to manual
+  // review — they never auto-transfer. skipReview is set only when an admin
+  // has already approved a held payout.
   if (!skipReview) {
     const review = await reviewBookingPayout(base44, booking);
+    const forceReview = review.is_first_payout || totalAmount >= REVIEW_THRESHOLD;
+
     if (review.is_critical || review.recommended_action === 'reject') {
       await saveReview(base44, booking, review, { status: 'blocked' });
       await svc.Booking.update(booking.id, {
@@ -132,13 +193,19 @@ export async function attemptBookingPayout(base44, booking, { skipReview = false
         body: `${money(review.amount)} payout for "${booking.listing_title}" was BLOCKED: ${review.flags.join('; ')}.`,
         link: '/admin',
       });
-      return { status: 'blocked', reason: review.flags.join('; ') };
+      return { status: 'pending_review', reason: review.flags.join('; ') };
     }
-    if (review.recommended_action === 'hold_for_admin') {
+
+    if (forceReview || review.recommended_action === 'hold_for_admin') {
+      const reason = forceReview
+        ? (review.is_first_payout
+          ? 'First payout — manual review required'
+          : `Payout over $${REVIEW_THRESHOLD} — manual review required`)
+        : (review.flags.join('; ') || 'Held for admin review');
       await saveReview(base44, booking, review, { status: 'pending' });
       await svc.Booking.update(booking.id, {
         payout_status: 'pending_review',
-        payout_review_reason: review.flags.join('; ') || 'Held for admin review',
+        payout_review_reason: reason,
       });
       await svc.Notification.create({
         user_id: destUserId,
@@ -150,27 +217,25 @@ export async function attemptBookingPayout(base44, booking, { skipReview = false
       await notifyAdmins(base44, {
         type: 'payment',
         title: 'Payout held for review',
-        body: `${money(review.amount)} payout for "${booking.listing_title}" held: ${review.flags.join('; ') || 'manual review trigger'}.`,
+        body: `${money(review.amount)} payout for "${booking.listing_title}" held: ${reason}.`,
         link: '/admin',
       });
-      return { status: 'pending_review', reason: review.flags.join('; ') };
+      return { status: 'pending_review', reason };
     }
+
     // Auto-approved — record the clearance and proceed to the transfer
     await saveReview(base44, booking, review, { status: 'auto_approved' });
   }
 
+  // --- Execute the transfer ---
   const stripe = await getStripeForApp(base44);
-
-  // Look up the actual net (after Stripe fees) for both the start-payment
-  // charge and the tip charge so each transfer is capped to what's actually
-  // available and tied to its own source_transaction.
   const baseCharge = await getChargeNet(stripe, booking.stripe_payment_intent_id);
   const tipCharge = await getChargeNet(stripe, booking.tip_stripe_payment_intent_id);
 
   const transferIds = [];
   let totalTransferred = 0;
 
-  // --- Base transfer (85% net after platform fee) ---
+  // --- Base transfer (net after platform fee) ---
   if (baseAmount > 0) {
     try {
       const result = await createTransfer(stripe, {
@@ -185,19 +250,24 @@ export async function attemptBookingPayout(base44, booking, { skipReview = false
         totalTransferred += result.amount;
       }
     } catch (err) {
+      // Transfer failure — catch, record the reason, and leave in a
+      // retryable pending_review state. Never an ambiguous silent failure.
       console.error('Base transfer failed:', err.message);
       await svc.Booking.update(booking.id, {
         payout_status: 'pending_review',
-        payout_review_reason: `Base transfer failed: ${err.message}`,
+        payout_review_reason: `Transfer failed: ${err.message}`,
+      });
+      await notifyAdmins(base44, {
+        type: 'payment',
+        title: 'Payout transfer failed',
+        body: `Base transfer for "${booking.listing_title}" failed: ${err.message}. Retry from the admin payout queue.`,
+        link: '/admin',
       });
       return { status: 'pending_review', reason: err.message };
     }
   }
 
   // --- Tip transfer (100% to the teen) ---
-  // If the base already went through but the tip fails, we don't roll back —
-  // the base money is already in the parent's account. We log the tip failure
-  // and notify admins so they can retry from the payout queue.
   if (tipAmount > 0) {
     try {
       const result = await createTransfer(stripe, {
@@ -213,8 +283,6 @@ export async function attemptBookingPayout(base44, booking, { skipReview = false
       }
     } catch (err) {
       console.error('Tip transfer failed:', err.message);
-      // Mark as pending_review so processPayout can retry. The idempotency
-      // key payout_<bookingId>_base prevents a duplicate base transfer on retry.
       await svc.Booking.update(booking.id, {
         payout_status: 'pending_review',
         payout_review_reason: `Tip transfer failed (base succeeded): ${err.message}`,
@@ -223,7 +291,7 @@ export async function attemptBookingPayout(base44, booking, { skipReview = false
       await notifyAdmins(base44, {
         type: 'payment',
         title: 'Tip transfer needs retry',
-        body: `Base payout for "${booking.listing_title}" ${transferIds.length > 0 ? 'succeeded' : 'also failed'} but the ${money(tipAmount)} tip transfer failed: ${err.message}. Retry from the admin payout queue.`,
+        body: `Base payout for "${booking.listing_title}" succeeded but the ${money(tipAmount)} tip transfer failed: ${err.message}.`,
         link: '/admin',
       });
       return { status: 'pending_review', reason: err.message };
@@ -238,6 +306,7 @@ export async function attemptBookingPayout(base44, booking, { skipReview = false
     return { status: 'pending_review', reason: 'Insufficient charge net' };
   }
 
+  // --- Success: transferred ---
   await svc.Booking.update(booking.id, {
     payout_status: 'transferred',
     stripe_transfer_id: transferIds.join(','),

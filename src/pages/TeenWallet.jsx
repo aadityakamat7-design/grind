@@ -21,11 +21,18 @@ const STATUS = {
   pending: { label: "Pending", color: "#F2B84B" },
 };
 const PAYOUT_STATUS = {
-  awaiting_settlement: { label: "Settling (~7 days)", color: "#F2B84B" },
-  transferred: { label: "Sent to bank", color: "#00D47E" },
-  pending_review: { label: "In review", color: "#F2B84B" },
-  awaiting_bank: { label: "Connecting bank", color: "#F2B84B" },
-  pending_new_account_hold: { label: "New account hold (72h)", color: "#F2B84B" },
+  pending_release: { label: "Held until the job is complete", color: "#F2B84B" },
+  blocked_no_destination: { label: "Waiting for bank setup", color: "#FF4D4D" },
+  awaiting_active_account: { label: "Waiting for bank setup to finish", color: "#F2B84B" },
+  awaiting_new_account_hold: { label: "New account hold — 72 hours", color: "#F2B84B" },
+  pending_review: { label: "Under review — usually clears within 24 hours", color: "#F2B84B" },
+  duplicate_blocked: { label: "Already sent", color: "#00D47E" },
+  transferred: { label: "Sent — arrives in 1–2 business days", color: "#00D47E" },
+  paid_out: { label: "In your bank", color: "#00D47E" },
+  // Legacy
+  awaiting_settlement: { label: "Held until the job is complete", color: "#F2B84B" },
+  awaiting_bank: { label: "Waiting for bank setup to finish", color: "#F2B84B" },
+  pending_new_account_hold: { label: "New account hold — 72 hours", color: "#F2B84B" },
   not_started: { label: "Released", color: "#00D47E" },
 };
 

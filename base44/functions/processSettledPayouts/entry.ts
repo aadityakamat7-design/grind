@@ -2,10 +2,23 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 import { attemptBookingPayout } from '../../shared/payoutTransfer.ts';
 import { verifyWorkflowCall } from '../../shared/workflowAuth.ts';
 
-// Processes bookings whose 7-day settlement period has elapsed. Called daily
-// by a scheduled workflow. For each eligible booking (payout_status:
-// awaiting_settlement and payout_eligible_at in the past), attempts the Stripe
-// Connect transfer to the parent's (or independent teen's) bank.
+// Reconciliation pass — the daily scheduled job that keeps payouts moving.
+// Finds every released booking whose payout hasn't been transferred yet,
+// retries ones that are now eligible (settlement period passed, account now
+// active, new-account hold expired, destination now resolvable), and reports
+// anything still stuck with the specific blocking reason.
+//
+// Retries:
+//   - pending_release / awaiting_settlement past their payout_eligible_at
+//   - awaiting_new_account_hold / pending_new_account_hold past their hold
+//   - awaiting_active_account / awaiting_bank (account may now be active)
+//   - blocked_no_destination (destination may now resolve)
+//
+// Reports as stuck (does NOT retry):
+//   - pending_review (needs explicit admin approval)
+//   - duplicate_blocked (terminal — needs admin investigation)
+//   - pending_release/awaiting_settlement not yet past settlement
+//   - awaiting_new_account_hold not yet past hold
 
 Deno.serve(async (req) => {
   try {
@@ -17,36 +30,116 @@ Deno.serve(async (req) => {
     const svc = base44.asServiceRole.entities;
 
     const now = new Date();
-    // Pick up bookings past the 7-day settlement window AND bookings past the
-    // 72-hour new-account security hold. Both auto-release here so money is
-    // never stranded between the two processes. A payout subject to both the
-    // new-account hold and the manual review is handled in order: the hold
-    // lifts here first, then attemptBookingPayout runs the review which may
-    // move it to pending_review for an admin — it never sits in an ambiguous
-    // state where neither process picks it up.
-    const [settled, held] = await Promise.all([
-      svc.Booking.filter({ payout_status: 'awaiting_settlement' }, '-released_at', 200),
-      svc.Booking.filter({ payout_status: 'pending_new_account_hold' }, '-released_at', 200),
-    ]);
-    const eligible = [
-      ...settled.filter((b) => b.payout_eligible_at && new Date(b.payout_eligible_at) <= now),
-      ...held.filter((b) => b.new_account_hold_eligible_at && new Date(b.new_account_hold_eligible_at) <= now),
+
+    // Gather all released bookings that haven't been transferred or paid out
+    const retryableStatuses = [
+      'pending_release',
+      'awaiting_active_account',
+      'awaiting_new_account_hold',
+      'blocked_no_destination',
+      'pending_review',
+      // Legacy statuses
+      'awaiting_settlement',
+      'pending_new_account_hold',
+      'awaiting_bank',
+      'not_started',
     ];
 
-    let processed = 0;
-    let failed = 0;
-    for (const b of eligible) {
+    const allBookings: any[] = [];
+    for (const status of retryableStatuses) {
       try {
-        const result = await attemptBookingPayout(base44, b);
-        if (result.status === 'transferred') processed++;
-        else failed++;
-      } catch (err) {
-        console.error(`Payout failed for booking ${b.id}:`, err.message);
-        failed++;
+        const batch = await svc.Booking.filter({ payment_status: 'released', payout_status: status }, '-released_at', 200);
+        allBookings.push(...batch);
+      } catch (e) {
+        console.error(`Failed to fetch ${status}:`, e.message);
       }
     }
 
-    return Response.json({ checked: eligible.length, processed, failed });
+    // Deduplicate (a booking might match multiple status filters)
+    const seen = new Set();
+    const bookings = allBookings.filter((b) => {
+      if (seen.has(b.id)) return false;
+      seen.add(b.id);
+      return true;
+    });
+
+    let processed = 0;
+    let failed = 0;
+    const stuck: any[] = [];
+
+    for (const b of bookings) {
+      const ps = b.payout_status;
+
+      // --- Time-based holds: check if eligible yet ---
+      const isSettlement = ps === 'pending_release' || ps === 'awaiting_settlement' || ps === 'not_started';
+      if (isSettlement) {
+        if (!b.payout_eligible_at || new Date(b.payout_eligible_at) > now) {
+          stuck.push({
+            booking_id: b.id, title: b.listing_title, status: ps,
+            reason: `Settlement period ends ${b.payout_eligible_at ? new Date(b.payout_eligible_at).toLocaleString('en-US') : 'unknown'}`,
+          });
+          continue;
+        }
+      }
+
+      const isHold = ps === 'awaiting_new_account_hold' || ps === 'pending_new_account_hold';
+      if (isHold) {
+        if (!b.new_account_hold_eligible_at || new Date(b.new_account_hold_eligible_at) > now) {
+          stuck.push({
+            booking_id: b.id, title: b.listing_title, status: ps,
+            reason: `New account hold ends ${b.new_account_hold_eligible_at ? new Date(b.new_account_hold_eligible_at).toLocaleString('en-US') : 'unknown'}`,
+          });
+          continue;
+        }
+      }
+
+      // --- Admin review: do NOT retry, just report ---
+      if (ps === 'pending_review') {
+        stuck.push({
+          booking_id: b.id, title: b.listing_title, status: ps,
+          reason: b.payout_review_reason || 'Waiting for admin approval',
+        });
+        continue;
+      }
+
+      // --- Duplicate blocked: terminal, report ---
+      if (ps === 'duplicate_blocked') {
+        stuck.push({
+          booking_id: b.id, title: b.listing_title, status: ps,
+          reason: b.payout_review_reason || 'Duplicate transfer detected',
+        });
+        continue;
+      }
+
+      // --- Eligible for retry: awaiting_active_account, blocked_no_destination,
+      //     settlement-ready, hold-ready ---
+      try {
+        const result = await attemptBookingPayout(base44, b);
+        if (result.status === 'transferred') {
+          processed++;
+        } else {
+          failed++;
+          stuck.push({
+            booking_id: b.id, title: b.listing_title, status: result.status,
+            reason: result.reason || result.status,
+          });
+        }
+      } catch (err) {
+        console.error(`Reconciliation: payout failed for booking ${b.id}:`, err.message);
+        failed++;
+        stuck.push({
+          booking_id: b.id, title: b.listing_title, status: ps,
+          reason: `Error: ${err.message}`,
+        });
+      }
+    }
+
+    return Response.json({
+      checked: bookings.length,
+      processed,
+      failed,
+      stuck: stuck.slice(0, 50), // Cap to avoid huge responses
+    });
   } catch (error) {
     console.error('processSettledPayouts error:', error.message);
     return Response.json({ error: 'Something went wrong' }, { status: 500 });

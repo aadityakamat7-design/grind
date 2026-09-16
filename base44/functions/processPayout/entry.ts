@@ -42,13 +42,13 @@ Deno.serve(async (req) => {
     // Manual withdrawal: parents and independent teens can withdraw once the
     // 7-day settlement period has elapsed (or retry if a bank wasn't connected
     // when they first tried).
-    const settlementReady = booking.payout_status === 'awaiting_settlement'
+    const settlementReady = (booking.payout_status === 'pending_release' || booking.payout_status === 'awaiting_settlement')
       && booking.payout_eligible_at
       && new Date(booking.payout_eligible_at) <= new Date();
-    const holdReady = booking.payout_status === 'pending_new_account_hold'
+    const holdReady = (booking.payout_status === 'awaiting_new_account_hold' || booking.payout_status === 'pending_new_account_hold')
       && booking.new_account_hold_eligible_at
       && new Date(booking.new_account_hold_eligible_at) <= new Date();
-    const canWithdraw = booking.payout_status === 'awaiting_bank' || settlementReady || holdReady;
+    const canWithdraw = booking.payout_status === 'awaiting_active_account' || booking.payout_status === 'awaiting_bank' || booking.payout_status === 'blocked_no_destination' || settlementReady || holdReady;
 
     if (isAdmin) {
       const result = await attemptBookingPayout(base44, booking, { skipReview: true });

@@ -58,11 +58,17 @@ export default function PaymentStatusTracker({ booking }) {
 }
 
 function releasedDetail(payoutStatus) {
-  if (payoutStatus === "awaiting_settlement")
-    return "Payment is settling — in about 7 days, the parent can tap \"Withdraw to bank\" on the Payouts page to send it to their account.";
-  if (payoutStatus === "pending_review")
-    return "In a short safety review before transfer — usually cleared within 1 business day.";
-  if (payoutStatus === "awaiting_bank")
+  if (payoutStatus === "pending_release" || payoutStatus === "awaiting_settlement" || payoutStatus === "not_started")
+    return "Payment is held until the job is complete — then it settles for about 7 days before the parent can withdraw it to their bank.";
+  if (payoutStatus === "blocked_no_destination")
     return "Waiting for the parent to connect a bank account in Payouts.";
-  return "The parent withdrew the payout — it's on its way to their bank.";
+  if (payoutStatus === "awaiting_active_account" || payoutStatus === "awaiting_bank")
+    return "Waiting for the parent's bank setup to finish in Payouts.";
+  if (payoutStatus === "awaiting_new_account_hold" || payoutStatus === "pending_new_account_hold")
+    return "New account security hold — first payouts release 72 hours after bank setup.";
+  if (payoutStatus === "pending_review")
+    return "Under review — usually clears within 24 hours.";
+  if (payoutStatus === "duplicate_blocked")
+    return "This payout was already sent.";
+  return "Sent — arrives in the parent's bank in 1–2 business days.";
 }
