@@ -67,7 +67,7 @@ Deno.serve(async (req) => {
         business_type: 'individual',
         individual: Object.keys(individual).length ? individual : undefined,
         business_profile: {
-          name: 'Blockwork',
+          mcc: '7299', // misc personal services — keeps onboarding individual, not business
           product_description: 'Local neighborhood services (lawn care, tutoring, pet sitting, tech help, odd jobs) facilitated through the Blockwork marketplace platform.',
         },
         capabilities: { transfers: { requested: true } },
