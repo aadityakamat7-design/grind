@@ -110,9 +110,11 @@ const AuthenticatedApp = () => {
       <Route path="/privacy" element={<PrivacyPolicy />} />
       <Route path="/oauth-consent" element={<OAuthConsent />} />
 
+      {/* Onboarding — standalone page like auth (no app nav) */}
+      <Route path="/onboarding" element={<Onboarding />} />
+
       {/* Authenticated app — Layout provides nav + footer */}
       <Route element={<Layout />}>
-        <Route path="/onboarding" element={<Onboarding />} />
         <Route path="/account" element={<Account />} />
         <Route path="/browse" element={<Browse />} />
         <Route path="/jobs" element={<JobBoard />} />

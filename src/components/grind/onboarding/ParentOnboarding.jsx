@@ -31,6 +31,7 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
   const [showFullTerms, setShowFullTerms] = useState(false);
   const [saving, setSaving] = useState(false);
   const [legalModal, setLegalModal] = useState(null);
+  const [done, setDone] = useState(false);
 
   // Build the consent items list — include the identity item only when
   // identity verification is enabled (the default / fails-safe state).
@@ -107,7 +108,7 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
       });
       localStorage.removeItem("grind_invite_code");
       setSaving(false);
-      window.location.href = "/parent";
+      setDone(true);
     } catch (err) {
       setError(err.response?.data?.error || "Something went wrong. Please try again.");
       setSaving(false);
@@ -120,6 +121,22 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
     setConsents({});
     setError("");
   };
+
+  if (done)
+    return (
+      <div className="space-y-4 text-center">
+        <div className="w-16 h-16 rounded-2xl bg-emerald-50 flex items-center justify-center mx-auto">
+          <ShieldCheck className="w-8 h-8 text-emerald-600" />
+        </div>
+        <h2 className="text-xl font-bold text-foreground">You're linked!</h2>
+        <p className="text-sm text-muted-foreground">
+          You're now set up as your teen's approved parent. You'll approve every booking and manage their payouts.
+        </p>
+        <Button className="w-full rounded-xl" onClick={() => { window.location.href = "/parent"; }}>
+          Go to dashboard
+        </Button>
+      </div>
+    );
 
   // Step 1: DOB + invite code
   if (step === 1) {

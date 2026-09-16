@@ -26,6 +26,7 @@ export default function TeenOnboarding({ user }) {
   const [inviteCode, setInviteCode] = useState("");
   const [saving, setSaving] = useState(false);
   const [geoError, setGeoError] = useState("");
+  const [done, setDone] = useState(false);
 
   const createProfile = async () => {
     setSaving(true);
@@ -107,13 +108,29 @@ export default function TeenOnboarding({ user }) {
         await base44.functions.invoke("activateIndependentTeen", {});
       } catch { /* non-fatal — profile still exists */ }
       setSaving(false);
-      window.location.href = "/teen";
+      setDone(true);
       return;
     }
     setInviteCode(code);
     setSaving(false);
     setStep(3);
   };
+
+  if (done)
+    return (
+      <div className="space-y-4 text-center">
+        <div className="w-16 h-16 rounded-2xl bg-emerald-50 flex items-center justify-center mx-auto">
+          <ShieldAlert className="w-8 h-8 text-emerald-600" />
+        </div>
+        <h2 className="text-xl font-bold text-foreground">You're all set!</h2>
+        <p className="text-sm text-muted-foreground">
+          Your profile is live. Neighbors can now book you for jobs in your area.
+        </p>
+        <Button className="w-full rounded-xl" onClick={() => { window.location.href = "/teen"; }}>
+          Go to dashboard
+        </Button>
+      </div>
+    );
 
   if (step === 1)
     return (
@@ -187,7 +204,7 @@ export default function TeenOnboarding({ user }) {
       </div>
       <ShareInvite code={inviteCode} />
       {/* Hard redirect so the freshly-set role is picked up */}
-      <Button className="w-full rounded-xl" onClick={() => { window.location.href = "/teen"; }}>Start posting services</Button>
+      <Button className="w-full rounded-xl" onClick={() => { window.location.href = "/teen"; }}>Go to dashboard</Button>
     </div>
   );
 }

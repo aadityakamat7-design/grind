@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Navigate } from "react-router-dom";
-import { Zap } from "lucide-react";
 import { useAppUser } from "@/lib/useAppUser";
 import { base44 } from "@/api/base44Client";
+import AuthLayout from "@/components/AuthLayout";
 import RolePicker from "@/components/grind/onboarding/RolePicker";
 import TeenOnboarding from "@/components/grind/onboarding/TeenOnboarding";
 import ParentOnboarding from "@/components/grind/onboarding/ParentOnboarding";
 import BuyerOnboarding from "@/components/grind/onboarding/BuyerOnboarding";
-import SiteFooter from "@/components/SiteFooter";
 
 const ROLE_HOME = { teen: "/teen", parent: "/parent", buyer: "/buyer", admin: "/admin" };
 
@@ -66,34 +65,28 @@ export default function Onboarding() {
   if (user.app_role && user.onboarded)
     return <Navigate to={ROLE_HOME[user.app_role] || "/browse"} replace />;
 
-  return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <div className="flex-1 max-w-md mx-auto px-6 pt-[max(2.5rem,env(safe-area-inset-top))] pb-[max(2.5rem,env(safe-area-inset-bottom))] w-full">
-        <div className="flex items-center gap-2 mb-8">
-          <div className="w-8 h-8 rounded-xl bg-foreground flex items-center justify-center">
-            <Zap className="w-4 h-4 text-background" />
-          </div>
-          <span className="font-bold text-lg text-foreground">Blockwork</span>
-        </div>
+  const title = !role ? "Who are you?" : "Set up your account";
+  const subtitle = !role
+    ? "Pick your role to get started."
+    : "Tell us a bit about yourself to get started.";
 
-        {!role ? (
-          <div className="space-y-4">
-            <h1 className="text-2xl font-bold text-foreground">Who are you?</h1>
-            <p className="text-sm text-muted-foreground">Pick your role to set up your account.</p>
-            <RolePicker onSelect={setRole} />
-          </div>
-        ) : (
-          <div>
-            <button onClick={() => setRole(null)} className="text-xs font-medium text-muted-foreground mb-4 hover:text-foreground">
-              ← Change role
-            </button>
-            {role === "teen" && <TeenOnboarding user={user} />}
-            {role === "parent" && <ParentOnboarding user={user} initialCode={pendingCode} />}
-            {role === "buyer" && <BuyerOnboarding user={user} />}
-          </div>
-        )}
-      </div>
-      <SiteFooter />
-    </div>
+  return (
+    <AuthLayout title={title} subtitle={subtitle}>
+      {!role ? (
+        <RolePicker onSelect={setRole} />
+      ) : (
+        <div>
+          <button
+            onClick={() => setRole(null)}
+            className="text-xs font-medium text-muted-foreground mb-4 hover:text-foreground"
+          >
+            ← Change role
+          </button>
+          {role === "teen" && <TeenOnboarding user={user} />}
+          {role === "parent" && <ParentOnboarding user={user} initialCode={pendingCode} />}
+          {role === "buyer" && <BuyerOnboarding user={user} />}
+        </div>
+      )}
+    </AuthLayout>
   );
 }

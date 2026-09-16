@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { calcAge } from "@/lib/grind";
+import { ShieldCheck } from "lucide-react";
 import LegalModal from "@/components/grind/LegalModal";
 import WaitlistCapture from "@/components/grind/WaitlistCapture";
 
@@ -20,6 +21,7 @@ export default function BuyerOnboarding({ user }) {
   const [caBlocked, setCaBlocked] = useState(false);
   const [ageError, setAgeError] = useState("");
   const [legalModal, setLegalModal] = useState(null);
+  const [done, setDone] = useState(false);
 
   const finish = async () => {
     setSaving(true);
@@ -66,8 +68,24 @@ export default function BuyerOnboarding({ user }) {
       terms_version: TERMS_VERSION,
     });
     setSaving(false);
-    window.location.href = "/buyer";
+    setDone(true);
   };
+
+  if (done)
+    return (
+      <div className="space-y-4 text-center">
+        <div className="w-16 h-16 rounded-2xl bg-emerald-50 flex items-center justify-center mx-auto">
+          <ShieldCheck className="w-8 h-8 text-emerald-600" />
+        </div>
+        <h2 className="text-xl font-bold text-foreground">You're all set!</h2>
+        <p className="text-sm text-muted-foreground">
+          Your account is ready. Browse trusted local teens and post your first job whenever you need help.
+        </p>
+        <Button className="w-full rounded-xl" onClick={() => { window.location.href = "/buyer"; }}>
+          Go to dashboard
+        </Button>
+      </div>
+    );
 
   return (
     <div className="space-y-4">
