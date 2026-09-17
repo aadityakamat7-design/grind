@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
-import { verifyWorkflowCall } from '../../shared/workflowAuth.ts';
+import { verifyWorkflowCall } from '../../shared/workflowAuth.ts'; // redeploy: use platform WORKFLOW_SECRET
 import { APP_BASE_URL } from '../../shared/safeOrigin.ts';
 
 // Daily sweep: finds open job posts whose 7-day no-taker window has elapsed,

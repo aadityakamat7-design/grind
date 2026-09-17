@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
-import { verifyWorkflowCall } from '../../shared/workflowAuth.ts';
+import { verifyWorkflowCall } from '../../shared/workflowAuth.ts'; // redeploy: use platform WORKFLOW_SECRET
 
 // Called on a schedule. Reminds both parties on a completed booking to leave
 // a review once it has been ~24h since the job was marked complete, if they

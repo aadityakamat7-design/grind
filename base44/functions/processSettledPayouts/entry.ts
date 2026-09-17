@@ -1,6 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 import { attemptBookingPayout } from '../../shared/payoutTransfer.ts';
-import { verifyWorkflowCall } from '../../shared/workflowAuth.ts';
+import { verifyWorkflowCall } from '../../shared/workflowAuth.ts'; // redeploy: use platform WORKFLOW_SECRET
 
 // Reconciliation pass — the daily scheduled job that keeps payouts moving.
 // Finds every released booking whose payout hasn't been transferred yet,

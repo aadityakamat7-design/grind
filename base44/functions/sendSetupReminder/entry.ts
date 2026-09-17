@@ -1,6 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { APP_BASE_URL } from '../../shared/safeOrigin.ts';
-import { verifyWorkflowCall } from '../../shared/workflowAuth.ts';
+import { verifyWorkflowCall } from '../../shared/workflowAuth.ts'; // redeploy: use platform WORKFLOW_SECRET
 
 // Called by the Setup Reminders workflow at 24h and 72h after a teen accepts
 // their first job. Checks whether the parent's payout setup is still incomplete

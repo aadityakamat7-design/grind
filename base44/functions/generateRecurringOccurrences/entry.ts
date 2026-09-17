@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
-import { verifyWorkflowCall } from '../../shared/workflowAuth.ts';
+import { verifyWorkflowCall } from '../../shared/workflowAuth.ts'; // redeploy: use platform WORKFLOW_SECRET
 import { haversineMiles } from '../../shared/geo.ts';
 import { getVerifiedAge } from '../../shared/teenAge.ts';
 import { getMinAgeForCategory } from '../../shared/categoryAgeRules.ts';

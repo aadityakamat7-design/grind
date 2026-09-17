@@ -1,6 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { APP_BASE_URL } from '../../shared/safeOrigin.ts';
-import { verifyWorkflowCall } from '../../shared/workflowAuth.ts';
+import { verifyWorkflowCall } from '../../shared/workflowAuth.ts'; // redeploy: use platform WORKFLOW_SECRET
 
 // Weekly engagement nudge: emails neighbors (BuyerProfile owners) who have
 // never posted a job, encouraging them to post their first one. Runs on a

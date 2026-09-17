@@ -1,6 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 import { APP_BASE_URL } from '../../shared/safeOrigin.ts';
-import { verifyWorkflowCall } from '../../shared/workflowAuth.ts';
+import { verifyWorkflowCall } from '../../shared/workflowAuth.ts'; // redeploy: use platform WORKFLOW_SECRET
 
 // Called on a schedule. Notifies the teen and buyer of confirmed bookings
 // starting within the next hour, once each (guarded by reminder_sent).
