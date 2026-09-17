@@ -22,6 +22,7 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
   const { identityVerificationEnabled } = useIdentityVerification();
   const [step, setStep] = useState(1);
   const [code, setCode] = useState(initialCode);
+  const [name, setName] = useState(user.full_name && !user.full_name.includes("@") ? user.full_name : "");
   const [dob, setDob] = useState("");
   const [error, setError] = useState("");
   const [lookingUp, setLookingUp] = useState(false);
@@ -44,7 +45,7 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
     (async () => {
       const profiles = await base44.entities.ParentProfile.filter({ user_id: user.id });
       if (!profiles[0]) {
-        await base44.entities.ParentProfile.create({ user_id: user.id, full_name: user.full_name || "" });
+        await base44.entities.ParentProfile.create({ user_id: user.id, full_name: name.trim() });
       }
     })();
   }, [user.id]);
@@ -62,6 +63,11 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
     }
     setLookingUp(true);
     try {
+      // Persist the parent's name now that they've entered it.
+      const profiles = await base44.entities.ParentProfile.filter({ user_id: user.id });
+      if (profiles[0] && profiles[0].full_name !== name.trim()) {
+        await base44.entities.ParentProfile.update(profiles[0].id, { full_name: name.trim() });
+      }
       const res = await base44.functions.invoke("lookupTeenByCode", { code: code.trim().toUpperCase() });
       const data = res.data;
       if (data?.error) {
@@ -147,6 +153,10 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
           Enter your teen's connection code to confirm your relationship and become their approved parent or guardian.
         </p>
         <div>
+          <Label className="text-foreground">Your name</Label>
+          <Input className="rounded-xl mt-1" placeholder="e.g. Alex Rivera" value={name} onChange={(e) => setName(e.target.value)} />
+        </div>
+        <div>
           <Label className="text-foreground">Enter your teen's connection code</Label>
           <Input
             className="rounded-xl mt-1 uppercase tracking-widest font-medium text-center text-lg"
@@ -172,7 +182,7 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
           <p className="flex items-start gap-2"><ShieldCheck className="w-4 h-4 shrink-0" /> You can read all of your teen's messages.</p>
           <p className="flex items-start gap-2"><ShieldCheck className="w-4 h-4 shrink-0" /> All payments go to your payout account — never directly to the teen.</p>
         </div>
-        <Button className="w-full rounded-xl" disabled={!code || !dob || lookingUp} onClick={lookup}>
+        <Button className="w-full rounded-xl" disabled={!name.trim() || !code || !dob || lookingUp} onClick={lookup}>
           {lookingUp ? "Looking up..." : "Look up teen & review rules"}
         </Button>
         <LegalModal type={legalModal} open={!!legalModal} onOpenChange={(v) => !v && setLegalModal(null)} />

@@ -18,8 +18,9 @@ export default function TeenOnboarding({ user }) {
   const [dob, setDob] = useState(storedDob);
   const [usState, setUsState] = useState(storedState);
   const [step, setStep] = useState(storedDob && storedState ? 2 : 1);
-  const [firstName, setFirstName] = useState(user.full_name?.split(" ")[0] || "");
-  const [lastInitial, setLastInitial] = useState((user.full_name?.split(" ")[1] || "").charAt(0));
+  const safeFullName = user.full_name && !user.full_name.includes("@") ? user.full_name : "";
+  const [firstName, setFirstName] = useState(safeFullName.split(" ")[0] || "");
+  const [lastInitial, setLastInitial] = useState((safeFullName.split(" ")[1] || "").charAt(0));
   const [bio, setBio] = useState("");
   const [zip, setZip] = useState("");
   const [skills, setSkills] = useState([]);
