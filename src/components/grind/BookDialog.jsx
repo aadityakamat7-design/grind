@@ -191,20 +191,69 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
               bookingEscrow
               onSuccess={handlePaid}
             />
-            <Button variant="outline" className="w-full" onClick={() => { onOpenChange(false); navigate(`/bookings/${payBooking.id}`); }}>
-              Pay later
-            </Button>
           </div>
         )}
         {phase === "done" && (
-          <div className="space-y-4 text-center py-4">
-            <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto" />
-            <p className="font-bold text-foreground">Booking created!</p>
-            <p className="text-sm text-muted-foreground">
-              Held in escrow — the parent needs to approve before it's confirmed.
-            </p>
+          <div className="space-y-5 py-2">
+            <div className="flex flex-col items-center text-center gap-2">
+              <div className="w-14 h-14 rounded-full bg-emerald-100 flex items-center justify-center">
+                <CheckCircle2 className="w-8 h-8 text-emerald-600" />
+              </div>
+              <p className="text-xl font-bold text-foreground">Booking requested!</p>
+              <p className="text-sm text-muted-foreground max-w-xs">
+                {listing.teen_display_name} has been notified. We're waiting for their parent to approve before the job is confirmed.
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-border bg-slate-50 p-4 space-y-3 text-sm">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                  <span className="text-primary font-bold text-base">
+                    {(listing.teen_display_name || "?").charAt(0).toUpperCase()}
+                  </span>
+                </div>
+                <div className="min-w-0">
+                  <p className="font-semibold text-foreground truncate">{listing.teen_display_name}</p>
+                  <p className="text-xs text-muted-foreground truncate">{listing.title}</p>
+                </div>
+              </div>
+              <div className="h-px bg-border" />
+              <div className="space-y-2">
+                {when && (
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Sun className="w-4 h-4 shrink-0" />
+                    <span>{new Date(when).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })} at {new Date(when).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}</span>
+                  </div>
+                )}
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Total (held in escrow)</span>
+                  <span className="font-bold text-foreground">{money(total)}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-2 bg-amber-50 rounded-xl p-3 text-xs text-amber-700">
+              <ShieldCheck className="w-4 h-4 mt-0.5 shrink-0" />
+              <span>Your payment is held safely in escrow. If the parent declines, you get a full refund automatically.</span>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <span className="w-2 h-2 rounded-full bg-amber-400" />
+                <span>Waiting for parent approval</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground opacity-50">
+                <span className="w-2 h-2 rounded-full bg-slate-300" />
+                <span>Parent approves → job confirmed</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground opacity-50">
+                <span className="w-2 h-2 rounded-full bg-slate-300" />
+                <span>Teen starts the job on the scheduled day</span>
+              </div>
+            </div>
+
             <Button className="w-full" onClick={() => { onOpenChange(false); navigate(`/bookings/${payBooking.id}`); }}>
-              View booking
+              View booking details
             </Button>
           </div>
         )}
