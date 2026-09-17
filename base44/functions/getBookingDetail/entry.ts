@@ -39,6 +39,26 @@ Deno.serve(async (req) => {
       delete stripped.platform_fee;
     }
 
+    // Online tutoring completion photos are stored in private storage — convert
+    // their file URIs to signed URLs for display. Outdoor photos are public URLs
+    // (no conversion needed). Only booking participants reach this point (RLS).
+    if (Array.isArray(stripped.completion_photos) && stripped.completion_photos.length > 0) {
+      const signed = [];
+      for (const photo of stripped.completion_photos) {
+        if (typeof photo !== 'string' || photo.startsWith('http')) {
+          signed.push(photo);
+        } else {
+          try {
+            const { signed_url } = await base44.asServiceRole.integrations.Core.CreateFileSignedUrl({ file_uri: photo });
+            signed.push(signed_url);
+          } catch {
+            signed.push(photo);
+          }
+        }
+      }
+      stripped.completion_photos = signed;
+    }
+
     return Response.json({ booking: stripped });
   } catch (error) {
     console.error('getBookingDetail error:', error.message);

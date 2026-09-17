@@ -135,16 +135,20 @@ export async function recordBuyerStartAfterPayment(base44, booking, paymentInten
 // set buyer_finished_at. The buyer must separately confirm the work is done
 // (recordBuyerConfirm) before escrow is released. If the buyer doesn't respond
 // within 72 hours, flagStaleHandshakes flags the booking for admin review.
-export async function recordTeenFinish(base44, booking, photos) {
+export async function recordTeenFinish(base44, booking, photos, opts = {}) {
   const svc = base44.asServiceRole.entities;
   if (booking.teen_finished_at) return { alreadyDone: true };
 
   // Record only the teen's finish + photos. Status stays in_progress —
   // the booking is only completed when the buyer confirms.
-  await svc.Booking.update(booking.id, {
+  const patch = {
     teen_finished_at: new Date().toISOString(),
     completion_photos: Array.isArray(photos) ? photos : [],
-  });
+  };
+  // Online tutoring sessions also record the actual duration and an optional note.
+  if (opts.sessionDurationMinutes) patch.session_duration_minutes = opts.sessionDurationMinutes;
+  if (opts.sessionNote) patch.session_note = opts.sessionNote;
+  await svc.Booking.update(booking.id, patch);
 
   // Notify the buyer to confirm the work. No payment moves here.
   await svc.Notification.create({

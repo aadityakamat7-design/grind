@@ -15,6 +15,8 @@ import TeenLiveLocationSharing from "@/components/grind/teen/TeenLiveLocationSha
 import PaymentStatusTracker from "@/components/grind/PaymentStatusTracker";
 import EarningsBreakdown from "@/components/grind/teen/EarningsBreakdown";
 import JobHandshakePanel from "@/components/grind/JobHandshakePanel";
+import OnlineSessionPanel from "@/components/grind/OnlineSessionPanel";
+import OnlineCompletionDialog from "@/components/grind/OnlineCompletionDialog";
 import CompletionPhotoUpload from "@/components/grind/CompletionPhotoUpload";
 import DisputeDialog from "@/components/grind/DisputeDialog";
 import RecurringSeriesManager from "@/components/grind/RecurringSeriesManager";
@@ -38,6 +40,7 @@ export default function BookingDetail() {
   const [tipOpen, setTipOpen] = useState(false);
   const [reschedOpen, setReschedOpen] = useState(false);
   const [photoUploadOpen, setPhotoUploadOpen] = useState(false);
+  const [onlineCompletionOpen, setOnlineCompletionOpen] = useState(false);
   const [disputeOpen, setDisputeOpen] = useState(false);
   const [bookAgainOpen, setBookAgainOpen] = useState(false);
   const [bookAgainListing, setBookAgainListing] = useState(null);
@@ -181,7 +184,7 @@ export default function BookingDetail() {
     load();
   };
 
-  const finishJob = () => setPhotoUploadOpen(true);
+  const finishJob = () => booking.delivery_mode === "online" ? setOnlineCompletionOpen(true) : setPhotoUploadOpen(true);
   const confirmJob = () => setTipOpen(true);
   const disputeJob = () => setDisputeOpen(true);
 
@@ -318,19 +321,32 @@ export default function BookingDetail() {
             Waiting for {booking.teen_display_name} to confirm.
           </div>
         )}
-        <JobHandshakePanel
-          booking={booking}
-          isTeen={isTeen}
-          isBuyer={isBuyer}
-          isParent={isParent}
-          acting={acting}
-          onStart={startJob}
-          onFinish={finishJob}
-          onConfirm={confirmJob}
-          onDispute={disputeJob}
-          onPaymentSuccess={() => setTimeout(() => load(), 1500)}
-          onPaymentError={(msg) => setHandshakeError(msg)}
-        />
+        {booking.delivery_mode === "online" && ["in_progress", "completed", "disputed"].includes(booking.status) ? (
+          <OnlineSessionPanel
+            booking={booking}
+            isTeen={isTeen}
+            isBuyer={isBuyer}
+            isParent={isParent}
+            acting={acting}
+            onFinish={finishJob}
+            onConfirm={confirmJob}
+            onDispute={disputeJob}
+          />
+        ) : (
+          <JobHandshakePanel
+            booking={booking}
+            isTeen={isTeen}
+            isBuyer={isBuyer}
+            isParent={isParent}
+            acting={acting}
+            onStart={startJob}
+            onFinish={finishJob}
+            onConfirm={confirmJob}
+            onDispute={disputeJob}
+            onPaymentSuccess={() => setTimeout(() => load(), 1500)}
+            onPaymentError={(msg) => setHandshakeError(msg)}
+          />
+        )}
         {handshakeError && <p className="text-xs text-destructive font-medium text-center">{handshakeError}</p>}
         {isTeen && booking.status === "in_progress" && <TeenLiveLocationSharing booking={booking} />}
         {isTeen && booking.status === "in_progress" && <AlertParentButton booking={booking} />}
@@ -435,6 +451,14 @@ export default function BookingDetail() {
         <CompletionPhotoUpload
           open={photoUploadOpen}
           onOpenChange={setPhotoUploadOpen}
+          booking={booking}
+          onDone={load}
+        />
+      )}
+      {onlineCompletionOpen && (
+        <OnlineCompletionDialog
+          open={onlineCompletionOpen}
+          onOpenChange={setOnlineCompletionOpen}
           booking={booking}
           onDone={load}
         />

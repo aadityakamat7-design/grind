@@ -14,7 +14,7 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { bookingId, action, completionPhotos, tipAmount, disputeReason, origin: clientOrigin } = await req.json();
+    const { bookingId, action, completionPhotos, tipAmount, disputeReason, origin: clientOrigin, sessionDurationMinutes, sessionNote } = await req.json();
     if (!bookingId || !['start', 'finish', 'confirm', 'dispute'].includes(action)) {
       return Response.json({ error: 'bookingId and a valid action are required' }, { status: 400 });
     }
@@ -110,7 +110,12 @@ Deno.serve(async (req) => {
       if (photos.length === 0) {
         return Response.json({ error: 'Please upload at least one photo showing the completed work.' }, { status: 400 });
       }
-      const result = await recordTeenFinish(base44, booking, photos);
+      const duration = Math.max(1, Math.min(480, Number(sessionDurationMinutes) || 0));
+      const noteText = String(sessionNote || '').trim().slice(0, 500);
+      const result = await recordTeenFinish(base44, booking, photos, {
+        sessionDurationMinutes: duration || undefined,
+        sessionNote: noteText || undefined,
+      });
       return Response.json(result);
     }
 

@@ -145,6 +145,31 @@
         }
       }
     },
+    "session_duration_minutes": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 480,
+      "description": "Actual session duration in minutes for online tutoring, as recorded by the teen when ending the session. Auto-calculated from start to end, editable by the teen (server-set only).",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "session_note": {
+      "type": "string",
+      "maxLength": 500,
+      "description": "The teen's optional note about what was covered in the online tutoring session (server-set only).",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
     "buyer_finished_at": {
       "type": "string",
       "format": "date-time",
