@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import {
-  ResponsiveContainer, AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
+  ResponsiveContainer, Area, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, Tooltip, CartesianGrid, Legend, ComposedChart,
 } from "recharts";
 import { format, subDays, subWeeks, subMonths, isAfter, isBefore } from "date-fns";

@@ -35,7 +35,6 @@ Deno.serve(async (req) => {
       });
     }
 
-    console.log(`Identity verification set to ${value} by ${user.email}`);
     return Response.json({ enabled: value === 'true' });
   } catch (error) {
     console.error('setIdentityVerificationStatus error:', error.message);

@@ -67,7 +67,6 @@ Deno.serve(async (req) => {
         if (booking && booking.payment_status === 'held' && !booking.buyer_finished_at && booking.teen_finished_at) {
           const tip = Number(session.metadata?.tip_amount) || 0;
           const result = await recordBuyerConfirm(base44, booking, tip, session.payment_intent || '');
-          console.log(`Booking ${tipBookingId} buyer confirm recorded with tip ${tip}:`, JSON.stringify(result));
         }
         await notifyOwnerTransaction(base44, {
           type: 'Tip charge',
@@ -88,7 +87,6 @@ Deno.serve(async (req) => {
           const booking = await base44.asServiceRole.entities.Booking.get(bookingId);
           if (booking && !booking.buyer_started_at) {
             await recordBuyerStartAfterPayment(base44, booking, session.payment_intent, { isTestMode: isTestEvent });
-            console.log(`Booking ${bookingId} buyer start recorded (payment ${session.payment_intent})`);
           }
         } else {
           // Escrow payment cleared — mark as held. The booking stays at
@@ -98,7 +96,6 @@ Deno.serve(async (req) => {
             stripe_payment_intent_id: session.payment_intent,
             is_test_mode: isTestEvent,
           });
-          console.log(`Booking ${bookingId} payment marked as held (payment ${session.payment_intent})`);
         }
       }
 
@@ -116,7 +113,6 @@ Deno.serve(async (req) => {
             expires_at: expiresAt,
             is_test_mode: isTestEvent,
           });
-          console.log(`JobPost ${jobPostId} went live (payment ${session.payment_intent})`);
         }
         await notifyOwnerTransaction(base44, {
           type: 'Job post escrow',
@@ -135,7 +131,6 @@ Deno.serve(async (req) => {
         const booking = await base44.asServiceRole.entities.Booking.get(bookingId);
         if (booking && !booking.buyer_started_at) {
           await recordBuyerStartAfterPayment(base44, booking, pi.id, { isTestMode: isTestEvent });
-          console.log(`Booking ${bookingId} buyer start recorded (PI ${pi.id})`);
         }
       } else if (bookingId) {
         // Escrow payment cleared — mark as held. The booking stays at
@@ -145,7 +140,6 @@ Deno.serve(async (req) => {
           stripe_payment_intent_id: pi.id,
           is_test_mode: isTestEvent,
         });
-        console.log(`Booking ${bookingId} payment marked as held (PI ${pi.id})`);
       }
 
       if (pi.metadata?.job_post_id) {
@@ -159,7 +153,6 @@ Deno.serve(async (req) => {
             expires_at: expiresAt,
             is_test_mode: isTestEvent,
           });
-          console.log(`JobPost ${pi.metadata.job_post_id} went live (PI ${pi.id})`);
         }
       }
 
@@ -169,7 +162,6 @@ Deno.serve(async (req) => {
     if (event.type === 'identity.verification_session.verified') {
       const session = event.data.object;
       const result = await applyVerifiedIdentity(base44, stripe, session.id);
-      console.log(`Identity session ${session.id} processed:`, JSON.stringify(result));
     }
 
     if (event.type === 'identity.verification_session.requires_input') {
@@ -179,7 +171,6 @@ Deno.serve(async (req) => {
       if (profiles[0]) {
         await base44.asServiceRole.entities.ParentProfile.update(profiles[0].id, { identity_status: 'failed' });
       }
-      console.log(`Identity session ${session.id} requires input: ${reason}`);
     }
 
     return Response.json({ received: true });

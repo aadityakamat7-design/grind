@@ -8,7 +8,6 @@ import ReportRow from "@/components/grind/admin/ReportRow";
 import PayoutReviewQueue from "@/components/grind/admin/PayoutReviewQueue";
 import DisputeReviewQueue from "@/components/grind/admin/DisputeReviewQueue";
 import CredentialReviewQueue from "@/components/grind/admin/CredentialReviewQueue";
-import AdminCharts from "@/components/grind/admin/AdminCharts";
 import AdminAnalytics from "@/components/grind/admin/AdminAnalytics";
 import StatCard from "@/components/grind/StatCard";
 import StatusBadge from "@/components/grind/StatusBadge";

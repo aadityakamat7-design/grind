@@ -25,7 +25,15 @@ export default function VideoRoom() {
         if (b.payment_status !== "held" && b.payment_status !== "released") { setBooking(b); setLoading(false); return; }
         setBooking(b);
       } catch (e) {
-        setError("Couldn't load this video session.");
+        const status = e?.response?.status || e?.status;
+        const msg = e?.response?.data?.error || e?.data?.error || "";
+        if (status === 401 || status === 403 || /unauthorized|forbidden/i.test(msg)) {
+          setError("You don't have access to this session.");
+        } else if (status === 404 || /not found/i.test(msg)) {
+          setError("Booking not found.");
+        } else {
+          setError("Couldn't connect — check your connection and try again.");
+        }
       } finally {
         setLoading(false);
       }

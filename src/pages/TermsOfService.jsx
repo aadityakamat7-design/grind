@@ -18,7 +18,7 @@ export default function TermsOfService() {
 
         <div className="text-[13px] leading-relaxed text-muted-foreground space-y-3 [&_h2]:text-foreground [&_h2]:font-heading [&_h2]:font-semibold [&_h2]:text-[15px] [&_h2]:mt-6 [&_h2]:mb-2 [&_p]:leading-relaxed [&_li]:leading-relaxed [&_strong]:text-foreground [&_ul]:space-y-1 [&_ul]:pl-4 [&_ul]:list-disc">
           <p className="text-[13px] text-foreground bg-muted rounded-lg p-3 border border-border">
-            <strong>Plain-language summary:</strong> Blockwork is a marketplace where adult neighbors hire local teens for outdoor tasks (like lawn care and car washing) performed outside the residence, and for online tutoring and tech help conducted over video. Every teen account is linked to a verified parent or guardian who approves each job and receives the earnings. Teens never enter a client's home — all in-person work happens outdoors, and all tutoring happens remotely. We hold your payment in escrow until the teen uploads photo proof of completion and the neighbor confirms the work. We are a venue — not a party to the work itself. These terms explain the rules for using Blockwork.
+            <strong>Plain-language summary:</strong> Blockwork is a marketplace where adult neighbors hire local teens for outdoor tasks (like lawn care and car washing) performed outside the residence, and for online tutoring and tech help conducted over video. Every teen account is linked to a verified parent or guardian who approves each job and receives the earnings. Teens never enter a neighbor's home — all in-person work happens outdoors, and all tutoring happens remotely. We hold your payment in escrow until the teen uploads photo proof of completion and the neighbor confirms the work. We are a venue — not a party to the work itself. These terms explain the rules for using Blockwork.
           </p>
 
           <p className="text-[13px] text-foreground bg-muted rounded-lg p-3 border border-border">
@@ -64,7 +64,7 @@ export default function TermsOfService() {
             <li><strong>Guardianship authority</strong> — "I am the parent or legal guardian of this teen and have the legal authority to make decisions on their behalf."</li>
             <li><strong>Work authorization</strong> — "I authorize my teen to perform the types of outdoor tasks and online tutoring offered on Blockwork."</li>
             <li><strong>Per-job approval</strong> — "I understand that I must approve each booking before it is confirmed, and that I can deny any booking."</li>
-            <li><strong>Permitted work types</strong> — "I understand that my teen may only perform outdoor tasks outside a client's residence and online tutoring over video, and will never enter a client's home."</li>
+            <li><strong>Permitted work types</strong> — "I understand that my teen may only perform outdoor tasks outside a neighbor's residence and online tutoring over video, and will never enter a neighbor's home."</li>
             <li><strong>Age accuracy</strong> — "I confirm that the date of birth provided for my teen is accurate."</li>
             <li><strong>California child-labor rules</strong> — "I have reviewed the California child-labor rules for my teen's age and understand the restrictions on hours and work types that apply."</li>
             <li><strong>Hour monitoring</strong> — "I understand it is my responsibility to monitor my teen's working hours to ensure compliance with California law and to prevent my teen from working during school hours or past permitted times."</li>
@@ -84,7 +84,7 @@ export default function TermsOfService() {
 
           <h2>4. No-Home-Entry Policy</h2>
           <p>
-            <strong>This is a core safety rule of the platform.</strong> Teens never enter a client's home under any circumstances. All in-person work is performed outdoors on the exterior of the property. All tutoring and instructional work is conducted remotely via video session.
+            <strong>This is a core safety rule of the platform.</strong> Teens never enter a neighbor's home under any circumstances. All in-person work is performed outdoors on the exterior of the property. All tutoring and instructional work is conducted remotely via video session.
           </p>
           <p>
             <strong>Prohibited conduct.</strong> Requesting, encouraging, or permitting a teen to enter a residence — for any reason, including to use a restroom, retrieve equipment, or wait indoors — is a material violation of these terms and grounds for immediate account termination. This rule applies to neighbors, parents, and teens alike. If a job cannot be completed without the teen entering a home, the job must not be performed.
@@ -99,7 +99,7 @@ export default function TermsOfService() {
             <li><strong>Online tutoring and tech help</strong> — conducted entirely over a remote video session, such as academic tutoring, homework help, and basic technology guidance.</li>
           </ul>
           <p>
-            <strong>Prohibited services.</strong> The following are not permitted on Blockwork: any service that requires entering a client's home; in-home pet sitting or animal care inside a residence; babysitting or childcare; any service involving heavy machinery, power tools restricted to adults, firearms, adult content, medical or personal care requiring certification; transportation of people; and any service that violates California child-labor laws.
+            <strong>Prohibited services.</strong> The following are not permitted on Blockwork: any service that requires entering a neighbor's home; in-home pet sitting or animal care inside a residence; babysitting or childcare; any service involving heavy machinery, power tools restricted to adults, firearms, adult content, medical or personal care requiring certification; transportation of people; and any service that violates California child-labor laws.
           </p>
           <p>
             We screen listings and job posts for safety hazards and may reject or remove any posting that violates these rules or that we determine is inappropriate for a teen.

@@ -33,7 +33,6 @@ Deno.serve(async (req) => {
       });
     }
 
-    console.log(`Stripe test mode set to ${value} by ${user.email}`);
     return Response.json({ testMode: value === 'true' });
   } catch (error) {
     console.error('setTestMode error:', error.message);
