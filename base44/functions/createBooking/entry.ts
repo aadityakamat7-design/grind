@@ -283,17 +283,6 @@ Deno.serve(async (req) => {
       is_confirmed: false,
     });
 
-    if (parentUserId) {
-      await base44.asServiceRole.entities.Notification.create({
-        user_id: parentUserId,
-        type: 'booking',
-        title: 'New booking needs your approval',
-        body: `${buyerName} booked "${listing.title}" with ${listing.teen_display_name}. Please review and approve this booking.`,
-        link: `/bookings/${booking.id}`,
-        read: false,
-      });
-    }
-
     base44.analytics.track({ eventName: 'booking_created' });
 
     // Create a Stripe Checkout session for the upfront escrow payment so the
@@ -347,6 +336,16 @@ Deno.serve(async (req) => {
       await base44.asServiceRole.entities.Booking.update(booking.id, {
         payment_status: 'held',
       });
+      if (parentUserId) {
+        await base44.asServiceRole.entities.Notification.create({
+          user_id: parentUserId,
+          type: 'booking',
+          title: 'Payment confirmed — please approve',
+          body: `${buyerName}'s payment for "${listing.title}" is held in escrow. Please review and approve this booking.`,
+          link: `/bookings/${booking.id}`,
+          read: false,
+        });
+      }
       await base44.asServiceRole.entities.Notification.create({
         user_id: listing.teen_user_id,
         type: 'booking',

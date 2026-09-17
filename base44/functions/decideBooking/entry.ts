@@ -19,6 +19,12 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Booking is not awaiting approval' }, { status: 400 });
     }
 
+    // Parents cannot approve until the neighbor's escrow payment is confirmed.
+    // Deny is always allowed (it just cancels the booking).
+    if (approve && booking.payment_status !== 'held') {
+      return Response.json({ error: "The neighbor's payment hasn't been confirmed yet. Please wait for payment before approving." }, { status: 400 });
+    }
+
     if (approve) {
       // Parents can approve bookings freely — identity verification and bank
       // (Stripe Connect) setup are NOT required to approve. The teen can do

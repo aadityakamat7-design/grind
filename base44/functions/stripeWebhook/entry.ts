@@ -55,6 +55,29 @@ Deno.serve(async (req) => {
     }
     await base44.asServiceRole.entities.WebhookEvent.create({ event_id: event.id, event_type: event.type });
 
+    // Marks an escrow booking as paid/held and notifies the parent that they
+    // can now approve. Idempotent — skips if payment is already held so the
+    // duplicate payment_intent.succeeded event doesn't double-notify.
+    const markEscrowHeld = async (bookingId, paymentIntentId, isTest) => {
+      const booking = await base44.asServiceRole.entities.Booking.get(bookingId);
+      if (!booking || booking.payment_status === 'held') return;
+      await base44.asServiceRole.entities.Booking.update(bookingId, {
+        payment_status: 'held',
+        stripe_payment_intent_id: paymentIntentId,
+        is_test_mode: isTest,
+      });
+      if (booking.parent_user_id) {
+        await base44.asServiceRole.entities.Notification.create({
+          user_id: booking.parent_user_id,
+          type: 'booking',
+          title: 'Payment confirmed — please approve',
+          body: `${booking.buyer_name}'s payment for "${booking.listing_title}" is held in escrow. Please review and approve this booking.`,
+          link: `/bookings/${bookingId}`,
+          read: false,
+        });
+      }
+    };
+
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object;
       const tipBookingId = session.metadata?.tip_booking_id;
@@ -89,13 +112,8 @@ Deno.serve(async (req) => {
             await recordBuyerStartAfterPayment(base44, booking, session.payment_intent, { isTestMode: isTestEvent });
           }
         } else {
-          // Escrow payment cleared — mark as held. The booking stays at
-          // pending_parent_approval until the parent approves via decideBooking.
-          await base44.asServiceRole.entities.Booking.update(bookingId, {
-            payment_status: 'held',
-            stripe_payment_intent_id: session.payment_intent,
-            is_test_mode: isTestEvent,
-          });
+          // Escrow payment cleared — mark as held and notify the parent.
+          await markEscrowHeld(bookingId, session.payment_intent, isTestEvent);
         }
       }
 
@@ -133,13 +151,8 @@ Deno.serve(async (req) => {
           await recordBuyerStartAfterPayment(base44, booking, pi.id, { isTestMode: isTestEvent });
         }
       } else if (bookingId) {
-        // Escrow payment cleared — mark as held. The booking stays at
-        // pending_parent_approval until the parent approves via decideBooking.
-        await base44.asServiceRole.entities.Booking.update(bookingId, {
-          payment_status: 'held',
-          stripe_payment_intent_id: pi.id,
-          is_test_mode: isTestEvent,
-        });
+        // Escrow payment cleared — mark as held and notify the parent.
+        await markEscrowHeld(bookingId, pi.id, isTestEvent);
       }
 
       if (pi.metadata?.job_post_id) {

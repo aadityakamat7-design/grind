@@ -24,6 +24,7 @@ import BookDialog from "@/components/grind/BookDialog";
 import CheckInTimeline from "@/components/grind/parent/CheckInTimeline";
 import VideoSessionPanel from "@/components/grind/VideoSessionPanel";
 import ErrorRetry from "@/components/grind/ErrorRetry";
+import { useApprovalWithVerification } from "@/hooks/useApprovalWithVerification";
 
 export default function BookingDetail() {
   const { id: bookingId } = useParams();
@@ -116,6 +117,8 @@ export default function BookingDetail() {
       setReviewOpen(true);
     }
   }, [booking, myReview, user]);
+
+  const { attempt: attemptApproval, acting: approvalActing } = useApprovalWithVerification(null, load);
 
   if (loading)
     return (
@@ -251,11 +254,39 @@ export default function BookingDetail() {
           <div className="mt-4 flex items-start gap-2 bg-secondary border border-border rounded-xl p-3 text-xs text-muted-foreground">
             <Clock className="w-4 h-4 shrink-0 mt-0.5" />
             <span>
-              {isTeen
-                ? "Waiting for your parent to approve. Ask them to check their dashboard."
-                : "Waiting for the parent to approve — usually within a day."}
+              {booking.payment_status !== "held"
+                ? "Waiting for the neighbor's payment to be confirmed."
+                : isTeen
+                  ? "Waiting for your parent to approve. Ask them to check their dashboard."
+                  : "Waiting for the parent to approve — usually within a day."}
             </span>
           </div>
+        )}
+        {isParent && booking.status === "pending_parent_approval" && (
+          booking.payment_status === "held" ? (
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              <Button
+                variant="outline"
+                className="rounded-xl text-destructive border-destructive/20 hover:bg-destructive/10 hover:text-destructive"
+                disabled={approvalActing === booking.id}
+                onClick={() => attemptApproval(booking, false)}
+              >
+                Deny & refund
+              </Button>
+              <Button
+                className="rounded-xl"
+                disabled={approvalActing === booking.id}
+                onClick={() => attemptApproval(booking, true)}
+              >
+                Approve
+              </Button>
+            </div>
+          ) : (
+            <div className="mt-4 flex items-start gap-2 bg-secondary border border-border rounded-xl p-3 text-xs text-muted-foreground">
+              <Clock className="w-4 h-4 shrink-0 mt-0.5" />
+              <span>Waiting for the neighbor's payment to be confirmed before you can approve.</span>
+            </div>
+          )
         )}
 
         <div className="mt-5 space-y-2.5 text-sm text-muted-foreground">

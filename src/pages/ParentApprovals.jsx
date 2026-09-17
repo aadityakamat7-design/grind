@@ -27,7 +27,9 @@ export default function ParentApprovals() {
         ),
         base44.entities.ParentProfile.filter({ user_id: user.id }),
       ]);
-      setPending(data);
+      // Only show bookings where the neighbor's escrow payment is confirmed —
+      // parents cannot approve until payment is held.
+      setPending(data.filter((b) => b.payment_status === "held"));
       setProfile(profiles[0] || null);
     } catch (err) {
       console.error("ParentApprovals load failed:", err);
@@ -121,7 +123,7 @@ export default function ParentApprovals() {
                 )}
 
                 <p className="text-[12px] text-muted-foreground/70 mt-3">
-                  No payment yet — the neighbor pays when both sides start the job. Denying cancels the booking.
+                  Payment is held in escrow. Approving confirms the booking; denying refunds the neighbor.
                 </p>
                 {profile?.connect_status !== "active" && (
                   <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-xl p-3 text-[12px] text-amber-700 mt-3">
