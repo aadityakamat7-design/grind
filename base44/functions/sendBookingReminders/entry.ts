@@ -1,6 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 import { APP_BASE_URL } from '../../shared/safeOrigin.ts';
-import { verifyWorkflowCall } from '../../shared/workflowAuth.ts'; // redeploy: use platform WORKFLOW_SECRET
 
 // Called on a schedule. Notifies the teen and buyer of confirmed bookings
 // starting within the next hour, once each (guarded by reminder_sent).
@@ -9,8 +8,11 @@ Deno.serve(async (req) => {
     // Called by a scheduled workflow — no user session is available, so we
     // use the service role directly. Only the workflow engine can invoke this.
     const body = await req.json();
-    const authError = verifyWorkflowCall(body);
-    if (authError) return authError;
+    // Auth: the platform injects _workflowSecret = WORKFLOW_SECRET on workflow calls.
+    const WF_SECRET = Deno.env.get('WORKFLOW_SECRET');
+    if (!WF_SECRET || body?._workflowSecret !== WF_SECRET) {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
     const base44 = createClientFromRequest(req);
     const svc = base44.asServiceRole.entities;

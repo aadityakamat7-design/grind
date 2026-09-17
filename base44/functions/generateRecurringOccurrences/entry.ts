@@ -1,5 +1,4 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
-import { verifyWorkflowCall } from '../../shared/workflowAuth.ts'; // redeploy: use platform WORKFLOW_SECRET
 import { haversineMiles } from '../../shared/geo.ts';
 import { getVerifiedAge } from '../../shared/teenAge.ts';
 import { getMinAgeForCategory } from '../../shared/categoryAgeRules.ts';
@@ -18,8 +17,11 @@ import { nextOccurrenceDate } from '../../shared/recurringDates.ts';
 Deno.serve(async (req) => {
   try {
     const body = await req.json();
-    const authError = verifyWorkflowCall(body);
-    if (authError) return authError;
+    // Auth: the platform injects _workflowSecret = WORKFLOW_SECRET on workflow calls.
+    const WF_SECRET = Deno.env.get('WORKFLOW_SECRET');
+    if (!WF_SECRET || body?._workflowSecret !== WF_SECRET) {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
     const base44 = createClientFromRequest(req);
     // System-level function — guarded by workflow secret (called by workflow).

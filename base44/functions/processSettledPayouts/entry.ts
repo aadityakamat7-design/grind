@@ -1,6 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 import { attemptBookingPayout } from '../../shared/payoutTransfer.ts';
-import { verifyWorkflowCall } from '../../shared/workflowAuth.ts'; // redeploy: use platform WORKFLOW_SECRET
 
 // Reconciliation pass — the daily scheduled job that keeps payouts moving.
 // Finds every released booking whose payout hasn't been transferred yet,
@@ -23,8 +22,11 @@ import { verifyWorkflowCall } from '../../shared/workflowAuth.ts'; // redeploy: 
 Deno.serve(async (req) => {
   try {
     const body = await req.json();
-    const authError = verifyWorkflowCall(body);
-    if (authError) return authError;
+    // Auth: the platform injects _workflowSecret = WORKFLOW_SECRET on workflow calls.
+    const WF_SECRET = Deno.env.get('WORKFLOW_SECRET');
+    if (!WF_SECRET || body?._workflowSecret !== WF_SECRET) {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
     const base44 = createClientFromRequest(req);
     const svc = base44.asServiceRole.entities;

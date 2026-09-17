@@ -1,6 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { APP_BASE_URL } from '../../shared/safeOrigin.ts';
-import { verifyWorkflowCall } from '../../shared/workflowAuth.ts'; // redeploy: use platform WORKFLOW_SECRET
 
 // Weekly engagement nudge: emails neighbors (BuyerProfile owners) who have
 // never posted a job, encouraging them to post their first one. Runs on a
@@ -11,8 +10,11 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const svc = base44.asServiceRole.entities;
     const body = await req.json();
-    const authError = verifyWorkflowCall(body);
-    if (authError) return authError;
+    // Auth: the platform injects _workflowSecret = WORKFLOW_SECRET on workflow calls.
+    const WF_SECRET = Deno.env.get('WORKFLOW_SECRET');
+    if (!WF_SECRET || body?._workflowSecret !== WF_SECRET) {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
     // Gather every buyer profile and every job post, then nudge only the
     // buyers who have never posted. Two queries total — no per-user loops.
