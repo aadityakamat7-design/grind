@@ -178,7 +178,7 @@ export default function TeenPublicProfile() {
           </div>
         )}
         {reviews.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No reviews yet — complete your first job to start building your reputation.</p>
+          <p className="text-sm text-muted-foreground">No reviews yet — be the first to book and leave a review.</p>
         ) : (
           <div className="space-y-3">
             {reviews.map((r) => (
