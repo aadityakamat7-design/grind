@@ -73,7 +73,7 @@ export default function BuyerHome() {
     <>
     <PullToRefresh onRefresh={load}>
       <div className="space-y-6">
-        <PageHeader title={`Hi, ${(user.full_name || "neighbor").split(" ")[0]} 👋`} subtitle="Trusted teen help, right in your neighborhood." />
+        <PageHeader title={`Hi, ${(() => { const n = (profile?.full_name || user.full_name || "").split(" ")[0]; return (n && !n.includes("@")) ? n : "neighbor"; })()} 👋`} subtitle="Trusted teen help, right in your neighborhood." />
 
         {bookings.length === 0 && (
           <div className="bg-primary/5 border border-primary/20 rounded-2xl p-6 text-center">

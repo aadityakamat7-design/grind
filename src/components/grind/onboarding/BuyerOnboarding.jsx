@@ -12,6 +12,7 @@ import WaitlistCapture from "@/components/grind/WaitlistCapture";
 const TERMS_VERSION = "2026-07";
 
 export default function BuyerOnboarding({ user }) {
+  const [name, setName] = useState(user.full_name && !user.full_name.includes("@") ? user.full_name : "");
   const [address, setAddress] = useState("");
   const [zip, setZip] = useState("");
   const [dob, setDob] = useState("");
@@ -51,7 +52,7 @@ export default function BuyerOnboarding({ user }) {
       }
       await base44.entities.BuyerProfile.create({
         user_id: user.id,
-        full_name: user.full_name || "",
+        full_name: name.trim(),
         address,
         zip,
         latitude: geo.lat,
@@ -92,6 +93,10 @@ export default function BuyerOnboarding({ user }) {
       <h2 className="text-xl font-bold text-foreground">Where are you?</h2>
       <p className="text-sm text-muted-foreground">Blockwork is hyperlocal — we'll show you teens in your neighborhood. Currently available in California only.</p>
       <div>
+        <Label>Your name</Label>
+        <Input className="rounded-xl mt-1" placeholder="e.g. Alex Rivera" value={name} onChange={(e) => setName(e.target.value)} />
+      </div>
+      <div>
         <Label>Home address</Label>
         <Input className="rounded-xl mt-1" placeholder="123 Maple St" value={address} onChange={(e) => setAddress(e.target.value)} />
       </div>
@@ -115,7 +120,7 @@ export default function BuyerOnboarding({ user }) {
           <button type="button" onClick={() => setLegalModal("privacy")} className="text-foreground font-medium hover:underline">Privacy Policy</button>.
         </span>
       </label>
-      <Button className="w-full rounded-xl" disabled={!address || !zip || !dob || !tosAccepted || saving} onClick={finish}>
+      <Button className="w-full rounded-xl" disabled={!name.trim() || !address || !zip || !dob || !tosAccepted || saving} onClick={finish}>
         {saving ? "Saving..." : "Get started"}
       </Button>
       <LegalModal type={legalModal} open={!!legalModal} onOpenChange={(v) => !v && setLegalModal(null)} />
