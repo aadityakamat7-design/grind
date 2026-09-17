@@ -144,7 +144,7 @@ Deno.serve(async (req) => {
       payment_status: 'held',
       stripe_payment_intent_id: job.stripe_payment_intent_id || '',
       is_test_mode: !!job.is_test_mode,
-      status: 'pending_parent_approval',
+      status: 'confirmed',
     });
 
     await svc.JobPost.update(job.id, { booking_id: booking.id });
@@ -171,9 +171,9 @@ Deno.serve(async (req) => {
       await svc.Notification.create({
         user_id: parentUserId,
         type: 'booking',
-        title: 'Approval needed: your teen took a job',
-        body: `${profile?.display_name || 'Your teen'} accepted "${job.title}" for ${job.buyer_name}. Tap to review and approve.`,
-        link: '/parent/approvals',
+        title: 'Your teen took a job',
+        body: `${profile?.display_name || 'Your teen'} accepted "${job.title}" for ${job.buyer_name}. Payment is held in escrow.`,
+        link: `/bookings/${booking.id}`,
         read: false,
       });
 
@@ -196,15 +196,15 @@ Deno.serve(async (req) => {
       user_id: job.buyer_user_id,
       type: 'booking',
       title: 'A teen took your job!',
-      body: `${profile?.display_name || 'A teen'} accepted "${job.title}" — awaiting parent approval before it's confirmed.`,
+      body: `${profile?.display_name || 'A teen'} accepted "${job.title}". Payment is held in escrow — ready to start.`,
       link: `/bookings/${booking.id}`,
       read: false,
     });
     await svc.Notification.create({
       user_id: user.id,
       type: 'booking',
-      title: 'Job accepted — awaiting parent approval',
-      body: `You accepted "${job.title}". Your parent needs to approve it before it's confirmed.`,
+      title: 'Job accepted — confirmed',
+      body: `You accepted "${job.title}". Payment is held in escrow — ready to start.`,
       link: `/bookings/${booking.id}`,
       read: false,
     });

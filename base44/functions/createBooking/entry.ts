@@ -5,8 +5,7 @@ import { getMinAgeForCategory } from '../../shared/categoryAgeRules.ts';
 import { getDeliveryMode, isRemovedCategory, generateSessionLink } from '../../shared/deliveryMode.ts';
 import { enforceBookingHours } from '../../shared/workHourEnforcement.ts';
 import { calculatePlatformFee, calculateNetAmount } from '../../shared/platformFee.ts';
-import { notifyParentApprovalNeeded } from '../../shared/notifyParent.ts';
-import { APP_BASE_URL, getSafeOrigin, safeOriginFromString } from '../../shared/safeOrigin.ts';
+import { getSafeOrigin, safeOriginFromString } from '../../shared/safeOrigin.ts';
 import { nextOccurrenceDate } from '../../shared/recurringDates.ts';
 import { getStripeContext } from '../../shared/stripeEnv.ts';
 
@@ -253,30 +252,12 @@ Deno.serve(async (req) => {
       await base44.asServiceRole.entities.Notification.create({
         user_id: parentUserId,
         type: 'booking',
-        title: 'Approval needed: new booking',
-        body: `${buyerName} booked "${listing.title}" with ${listing.teen_display_name}. Tap to review and approve.`,
-        link: '/parent/approvals',
+        title: 'New booking confirmed',
+        body: `${buyerName} booked "${listing.title}" with ${listing.teen_display_name}. Payment is held in escrow.`,
+        link: `/bookings/${booking.id}`,
         read: false,
       });
-
-      // Email the parent so they see the approval request even without the
-      // app open. The teen-accepts-a-job path (acceptJobPost) already emails.
-      await notifyParentApprovalNeeded(base44.asServiceRole, {
-        teenName: listing.teen_display_name || 'Your teen',
-        jobTitle: listing.title,
-        buyerName,
-        parentUserId,
-        origin: APP_BASE_URL,
-      });
     }
-    await base44.asServiceRole.entities.Notification.create({
-      user_id: listing.teen_user_id,
-      type: 'booking',
-      title: 'New booking — awaiting parent approval',
-      body: `"${listing.title}" was booked by ${buyerName}. Your parent needs to approve it before it's confirmed.`,
-      link: `/bookings/${booking.id}`,
-      read: false,
-    });
 
     base44.analytics.track({ eventName: 'booking_created' });
 
@@ -314,12 +295,31 @@ Deno.serve(async (req) => {
         stripe_session_id: session.id,
         is_test_mode: testMode,
       });
+      await base44.asServiceRole.entities.Notification.create({
+        user_id: listing.teen_user_id,
+        type: 'booking',
+        title: 'New booking request',
+        body: `"${listing.title}" was booked by ${buyerName}. We'll notify you once payment is confirmed.`,
+        link: `/bookings/${booking.id}`,
+        read: false,
+      });
       return Response.json({ bookingId: booking.id, url: session.url });
     }
 
-    // Charge below Stripe's $0.50 minimum — mark as held directly (no charge).
+    // Charge below Stripe's $0.50 minimum — mark as held and confirm directly.
     if (cents > 0) {
-      await base44.asServiceRole.entities.Booking.update(booking.id, { payment_status: 'held' });
+      await base44.asServiceRole.entities.Booking.update(booking.id, {
+        payment_status: 'held',
+        status: 'confirmed',
+      });
+      await base44.asServiceRole.entities.Notification.create({
+        user_id: listing.teen_user_id,
+        type: 'booking',
+        title: 'New booking confirmed',
+        body: `"${listing.title}" was booked by ${buyerName}. Payment is held in escrow — ready to start.`,
+        link: `/bookings/${booking.id}`,
+        read: false,
+      });
     }
 
     return Response.json({ bookingId: booking.id, paid: cents > 0 && cents < 50 });
