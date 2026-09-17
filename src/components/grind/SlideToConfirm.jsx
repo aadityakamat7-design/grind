@@ -10,6 +10,7 @@ export default function SlideToConfirm({ onConfirm, label, disabled, loading, lo
   const [dragging, setDragging] = useState(false);
   const [completed, setCompleted] = useState(false);
   const [animating, setAnimating] = useState(false);
+  const completedRef = useRef(false);
   const trackRef = useRef(null);
   const startX = useRef(0);
   const baseX = useRef(0);
@@ -34,6 +35,8 @@ export default function SlideToConfirm({ onConfirm, label, disabled, loading, lo
   };
 
   const complete = () => {
+    if (completedRef.current) return;
+    completedRef.current = true;
     const max = getMaxDrag();
     setDragX(max);
     dragXRef.current = max;
@@ -77,6 +80,7 @@ export default function SlideToConfirm({ onConfirm, label, disabled, loading, lo
     if (!loading && completed) {
       const t = setTimeout(() => {
         setCompleted(false);
+        completedRef.current = false;
         setDragX(0);
         dragXRef.current = 0;
         setAnimating(false);

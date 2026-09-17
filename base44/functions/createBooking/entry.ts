@@ -24,6 +24,38 @@ Deno.serve(async (req) => {
     const listing = await base44.asServiceRole.entities.Listing.get(listingId);
     if (!listing) return Response.json({ error: 'Listing not found' }, { status: 404 });
 
+    // Idempotency: if an identical pending booking already exists for the same
+    // buyer, listing, and scheduled time within the last 60 seconds, return it
+    // instead of creating a duplicate. Protects against double-taps, retry
+    // storms, and UI regressions (e.g. SlideToConfirm double-fire).
+    if (scheduledStart) {
+      const recentBookings = await base44.asServiceRole.entities.Booking.filter({
+        buyer_user_id: user.id,
+        listing_id: listingId,
+        status: 'pending_parent_approval',
+      }, '-created_date', 10);
+      const targetTime = new Date(scheduledStart).toISOString();
+      const now = Date.now();
+      const dupe = recentBookings.find(b =>
+        b.scheduled_start === targetTime &&
+        (now - new Date(b.created_date).getTime()) < 60_000
+      );
+      if (dupe) {
+        // Return the existing booking's checkout URL so the buyer can still pay
+        // without creating a second booking record.
+        if (dupe.stripe_session_id) {
+          const { stripe } = await getStripeContext(base44);
+          try {
+            const session = await stripe.checkout.sessions.retrieve(dupe.stripe_session_id);
+            if (session.url) {
+              return Response.json({ bookingId: dupe.id, url: session.url });
+            }
+          } catch { /* session may have expired — fall through to create a new one */ }
+        }
+        return Response.json({ bookingId: dupe.id, paid: dupe.payment_status === 'held' });
+      }
+    }
+
     // Reject removed categories (babysitting, etc.) — teens never enter a home.
     if (isRemovedCategory(listing.category)) {
       return Response.json({ error: 'This category is no longer available on Blockwork.' }, { status: 400 });
