@@ -6,8 +6,24 @@ import { DAY_LABELS, WEEKDAY_ORDER, getLegalSlotsForDayOfWeek } from "@/lib/avai
 
 export default function AvailabilityPicker({ value = [], onChange, hourLimits }) {
   const slots = Array.isArray(value) ? value : [];
+  const allDaysEnabled = WEEKDAY_ORDER.every((d) => slots.find((s) => s.day === d));
 
   const getSlot = (day) => slots.find((s) => s.day === day);
+
+  const setAnyTime = () => {
+    if (allDaysEnabled) {
+      onChange([]);
+      return;
+    }
+    onChange(
+      WEEKDAY_ORDER.map((day) => {
+        const legal = getLegalSlotsForDayOfWeek(day, hourLimits);
+        const start = legal[0]?.value || "15:00";
+        const end = legal.length > 1 ? legal[legal.length - 1].value : start;
+        return { day, start, end };
+      })
+    );
+  };
 
   const toggleDay = (day) => {
     const existing = getSlot(day);
@@ -42,6 +58,19 @@ export default function AvailabilityPicker({ value = [], onChange, hourLimits })
 
   return (
     <div className="space-y-1.5">
+      <button
+        type="button"
+        onClick={setAnyTime}
+        className={cn(
+          "w-full flex items-center justify-center gap-2 rounded-xl border-2 border-dashed p-2.5 text-sm font-medium transition-colors mb-2",
+          allDaysEnabled
+            ? "border-primary bg-primary/5 text-primary"
+            : "border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
+        )}
+      >
+        <Check className={cn("w-4 h-4", allDaysEnabled ? "text-primary" : "text-muted-foreground/40")} />
+        Any time is fine
+      </button>
       {WEEKDAY_ORDER.map((day) => {
         const slot = getSlot(day);
         const legal = getLegalSlotsForDayOfWeek(day, hourLimits);

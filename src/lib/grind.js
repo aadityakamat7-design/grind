@@ -7,7 +7,7 @@ export const PLATFORM_FEE_FIXED = 0.30;
 // client-side validation so users get immediate feedback before Stripe.
 export const MAX_UNIT_PRICE = 500;   // per-job or per-hour rate (Listing, JobPost)
 export const MAX_TOTAL_PRICE = 2000; // escrow total incl. multi-hour (Booking, JobPost.charge)
-export const MIN_UNIT_PRICE = 5;    // sensible floor — no job worth less than $5
+export const MIN_UNIT_PRICE = 0.2; // low floor — allows short 15-min jobs
 
 export const CATEGORIES = [
   { value: "tutoring", label: "Online Tutoring", icon: "GraduationCap", deliveryMode: "online" },
