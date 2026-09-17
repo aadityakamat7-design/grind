@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import ResponsiveSelect from "@/components/grind/ResponsiveSelect";
 import { ShieldCheck, ShieldX, Sparkles, Lock, Tag, AlertCircle, Zap } from "lucide-react";
-import { CATEGORIES, CATEGORY_LABELS, categoryMinimum, computeFees, money, MAX_UNIT_PRICE, MIN_UNIT_PRICE, isOnlineCategory } from "@/lib/grind";
+import { CATEGORIES, CATEGORY_LABELS, categoryMinimum, categoryRecommendedRange, computeFees, money, MAX_UNIT_PRICE, MIN_UNIT_PRICE, isOnlineCategory } from "@/lib/grind";
 import { cn } from "@/lib/utils";
 import { getMinAgeForCategory } from "@/lib/stateWorkRules";
 import SlideToConfirm from "@/components/grind/SlideToConfirm";
@@ -328,6 +328,12 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
                   <span className="text-muted-foreground">Minimum for {CATEGORY_LABELS[chosenCategory]} jobs</span>
                   <span className="font-bold text-foreground">{money(currentMin)}{form.price_model === "HOURLY" ? "/hr" : ""}</span>
                 </div>
+                {(() => { const r = categoryRecommendedRange(chosenCategory, form.price_model); return r && (
+                  <div className="flex justify-between mt-1 pt-1 border-t border-border">
+                    <span className="text-muted-foreground">Typical range</span>
+                    <span className="font-semibold text-foreground">${r.min}–${r.max}{form.price_model === "HOURLY" ? "/hr" : ""}</span>
+                  </div>
+                ); })()}
               </div>
 
               {categoryAgeReq != null && (

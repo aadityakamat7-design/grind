@@ -7,7 +7,7 @@ export const PLATFORM_FEE_FIXED = 0.30;
 // client-side validation so users get immediate feedback before Stripe.
 export const MAX_UNIT_PRICE = 500;   // per-job or per-hour rate (Listing, JobPost)
 export const MAX_TOTAL_PRICE = 2000; // escrow total incl. multi-hour (Booking, JobPost.charge)
-export const MIN_UNIT_PRICE = 0.2; // low floor — allows short 15-min jobs
+export const MIN_UNIT_PRICE = 5; // fair minimum — no test/placeholder pricing
 
 export const CATEGORIES = [
   { value: "tutoring", label: "Online Tutoring", icon: "GraduationCap", deliveryMode: "online" },
@@ -54,6 +54,24 @@ export function categoryMinimum(category, priceModel) {
   const m = CATEGORY_MINIMUMS[category];
   if (!m) return 0;
   return m[priceModel] || m.FIXED || 0;
+}
+
+// Recommended typical price ranges per category — sensible market estimates
+// for teen labor, shown as adjustable guidance (not wage-floor calculations).
+// An admin can update these values later as market conditions change.
+export const CATEGORY_RECOMMENDED_RANGES = {
+  tutoring:    { FIXED: { min: 20, max: 50 }, HOURLY: { min: 20, max: 45 } },
+  tech_help:   { FIXED: { min: 15, max: 50 }, HOURLY: { min: 15, max: 40 } },
+  lawn_care:   { FIXED: { min: 25, max: 60 }, HOURLY: { min: 20, max: 35 } },
+  car_washing: { FIXED: { min: 20, max: 50 }, HOURLY: { min: 20, max: 30 } },
+  odd_jobs:    { FIXED: { min: 20, max: 75 }, HOURLY: { min: 15, max: 30 } },
+  pet_sitting: { FIXED: { min: 15, max: 40 }, HOURLY: { min: 15, max: 25 } },
+};
+
+export function categoryRecommendedRange(category, priceModel) {
+  const r = CATEGORY_RECOMMENDED_RANGES[category];
+  if (!r) return null;
+  return r[priceModel] || r.FIXED || null;
 }
 
 // Categories where a teen can optionally upload a skill credential

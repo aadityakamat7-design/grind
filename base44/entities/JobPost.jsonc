@@ -52,7 +52,7 @@
     },
     "price": {
       "type": "number",
-      "minimum": 0.2,
+      "minimum": 5,
       "maximum": 500,
       "rls": {
         "write": {

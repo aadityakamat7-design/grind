@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import ResponsiveSelect from "@/components/grind/ResponsiveSelect";
 import { AlertTriangle } from "lucide-react";
-import { checkHazard, MAX_UNIT_PRICE, MIN_UNIT_PRICE, SKILL_CATEGORIES } from "@/lib/grind";
+import { checkHazard, MAX_UNIT_PRICE, MIN_UNIT_PRICE, SKILL_CATEGORIES, categoryRecommendedRange } from "@/lib/grind";
 import { getMinAgeForCategory } from "@/lib/stateWorkRules";
 import CredentialUpload from "@/components/grind/CredentialUpload";
 import SlideToConfirm from "@/components/grind/SlideToConfirm";
@@ -147,6 +147,7 @@ export default function ListingForm({ open, onOpenChange, listing, profile, onSa
               <Label>Price ($)</Label>
               <Input type="number" min={MIN_UNIT_PRICE} max={MAX_UNIT_PRICE} className="rounded-xl mt-1" value={form.price} onChange={(e) => set("price", e.target.value)} />
               <p className="text-xs text-muted-foreground mt-1">Minimum ${MIN_UNIT_PRICE} · Maximum ${MAX_UNIT_PRICE}</p>
+              {(() => { const r = categoryRecommendedRange(form.category, form.price_model); return r && <p className="text-xs text-primary/70 mt-0.5">Typical range: ${r.min}–${r.max}{form.price_model === "HOURLY" ? "/hr" : ""}</p>; })()}
               {priceError && <p className="text-xs text-rose-600 mt-1 font-semibold">{priceError}</p>}
             </div>
           </div>

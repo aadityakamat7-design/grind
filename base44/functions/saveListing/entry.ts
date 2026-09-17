@@ -6,7 +6,7 @@ import { getDeliveryMode, isRemovedCategory } from '../../shared/deliveryMode.ts
 import { getHourLimits } from '../../shared/stateHourLimits.ts';
 
 const MAX_UNIT_PRICE = 500;
-const MIN_UNIT_PRICE = 0.2;
+const MIN_UNIT_PRICE = 5;
 const MIN_TITLE = 3;
 const MAX_TITLE = 80;
 const MAX_DESC = 1000;
