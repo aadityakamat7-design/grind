@@ -9,6 +9,7 @@ import PayoutReviewQueue from "@/components/grind/admin/PayoutReviewQueue";
 import DisputeReviewQueue from "@/components/grind/admin/DisputeReviewQueue";
 import CredentialReviewQueue from "@/components/grind/admin/CredentialReviewQueue";
 import AdminCharts from "@/components/grind/admin/AdminCharts";
+import AdminAnalytics from "@/components/grind/admin/AdminAnalytics";
 import StatCard from "@/components/grind/StatCard";
 import StatusBadge from "@/components/grind/StatusBadge";
 import ErrorRetry from "@/components/grind/ErrorRetry";
@@ -27,6 +28,7 @@ export default function Admin() {
   const [reports, setReports] = useState([]);
   const [credentials, setCredentials] = useState([]);
   const [referrals, setReferrals] = useState([]);
+  const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [acting, setActing] = useState(false);
@@ -35,7 +37,7 @@ export default function Admin() {
     if (user?.app_role !== "admin") { setLoading(false); return; }
     try {
       setError(false);
-      const [t, b, p, bk, r, creds, refs] = await Promise.all([
+      const [t, b, p, bk, r, creds, refs, lst] = await Promise.all([
         base44.entities.TeenProfile.list("-created_date", 500),
         base44.entities.BuyerProfile.list("-created_date", 500),
         base44.entities.ParentProfile.list("-created_date", 500),
@@ -43,6 +45,7 @@ export default function Admin() {
         base44.entities.Report.list("-created_date", 100),
         base44.entities.Credential.filter({ status: "pending" }, "-created_date", 100),
         base44.entities.Referral.list("-created_date", 100),
+        base44.entities.Listing.list("-created_date", 500),
       ]);
       setTeens(t);
       setBuyers(b);
@@ -51,6 +54,7 @@ export default function Admin() {
       setReports(r);
       setCredentials(creds);
       setReferrals(refs);
+      setListings(lst);
     } catch (err) {
       console.error("Admin load failed:", err);
       setError(true);
@@ -194,7 +198,7 @@ export default function Admin() {
         </div>
       </div>
 
-      <AdminCharts bookings={bookings} teens={teens} buyers={buyers} parents={parents} />
+      <AdminAnalytics bookings={bookings} teens={teens} buyers={buyers} parents={parents} listings={listings} />
 
       <div>
         <h2 className="text-[17px] font-bold text-foreground mb-3">Pending review</h2>
