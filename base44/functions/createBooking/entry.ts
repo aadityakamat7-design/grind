@@ -252,8 +252,8 @@ Deno.serve(async (req) => {
       await base44.asServiceRole.entities.Notification.create({
         user_id: parentUserId,
         type: 'booking',
-        title: 'New booking confirmed',
-        body: `${buyerName} booked "${listing.title}" with ${listing.teen_display_name}. Payment is held in escrow.`,
+        title: 'New booking needs your approval',
+        body: `${buyerName} booked "${listing.title}" with ${listing.teen_display_name}. Please review and approve this booking.`,
         link: `/bookings/${booking.id}`,
         read: false,
       });
@@ -306,17 +306,17 @@ Deno.serve(async (req) => {
       return Response.json({ bookingId: booking.id, url: session.url });
     }
 
-    // Charge below Stripe's $0.50 minimum — mark as held and confirm directly.
+    // Charge below Stripe's $0.50 minimum — mark payment as held. The booking
+    // stays at pending_parent_approval until the parent approves (decideBooking).
     if (cents > 0) {
       await base44.asServiceRole.entities.Booking.update(booking.id, {
         payment_status: 'held',
-        status: 'confirmed',
       });
       await base44.asServiceRole.entities.Notification.create({
         user_id: listing.teen_user_id,
         type: 'booking',
-        title: 'New booking confirmed',
-        body: `"${listing.title}" was booked by ${buyerName}. Payment is held in escrow — ready to start.`,
+        title: 'New booking request',
+        body: `"${listing.title}" was booked by ${buyerName}. Waiting for parent approval before the job is confirmed.`,
         link: `/bookings/${booking.id}`,
         read: false,
       });

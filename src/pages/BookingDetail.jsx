@@ -61,11 +61,17 @@ export default function BookingDetail() {
       // created and not yet readable — retry once after a brief delay before
       // showing the error screen.
       let bookingRes;
+      const fetchBooking = () => base44.functions.invoke("getBookingDetail", { bookingId });
       try {
-        bookingRes = await base44.functions.invoke("getBookingDetail", { bookingId });
+        bookingRes = await fetchBooking();
       } catch (firstErr) {
-        await new Promise((r) => setTimeout(r, 800));
-        bookingRes = await base44.functions.invoke("getBookingDetail", { bookingId });
+        try {
+          await new Promise((r) => setTimeout(r, 1200));
+          bookingRes = await fetchBooking();
+        } catch (secondErr) {
+          await new Promise((r) => setTimeout(r, 1500));
+          bookingRes = await fetchBooking();
+        }
       }
       setBooking(bookingRes.data?.booking || null);
       try {

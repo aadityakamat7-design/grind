@@ -91,26 +91,14 @@ Deno.serve(async (req) => {
             console.log(`Booking ${bookingId} buyer start recorded (payment ${session.payment_intent})`);
           }
         } else {
-          // Escrow payment cleared — mark as held and auto-confirm the booking
-          // so the teen can start work without waiting for parent approval.
-          const escrowBooking = await base44.asServiceRole.entities.Booking.get(bookingId);
+          // Escrow payment cleared — mark as held. The booking stays at
+          // pending_parent_approval until the parent approves via decideBooking.
           await base44.asServiceRole.entities.Booking.update(bookingId, {
             payment_status: 'held',
             stripe_payment_intent_id: session.payment_intent,
             is_test_mode: isTestEvent,
           });
-          if (escrowBooking && escrowBooking.status === 'pending_parent_approval') {
-            await base44.asServiceRole.entities.Booking.update(bookingId, { status: 'confirmed' });
-            await base44.asServiceRole.entities.Notification.create({
-              user_id: escrowBooking.teen_user_id,
-              type: 'booking',
-              title: 'New booking confirmed',
-              body: `"${escrowBooking.listing_title}" was booked by ${escrowBooking.buyer_name}. Payment is held in escrow — ready to start.`,
-              link: `/bookings/${bookingId}`,
-              read: false,
-            });
-          }
-          console.log(`Booking ${bookingId} marked as held and confirmed (payment ${session.payment_intent})`);
+          console.log(`Booking ${bookingId} payment marked as held (payment ${session.payment_intent})`);
         }
       }
 
@@ -150,24 +138,14 @@ Deno.serve(async (req) => {
           console.log(`Booking ${bookingId} buyer start recorded (PI ${pi.id})`);
         }
       } else if (bookingId) {
-        const escrowBooking = await base44.asServiceRole.entities.Booking.get(bookingId);
+        // Escrow payment cleared — mark as held. The booking stays at
+        // pending_parent_approval until the parent approves via decideBooking.
         await base44.asServiceRole.entities.Booking.update(bookingId, {
           payment_status: 'held',
           stripe_payment_intent_id: pi.id,
           is_test_mode: isTestEvent,
         });
-        if (escrowBooking && escrowBooking.status === 'pending_parent_approval') {
-          await base44.asServiceRole.entities.Booking.update(bookingId, { status: 'confirmed' });
-          await base44.asServiceRole.entities.Notification.create({
-            user_id: escrowBooking.teen_user_id,
-            type: 'booking',
-            title: 'New booking confirmed',
-            body: `"${escrowBooking.listing_title}" was booked by ${escrowBooking.buyer_name}. Payment is held in escrow — ready to start.`,
-            link: `/bookings/${bookingId}`,
-            read: false,
-          });
-        }
-        console.log(`Booking ${bookingId} marked as held and confirmed (PI ${pi.id})`);
+        console.log(`Booking ${bookingId} payment marked as held (PI ${pi.id})`);
       }
 
       if (pi.metadata?.job_post_id) {
