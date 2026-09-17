@@ -26,7 +26,7 @@ import VideoSessionPanel from "@/components/grind/VideoSessionPanel";
 import ErrorRetry from "@/components/grind/ErrorRetry";
 
 export default function BookingDetail() {
-  const { bookingId } = useParams();
+  const { id: bookingId } = useParams();
   const { user } = useOutletContext();
   const [searchParams, setSearchParams] = useSearchParams();
   const [booking, setBooking] = useState(null);

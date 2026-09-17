@@ -9,7 +9,7 @@ import Seo from "@/components/Seo";
 // inside Blockwork so the teen and neighbor never leave the app. Access is
 // gated by getBookingDetail, so only the teen, buyer, and parent can open it.
 export default function VideoRoom() {
-  const { bookingId } = useParams();
+  const { id: bookingId } = useParams();
   const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");

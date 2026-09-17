@@ -8,7 +8,7 @@ import { money } from "@/lib/grind";
 import { CATEGORY_LABELS } from "@/lib/grind";
 
 export default function ResolveExpiredJob() {
-  const { jobId } = useParams();
+  const { id: jobId } = useParams();
   const navigate = useNavigate();
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);

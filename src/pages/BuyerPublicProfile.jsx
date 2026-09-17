@@ -11,7 +11,7 @@ import { CATEGORY_LABELS } from "@/lib/grind";
 import { categoryAverages } from "@/lib/ratings";
 
 export default function BuyerPublicProfile() {
-  const { buyerUserId } = useParams();
+  const { id: buyerUserId } = useParams();
   const { user } = useOutletContext();
   const [profile, setProfile] = useState(null);
   const [reviews, setReviews] = useState([]);
