@@ -43,6 +43,23 @@ Deno.serve(async (req) => {
     const senderName = user.id === thread.teen_user_id ? thread.teen_display_name : thread.buyer_name;
     const participantIds = thread.participant_ids || [thread.buyer_user_id, thread.teen_user_id, thread.parent_user_id].filter(Boolean);
 
+    // Server-side idempotency: if the same sender just sent the exact same
+    // message body to this thread within the last 60 seconds, return that
+    // message instead of creating a duplicate. Protects against rapid
+    // double-taps / retries / any future UI regression.
+    const recent = await svc.Message.filter(
+      { thread_id: thread.id, sender_id: user.id },
+      '-created_date',
+      5
+    );
+    const dupWindow = Date.now() - 60 * 1000;
+    const duplicate = recent.find(
+      (m) => m.body === text && m.created_date && new Date(m.created_date).getTime() > dupWindow
+    );
+    if (duplicate) {
+      return Response.json({ message: duplicate });
+    }
+
     const msg = await svc.Message.create({
       thread_id: thread.id,
       sender_id: user.id,

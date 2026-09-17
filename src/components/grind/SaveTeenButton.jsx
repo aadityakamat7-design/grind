@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { Heart } from "lucide-react";
 
 export default function SaveTeenButton({ buyer, teenUserId, teenName }) {
   const [record, setRecord] = useState(null);
   const [ready, setReady] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const busyRef = useRef(false);
 
   useEffect(() => {
     base44.entities.SavedTeen.filter({ buyer_user_id: buyer.id, teen_user_id: teenUserId }).then((r) => {
@@ -14,16 +16,24 @@ export default function SaveTeenButton({ buyer, teenUserId, teenName }) {
   }, [buyer.id, teenUserId]);
 
   const toggle = async () => {
-    if (record) {
-      await base44.entities.SavedTeen.delete(record.id);
-      setRecord(null);
-    } else {
-      const r = await base44.entities.SavedTeen.create({
-        buyer_user_id: buyer.id,
-        teen_user_id: teenUserId,
-        teen_display_name: teenName,
-      });
-      setRecord(r);
+    if (busyRef.current) return;
+    busyRef.current = true;
+    setBusy(true);
+    try {
+      if (record) {
+        await base44.entities.SavedTeen.delete(record.id);
+        setRecord(null);
+      } else {
+        const r = await base44.entities.SavedTeen.create({
+          buyer_user_id: buyer.id,
+          teen_user_id: teenUserId,
+          teen_display_name: teenName,
+        });
+        setRecord(r);
+      }
+    } finally {
+      busyRef.current = false;
+      setBusy(false);
     }
   };
 
@@ -31,7 +41,8 @@ export default function SaveTeenButton({ buyer, teenUserId, teenName }) {
   return (
     <button
       onClick={toggle}
-      className={`inline-flex items-center gap-1 text-xs font-semibold transition-colors ${
+      disabled={busy}
+      className={`inline-flex items-center gap-1 text-xs font-semibold transition-colors disabled:opacity-50 ${
         record ? "text-rose-500" : "text-slate-400 hover:text-rose-500"
       }`}
     >

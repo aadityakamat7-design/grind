@@ -16,6 +16,7 @@ export default function ChatThread() {
   const [body, setBody] = useState("");
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+  const sendingRef = useRef(false);
   const bottomRef = useRef(null);
 
   const load = useCallback(async () => {
@@ -53,8 +54,10 @@ export default function ChatThread() {
   const canSend = !isParent && (user.id === thread.teen_user_id || user.id === thread.buyer_user_id);
 
   const send = async () => {
+    if (sendingRef.current) return;
     const raw = body.trim();
     if (!raw) return;
+    sendingRef.current = true;
     const senderName = user.id === thread.teen_user_id ? thread.teen_display_name : thread.buyer_name;
 
     // Optimistic: show the message instantly, then swap in the saved record.
@@ -81,6 +84,7 @@ export default function ChatThread() {
       setMessages((prev) => prev.filter((m) => m.id !== tempId));
       setBody(raw);
     }
+    sendingRef.current = false;
     setSending(false);
   };
 
