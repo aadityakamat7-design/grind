@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import ResponsiveSelect from "@/components/grind/ResponsiveSelect";
 import { ShieldCheck, ShieldX, Sparkles, Lock, Tag, AlertCircle, Zap } from "lucide-react";
-import { CATEGORIES, CATEGORY_LABELS, categoryMinimum, categoryRecommendedRange, computeFees, money, MAX_UNIT_PRICE, MIN_UNIT_PRICE, isOnlineCategory } from "@/lib/grind";
+import { CATEGORIES, CATEGORY_LABELS, categoryMinimum, categoryRecommendedRange, computeFees, money, MAX_UNIT_PRICE, MIN_UNIT_PRICE, isOnlineCategory, HOURS_OPTIONS } from "@/lib/grind";
 import { cn } from "@/lib/utils";
 import { getMinAgeForCategory } from "@/lib/stateWorkRules";
 import SlideToConfirm from "@/components/grind/SlideToConfirm";
@@ -38,6 +38,7 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
     title: "", description: "", price: "",
     price_model: "FIXED", state: "", scheduled_start: "",
     is_physical: true, address: "", is_asap: false,
+    estimated_hours: 2,
   });
   const [phase, setPhase] = useState(() => {
     const p = loadDraft()?.phase;
@@ -98,9 +99,9 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
   };
 
   const priceError = Number(form.price) > MAX_UNIT_PRICE
-    ? `Max $${MAX_UNIT_PRICE} per job`
+    ? `Max $${MAX_UNIT_PRICE} ${form.price_model === "HOURLY" ? "per hour" : "per job"}`
     : Number(form.price) > 0 && Number(form.price) < MIN_UNIT_PRICE
-      ? `Minimum $${MIN_UNIT_PRICE} per job`
+      ? `Minimum $${MIN_UNIT_PRICE} ${form.price_model === "HOURLY" ? "per hour" : "per job"}`
       : "";
   const valid = form.title.trim().length >= 3 && form.description.trim().length >= 10 && Number(form.price) >= MIN_UNIT_PRICE && !priceError && form.state;
   const { platform_fee, net_amount } = computeFees(Number(form.price) || 0);
@@ -146,6 +147,7 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
         category: chosenCategory,
         price: Number(form.price),
         price_model: form.price_model,
+        estimated_hours: form.price_model === "HOURLY" ? Number(form.estimated_hours || 2) : undefined,
         zip: buyerProfile?.zip || "",
         state: form.state,
         is_physical: !isOnlineCategory(chosenCategory),
@@ -465,7 +467,7 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
               <div className="space-y-1.5">
                 <Label>Pay ($)</Label>
                 <Input className="rounded-xl" type="number" inputMode="decimal" min={MIN_UNIT_PRICE} max={MAX_UNIT_PRICE} placeholder="25" value={form.price} onChange={(e) => set("price", e.target.value)} />
-                <p className="text-xs text-muted-foreground">Minimum ${MIN_UNIT_PRICE} · Maximum ${MAX_UNIT_PRICE}</p>
+                <p className="text-xs text-muted-foreground">Minimum ${MIN_UNIT_PRICE}{form.price_model === "HOURLY" ? "/hr" : ""} · Maximum ${MAX_UNIT_PRICE}</p>
                 {priceError && <p className="text-xs text-destructive font-semibold">{priceError}</p>}
               </div>
               <div className="space-y-1.5">
@@ -479,6 +481,23 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
                 />
               </div>
             </div>
+            {form.price_model === "HOURLY" && (
+              <div className="space-y-1.5">
+                <Label>Estimated hours</Label>
+                <ResponsiveSelect
+                  value={String(form.estimated_hours || 2)}
+                  onValueChange={(v) => set("estimated_hours", Number(v))}
+                  options={HOURS_OPTIONS.map((h) => ({ value: String(h), label: `${h} hour${h > 1 ? "s" : ""}` }))}
+                  title="Estimated hours"
+                  className="rounded-xl"
+                />
+                {Number(form.price) > 0 && (
+                  <p className="text-xs text-primary font-semibold">
+                    Total: {money(Number(form.price))}/hr × {form.estimated_hours || 2} hrs = {money(Number(form.price) * (form.estimated_hours || 2))}
+                  </p>
+                )}
+              </div>
+            )}
             {/* AI price recommendation */}
             <div className="space-y-2">
               {priceRec ? (

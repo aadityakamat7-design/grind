@@ -4,9 +4,8 @@ import { getVerifiedAge } from '../../shared/teenAge.ts';
 import { getMinAgeForCategory } from '../../shared/categoryAgeRules.ts';
 import { getDeliveryMode, isRemovedCategory } from '../../shared/deliveryMode.ts';
 import { getHourLimits } from '../../shared/stateHourLimits.ts';
+import { MAX_UNIT_PRICE, MIN_UNIT_PRICE, MAX_ESTIMATED_HOURS } from '../../shared/pricing.ts';
 
-const MAX_UNIT_PRICE = 500;
-const MIN_UNIT_PRICE = 5;
 const MIN_TITLE = 3;
 const MAX_TITLE = 80;
 const MAX_DESC = 1000;
@@ -33,6 +32,16 @@ Deno.serve(async (req) => {
     const price = Number(body.price);
     if (!Number.isFinite(price) || price < MIN_UNIT_PRICE || price > MAX_UNIT_PRICE) {
       return Response.json({ error: `Price must be at least $${MIN_UNIT_PRICE} and at most $${MAX_UNIT_PRICE}.` }, { status: 400 });
+    }
+
+    // For hourly listings, validate estimated hours (1–MAX_ESTIMATED_HOURS).
+    const priceModel = body.price_model || 'FIXED';
+    let estimatedHours: number | undefined;
+    if (priceModel === 'HOURLY') {
+      estimatedHours = Number(body.estimated_hours);
+      if (!Number.isFinite(estimatedHours) || estimatedHours < 1 || estimatedHours > MAX_ESTIMATED_HOURS) {
+        return Response.json({ error: `Please select an estimated duration (1–${MAX_ESTIMATED_HOURS} hours).` }, { status: 400 });
+      }
     }
 
     const svc = base44.asServiceRole.entities;
@@ -105,8 +114,9 @@ Deno.serve(async (req) => {
       delivery_mode: deliveryMode,
       title,
       description: (body.description || '').trim().slice(0, MAX_DESC),
-      price_model: body.price_model || 'FIXED',
+      price_model: priceModel,
       price,
+      estimated_hours: estimatedHours,
       service_area: body.zip || '',
       teen_zip: body.zip || '',
       status: 'published',

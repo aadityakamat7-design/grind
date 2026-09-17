@@ -67,8 +67,21 @@
     },
     "price": {
       "type": "number",
-      "minimum": 5,
+      "minimum": 16.9,
       "maximum": 500,
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "estimated_hours": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 8,
+      "description": "Estimated hours for hourly-priced listings \u2014 used to calculate and display the total estimated price (hourly rate \u00d7 hours). Set by the teen when creating the listing. Only set for HOURLY listings.",
       "rls": {
         "write": {
           "user_condition": {

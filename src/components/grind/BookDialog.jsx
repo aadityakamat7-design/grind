@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ShieldCheck, Lock, MessageCircle, Video, Sun, MapPin, Pencil, CheckCircle2 } from "lucide-react";
-import { computeFees, money, isOnlineCategory } from "@/lib/grind";
+import { computeFees, money, isOnlineCategory, HOURS_OPTIONS } from "@/lib/grind";
 import SafetyAdvisorChat from "@/components/grind/SafetyAdvisorChat";
 import SlideToConfirm from "@/components/grind/SlideToConfirm";
 import DateTimePicker from "@/components/grind/DateTimePicker";
@@ -17,7 +17,7 @@ import ExpressCheckout from "@/components/grind/ExpressCheckout";
 export default function BookDialog({ open, onOpenChange, listing, buyer, buyerProfile }) {
   const navigate = useNavigate();
   const [when, setWhen] = useState("");
-  const [hours, setHours] = useState(1);
+  const [hours, setHours] = useState(listing?.estimated_hours || 2);
   const [address, setAddress] = useState(buyerProfile?.address || "");
   const [overrideAddress, setOverrideAddress] = useState(false);
   const [notes, setNotes] = useState("");
@@ -31,7 +31,7 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
 
   // Reset to the form phase every time the dialog opens.
   useEffect(() => {
-    if (open) { setPhase("form"); setPayBooking(null); setError(""); }
+    if (open) { setPhase("form"); setPayBooking(null); setError(""); setHours(listing?.estimated_hours || 2); }
   }, [open]);
 
   const total = listing.price_model === "HOURLY" ? Number(listing.price) * Number(hours || 1) : Number(listing.price);
@@ -126,7 +126,17 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
           {listing.price_model === "HOURLY" && (
             <div>
               <Label>Hours</Label>
-              <Input type="number" min="1" className="rounded-xl mt-1" value={hours} onChange={(e) => setHours(e.target.value)} />
+              <Select value={String(hours)} onValueChange={(v) => setHours(Number(v))}>
+                <SelectTrigger className="rounded-xl mt-1"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {HOURS_OPTIONS.map((h) => (
+                    <SelectItem key={h} value={String(h)}>{h} hour{h > 1 ? "s" : ""}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-primary font-semibold mt-1.5">
+                {money(Number(listing.price))}/hr × {hours} hrs = {money(Number(listing.price) * Number(hours))}
+              </p>
             </div>
           )}
           {!isOnline && (

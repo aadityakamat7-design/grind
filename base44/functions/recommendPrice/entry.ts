@@ -25,7 +25,7 @@ Consider:
 - The complexity, tools needed, and estimated time involved
 - That this is teen labor, so prices should be fair but modest
 - For hourly jobs, recommend a per-hour rate; for fixed jobs, recommend a total flat price
-- Keep the recommendation between $5 and $500
+- Keep the recommendation between $16.90 and $500
 
 Respond with:
 - recommended_price: a number (the suggested price in USD)

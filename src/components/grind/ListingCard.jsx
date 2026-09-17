@@ -41,6 +41,9 @@ export default function ListingCard({ listing, teen, to }) {
           <div className="text-right shrink-0">
             <p className="font-bold text-foreground">{money(listing.price)}</p>
             <p className="text-[11px] text-muted-foreground">{listing.price_model === "HOURLY" ? "per hour" : "fixed"}</p>
+            {listing.price_model === "HOURLY" && listing.estimated_hours && (
+              <p className="text-[11px] text-primary font-medium mt-0.5">{money(listing.price * listing.estimated_hours)} total</p>
+            )}
           </div>
         </div>
         <div className="flex items-center gap-2 mt-3 flex-wrap">

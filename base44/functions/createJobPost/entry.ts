@@ -4,9 +4,8 @@ import { calculatePlatformFee, calculateNetAmount } from '../../shared/platformF
 import { getStripeContext } from '../../shared/stripeEnv.ts';
 import { getSafeOrigin, safeOriginFromString } from '../../shared/safeOrigin.ts';
 import { checkHazard } from '../../shared/hazardCheck.ts';
+import { MAX_UNIT_PRICE, MIN_UNIT_PRICE, MAX_ESTIMATED_HOURS } from '../../shared/pricing.ts';
 
-const MAX_UNIT_PRICE = 500;
-const MIN_UNIT_PRICE = 5;
 const MIN_TITLE = 3;
 const MAX_TITLE = 120;
 const MAX_DESC = 2000;
@@ -48,6 +47,16 @@ Deno.serve(async (req) => {
       return Response.json({ error: `Price must be at least $${MIN_UNIT_PRICE} and at most $${MAX_UNIT_PRICE}.` }, { status: 400 });
     }
 
+    // For hourly job posts, validate estimated hours (1–MAX_ESTIMATED_HOURS).
+    const priceModel = body.price_model || 'FIXED';
+    let estimatedHours: number | undefined;
+    if (priceModel === 'HOURLY') {
+      estimatedHours = Number(body.estimated_hours);
+      if (!Number.isFinite(estimatedHours) || estimatedHours < 1 || estimatedHours > MAX_ESTIMATED_HOURS) {
+        return Response.json({ error: `Please select an estimated duration (1–${MAX_ESTIMATED_HOURS} hours).` }, { status: 400 });
+      }
+    }
+
     // Reject removed categories (babysitting, etc.) — teens never enter a home.
     if (isRemovedCategory(body.category)) {
       return Response.json({
@@ -70,7 +79,6 @@ Deno.serve(async (req) => {
     }
 
     // Server-side minimum-price enforcement per category + price model.
-    const priceModel = body.price_model || 'FIXED';
     const mins = CATEGORY_MINIMUMS[body.category] || CATEGORY_MINIMUMS.odd_jobs;
     const minimum = mins[priceModel] || mins.FIXED;
     if (price < minimum) {
@@ -177,7 +185,8 @@ Respond with:
       category: body.category,
       delivery_mode: deliveryMode,
       price,
-      price_model: body.price_model || 'FIXED',
+      price_model: priceModel,
+      estimated_hours: estimatedHours,
       zip: body.zip || '',
       state: body.state,
       is_physical: !isOnline,

@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import ResponsiveSelect from "@/components/grind/ResponsiveSelect";
 import { AlertTriangle } from "lucide-react";
-import { checkHazard, MAX_UNIT_PRICE, MIN_UNIT_PRICE, SKILL_CATEGORIES, categoryRecommendedRange } from "@/lib/grind";
+import { checkHazard, MAX_UNIT_PRICE, MIN_UNIT_PRICE, SKILL_CATEGORIES, categoryRecommendedRange, HOURS_OPTIONS, money } from "@/lib/grind";
 import { getMinAgeForCategory } from "@/lib/stateWorkRules";
 import CredentialUpload from "@/components/grind/CredentialUpload";
 import SlideToConfirm from "@/components/grind/SlideToConfirm";
@@ -17,7 +17,7 @@ import { getHourLimits } from "@/lib/stateHourLimits";
 
 export default function ListingForm({ open, onOpenChange, listing, profile, onSaved }) {
   const [form, setForm] = useState(
-    listing || { category: "", title: "", description: "", price_model: "FIXED", price: "", availability: [] }
+    listing || { category: "", title: "", description: "", price_model: "FIXED", price: "", estimated_hours: 2, availability: [] }
   );
   const [hazard, setHazard] = useState(null);
   const [saving, setSaving] = useState(false);
@@ -25,9 +25,9 @@ export default function ListingForm({ open, onOpenChange, listing, profile, onSa
   const [teenAge, setTeenAge] = useState(null);
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
   const priceError = Number(form.price) > MAX_UNIT_PRICE
-    ? `Max $${MAX_UNIT_PRICE} per job`
+    ? `Max $${MAX_UNIT_PRICE} ${form.price_model === "HOURLY" ? "per hour" : "per job"}`
     : Number(form.price) > 0 && Number(form.price) < MIN_UNIT_PRICE
-      ? `Minimum $${MIN_UNIT_PRICE} per job`
+      ? `Minimum $${MIN_UNIT_PRICE} ${form.price_model === "HOURLY" ? "per hour" : "per job"}`
       : "";
 
   // Fetch the teen's verified age so we can show locked categories. The
@@ -74,6 +74,7 @@ export default function ListingForm({ open, onOpenChange, listing, profile, onSa
         description: form.description.trim(),
         price_model: form.price_model,
         price: Number(form.price),
+        estimated_hours: form.price_model === "HOURLY" ? Number(form.estimated_hours || 2) : undefined,
         zip: profile?.zip || "",
         teenUserId: profile.user_id,
         teenProfileId: profile.id,
@@ -146,11 +147,28 @@ export default function ListingForm({ open, onOpenChange, listing, profile, onSa
             <div>
               <Label>Price ($)</Label>
               <Input type="number" min={MIN_UNIT_PRICE} max={MAX_UNIT_PRICE} className="rounded-xl mt-1" value={form.price} onChange={(e) => set("price", e.target.value)} />
-              <p className="text-xs text-muted-foreground mt-1">Minimum ${MIN_UNIT_PRICE} · Maximum ${MAX_UNIT_PRICE}</p>
+              <p className="text-xs text-muted-foreground mt-1">Minimum ${MIN_UNIT_PRICE}{form.price_model === "HOURLY" ? "/hr" : ""} · Maximum ${MAX_UNIT_PRICE}</p>
               {(() => { const r = categoryRecommendedRange(form.category, form.price_model); return r && <p className="text-xs text-primary/70 mt-0.5">Typical range: ${r.min}–${r.max}{form.price_model === "HOURLY" ? "/hr" : ""}</p>; })()}
               {priceError && <p className="text-xs text-rose-600 mt-1 font-semibold">{priceError}</p>}
             </div>
           </div>
+          {form.price_model === "HOURLY" && (
+            <div>
+              <Label>Estimated hours</Label>
+              <ResponsiveSelect
+                value={String(form.estimated_hours || 2)}
+                onValueChange={(v) => set("estimated_hours", Number(v))}
+                options={HOURS_OPTIONS.map((h) => ({ value: String(h), label: `${h} hour${h > 1 ? "s" : ""}` }))}
+                title="Estimated hours"
+                className="rounded-xl mt-1"
+              />
+              {Number(form.price) > 0 && (
+                <p className="text-xs text-primary font-semibold mt-1.5">
+                  Total: {money(Number(form.price))}/hr × {form.estimated_hours || 2} hrs = {money(Number(form.price) * (form.estimated_hours || 2))}
+                </p>
+              )}
+            </div>
+          )}
           <div>
             <Label>When can you work?</Label>
             <p className="text-xs text-muted-foreground mb-2">
@@ -175,7 +193,7 @@ export default function ListingForm({ open, onOpenChange, listing, profile, onSa
             label={listing ? "Slide to save changes" : "Slide to post"}
             loadingLabel="Saving..."
             loading={saving}
-            disabled={!form.category || !form.title || !form.price || Number(form.price) < MIN_UNIT_PRICE || !!priceError || categoryLocked || !(form.availability && form.availability.length > 0)}
+            disabled={!form.category || !form.title || !form.price || Number(form.price) < MIN_UNIT_PRICE || !!priceError || categoryLocked || !(form.availability && form.availability.length > 0) || (form.price_model === "HOURLY" && !form.estimated_hours)}
             onConfirm={save}
           />
         </div>
