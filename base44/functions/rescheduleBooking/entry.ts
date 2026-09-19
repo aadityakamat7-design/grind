@@ -1,4 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
+import { sendBookingEmail } from '../../shared/bookingEmails.ts';
+import { getSafeOrigin } from '../../shared/safeOrigin.ts';
 
 // Reschedules a booking server-side: validates the caller is a participant,
 // updates the scheduled time, and notifies the other party + parent.
@@ -46,6 +48,7 @@ Deno.serve(async (req) => {
     if (booking.parent_user_id && booking.parent_user_id !== user.id) {
       await notifyUser(booking.parent_user_id);
     }
+    await sendBookingEmail(base44, { booking, event: 'rescheduled', origin: getSafeOrigin(req), excludeUserId: user.id });
 
     return Response.json({ success: true });
   } catch (error) {

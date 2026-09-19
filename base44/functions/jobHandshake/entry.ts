@@ -41,7 +41,8 @@ Deno.serve(async (req) => {
       // Teen start: just record the teen's confirmation. No payment moves here.
       if (role === 'teen') {
         if (booking.teen_started_at) return Response.json({ alreadyDone: true });
-        const result = await recordStart(base44, booking);
+        const origin = clientOrigin ? safeOriginFromString(clientOrigin) : getSafeOrigin(req);
+        const result = await recordStart(base44, booking, origin);
         return Response.json(result);
       }
 
@@ -58,7 +59,8 @@ Deno.serve(async (req) => {
       // Upfront-paid job post: escrow is already held from the posting payment,
       // so the buyer just confirms start — no new charge moves here.
       if (booking.payment_status === 'held') {
-        const result = await recordBuyerStartAfterPayment(base44, booking, booking.stripe_payment_intent_id || '');
+        const origin = clientOrigin ? safeOriginFromString(clientOrigin) : getSafeOrigin(req);
+        const result = await recordBuyerStartAfterPayment(base44, booking, booking.stripe_payment_intent_id || '', { origin });
         return Response.json(result);
       }
 
@@ -66,7 +68,8 @@ Deno.serve(async (req) => {
       const cents = Math.round(Number(chargeAmount) * 100);
       if (cents <= 0) {
         // Referral credit covered the whole job — no charge, mark held directly.
-        const result = await recordBuyerStartAfterPayment(base44, booking, '');
+        const origin = clientOrigin ? safeOriginFromString(clientOrigin) : getSafeOrigin(req);
+        const result = await recordBuyerStartAfterPayment(base44, booking, '', { origin });
         return Response.json(result);
       }
 
@@ -112,9 +115,11 @@ Deno.serve(async (req) => {
       }
       const duration = Math.max(1, Math.min(480, Number(sessionDurationMinutes) || 0));
       const noteText = String(sessionNote || '').trim().slice(0, 500);
+      const origin = clientOrigin ? safeOriginFromString(clientOrigin) : getSafeOrigin(req);
       const result = await recordTeenFinish(base44, booking, photos, {
         sessionDurationMinutes: duration || undefined,
         sessionNote: noteText || undefined,
+        origin,
       });
       return Response.json(result);
     }
@@ -164,7 +169,8 @@ Deno.serve(async (req) => {
         return Response.json({ url: session.url });
       }
 
-      const result = await recordBuyerConfirm(base44, booking, 0);
+      const origin = clientOrigin ? safeOriginFromString(clientOrigin) : getSafeOrigin(req);
+      const result = await recordBuyerConfirm(base44, booking, 0, '', origin);
       return Response.json(result);
     }
 
@@ -186,7 +192,8 @@ Deno.serve(async (req) => {
       if (!reason) {
         return Response.json({ error: 'Please explain what was wrong with the work.' }, { status: 400 });
       }
-      const result = await recordBuyerDispute(base44, booking, reason);
+      const origin = clientOrigin ? safeOriginFromString(clientOrigin) : getSafeOrigin(req);
+      const result = await recordBuyerDispute(base44, booking, reason, origin);
       return Response.json(result);
     }
   } catch (error) {

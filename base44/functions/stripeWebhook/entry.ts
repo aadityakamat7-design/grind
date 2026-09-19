@@ -4,6 +4,8 @@ import { applyVerifiedIdentity } from '../../shared/identityVerification.ts';
 import { recordBuyerConfirm, recordBuyerStartAfterPayment } from '../../shared/jobHandshake.ts';
 import { alertSecurityEvent } from '../../shared/securityMonitor.ts';
 import { notifyOwnerTransaction } from '../../shared/notifyOwnerTransaction.ts';
+import { sendBookingEmail } from '../../shared/bookingEmails.ts';
+import { getSafeOrigin } from '../../shared/safeOrigin.ts';
 
 Deno.serve(async (req) => {
   try {
@@ -76,6 +78,7 @@ Deno.serve(async (req) => {
           read: false,
         });
       }
+      await sendBookingEmail(base44, { booking, event: 'payment_confirmed', origin: getSafeOrigin(req), excludeUserId: booking.buyer_user_id });
     };
 
     if (event.type === 'checkout.session.completed') {
