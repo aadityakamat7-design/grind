@@ -42,7 +42,11 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
   });
   const [phase, setPhase] = useState(() => {
     const p = loadDraft()?.phase;
-    return p && p !== "screening" ? p : "form";
+    // Never restore the "pay" phase — the draft JobPost may have been deleted
+    // (abandonDraft on modal close, expiry, etc.), and a stale payJob.id causes
+    // a 500 when ExpressCheckout tries to create a PaymentIntent for it.
+    // Fall back to "category_review" if the screening was already done, else "form".
+    return (p && p !== "screening" && p !== "pay") ? p : "form";
   });
   const [screening, setScreening] = useState(() => loadDraft()?.screening || null);
   const [aiCategory, setAiCategory] = useState(() => loadDraft()?.aiCategory || null);
@@ -52,7 +56,7 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
   const [priceRecLoading, setPriceRecLoading] = useState(false);
   const [aiKeywords, setAiKeywords] = useState(() => loadDraft()?.aiKeywords || "");
   const [aiLoading, setAiLoading] = useState(false);
-  const [payJob, setPayJob] = useState(() => loadDraft()?.payJob || null);
+  const [payJob, setPayJob] = useState(null);
 
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
 

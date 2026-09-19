@@ -33,7 +33,13 @@ Deno.serve(async (req) => {
     }
 
     if (bookingId) {
-      const booking = await base44.asServiceRole.entities.Booking.get(bookingId);
+      let booking;
+      try {
+        booking = await base44.asServiceRole.entities.Booking.get(bookingId);
+      } catch {
+        // SDK throws (not returns null) when the entity doesn't exist.
+        return Response.json({ error: 'Booking not found' }, { status: 404 });
+      }
       if (!booking) return Response.json({ error: 'Booking not found' }, { status: 404 });
       if (booking.buyer_user_id !== user.id) return Response.json({ error: 'Forbidden' }, { status: 403 });
 
@@ -77,7 +83,13 @@ Deno.serve(async (req) => {
     }
 
     if (jobId) {
-      const job = await base44.asServiceRole.entities.JobPost.get(jobId);
+      let job;
+      try {
+        job = await base44.asServiceRole.entities.JobPost.get(jobId);
+      } catch {
+        // SDK throws (not returns null) when the entity doesn't exist.
+        return Response.json({ error: 'Job not found' }, { status: 404 });
+      }
       if (!job) return Response.json({ error: 'Job not found' }, { status: 404 });
       if (job.buyer_user_id !== user.id) return Response.json({ error: 'Forbidden' }, { status: 403 });
       if (job.payment_status !== 'unpaid') return Response.json({ error: 'Job already paid' }, { status: 400 });
