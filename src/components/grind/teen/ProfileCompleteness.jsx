@@ -12,6 +12,9 @@ export default function ProfileCompleteness({ profile }) {
   const doneCount = checks.filter((c) => c.done).length;
   const pct = Math.round((doneCount / checks.length) * 100);
 
+  // Hide the bar entirely once the profile is complete.
+  if (pct === 100) return null;
+
   return (
     <Link to="/account" className="block bg-card rounded-2xl border border-border shadow-soft p-4 hover:shadow-card transition-shadow">
       <div className="flex items-center justify-between mb-2">
