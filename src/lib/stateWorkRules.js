@@ -101,17 +101,43 @@ export function blockedMessage(result, stateCode) {
 // ---------------------------------------------------------------------------
 // Per-state, per-category minimum age gating.
 // Mirrors base44/shared/categoryAgeRules.ts (server-side). Keep in sync.
-// Only California is listed; unlisted states default to 16 (fails safe).
+//
+// LEGAL FRAMEWORK (California):
+// All Blockwork categories fall under CA's "irregular odd jobs in private
+// homes" exemption (CA DIR Child Labor Law Pamphlet, Summary Charts), which
+// requires no work permit and sets no minimum age. The platform sets 13 as
+// its own minimum. Power-equipment restrictions (federal HO 5, 16+) are
+// enforced separately by checkHazard() at the listing/job-post text level,
+// NOT by the category minimum.
+//
+// Source: California DIR Child Labor Law Pamphlet
+//   https://www.dir.ca.gov/dlse/ChildLaborLawPamphlet.pdf
+// Verified: 2026-09-19
 // ---------------------------------------------------------------------------
 
 export const CONSERVATIVE_DEFAULT_AGE = 16;
 
+// Three tiers: online (13), standard outdoor manual (14), equipment-involved (16).
 const CA_CATEGORY_AGES = {
-  tutoring: 13, tech_help: 13, pet_sitting: 13,
-  lawn_care: 13, car_washing: 13, odd_jobs: 13,
+  tutoring: 13, tech_help: 13,
+  pet_sitting: 14, car_washing: 14, odd_jobs: 14,
+  lawn_care: 16,
 };
 
 export const CATEGORY_AGES = { CA: CA_CATEGORY_AGES };
+
+// Per-category rule metadata for display — documents the legal basis.
+// Mirrors VERIFIED_CATEGORY_STATES in categoryAgeRules.ts.
+export const CATEGORY_RULES = {
+  CA: {
+    tutoring:    { minAge: 13, source: "CA DIR — odd jobs exemption", notes: "Online, no physical risk." },
+    tech_help:   { minAge: 13, source: "CA DIR — odd jobs exemption", notes: "Online, no physical risk." },
+    pet_sitting: { minAge: 14, source: "CA DIR Ch. 3 — general employment minimum", notes: "Outdoor physical work; 14 is the standard employment floor." },
+    car_washing: { minAge: 14, source: "CA DIR Ch. 3 — general employment minimum", notes: "Manual outdoor; 14 is the standard employment floor." },
+    lawn_care:   { minAge: 16, source: "29 CFR 570.34(l) — power mowers/trimmers prohibited under 16", notes: "Power equipment is the primary activity; manual is legal at 13 but category minimum is 16." },
+    odd_jobs:    { minAge: 14, source: "CA DIR Ch. 3 — general employment minimum", notes: "Manual outdoor; power equipment gated at 16+; pressure washing blocked." },
+  },
+};
 
 const STATE_NAME_TO_CODE = US_STATES.reduce((acc, s) => { acc[s.name] = s.code; return acc; }, {});
 

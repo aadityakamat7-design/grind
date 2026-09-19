@@ -42,19 +42,25 @@ Deno.serve(async (req) => {
     // Strip the physical address from each job before sending to the client.
     // Add category_min_age and eligible_for_user so the UI can mark ineligible
     // jobs. The teen's exact age is never sent to the client.
-    const jobs = openJobs.map((j) => {
-      const { address, ...rest } = j;
-      const categoryMinAge = getMinAgeForCategory(j.state, j.category);
-      const eligible = teenAge == null ? true : teenAge >= categoryMinAge;
-      const deliveryMode = j.delivery_mode || getDeliveryMode(j.category) || 'outdoor';
-      return {
-        ...rest,
-        delivery_mode: deliveryMode,
-        category_min_age: categoryMinAge,
-        eligible_for_user: eligible,
-        ineligible_reason: eligible ? null : `Requires age ${categoryMinAge}+ in ${j.state}`,
-      };
-    });
+    // Filter OUT jobs the teen is too young for — a teen only sees jobs they
+    // can actually accept (per the per-category minimum age table). Teens
+    // whose age isn't verified yet (null) see all jobs; the server re-checks
+    // at acceptance time.
+    const jobs = openJobs
+      .map((j) => {
+        const { address, ...rest } = j;
+        const categoryMinAge = getMinAgeForCategory(j.state, j.category);
+        const eligible = teenAge == null ? true : teenAge >= categoryMinAge;
+        const deliveryMode = j.delivery_mode || getDeliveryMode(j.category) || 'outdoor';
+        return {
+          ...rest,
+          delivery_mode: deliveryMode,
+          category_min_age: categoryMinAge,
+          eligible_for_user: eligible,
+          ineligible_reason: eligible ? null : `Requires age ${categoryMinAge}+ in ${j.state}`,
+        };
+      })
+      .filter((j) => j.eligible_for_user !== false);
 
     // ASAP jobs first — free neighbor flag that pushes urgent work to the top.
     jobs.sort((a, b) => (b.is_asap ? 1 : 0) - (a.is_asap ? 1 : 0));
