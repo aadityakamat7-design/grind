@@ -68,6 +68,13 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
     saveDraft({ form, phase, aiCategory, chosenCategory, aiKeywords, payJob, screening });
   }, [form, phase, aiCategory, chosenCategory, aiKeywords, payJob, screening]);
 
+  // Auto-fill the job address from the buyer's saved profile address.
+  useEffect(() => {
+    if (open && buyerProfile?.address && !form.address) {
+      set("address", buyerProfile.address);
+    }
+  }, [open, buyerProfile?.address]);
+
   const generateDescription = async () => {
     if (!aiKeywords.trim()) return;
     setAiLoading(true);

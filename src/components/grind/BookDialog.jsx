@@ -29,9 +29,15 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
   const [phase, setPhase] = useState("form"); // form | pay | done
   const [payBooking, setPayBooking] = useState(null); // { id, amount, cardUrl }
 
-  // Reset to the form phase every time the dialog opens.
+  // Reset to the form phase every time the dialog opens, and re-fill the
+  // address from the buyer's saved profile so it's always current.
   useEffect(() => {
-    if (open) { setPhase("form"); setPayBooking(null); setError(""); setHours(listing?.estimated_hours || 2); }
+    if (open) {
+      setPhase("form"); setPayBooking(null); setError("");
+      setHours(listing?.estimated_hours || 2);
+      setAddress(buyerProfile?.address || "");
+      setOverrideAddress(false);
+    }
   }, [open]);
 
   const total = listing.price_model === "HOURLY" ? Number(listing.price) * Number(hours || 1) : Number(listing.price);
