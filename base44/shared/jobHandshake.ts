@@ -1,5 +1,6 @@
 import { releaseBookingPayment } from './releaseBooking.ts';
 import { notifyAdmins } from './notifyAdmins.ts';
+import { sendBookingEmail } from './bookingEmails.ts';
 
 // Photo-proof job completion flow (mutual handshake):
 //   1. Both sides press Start (teen + buyer) → in_progress (unchanged)
@@ -27,7 +28,7 @@ export function bothStarted(b) {
 // Teen confirms Start. If the buyer has already paid (buyer_started_at set),
 // the job goes in_progress immediately. No money moves here — the buyer's
 // start payment is handled separately (checkout + webhook).
-export async function recordStart(base44, booking) {
+export async function recordStart(base44, booking, origin) {
   const svc = base44.asServiceRole.entities;
   if (booking.teen_started_at) return { alreadyDone: true, started: bothStarted(booking) };
 
@@ -57,6 +58,7 @@ export async function recordStart(base44, booking) {
         link: `/bookings/${booking.id}`,
       });
     }
+    await sendBookingEmail(base44, { booking, event: 'started', origin, excludeUserId: booking.teen_user_id });
   } else {
     await svc.Notification.create({
       user_id: booking.buyer_user_id,
@@ -74,6 +76,7 @@ export async function recordStart(base44, booking) {
         link: `/bookings/${booking.id}`,
       });
     }
+    await sendBookingEmail(base44, { booking, event: 'teen_ready', origin, excludeUserId: booking.teen_user_id });
   }
 
   return { started: nowStarted };
@@ -117,6 +120,7 @@ export async function recordBuyerStartAfterPayment(base44, booking, paymentInten
         link: `/bookings/${booking.id}`,
       });
     }
+    await sendBookingEmail(base44, { booking, event: 'started', origin: opts.origin, excludeUserId: booking.buyer_user_id });
   } else {
     await svc.Notification.create({
       user_id: booking.teen_user_id,
@@ -125,6 +129,7 @@ export async function recordBuyerStartAfterPayment(base44, booking, paymentInten
       body: `Press "Start job" on "${booking.listing_title}" to begin.`,
       link: `/bookings/${booking.id}`,
     });
+    await sendBookingEmail(base44, { booking, event: 'buyer_ready', origin: opts.origin, excludeUserId: booking.buyer_user_id });
   }
 
   return { started: nowStarted };
@@ -167,6 +172,7 @@ export async function recordTeenFinish(base44, booking, photos, opts = {}) {
       link: `/bookings/${booking.id}`,
     });
   }
+  await sendBookingEmail(base44, { booking, event: 'finished', origin: opts.origin, excludeUserId: booking.teen_user_id });
 
   return { finished: true, released: false };
 }
@@ -176,7 +182,7 @@ export async function recordTeenFinish(base44, booking, photos, opts = {}) {
 // releaseIfBothFinished, the single function that checks both timestamps exist.
 // The tip amount passed here must already have been charged through Stripe
 // (or be zero).
-export async function recordBuyerConfirm(base44, booking, tip = 0, tipPaymentIntentId = '') {
+export async function recordBuyerConfirm(base44, booking, tip = 0, tipPaymentIntentId = '', origin) {
   const svc = base44.asServiceRole.entities;
   if (booking.buyer_finished_at) return { alreadyDone: true, released: false };
   // Defense-in-depth: the teen must have finished before the buyer can confirm.
@@ -191,6 +197,8 @@ export async function recordBuyerConfirm(base44, booking, tip = 0, tipPaymentInt
   if (tip > 0) patch.tip_amount = tip;
   if (tipPaymentIntentId) patch.tip_stripe_payment_intent_id = tipPaymentIntentId;
   await svc.Booking.update(booking.id, patch);
+
+  await sendBookingEmail(base44, { booking, event: 'completed', origin, excludeUserId: booking.buyer_user_id });
 
   // Release payment through the single function that checks BOTH timestamps.
   return await releaseIfBothFinished(base44, booking.id);
@@ -230,7 +238,7 @@ export async function releaseIfBothFinished(base44, bookingId) {
 }
 
 // Buyer reports the teen did not do the job. Holds escrow pending admin review.
-export async function recordBuyerDispute(base44, booking, reason) {
+export async function recordBuyerDispute(base44, booking, reason, origin) {
   const svc = base44.asServiceRole.entities;
   if (booking.buyer_disputed_at) return { alreadyDone: true };
 
@@ -257,6 +265,7 @@ export async function recordBuyerDispute(base44, booking, reason) {
     body: `"${booking.listing_title}" — the neighbor reported the teen didn't do the job. Payment is held pending your review.`,
     link: '/admin',
   });
+  await sendBookingEmail(base44, { booking, event: 'disputed', origin, excludeUserId: booking.buyer_user_id });
 
   return { disputed: true };
 }

@@ -2,6 +2,8 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 import { refundHeldPayment } from '../../shared/stripeRefund.ts';
 import { writeAuditLog } from '../../shared/auditLog.ts';
 import { getClientIp } from '../../shared/rateLimiter.ts';
+import { getSafeOrigin } from '../../shared/safeOrigin.ts';
+import { sendBookingEmail } from '../../shared/bookingEmails.ts';
 
 Deno.serve(async (req) => {
   try {
@@ -67,6 +69,8 @@ Deno.serve(async (req) => {
         link: `/bookings/${booking.id}`,
         read: false,
       });
+      const origin = getSafeOrigin(req);
+      await sendBookingEmail(base44, { booking, event: 'approved', origin, excludeUserId: user.id });
     } else {
       // Refund the escrowed Stripe payment before marking the booking denied
       const refunded = await refundHeldPayment(base44, booking);
@@ -109,6 +113,8 @@ Deno.serve(async (req) => {
         link: `/bookings/${booking.id}`,
         read: false,
       });
+      const origin = getSafeOrigin(req);
+      await sendBookingEmail(base44, { booking, event: 'denied', origin, excludeUserId: user.id });
     }
 
     return Response.json({ success: true });

@@ -9,6 +9,7 @@ import { getSafeOrigin, safeOriginFromString } from '../../shared/safeOrigin.ts'
 import { nextOccurrenceDate } from '../../shared/recurringDates.ts';
 import { getStripeContext } from '../../shared/stripeEnv.ts';
 import { MAX_UNIT_PRICE, MAX_ESTIMATED_HOURS } from '../../shared/pricing.ts';
+import { sendBookingEmail } from '../../shared/bookingEmails.ts';
 
 Deno.serve(async (req) => {
   try {
@@ -327,6 +328,7 @@ Deno.serve(async (req) => {
         link: `/bookings/${booking.id}`,
         read: false,
       });
+      await sendBookingEmail(base44, { booking, event: 'created', origin, excludeUserId: user.id });
       return Response.json({ bookingId: booking.id, url: session.url });
     }
 
@@ -354,6 +356,8 @@ Deno.serve(async (req) => {
         link: `/bookings/${booking.id}`,
         read: false,
       });
+      const origin = clientOrigin ? safeOriginFromString(clientOrigin) : getSafeOrigin(req);
+      await sendBookingEmail(base44, { booking, event: 'created', origin, excludeUserId: user.id });
     }
 
     return Response.json({ bookingId: booking.id, paid: cents > 0 && cents < 50 });
