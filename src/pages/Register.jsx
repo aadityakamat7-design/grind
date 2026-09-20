@@ -39,6 +39,15 @@ export default function Register() {
       setError("Passwords do not match");
       return;
     }
+    if (password.length < 10) {
+      setError("Password must be at least 10 characters long.");
+      return;
+    }
+    const common = ["password", "12345678", "123456789", "qwerty123", "abc123456", "password123", "iloveyou", "admin123", "welcome1", "letmein1"];
+    if (common.includes(password.toLowerCase())) {
+      setError("That password is too common. Please choose a stronger one.");
+      return;
+    }
     setLoading(true);
     try {
       await base44.auth.register({ email, password });
@@ -308,10 +317,11 @@ export default function Register() {
               id="password"
               type="password"
               autoComplete="new-password"
-              placeholder="••••••••"
+              placeholder="At least 10 characters"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="pl-10 h-12"
+              minLength={10}
               required
             />
           </div>

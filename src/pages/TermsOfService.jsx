@@ -228,7 +228,18 @@ export default function TermsOfService() {
             We may update these terms from time to time. We will notify users of material changes through the app or by email. Continued use after changes take effect means you accept the updated terms. Changes that materially alter the scope of parental consent will require re-acknowledgment before the affected teen can continue accepting jobs.
           </p>
 
-          <h2>20. Contact</h2>
+          <h2>20. Copyright (DMCA)</h2>
+          <p>
+            <strong>DMCA designated agent.</strong> We respect the intellectual property rights of others and expect users to do the same. If you believe that content on Blockwork infringes your copyright, you may submit a takedown notice under the Digital Millennium Copyright Act (DMCA), 17 U.S.C. § 512. Our DMCA designated agent is:
+          </p>
+          <p className="bg-muted rounded-lg p-3 border border-border text-foreground">
+            <strong>[PENDING — DMCA agent registration with the U.S. Copyright Office is in progress.]</strong> Once registered, the designated agent's name, address, phone number, and email will be listed here. Until then, copyright takedown requests can be sent to <a href="mailto:support@blockwork.online" className="text-foreground font-medium hover:underline">support@blockwork.online</a> with the subject line "DMCA Takedown Request." Include the copyrighted work claimed to have been infringed, the infringing material's location on Blockwork, your contact information, and a good-faith statement that the use is unauthorized.
+          </p>
+          <p className="text-[12px] text-muted-foreground">
+            Note: Designating a DMCA agent with the U.S. Copyright Office is required for online service providers to qualify for safe-harbor protection under 17 U.S.C. § 512(c). This registration is an external legal step that must be completed outside the platform.
+          </p>
+
+          <h2>21. Contact</h2>
           <p>
             Questions about these terms? Contact us through the in-app support or at <a href="mailto:support@blockwork.online" className="text-foreground font-medium hover:underline">support@blockwork.online</a>.
           </p>

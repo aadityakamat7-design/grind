@@ -23,6 +23,15 @@ export default function ResetPassword() {
       setError("Passwords do not match");
       return;
     }
+    if (newPassword.length < 10) {
+      setError("Password must be at least 10 characters long.");
+      return;
+    }
+    const common = ["password", "12345678", "123456789", "qwerty123", "abc123456", "password123", "iloveyou", "admin123", "welcome1", "letmein1"];
+    if (common.includes(newPassword.toLowerCase())) {
+      setError("That password is too common. Please choose a stronger one.");
+      return;
+    }
     setLoading(true);
     try {
       await base44.auth.resetPassword({ resetToken, newPassword });
@@ -74,10 +83,11 @@ export default function ResetPassword() {
               type="password"
               autoComplete="new-password"
               autoFocus
-              placeholder="••••••••"
+              placeholder="At least 10 characters"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               className="pl-10 h-12"
+              minLength={10}
               required
             />
           </div>

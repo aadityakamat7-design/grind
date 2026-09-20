@@ -9,6 +9,8 @@
 //   - origin: the app origin for building the booking link (e.g. https://app.base44.app)
 //   - excludeUserId: optional — skip the user who triggered the action (they already know)
 
+import { emailFooter } from './emailFooter.ts';
+
 const EVENTS = {
   created: {
     teen: (b, link) => ({
@@ -195,7 +197,7 @@ export async function sendBookingEmail(base44, opts) {
       await base44.asServiceRole.integrations.Core.SendEmail({
         to: user.email,
         subject,
-        body: `${body}\n\n— The Blockwork team`,
+        body: `${body}${emailFooter(origin)}`,
       });
     } catch (err) {
       console.error(`sendBookingEmail (${event} → ${role}) error:`, err.message);

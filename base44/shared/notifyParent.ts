@@ -1,7 +1,9 @@
+import { emailFooter } from './emailFooter.ts';
+
 // Sends an email notification to a parent when a payout is transferred to
 // their connected bank account.
 export async function notifyParentPayoutSent(base44, opts) {
-  const { parentUserId, amount, jobTitle, bankLast4 } = opts;
+  const { parentUserId, amount, jobTitle, bankLast4, origin } = opts;
   try {
     const parents = await base44.asServiceRole.entities.User.filter({ id: parentUserId });
     const parent = parents[0];
@@ -13,8 +15,7 @@ export async function notifyParentPayoutSent(base44, opts) {
       body: `Hi ${parent.full_name || ''},\n\n` +
         `${money(amount)} from "${jobTitle}" was transferred to your bank account${bankLast4 ? ` ending in ${bankLast4}` : ''}. ` +
         `It typically arrives in 1–2 business days.\n\n` +
-        `View your payout history: ${opts.origin || ''}/parent/payouts\n\n` +
-        `— The Blockwork team`,
+        `View your payout history: ${origin || ''}/parent/payouts${emailFooter(origin)}`,
     });
   } catch (err) {
     console.error('notifyParentPayoutSent error:', err.message);
@@ -48,12 +49,10 @@ export async function notifyParentJobAccepted(base44, opts) {
         `1. Verify your identity (government ID — takes about a minute)\n` +
         `2. Connect your bank account for payouts (directly with Stripe)\n\n` +
         `The booking is safely waiting — it won't be approved or cancelled until you're ready.\n\n` +
-        `Complete setup here: ${deepLink}\n\n` +
-        `— The Blockwork team`
+        `Complete setup here: ${deepLink}${emailFooter(origin)}`
       : `Hi ${parent.full_name || ''},\n\n${teenName} accepted "${jobTitle}" from ${buyerName}. ` +
         `The booking is waiting for your approval.\n\n` +
-        `Review and approve it here: ${deepLink}\n\n` +
-        `— The Blockwork team`;
+        `Review and approve it here: ${deepLink}${emailFooter(origin)}`;
 
     await base44.asServiceRole.integrations.Core.SendEmail({
       to: parent.email,
@@ -71,6 +70,7 @@ export async function notifyParentJobAccepted(base44, opts) {
 // even if they don't have the app open.
 export async function notifyParentApprovalNeeded(base44, opts) {
   const { teenName, jobTitle, buyerName, parentUserId, origin } = opts;
+  // origin is used in emailFooter below
   try {
     const parents = await base44.asServiceRole.entities.User.filter({ id: parentUserId });
     const parent = parents[0];
@@ -83,8 +83,7 @@ export async function notifyParentApprovalNeeded(base44, opts) {
         `Hi ${parent.full_name || ''},\n\n` +
         `${buyerName} booked "${jobTitle}" with ${teenName}. ` +
         `The booking is waiting for your approval before it's confirmed.\n\n` +
-        `Review and approve it here: ${deepLink}\n\n` +
-        `— The Blockwork team`,
+        `Review and approve it here: ${deepLink}${emailFooter(origin)}`,
     });
   } catch (err) {
     console.error('notifyParentApprovalNeeded error:', err.message);
