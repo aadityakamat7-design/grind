@@ -1,0 +1,52 @@
+{
+  "name": "AuthAttempt",
+  "type": "object",
+  "properties": {
+    "ip": {
+      "type": "string",
+      "description": "Client IP address of the auth attempt"
+    },
+    "action": {
+      "type": "string",
+      "enum": [
+        "login",
+        "register",
+        "reset-request",
+        "resend-otp",
+        "reset-password"
+      ],
+      "description": "Auth action being rate-limited"
+    },
+    "success": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the auth attempt succeeded (for analytics/cleanup)"
+    }
+  },
+  "required": [
+    "ip",
+    "action"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
