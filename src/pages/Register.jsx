@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
+import { secureAuth } from "@/lib/secureAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -50,11 +51,13 @@ export default function Register() {
     }
     setLoading(true);
     try {
-      await base44.auth.register({ email, password });
+      await secureAuth("register", { email, password });
       setShowOtp(true);
     } catch (err) {
-      const msg = err?.data?.detail || err?.response?.data?.detail || err?.message || "";
-      if (/exist|already|taken|registered/i.test(msg)) {
+      const msg = err?.message || "";
+      if (/too many attempts/i.test(msg)) {
+        setError(msg);
+      } else if (/exist|already|taken|registered/i.test(msg)) {
         setError("An account with this email already exists — try logging in instead.");
       } else {
         setError(msg || "Registration failed");
@@ -90,7 +93,7 @@ export default function Register() {
   const handleResend = async () => {
     setError("");
     try {
-      await base44.auth.resendOtp(email);
+      await secureAuth("resend-otp", { email });
       toast({
         title: "Code sent",
         description: "Check your email for the new code.",

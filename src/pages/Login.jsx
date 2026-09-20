@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
+import { secureAuth } from "@/lib/secureAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,7 +28,8 @@ export default function Login() {
     setError("");
     setLoading(true);
     try {
-      await base44.auth.loginViaEmailPassword(email, password);
+      const result = await secureAuth("login", { email, password });
+      if (result?.access_token) base44.auth.setToken(result.access_token);
       if (rememberMe) {
         localStorage.setItem("grind_remembered_email", email);
       } else {
@@ -35,13 +37,14 @@ export default function Login() {
       }
       window.location.href = safeReturnTo();
     } catch (err) {
-      const msg = err?.data?.detail || err?.response?.data?.detail || err?.message || "";
-      const status = err?.status || err?.response?.status;
-      if (/verif/i.test(msg)) {
+      const msg = err?.message || "";
+      if (/too many attempts/i.test(msg)) {
+        setError(msg);
+      } else if (/verif/i.test(msg)) {
         // Account exists but the email was never verified — send a code and finish verification here.
-        try { await base44.auth.resendOtp(email); } catch { /* code entry still shown */ }
+        try { await secureAuth("resend-otp", { email }); } catch { /* code entry still shown */ }
         setNeedsVerification(true);
-      } else if (status === 400 || status === 401 || /invalid|incorrect|credential|not found/i.test(msg)) {
+      } else if (/invalid|incorrect|credential|not found/i.test(msg)) {
         setError("Incorrect email or password. If you don't have an account yet, tap \"Create one\" below.");
       } else {
         setError(

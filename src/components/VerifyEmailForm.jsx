@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
+import { secureAuth } from "@/lib/secureAuth";
 import { Button } from "@/components/ui/button";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { Loader2 } from "lucide-react";
@@ -24,7 +25,7 @@ export default function VerifyEmailForm({ email, password }) {
       }
       window.location.href = "/onboarding";
     } catch (err) {
-      setError(err.message || "Invalid verification code");
+      setError(err?.message || "Invalid verification code");
       setLoading(false);
     }
   };
@@ -33,10 +34,10 @@ export default function VerifyEmailForm({ email, password }) {
     setError("");
     setResent(false);
     try {
-      await base44.auth.resendOtp(email);
+      await secureAuth("resend-otp", { email });
       setResent(true);
     } catch (err) {
-      setError(err.message || "Failed to resend code");
+      setError(err?.message || "Failed to resend code");
     }
   };
 

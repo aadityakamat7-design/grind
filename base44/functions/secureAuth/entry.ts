@@ -1,9 +1,11 @@
 import { createClientFromRequest } from "npm:@base44/sdk@0.8.44";
+import { waitUntil } from "base44:runtime";
 import { validatePassword } from "../../shared/passwordPolicy.ts";
 
-// In-memory rate limiter for auth endpoints. Resets on deploy/restart —
-// sufficient to slow automated brute-force and email-bombing attacks.
-const WINDOW_MS = 10 * 60 * 1000; // 10-minute sliding window
+// Database-backed rate limiter — persists across worker restarts and
+// distributes correctly across edge instances. Uses the AuthAttempt entity
+// to track attempts per IP + action in a sliding 10-minute window.
+const WINDOW_MS = 10 * 60 * 1000; // 10 minutes
 const ACTION_LIMITS: Record<string, number> = {
   login: 10,            // 10 failed logins per 10 min per IP
   register: 5,          // 5 registrations per 10 min per IP
@@ -11,24 +13,6 @@ const ACTION_LIMITS: Record<string, number> = {
   "resend-otp": 3,      // 3 OTP resends per 10 min per IP (prevents email bombing)
   "reset-password": 10, // 10 reset attempts per 10 min per IP
 };
-const _limits: Map<string, { count: number; firstAttempt: number }> = new Map();
-
-function checkRateLimit(action: string, ip: string): { allowed: boolean; retryAfterMs: number } {
-  const limit = ACTION_LIMITS[action] ?? 5;
-  const key = `${action}:${ip}`;
-  const now = Date.now();
-  let entry = _limits.get(key);
-  if (!entry || now - entry.firstAttempt > WINDOW_MS) {
-    entry = { count: 0, firstAttempt: now };
-    _limits.set(key, entry);
-  }
-  console.log("rateLimit check:", { key, count: entry.count, limit, mapSize: _limits.size });
-  if (entry.count >= limit) {
-    return { allowed: false, retryAfterMs: WINDOW_MS - (now - entry.firstAttempt) };
-  }
-  entry.count++;
-  return { allowed: true, retryAfterMs: 0 };
-}
 
 function getClientIp(req: Request): string {
   const xff = req.headers.get("x-forwarded-for");
@@ -63,16 +47,34 @@ export default async function (req: Request): Promise<Response> {
     }
 
     const ip = getClientIp(req);
+    const limit = ACTION_LIMITS[action] ?? 5;
 
-    // --- Rate limit check ---
-    const rateLimit = checkRateLimit(action, ip);
-    if (!rateLimit.allowed) {
-      const retryAfterMin = Math.ceil(rateLimit.retryAfterMs / 60000);
+    // --- Database-backed rate limit check ---
+    const base44 = createClientFromRequest(req);
+    const tenMinutesAgo = new Date(Date.now() - WINDOW_MS).toISOString();
+    const recentAttempts = await base44.asServiceRole.entities.AuthAttempt.filter(
+      { ip, action, created_date: { $gte: tenMinutesAgo } },
+      "-created_date",
+      limit + 1
+    );
+
+    if (recentAttempts && recentAttempts.length >= limit) {
+      const retryAfterMin = Math.ceil(WINDOW_MS / 60000);
       return Response.json(
         { error: `Too many attempts. Please try again in ${retryAfterMin} minute${retryAfterMin > 1 ? "s" : ""}.` },
         { status: 429 }
       );
     }
+
+    // Record this attempt + clean up old records (fire-and-forget)
+    waitUntil(
+      base44.asServiceRole.entities.AuthAttempt.create({ ip, action, success: false })
+    );
+    waitUntil(
+      base44.asServiceRole.entities.AuthAttempt.deleteMany({
+        created_date: { $lt: tenMinutesAgo },
+      })
+    );
 
     // --- Password strength validation (server-side, not bypassable) ---
     if (action === "register" && password) {
@@ -88,9 +90,7 @@ export default async function (req: Request): Promise<Response> {
       }
     }
 
-    // Use the SDK client — it knows the correct API base URL.
-    const base44 = createClientFromRequest(req);
-
+    // --- Proxy to platform's auth API via SDK ---
     let result: Record<string, unknown>;
 
     switch (action) {
@@ -102,8 +102,6 @@ export default async function (req: Request): Promise<Response> {
       }
       case "login": {
         const loginResult = await base44.auth.loginViaEmailPassword(email, password, turnstileToken);
-        // Return the access_token so the frontend can call setToken on its
-        // own client (the backend function's client is short-lived).
         result = { access_token: loginResult.access_token, user: loginResult.user };
         break;
       }
