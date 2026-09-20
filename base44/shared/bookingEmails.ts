@@ -41,18 +41,51 @@ const EVENTS = {
     }),
   },
   approved: {
-    teen: (b, link) => ({
-      subject: `Booking approved! "${b.listing_title}"`,
-      body: `Your parent approved the booking for "${b.listing_title}" from ${b.buyer_name}. You can now start the job when you're ready.\n\nView the booking: ${link}`,
-    }),
-    buyer: (b, link) => ({
-      subject: `Booking confirmed: "${b.listing_title}"`,
-      body: `The parent approved your booking for "${b.listing_title}" with ${b.teen_display_name}. You can now start the job.\n\nView the booking: ${link}`,
-    }),
-    parent: (b, link) => ({
-      subject: `You approved "${b.listing_title}"`,
-      body: `You approved the booking for "${b.listing_title}". ${b.teen_display_name} and ${b.buyer_name} can now coordinate the job start.\n\nView the booking: ${link}`,
-    }),
+    teen: (b, link) => {
+      const net = Number(b.net_amount || 0);
+      const tip = Number(b.tip_amount || 0);
+      const total = (net + tip).toFixed(2);
+      return {
+        subject: `Booking approved! "${b.listing_title}" — $${total} to receive`,
+        body: `Your parent approved the booking for "${b.listing_title}" from ${b.buyer_name}.\n\n` +
+          `Your earnings breakdown:\n` +
+          `  Net earnings: $${net.toFixed(2)}\n` +
+          (tip > 0 ? `  Tip: $${tip.toFixed(2)}\n` : '') +
+          `  Total to receive: $${total}\n\n` +
+          `You can now start the job when you're ready.\n\nView the booking: ${link}`,
+      };
+    },
+    buyer: (b, link) => {
+      const price = Number(b.price_total || 0);
+      const fee = Number(b.platform_fee || 0);
+      const tip = Number(b.tip_amount || 0);
+      const total = Number(b.charge_amount || price);
+      return {
+        subject: `Booking confirmed: "${b.listing_title}" — receipt`,
+        body: `The parent approved your booking for "${b.listing_title}" with ${b.teen_display_name}.\n\n` +
+          `Receipt:\n` +
+          `  Booking ID: ${b.id}\n` +
+          `  Job price: $${price.toFixed(2)}\n` +
+          `  Platform fee: $${fee.toFixed(2)}\n` +
+          (tip > 0 ? `  Tip: $${tip.toFixed(2)}\n` : '') +
+          `  Total paid: $${total.toFixed(2)}\n\n` +
+          `You can now start the job.\n\nView the booking: ${link}`,
+      };
+    },
+    parent: (b, link) => {
+      const net = Number(b.net_amount || 0);
+      const tip = Number(b.tip_amount || 0);
+      const total = (net + tip).toFixed(2);
+      return {
+        subject: `You approved "${b.listing_title}" — $${total} for ${b.teen_display_name}`,
+        body: `You approved the booking for "${b.listing_title}". ${b.teen_display_name} and ${b.buyer_name} can now coordinate the job start.\n\n` +
+          `${b.teen_display_name}'s earnings:\n` +
+          `  Net earnings: $${net.toFixed(2)}\n` +
+          (tip > 0 ? `  Tip: $${tip.toFixed(2)}\n` : '') +
+          `  Total to receive: $${total}\n\n` +
+          `View the booking: ${link}`,
+      };
+    },
   },
   denied: {
     teen: (b, link) => ({

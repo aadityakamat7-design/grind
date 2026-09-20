@@ -21,6 +21,7 @@ import CompletionPhotoUpload from "@/components/grind/CompletionPhotoUpload";
 import DisputeDialog from "@/components/grind/DisputeDialog";
 import RecurringSeriesManager from "@/components/grind/RecurringSeriesManager";
 import BookDialog from "@/components/grind/BookDialog";
+import BookingReceiptDialog from "@/components/grind/BookingReceiptDialog";
 import CheckInTimeline from "@/components/grind/parent/CheckInTimeline";
 import VideoSessionPanel from "@/components/grind/VideoSessionPanel";
 import ErrorRetry from "@/components/grind/ErrorRetry";
@@ -46,12 +47,15 @@ export default function BookingDetail() {
   const [bookAgainOpen, setBookAgainOpen] = useState(false);
   const [bookAgainListing, setBookAgainListing] = useState(null);
   const [handshakeError, setHandshakeError] = useState("");
+  const [receiptOpen, setReceiptOpen] = useState(false);
   const autoPromptedRef = useRef(false);
+  const receiptShownRef = useRef(false);
 
   // Success banner from Stripe Checkout redirect: ?started=1 (escrow paid)
   // or ?paid=1 (tip paid → payment released). Cleared after first show.
   const startedParam = searchParams.get("started") === "1";
   const paidParam = searchParams.get("paid") === "1";
+  const confirmedParam = searchParams.get("confirmed") === "1";
   const [showReceipt, setShowReceipt] = useState(startedParam || paidParam);
 
   const load = useCallback(async () => {
@@ -106,6 +110,16 @@ export default function BookingDetail() {
       return () => clearTimeout(t);
     }
   }, [startedParam, paidParam, setSearchParams]);
+
+  // Auto-open the receipt dialog when the user arrives via ?confirmed=1
+  // (parent just approved) — only once per page load.
+  useEffect(() => {
+    if (confirmedParam && booking?.status === "confirmed" && !receiptShownRef.current) {
+      receiptShownRef.current = true;
+      setReceiptOpen(true);
+      setSearchParams({}, { replace: true });
+    }
+  }, [confirmedParam, booking, setSearchParams]);
 
   // Auto-prompt both sides to leave a review the moment a job is completed
   // and paid out — they can close it and revisit via the button below.
@@ -424,6 +438,11 @@ export default function BookingDetail() {
             Leave a review
           </Button>
         )}
+        {["confirmed", "in_progress", "completed"].includes(booking.status) && (
+          <Button variant="outline" className="w-full rounded-xl" onClick={() => setReceiptOpen(true)}>
+            <Receipt className="w-4 h-4 mr-2" /> View receipt
+          </Button>
+        )}
         {isParent && ["confirmed", "in_progress"].includes(booking.status) && !booking.dispute_flagged_at && (
           <Button
             variant="outline"
@@ -517,6 +536,12 @@ export default function BookingDetail() {
           buyerProfile={{ address: booking.address }}
         />
       )}
+      <BookingReceiptDialog
+        open={receiptOpen}
+        onOpenChange={setReceiptOpen}
+        booking={booking}
+        user={user}
+      />
     </div>
   );
 }

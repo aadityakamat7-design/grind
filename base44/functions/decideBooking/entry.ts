@@ -66,11 +66,13 @@ Deno.serve(async (req) => {
         type: 'booking',
         title: 'Booking confirmed ✅',
         body: `The parent approved "${booking.listing_title}". You can now start the job.`,
-        link: `/bookings/${booking.id}`,
+        link: `/bookings/${booking.id}?confirmed=1`,
         read: false,
       });
       const origin = getSafeOrigin(req);
-      await sendBookingEmail(base44, { booking, event: 'approved', origin, excludeUserId: user.id });
+      // Don't exclude the parent — they should receive a confirmation email
+      // with the teen's net earnings, per the booking confirmation flow.
+      await sendBookingEmail(base44, { booking, event: 'approved', origin });
     } else {
       // Refund the escrowed Stripe payment before marking the booking denied
       const refunded = await refundHeldPayment(base44, booking);
