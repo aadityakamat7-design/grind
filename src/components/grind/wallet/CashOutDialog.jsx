@@ -121,6 +121,7 @@ export default function CashOutDialog({ open, onOpenChange, wallet, onDone }) {
             <div>
               <Label>Amount (available: {money(wallet.balance || 0)})</Label>
               <Input type="number" min="1" max={wallet.balance} className="rounded-xl mt-1" value={amount} onChange={(e) => setAmount(e.target.value)} />
+              <p className="text-xs text-muted-foreground mt-1.5">Minimum cash-out is $1.00.</p>
             </div>
             <div className="flex items-start gap-2 bg-blue-50 rounded-xl p-3 text-xs text-blue-700">
               <ShieldCheck className="w-4 h-4 mt-0.5 shrink-0" />
@@ -130,7 +131,7 @@ export default function CashOutDialog({ open, onOpenChange, wallet, onDone }) {
               <Clock className="w-4 h-4 mt-0.5 shrink-0" />
               Please allow 24-48 hours for processing after you request a cash-out.
             </div>
-            <Button className="w-full rounded-xl" disabled={amt <= 0 || saving} onClick={cashOut}>
+            <Button className="w-full rounded-xl" disabled={amt < 1 || amt > (wallet.balance || 0) || saving} onClick={cashOut}>
               {saving ? "Submitting..." : `Cash out ${money(amt)}`}
             </Button>
           </div>

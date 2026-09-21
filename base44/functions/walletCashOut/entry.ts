@@ -18,13 +18,30 @@ Deno.serve(async (req) => {
     }
     recordSuccess(ip, user.id);
     const amt = Math.round((Number(amount) || 0) * 100) / 100;
+    const MIN_CASHOUT = 1;
     if (amt <= 0) return Response.json({ error: 'Invalid amount' }, { status: 400 });
+    if (amt < MIN_CASHOUT) {
+      return Response.json({ error: `The minimum cash-out is $${MIN_CASHOUT.toFixed(2)}.` }, { status: 400 });
+    }
 
-    // Only the teen's own wallet, validated server-side
-    const wallets = await base44.asServiceRole.entities.WalletAccount.filter({ teen_user_id: user.id });
-    const wallet = wallets[0];
-    if (!wallet || (wallet.balance || 0) < amt) {
-      return Response.json({ error: 'Insufficient balance' }, { status: 400 });
+    // Idempotency: only one in-flight cash-out per teen. A prior request stays
+    // "processing" for the 24-48 hour bank settlement window; a second request in
+    // that window is rejected so the same funds can't be requested twice. After the
+    // window passes a stale processing record is auto-cleared so the teen isn't
+    // permanently blocked.
+    const PROCESSING_WINDOW_MS = 48 * 60 * 60 * 1000;
+    const pendingCashouts = await base44.asServiceRole.entities.WalletTransaction.filter(
+      { teen_user_id: user.id, type: 'cashout', status: 'processing' },
+      '-occurred_at', 1
+    );
+    if (pendingCashouts.length > 0) {
+      const ageMs = Date.now() - new Date(pendingCashouts[0].occurred_at).getTime();
+      if (ageMs < PROCESSING_WINDOW_MS) {
+        return Response.json({
+          error: 'You already have a cash-out processing. Please wait for it to clear (24-48 hours) before requesting another.',
+        }, { status: 409 });
+      }
+      await base44.asServiceRole.entities.WalletTransaction.update(pendingCashouts[0].id, { status: 'completed' });
     }
 
     // Check if the parent has locked withdrawals for this teen
@@ -58,10 +75,12 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Record the cash-out as "processing" — funds settle in 24-48 hours.
-    // The wallet balance is deducted immediately so the teen can't double-spend;
-    // the actual transfer to the parent's bank happens via the normal payout flow.
-    await base44.asServiceRole.entities.WalletTransaction.create({
+    // Record the cash-out as "processing" first, then debit the wallet atomically.
+    // The atomic conditional decrement is the single source of truth for balance
+    // enforcement: the DB only applies the $inc where balance >= amt, so two racing
+    // requests can't both succeed against the same funds — no over-withdrawal, no
+    // negative balance. If the debit doesn't match, roll back the ledger entry.
+    const cashoutTxn = await base44.asServiceRole.entities.WalletTransaction.create({
       teen_user_id: user.id,
       type: 'cashout',
       status: 'processing',
@@ -69,9 +88,16 @@ Deno.serve(async (req) => {
       description: 'Cash-out — processing (24-48 hours)',
       occurred_at: new Date().toISOString(),
     });
-    await base44.asServiceRole.entities.WalletAccount.update(wallet.id, {
-      balance: Math.round(((wallet.balance || 0) - amt) * 100) / 100,
-    });
+    const debit = await base44.asServiceRole.entities.WalletAccount.updateMany(
+      { teen_user_id: user.id, balance: { $gte: amt } },
+      { $inc: { balance: -amt } }
+    );
+    if (!debit.updated) {
+      await base44.asServiceRole.entities.WalletTransaction.delete(cashoutTxn.id);
+      return Response.json({ error: 'Insufficient balance' }, { status: 400 });
+    }
+    const wallets = await base44.asServiceRole.entities.WalletAccount.filter({ teen_user_id: user.id });
+    const wallet = wallets[0];
 
     if (link?.parent_user_id) {
       await base44.asServiceRole.entities.Notification.create({
