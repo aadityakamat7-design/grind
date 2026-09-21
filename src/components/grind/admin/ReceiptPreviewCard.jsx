@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from "react";
-import { Receipt, Eye } from "lucide-react";
+import React, { useState } from "react";
+import { CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import BookingReceiptDialog from "@/components/grind/BookingReceiptDialog";
 
-// Demo booking data that shows what the receipt looks like after a
-// real payment. Two views: buyer (what they paid) and teen (what they earned).
+// Demo booking that simulates a completed payment.
 const SAMPLE_BOOKING = {
   id: "bk_8f3a2c1d9e7b4a60",
   listing_title: "Lawn mowing — front + back yard",
@@ -23,47 +22,27 @@ const SAMPLE_BOOKING = {
 };
 
 const SAMPLE_USER_BUYER = { id: "demo-buyer" };
-const SAMPLE_USER_TEEN = { id: SAMPLE_BOOKING.teen_user_id };
 
-export default function ReceiptPreviewCard({ adminEmail }) {
-  const [view, setView] = useState(null); // null | "buyer" | "teen"
-
-  // Auto-play the buyer receipt animation when the card mounts
-  useEffect(() => {
-    const t = setTimeout(() => setView("buyer"), 400);
-    return () => clearTimeout(t);
-  }, []);
+export default function ReceiptPreviewCard() {
+  const [open, setOpen] = useState(false);
 
   return (
-    <div className="bg-card rounded-2xl border border-border shadow-soft p-5">
-      <div className="flex items-center gap-2.5 mb-1">
-        <Receipt className="w-5 h-5 text-primary" />
+    <div className="bg-card rounded-2xl border border-border shadow-soft p-5 flex items-center justify-between gap-4">
+      <div>
         <h3 className="text-[15px] font-bold text-foreground">Receipt preview</h3>
+        <p className="text-[13px] text-muted-foreground mt-0.5">
+          Simulate a buyer payment to see the confirmation receipt animation.
+        </p>
       </div>
-      <p className="text-[13px] text-muted-foreground mb-4">
-        See what the booking confirmation receipt looks like after a neighbor pays.
-        The buyer sees what they paid; the teen sees their net earnings.
-      </p>
-      <div className="flex flex-wrap gap-3">
-        <Button variant="outline" className="rounded-full" onClick={() => setView("buyer")}>
-          <Eye className="w-4 h-4" /> Buyer view
-        </Button>
-        <Button variant="outline" className="rounded-full" onClick={() => setView("teen")}>
-          <Eye className="w-4 h-4" /> Teen view
-        </Button>
-      </div>
+      <Button onClick={() => setOpen(true)} className="shrink-0">
+        <CreditCard className="w-4 h-4" /> Fake buy
+      </Button>
 
       <BookingReceiptDialog
-        open={view === "buyer"}
-        onOpenChange={(o) => !o && setView(null)}
+        open={open}
+        onOpenChange={setOpen}
         booking={SAMPLE_BOOKING}
         user={SAMPLE_USER_BUYER}
-      />
-      <BookingReceiptDialog
-        open={view === "teen"}
-        onOpenChange={(o) => !o && setView(null)}
-        booking={SAMPLE_BOOKING}
-        user={SAMPLE_USER_TEEN}
       />
     </div>
   );

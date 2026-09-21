@@ -83,13 +83,9 @@ export default function Admin() {
     );
   }
 
-  // Receipt preview plays immediately — no waiting for data load.
-  const receiptPreview = <ReceiptPreviewCard adminEmail={user?.email} />;
-
   if (loading)
     return (
       <div className="space-y-6">
-        {receiptPreview}
         <div className="h-8 w-56 rounded-lg bg-muted skeleton-shimmer" />
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {Array.from({ length: 8 }).map((_, i) => <div key={i} className="bg-card rounded-2xl border border-border p-4 h-24 skeleton-shimmer" />)}
@@ -168,7 +164,7 @@ export default function Admin() {
     <div className="space-y-6">
       <PageHeader title="Admin console" subtitle="Marketplace health, moderation, and verifications." />
 
-      <ReceiptPreviewCard adminEmail={user?.email} />
+      <ReceiptPreviewCard />
 
       <StripeTestModeCard />
 
