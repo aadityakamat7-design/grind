@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Receipt, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import BookingReceiptDialog from "@/components/grind/BookingReceiptDialog";
@@ -27,6 +27,12 @@ const SAMPLE_USER_TEEN = { id: SAMPLE_BOOKING.teen_user_id };
 
 export default function ReceiptPreviewCard({ adminEmail }) {
   const [view, setView] = useState(null); // null | "buyer" | "teen"
+
+  // Auto-play the buyer receipt animation when the card mounts
+  useEffect(() => {
+    const t = setTimeout(() => setView("buyer"), 400);
+    return () => clearTimeout(t);
+  }, []);
 
   return (
     <div className="bg-card rounded-2xl border border-border shadow-soft p-5">
