@@ -153,7 +153,9 @@ export default function ParentDashboard() {
   const shownBookings = bookings.filter((b) => shownIds.includes(b.teen_user_id));
   const shownRecords = records.filter((r) => shownIds.includes(r.teen_user_id));
 
-  const pendingApprovals = bookings.filter((b) => b.status === "pending_parent_approval");
+  // Only paid bookings need the parent's approval — the parent can't approve an
+  // unpaid booking anyway (decideBooking enforces payment_status === 'held').
+  const pendingApprovals = bookings.filter((b) => b.status === "pending_parent_approval" && b.payment_status === "held");
   const activeJobs = shownBookings.filter((b) => b.status === "in_progress");
   const upcoming = shownBookings
     .filter((b) => b.status === "confirmed")

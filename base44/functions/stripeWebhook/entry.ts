@@ -78,7 +78,10 @@ Deno.serve(async (req) => {
           read: false,
         });
       }
-      await sendBookingEmail(base44, { booking, event: 'payment_confirmed', origin: getSafeOrigin(req), excludeUserId: booking.buyer_user_id });
+      // Selection email — fires to all three parties (buyer, teen, parent) the
+      // moment payment is confirmed held. This is the "booking submitted +
+      // payment held" notice; the final receipt fires later at parent approval.
+      await sendBookingEmail(base44, { booking, event: 'payment_confirmed', origin: getSafeOrigin(req) });
     };
 
     if (event.type === 'checkout.session.completed') {

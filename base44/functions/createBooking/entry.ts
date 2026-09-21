@@ -328,7 +328,9 @@ Deno.serve(async (req) => {
         link: `/bookings/${booking.id}`,
         read: false,
       });
-      await sendBookingEmail(base44, { booking, event: 'created', origin, excludeUserId: user.id });
+      // No email here — the booking isn't real until payment clears. The
+      // webhook fires the `payment_confirmed` selection email to all three
+      // parties once the escrow charge is confirmed held.
       return Response.json({ bookingId: booking.id, url: session.url });
     }
 
@@ -357,7 +359,9 @@ Deno.serve(async (req) => {
         read: false,
       });
       const origin = clientOrigin ? safeOriginFromString(clientOrigin) : getSafeOrigin(req);
-      await sendBookingEmail(base44, { booking, event: 'created', origin, excludeUserId: user.id });
+      // Sub-minimum charge: payment is immediately held, so fire the selection
+      // email to all three parties now (same event the webhook uses).
+      await sendBookingEmail(base44, { booking, event: 'payment_confirmed', origin });
     }
 
     return Response.json({ bookingId: booking.id, paid: cents > 0 && cents < 50 });

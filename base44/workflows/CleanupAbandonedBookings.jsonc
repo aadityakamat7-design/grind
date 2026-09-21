@@ -1,0 +1,45 @@
+{
+  "name": "Cleanup Abandoned Bookings",
+  "description": "Cancels booking records the buyer never finished paying for (pending_parent_approval + unpaid) after 30 minutes, so abandoned Stripe Checkout attempts don't sit as orphaned pending bookings.",
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "recurring",
+      "cron_expression": "*/10 * * * *",
+      "one_time_date": null,
+      "timezone": "America/Los_Angeles",
+      "interval_value": null,
+      "interval_unit": null,
+      "interval_anchor": null,
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "cleanup_abandoned_bookings",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "cleanup": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "cleanupAbandonedBookings",
+            "args": {}
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Cancel unpaid bookings",
+            "description": "Cancel pending+unpaid bookings older than 30 minutes"
+          }
+        }
+      }
+    ]
+  }
+}

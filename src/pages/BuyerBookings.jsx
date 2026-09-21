@@ -42,7 +42,11 @@ export default function BuyerBookings() {
     );
   if (error) return <ErrorRetry onRetry={load} />;
 
-  const active = bookings.filter((b) => !["completed", "cancelled", "denied"].includes(b.status));
+  // A booking isn't real/active until its escrow payment is confirmed held.
+  // Unpaid pending bookings (buyer abandoned Stripe Checkout) are hidden from
+  // the Active list — the 30-min cleanup workflow cancels them automatically.
+  const isActive = (b) => !["completed", "cancelled", "denied"].includes(b.status) && b.payment_status !== "unpaid";
+  const active = bookings.filter(isActive);
   const past = bookings.filter((b) => ["completed", "cancelled", "denied"].includes(b.status));
 
   return (
