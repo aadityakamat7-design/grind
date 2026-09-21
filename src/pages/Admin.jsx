@@ -164,7 +164,7 @@ export default function Admin() {
     <div className="space-y-6">
       <PageHeader title="Admin console" subtitle="Marketplace health, moderation, and verifications." />
 
-      {user?.email === "aaditya.kamat7@gmail.com" && <ReceiptPreviewCard adminEmail={user.email} />}
+      <ReceiptPreviewCard adminEmail={user?.email} />
 
       <StripeTestModeCard />
 
