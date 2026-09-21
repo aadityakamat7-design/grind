@@ -16,6 +16,7 @@ import SafetyEscrowCenter from "@/components/grind/admin/SafetyEscrowCenter";
 import StripeTestModeCard from "@/components/grind/admin/StripeTestModeCard";
 import IdentityVerificationToggle from "@/components/grind/admin/IdentityVerificationToggle";
 import StateComplianceTable from "@/components/grind/admin/StateComplianceTable";
+import ReceiptPreviewCard from "@/components/grind/admin/ReceiptPreviewCard";
 import { money } from "@/lib/grind";
 
 export default function Admin() {
@@ -162,6 +163,8 @@ export default function Admin() {
   return (
     <div className="space-y-6">
       <PageHeader title="Admin console" subtitle="Marketplace health, moderation, and verifications." />
+
+      {user?.email === "aaditya.kamat7@gmail.com" && <ReceiptPreviewCard adminEmail={user.email} />}
 
       <StripeTestModeCard />
 
