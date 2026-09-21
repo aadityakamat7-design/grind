@@ -24,7 +24,7 @@ Deno.serve(async (req) => {
     const booking = await base44.asServiceRole.entities.Booking.get(bookingId);
     if (!booking) return Response.json({ error: 'Booking not found' }, { status: 404 });
     if (booking.buyer_user_id !== user.id) return Response.json({ error: 'Forbidden' }, { status: 403 });
-    if (booking.payment_status !== 'unpaid') return Response.json({ error: 'Booking already paid' }, { status: 400 });
+    if (booking.payment_status !== 'unpaid' && booking.payment_status !== 'payment_failed') return Response.json({ error: 'Booking already paid' }, { status: 400 });
 
     const chargeAmount = booking.charge_amount ?? booking.price_total;
     const cents = Math.round(Number(chargeAmount) * 100);

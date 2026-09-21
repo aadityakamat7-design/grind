@@ -13,6 +13,7 @@ import SafetyAdvisorChat from "@/components/grind/SafetyAdvisorChat";
 import SlideToConfirm from "@/components/grind/SlideToConfirm";
 import DateTimePicker from "@/components/grind/DateTimePicker";
 import ExpressCheckout from "@/components/grind/ExpressCheckout";
+import PaymentConfirming from "@/components/grind/PaymentConfirming";
 
 export default function BookDialog({ open, onOpenChange, listing, buyer, buyerProfile }) {
   const navigate = useNavigate();
@@ -75,8 +76,12 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
     }
   };
 
+  // Apple Pay / Google Pay resolved client-side — but that is NOT confirmation.
+  // Wait for the verified Stripe webhook to write payment_status 'held' before
+  // showing the success screen. This is the gate that prevents the booking from
+  // being "treated as active before payment is actually confirmed".
   const handlePaid = () => {
-    setPhase("done");
+    setPhase("confirming");
   };
 
   return (
@@ -208,6 +213,14 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
               onSuccess={handlePaid}
             />
           </div>
+        )}
+        {phase === "confirming" && payBooking && (
+          <PaymentConfirming
+            bookingId={payBooking.id}
+            onConfirmed={() => setPhase("done")}
+            onTimeout={() => setPhase("done")}
+            onFailed={() => { setError("Payment couldn't be confirmed. Please try again."); setPhase("pay"); }}
+          />
         )}
         {phase === "done" && (
           <div className="space-y-5 py-2">

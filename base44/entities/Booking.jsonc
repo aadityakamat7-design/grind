@@ -323,7 +323,8 @@
         "held",
         "releasing",
         "released",
-        "refunded"
+        "refunded",
+        "payment_failed"
       ],
       "default": "unpaid",
       "rls": {

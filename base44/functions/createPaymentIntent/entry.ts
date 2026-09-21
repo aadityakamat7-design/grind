@@ -47,7 +47,10 @@ Deno.serve(async (req) => {
       // pending_parent_approval). Without it = start payment at job start
       // (booking must be confirmed).
       if (bookingEscrow) {
-        if (booking.payment_status !== 'unpaid') return Response.json({ error: 'Booking already paid' }, { status: 400 });
+        // Allow retry after a declined payment — 'payment_failed' is set by the
+        // webhook when the charge is declined, and the buyer should be able to
+        // try again without re-creating the booking.
+        if (booking.payment_status !== 'unpaid' && booking.payment_status !== 'payment_failed') return Response.json({ error: 'Booking already paid' }, { status: 400 });
       } else {
         if (booking.status !== 'confirmed') return Response.json({ error: 'This job must be approved before it can start.' }, { status: 400 });
         if (booking.buyer_started_at) return Response.json({ error: 'Already started' }, { status: 400 });

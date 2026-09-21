@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useOutletContext, Link, useSearchParams } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { CalendarDays, MapPin, Lock, MessageCircle, FileText, Repeat, Clock, Video, Sun, MessageSquare, User, CheckCircle2, Receipt } from "lucide-react";
+import { CalendarDays, MapPin, Lock, MessageCircle, FileText, Repeat, Clock, Video, Sun, MessageSquare, User, CheckCircle2, Receipt, Loader2, AlertTriangle } from "lucide-react";
 import { format } from "date-fns";
 import StatusBadge from "@/components/grind/StatusBadge";
 import ReviewDialog from "@/components/grind/ReviewDialog";
@@ -13,6 +13,7 @@ import RescheduleDialog from "@/components/grind/RescheduleDialog";
 import AlertParentButton from "@/components/grind/AlertParentButton";
 import TeenLiveLocationSharing from "@/components/grind/teen/TeenLiveLocationSharing";
 import PaymentStatusTracker from "@/components/grind/PaymentStatusTracker";
+import { usePaymentConfirmation } from "@/hooks/usePaymentConfirmation";
 import EarningsBreakdown from "@/components/grind/teen/EarningsBreakdown";
 import JobHandshakePanel from "@/components/grind/JobHandshakePanel";
 import OnlineSessionPanel from "@/components/grind/OnlineSessionPanel";
@@ -56,7 +57,14 @@ export default function BookingDetail() {
   const startedParam = searchParams.get("started") === "1";
   const paidParam = searchParams.get("paid") === "1";
   const confirmedParam = searchParams.get("confirmed") === "1";
-  const [showReceipt, setShowReceipt] = useState(startedParam || paidParam);
+  const [showReceipt, setShowReceipt] = useState(startedParam);
+
+  // Escrow payment confirmation: when the buyer returns from Stripe Checkout
+  // with ?paid=1, wait for the verified webhook to write payment_status 'held'
+  // before showing the receipt / firing the receipt animation. The URL param
+  // alone is not trusted — it can be present before the webhook has processed.
+  const escrowConfirm = usePaymentConfirmation(bookingId, { enabled: paidParam });
+  const escrowReceiptShownRef = useRef(false);
 
   const load = useCallback(async () => {
     try {
@@ -102,14 +110,25 @@ export default function BookingDetail() {
   // Clear the success params after showing the banner so a manual refresh
   // doesn't keep re-triggering it.
   useEffect(() => {
-    if (startedParam || paidParam) {
+    if (startedParam) {
       setShowReceipt(true);
       const t = setTimeout(() => {
         setSearchParams({}, { replace: true });
       }, 4000);
       return () => clearTimeout(t);
     }
-  }, [startedParam, paidParam, setSearchParams]);
+  }, [startedParam, setSearchParams]);
+
+  // Fire the receipt animation only once the verified webhook has confirmed
+  // the escrow payment (payment_status 'held' or beyond). Never off ?paid=1.
+  useEffect(() => {
+    if (paidParam && (escrowConfirm === "confirmed") && !escrowReceiptShownRef.current) {
+      escrowReceiptShownRef.current = true;
+      setShowReceipt(true);
+      setReceiptOpen(true);
+      setSearchParams({}, { replace: true });
+    }
+  }, [paidParam, escrowConfirm, setSearchParams]);
 
   // Auto-open the receipt dialog when the user arrives via ?confirmed=1
   // (parent just approved) — only once per page load.
@@ -180,6 +199,30 @@ export default function BookingDetail() {
     load();
   };
 
+  // Retry the escrow payment after a decline — re-creates a Stripe Checkout
+  // session for the same booking and redirects. Allowed because createCheckout
+  // accepts payment_status 'payment_failed' as retryable.
+  const retryEscrowPayment = async () => {
+    setActing(true);
+    setHandshakeError("");
+    try {
+      const res = await base44.functions.invoke("createCheckout", { bookingId: booking.id, origin: window.location.origin });
+      if (res.data?.url) {
+        if (window.self !== window.top) {
+          alert("Checkout only works from the published app. Open your app in a new tab to pay.");
+          setActing(false);
+          return;
+        }
+        window.location.href = res.data.url;
+        return;
+      }
+      load();
+    } catch (err) {
+      setHandshakeError(err.response?.data?.error || "Couldn't start checkout. Please try again.");
+      setActing(false);
+    }
+  };
+
   const canReview = booking.status === "completed" && !myReview && (isTeen || isBuyer);
 
   // The server controls all state transitions — start, finish (with photos),
@@ -213,6 +256,34 @@ export default function BookingDetail() {
 
   return (
     <div className="space-y-5">
+      {paidParam && escrowConfirm === "confirming" && (
+        <div className="bg-primary/5 border border-primary/20 rounded-2xl p-4 flex items-center gap-3 animate-fade-in">
+          <Loader2 className="w-5 h-5 text-primary animate-spin shrink-0" />
+          <div>
+            <p className="text-sm font-bold text-foreground">Confirming your payment…</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Securing your payment in escrow. This usually takes a few seconds.</p>
+          </div>
+        </div>
+      )}
+      {paidParam && escrowConfirm === "timeout" && (
+        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-start gap-3 animate-fade-in">
+          <Clock className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm font-bold text-amber-700">Still processing</p>
+            <p className="text-xs text-amber-600 mt-0.5">We received your payment but are still confirming it with the bank. We'll email you once it's confirmed — no action needed.</p>
+          </div>
+        </div>
+      )}
+      {paidParam && escrowConfirm === "failed" && (
+        <div className="bg-rose-50 border border-rose-200 rounded-2xl p-4 flex items-start gap-3 animate-fade-in">
+          <AlertTriangle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <p className="text-sm font-bold text-rose-700">Payment couldn't be confirmed</p>
+            <p className="text-xs text-rose-600 mt-0.5 mb-2">Your card may have been declined. You can try again.</p>
+            <Button size="sm" variant="outline" disabled={acting} onClick={retryEscrowPayment}>Try paying again</Button>
+          </div>
+        </div>
+      )}
       {showReceipt && (
         <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 flex items-start gap-3 animate-fade-in">
           <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center shrink-0">
@@ -223,7 +294,7 @@ export default function BookingDetail() {
               <CheckCircle2 className="w-4 h-4" /> Receipt sent — booking confirmed
             </p>
             <p className="text-xs text-emerald-600 mt-0.5">
-              {paidParam
+              {booking?.payment_status === "released"
                 ? "Payment released to the teen. A receipt and notification have been sent."
                 : "Payment held in escrow. A receipt has been sent and the teen has been notified to start the job."}
             </p>

@@ -175,6 +175,21 @@ Deno.serve(async (req) => {
 
     }
 
+    // Payment failed / declined — mark the booking so the buyer sees a real
+    // failure state instead of an ambiguous "waiting for payment" limbo.
+    // Only ever set this while the booking is still 'unpaid': a retried event
+    // for an old failed attempt must never revert a payment that later succeeded.
+    if (event.type === 'payment_intent.payment_failed' || event.type === 'checkout.session.async_payment_failed') {
+      const obj = event.data.object;
+      const bookingId = obj.metadata?.booking_id;
+      if (bookingId) {
+        const booking = await base44.asServiceRole.entities.Booking.get(bookingId).catch(() => null);
+        if (booking && booking.payment_status === 'unpaid') {
+          await base44.asServiceRole.entities.Booking.update(bookingId, { payment_status: 'payment_failed' });
+        }
+      }
+    }
+
     if (event.type === 'identity.verification_session.verified') {
       const session = event.data.object;
       const result = await applyVerifiedIdentity(base44, stripe, session.id);
