@@ -20,13 +20,15 @@ export function categoryAverages(reviews) {
   for (const r of reviews) {
     if (!r.category) continue;
     if (!byCat[r.category]) byCat[r.category] = { sum: 0, count: 0 };
-    byCat[r.category].sum += r.rating || 0;
+    // Clamp each rating to 1-5 so a legacy/buggy value can't push a category
+    // average outside the valid range.
+    byCat[r.category].sum += Math.max(1, Math.min(5, r.rating || 0));
     byCat[r.category].count += 1;
   }
   return Object.entries(byCat)
     .map(([category, { sum, count }]) => ({
       category,
-      avg: Math.round((sum / count) * 10) / 10,
+      avg: Math.max(1, Math.min(5, Math.round((sum / count) * 10) / 10)),
       count,
     }))
     .sort((a, b) => b.count - a.count);

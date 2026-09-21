@@ -145,7 +145,7 @@ export default function Welcome() {
         <ServicesGrid />
       </Section>
 
-      <Section eyebrow="Marketplace" title="Real jobs, right down the street" subtitle="A live look at the kinds of jobs neighbors post every day.">
+      <Section eyebrow="Marketplace" title="The kinds of jobs neighbors post" subtitle="Examples of what you'll find on Blockwork — real listings near you appear once you sign up.">
         <MarketplacePreview />
       </Section>
 

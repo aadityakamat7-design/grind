@@ -43,6 +43,7 @@ export default function MarketplacePreview() {
         transition={{ duration: 0.5 }}
         className="rounded-2xl bg-card border border-border p-6 shadow-card hover:shadow-elevated transition-shadow duration-300 flex flex-col"
       >
+        <span className="self-start text-[10px] font-semibold uppercase tracking-wider text-muted-foreground bg-muted border border-border rounded-full px-2 py-0.5 mb-3">Example</span>
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3">
             <span className="w-12 h-12 rounded-xl bg-muted border border-border flex items-center justify-center text-xl">{featured.emoji}</span>
@@ -78,6 +79,7 @@ export default function MarketplacePreview() {
             transition={{ duration: 0.5, delay: (i + 1) * 0.1 }}
             className="rounded-2xl bg-card border border-border p-5 shadow-card hover:shadow-elevated transition-shadow duration-300"
           >
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground bg-muted border border-border rounded-full px-2 py-0.5 mb-3 inline-block">Example</span>
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-center gap-3">
                 <span className="w-10 h-10 rounded-xl bg-muted border border-border flex items-center justify-center text-lg">{j.emoji}</span>
