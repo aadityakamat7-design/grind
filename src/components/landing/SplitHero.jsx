@@ -12,8 +12,7 @@ export default function SplitHero() {
   const navigate = useNavigate();
   return (
     <section className="relative min-h-[100svh] flex items-center overflow-hidden bg-background">
-      <div className="relative z-10 max-w-3xl mx-auto px-6 w-full py-16 md:py-0">
-        <div className="text-center md:text-left">
+      <div className="relative z-10 max-w-3xl mx-auto px-6 w-full py-16 md:py-0 text-center">
           <motion.p
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -28,8 +27,8 @@ export default function SplitHero() {
             className="font-display text-foreground"
             style={{
               fontWeight: 600,
-              fontSize: "clamp(38px, 5.5vw, 72px)",
-              lineHeight: 1.06,
+              fontSize: "clamp(48px, 8vw, 104px)",
+              lineHeight: 1.04,
               letterSpacing: "-0.02em",
             }}
           />
@@ -38,7 +37,7 @@ export default function SplitHero() {
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.08, ease: "easeOut" }}
-            className="text-muted-foreground text-lg mt-6 max-w-md mx-auto md:mx-0 leading-relaxed"
+            className="text-muted-foreground text-lg mt-6 max-w-md mx-auto leading-relaxed"
             style={{ fontFamily: "var(--font-body)" }}
           >
             The local marketplace where California teens earn real paychecks doing outdoor work and online tutoring — with a parent approving every step. Now available in California.
@@ -48,7 +47,7 @@ export default function SplitHero() {
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.24, ease: "easeOut" }}
-            className="flex flex-col sm:flex-row gap-3 justify-center md:justify-start mt-8"
+            className="flex flex-col sm:flex-row gap-3 justify-center mt-8"
           >
             <Button size="lg" onClick={() => navigate("/register")}>
               Get Started <ArrowRight className="w-4 h-4" />
@@ -57,8 +56,6 @@ export default function SplitHero() {
               Learn More
             </Button>
           </motion.div>
-        </div>
-
       </div>
     </section>
   );
