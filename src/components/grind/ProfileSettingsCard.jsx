@@ -34,6 +34,7 @@ export default function ProfileSettingsCard({ user }) {
             address: p.address || "",
             zip: p.zip || "",
             description: p.description || "",
+            service_radius_miles: p.service_radius_miles ?? 3,
           });
           setOrigAddress(p.address || "");
           setOrigZip(p.zip || "");
@@ -105,6 +106,7 @@ export default function ProfileSettingsCard({ user }) {
           address: form.address,
           zip: form.zip,
           description: form.description,
+          service_radius_miles: Number(form.service_radius_miles) || 3,
         };
         if (geo) {
           update.latitude = geo.lat;
@@ -221,6 +223,9 @@ export default function ProfileSettingsCard({ user }) {
           </Field>
           <Field label="ZIP code">
             <Input className="rounded-xl" value={form.zip || ""} onChange={(e) => set("zip", e.target.value)} />
+          </Field>
+          <Field label="Service radius (miles)" hint="How far you're willing to search for teens to hire.">
+            <Input className="rounded-xl" type="number" min="1" max="25" value={form.service_radius_miles ?? ""} onChange={(e) => set("service_radius_miles", e.target.value)} />
           </Field>
           <Field label="About you (optional)">
             <Textarea className="rounded-xl" rows={3} value={form.description || ""} onChange={(e) => set("description", e.target.value)} />

@@ -73,6 +73,13 @@
       "type": "string",
       "description": "City resolved from geocoding"
     },
+    "service_radius_miles": {
+      "type": "number",
+      "default": 3,
+      "minimum": 1,
+      "maximum": 25,
+      "description": "How far (in miles) the neighbor is willing to search for teens to hire."
+    },
     "avg_rating": {
       "type": "number",
       "default": 0,

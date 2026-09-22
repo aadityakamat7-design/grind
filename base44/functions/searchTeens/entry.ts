@@ -75,7 +75,9 @@ Deno.serve(async (req) => {
         } else if (hasBuyerLocation && priv?.latitude != null && priv?.longitude != null) {
           distance = haversineMiles(buyerLat, buyerLng, priv.latitude, priv.longitude);
           const sameState = teen.state && buyerState && teen.state === buyerState;
-          inArea = sameState && distance <= (teen.service_radius_miles || 3);
+          const teenRadius = teen.service_radius_miles || 3;
+          const buyerRadius = buyer?.service_radius_miles ?? 3;
+          inArea = sameState && distance <= teenRadius && distance <= buyerRadius;
         } else {
           // Outdoor listing but the buyer has no geocoded location — fail closed
           // so we never show a listing they can't actually book.
