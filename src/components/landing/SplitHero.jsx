@@ -3,18 +3,17 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, ShieldCheck, BadgeCheck, Lock } from "lucide-react";
-import Phone3D from "./Phone3D";
+import ScrambleHeadline from "./ScrambleHeadline";
 
-// White split hero: Fraunces headline on a clean white panel (left), phone at a
-// fixed 3D tilt (right). No scroll-pinning — native scroll only, one-time
-// fade-and-rise on load.
+// Typography-led hero: Fraunces headline with a one-time GSAP scramble/decode
+// animation on load. No device mockup, gradients, or decorative blobs —
+// white background, hairline structure, native scroll only.
 export default function SplitHero() {
   const navigate = useNavigate();
   return (
     <section className="relative min-h-[100svh] flex items-center overflow-hidden bg-background">
-      <div className="relative z-10 max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-[45%_55%] gap-8 md:gap-12 items-center w-full py-10 md:py-0">
-        {/* Left: text content */}
-        <div className="text-center md:text-left order-1">
+      <div className="relative z-10 max-w-3xl mx-auto px-6 w-full py-16 md:py-0">
+        <div className="text-center md:text-left">
           <motion.p
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -24,10 +23,8 @@ export default function SplitHero() {
             Parent-approved teen work
           </motion.p>
 
-          <motion.h1
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, ease: "easeOut" }}
+          <ScrambleHeadline
+            lines={["Your block.", "Your list."]}
             className="font-display text-foreground"
             style={{
               fontWeight: 600,
@@ -35,9 +32,7 @@ export default function SplitHero() {
               lineHeight: 1.06,
               letterSpacing: "-0.02em",
             }}
-          >
-            Your block.<br />Your list.
-          </motion.h1>
+          />
 
           <motion.p
             initial={{ opacity: 0, y: 14 }}
@@ -84,18 +79,6 @@ export default function SplitHero() {
           </motion.div>
         </div>
 
-        {/* Right: phone at a fixed 3D tilt — no scroll animation */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.1, ease: "easeOut" }}
-          className="order-2 md:order-2 hidden md:block"
-          style={{ perspective: "1400px" }}
-        >
-          <div style={{ transform: "rotateY(-12deg) rotateX(4deg)", transformStyle: "preserve-3d" }}>
-            <Phone3D />
-          </div>
-        </motion.div>
       </div>
     </section>
   );
