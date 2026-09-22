@@ -24,7 +24,7 @@ export default function SplitHero() {
 
           <TypewriterHeadline
             lines={["Your block.", "Your list."]}
-            className="font-grotesk text-foreground"
+            className="font-display text-foreground"
             style={{
               fontWeight: 600,
               fontSize: "clamp(48px, 8vw, 104px)",
