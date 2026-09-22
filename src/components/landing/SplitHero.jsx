@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, ShieldCheck, BadgeCheck, Lock } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import ScrambleHeadline from "./ScrambleHeadline";
 
 // Typography-led hero: Fraunces headline with a one-time GSAP scramble/decode
@@ -45,29 +45,9 @@ export default function SplitHero() {
           </motion.p>
 
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.4, delay: 0.24, ease: "easeOut" }}
-            className="flex flex-wrap items-center gap-x-5 gap-y-2.5 justify-center md:justify-start mt-8"
-          >
-            <div className="flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-success" />
-              <span className="text-sm text-muted-foreground font-medium">Parent-approved</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <BadgeCheck className="w-4 h-4 text-primary" />
-              <span className="text-sm text-muted-foreground font-medium">ID-verified</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Lock className="w-4 h-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground font-medium">Escrow</span>
-            </div>
-          </motion.div>
-
-          <motion.div
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.32, ease: "easeOut" }}
+            transition={{ duration: 0.4, delay: 0.24, ease: "easeOut" }}
             className="flex flex-col sm:flex-row gap-3 justify-center md:justify-start mt-8"
           >
             <Button size="lg" onClick={() => navigate("/register")}>
