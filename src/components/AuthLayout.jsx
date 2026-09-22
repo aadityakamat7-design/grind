@@ -1,11 +1,12 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { ShieldCheck, BadgeCheck, Lock, Boxes } from "lucide-react";
+import { Boxes } from "lucide-react";
+import ScrambleText from "@/components/landing/ScrambleText";
 
 const TRUST_POINTS = [
-  { icon: ShieldCheck, text: "Every job parent-approved" },
-  { icon: BadgeCheck, text: "ID-verified neighbors" },
-  { icon: Lock, text: "Payments held safely in escrow" },
+  "Every job parent-approved",
+  "ID-verified neighbors",
+  "Payments held safely in escrow",
 ];
 
 export default function AuthLayout({ title, subtitle, footer, children }) {
@@ -62,12 +63,14 @@ export default function AuthLayout({ title, subtitle, footer, children }) {
             The neighborhood marketplace where teens find safe local work — with a parent approving every step.
           </p>
           <div className="mt-12 space-y-5">
-            {TRUST_POINTS.map(({ icon: TIcon, text }) => (
+            {TRUST_POINTS.map((text, i) => (
               <div key={text} className="flex items-center gap-3.5">
-                <div className="w-10 h-10 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center shrink-0">
-                  <TIcon className="w-5 h-5 text-white" />
-                </div>
-                <span className="text-white/90 font-medium text-[15px]">{text}</span>
+                <div className="w-1.5 h-1.5 rounded-full bg-white/40 shrink-0" />
+                <ScrambleText
+                  text={text}
+                  delay={0.15 + i * 0.35}
+                  className="text-white/90 font-medium text-[15px] tracking-tight"
+                />
               </div>
             ))}
           </div>
