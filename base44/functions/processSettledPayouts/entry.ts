@@ -22,9 +22,12 @@ import { attemptBookingPayout } from '../../shared/payoutTransfer.ts';
 Deno.serve(async (req) => {
   try {
     const body = await req.json();
-    // Auth: the platform injects _workflowSecret = WORKFLOW_SECRET on workflow calls.
+    // Auth: check both body and headers for the workflow secret.
     const WF_SECRET = Deno.env.get('WORKFLOW_SECRET');
-    if (!WF_SECRET || body?._workflowSecret !== WF_SECRET) {
+    const _hdrs = Object.fromEntries(req.headers.entries());
+    const _hdrMatch = WF_SECRET && Object.values(_hdrs).some(v => v === WF_SECRET);
+    if (!WF_SECRET || (body?._workflowSecret !== WF_SECRET && !_hdrMatch)) {
+      console.error('Workflow auth failed. Headers:', JSON.stringify(_hdrs));
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
