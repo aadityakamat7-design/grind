@@ -3,10 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
-import ScrambleHeadline from "./ScrambleHeadline";
+import TypewriterHeadline from "./TypewriterHeadline";
 
-// Typography-led hero: Fraunces headline with a one-time GSAP scramble/decode
-// animation on load. No device mockup, gradients, or decorative blobs —
+// Typography-led hero: Fraunces headline with a one-time GSAP typewriter
+// reveal on load. No device mockup, gradients, or decorative blobs —
 // white background, hairline structure, native scroll only.
 export default function SplitHero() {
   const navigate = useNavigate();
@@ -23,7 +23,7 @@ export default function SplitHero() {
             Parent-approved teen work
           </motion.p>
 
-          <ScrambleHeadline
+          <TypewriterHeadline
             lines={["Your block.", "Your list."]}
             className="font-display text-foreground"
             style={{
