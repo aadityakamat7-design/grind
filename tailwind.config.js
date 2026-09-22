@@ -109,7 +109,8 @@ module.exports = {
         heading: ['var(--font-heading)'],
         body: ['var(--font-body)'],
         display: ['var(--font-display)'],
-        mono: ['var(--font-mono)']
+        mono: ['var(--font-mono)'],
+        grotesk: ['var(--font-grotesk)']
       },
       keyframes: {
         'accordion-down': { from: { height: '0' }, to: { height: 'var(--radix-accordion-content-height)' } },
