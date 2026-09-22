@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useOutletContext } from "react-router-dom";
+import { useOutletContext, Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { CalendarDays } from "lucide-react";
 import BookingCard from "@/components/grind/BookingCard";
@@ -55,7 +55,12 @@ export default function TeenBookings() {
       <PageHeader title="Bookings" subtitle="All your active and past jobs." />
 
       {bookings.length === 0 ? (
-        <EmptyState icon={CalendarDays} title="No bookings yet" subtitle="When a neighbor books one of your services, it'll show up here." />
+        <EmptyState
+          icon={CalendarDays}
+          title="No bookings yet"
+          subtitle="When a neighbor books one of your services, it'll show up here. Check the job board for open work near you."
+          action={<Link to="/jobs" className="inline-flex items-center gap-1.5 bg-primary text-primary-foreground text-[13px] font-semibold rounded-full px-5 h-10 shadow-soft hover:opacity-90 transition-opacity">Find jobs</Link>}
+        />
       ) : (
         <>
           {active.length > 0 && (

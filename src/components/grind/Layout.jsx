@@ -241,7 +241,7 @@ export default function Layout() {
       </header>
 
       {/* Main content */}
-      <div className="lg:pl-[260px]">
+      <div className="lg:pl-[260px] min-h-screen flex flex-col">
         {/* Desktop top bar */}
         <header className="hidden lg:flex sticky top-0 z-30 h-[68px] items-center justify-end px-8 bg-card/80 backdrop-blur-xl border-b border-border">
           {isChildPage && (
@@ -263,7 +263,7 @@ export default function Layout() {
           </div>
         </header>
 
-        <main className="max-w-3xl lg:max-w-5xl mx-auto px-4 lg:px-8 pt-5 lg:pt-8 pb-28 lg:pb-12">
+        <main className="flex-1 max-w-3xl lg:max-w-5xl w-full mx-auto px-4 lg:px-8 pt-5 lg:pt-8 pb-28 lg:pb-12">
           <Outlet context={{ user, reload }} />
         </main>
         <SiteFooter />
