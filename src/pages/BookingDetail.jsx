@@ -23,6 +23,7 @@ import DisputeDialog from "@/components/grind/DisputeDialog";
 import RecurringSeriesManager from "@/components/grind/RecurringSeriesManager";
 import BookDialog from "@/components/grind/BookDialog";
 import BookingReceiptDialog from "@/components/grind/BookingReceiptDialog";
+import ResumePaymentDialog from "@/components/grind/ResumePaymentDialog";
 import CheckInTimeline from "@/components/grind/parent/CheckInTimeline";
 import VideoSessionPanel from "@/components/grind/VideoSessionPanel";
 import ErrorRetry from "@/components/grind/ErrorRetry";
@@ -437,6 +438,13 @@ export default function BookingDetail() {
           </Link>
         )}
 
+        {isBuyer && booking.status === "payment_pending" && (booking.payment_status === "unpaid" || booking.payment_status === "payment_failed") && (
+          <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-700">
+            <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
+            <span>Payment incomplete. Complete your payment to request this booking.</span>
+          </div>
+        )}
+
         {isBuyer && booking.status === "confirmed" && !booking.buyer_started_at && !booking.teen_started_at && (booking.charge_amount ?? booking.price_total) > 0 && (
           <div className="flex items-center gap-2 rounded-xl p-3 text-xs text-muted-foreground bg-secondary border border-border">
             <Lock className="w-4 h-4 shrink-0" />
@@ -613,6 +621,10 @@ export default function BookingDetail() {
         booking={booking}
         user={user}
       />
+
+      {isBuyer && booking.status === "payment_pending" && (booking.payment_status === "unpaid" || booking.payment_status === "payment_failed") && (
+        <ResumePaymentDialog booking={booking} user={user} onResolved={load} />
+      )}
     </div>
   );
 }
