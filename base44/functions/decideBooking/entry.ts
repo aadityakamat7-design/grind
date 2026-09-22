@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
-import { refundHeldPayment } from '../../shared/stripeRefund.ts';
+import { refundEscrowPayment } from '../../shared/stripeRefund.ts';
 import { writeAuditLog } from '../../shared/auditLog.ts';
 import { getClientIp } from '../../shared/rateLimiter.ts';
 import { getSafeOrigin } from '../../shared/safeOrigin.ts';
@@ -17,26 +17,20 @@ Deno.serve(async (req) => {
     const booking = await base44.asServiceRole.entities.Booking.get(bookingId);
     if (!booking) return Response.json({ error: 'Booking not found' }, { status: 404 });
     if (booking.parent_user_id !== user.id) return Response.json({ error: 'Forbidden' }, { status: 403 });
+
+    // HARD GUARD: the booking must be in pending_parent_approval with payment
+    // actually held. This is the only state that is approvable or deniable.
+    // A payment_pending booking (no payment yet) cannot be approved or denied.
     if (booking.status !== 'pending_parent_approval') {
       return Response.json({ error: 'Booking is not awaiting approval' }, { status: 400 });
     }
-
-    // Parents cannot approve until the neighbor's escrow payment is confirmed.
-    // Deny is always allowed (it just cancels the booking).
-    if (approve && booking.payment_status !== 'held') {
-      return Response.json({ error: "The neighbor's payment hasn't been confirmed yet. Please wait for payment before approving." }, { status: 400 });
+    if (booking.payment_status !== 'held') {
+      return Response.json({ error: "The neighbor's payment hasn't been confirmed yet. Please wait for payment before approving or denying." }, { status: 400 });
     }
 
     if (approve) {
-      // Parents can approve bookings freely — identity verification and bank
-      // (Stripe Connect) setup are NOT required to approve. The teen can do
-      // the job and earn money, but the earnings are locked in the Blockwork
-      // Wallet and cannot be withdrawn until the parent completes payout
-      // setup (walletCashOut and attemptBookingPayout both enforce this).
       await base44.asServiceRole.entities.Booking.update(booking.id, { status: 'confirmed' });
 
-      // If this is the first occurrence of a recurring series, mark the
-      // series as parent-approved so future occurrences skip approval.
       if (booking.recurring_series_id) {
         await base44.asServiceRole.entities.RecurringSeries.update(booking.recurring_series_id, {
           parent_approved: true,
@@ -70,25 +64,30 @@ Deno.serve(async (req) => {
         read: false,
       });
       const origin = getSafeOrigin(req);
-      // Don't exclude the parent — they should receive a confirmation email
-      // with the teen's net earnings, per the booking confirmation flow.
       await sendBookingEmail(base44, { booking, event: 'approved', origin });
     } else {
-      // Refund the escrowed Stripe payment before marking the booking denied
-      const refunded = await refundHeldPayment(base44, booking);
+      // Deny: refund the held escrow payment. refundEscrowPayment has a hard
+      // guard (assertRefundable) that THROWS if the booking has no captured
+      // payment. This prevents refunding an unpaid booking — the root cause
+      // of the negative-balance bug.
+      try {
+        await refundEscrowPayment(base44, booking);
+      } catch (refundErr) {
+        console.error('decideBooking deny: refund REJECTED:', refundErr.message);
+        return Response.json({ error: 'Could not process refund — no captured payment found for this booking. Please contact support.' }, { status: 500 });
+      }
       await base44.asServiceRole.entities.Booking.update(booking.id, {
         status: 'denied',
-        payment_status: refunded ? 'refunded' : booking.payment_status,
+        payment_status: 'refunded',
       });
       await writeAuditLog(base44, {
         actor_user_id: user.id, actor_role: user.app_role || 'parent', action: 'booking_denied',
         category: 'approval', target_type: 'Booking', target_id: booking.id,
         summary: `Denied "${booking.listing_title}" for ${booking.teen_display_name}`,
-        metadata: { refunded, price_total: booking.price_total },
+        metadata: { refunded: true, price_total: booking.price_total },
         ip: getClientIp(req),
       });
 
-      // Re-list the job post so other teens can see and accept it again.
       const deniedJobPosts = await base44.asServiceRole.entities.JobPost.filter({ booking_id: booking.id });
       if (deniedJobPosts[0] && deniedJobPosts[0].status === 'assigned') {
         await base44.asServiceRole.entities.JobPost.update(deniedJobPosts[0].id, {
@@ -111,7 +110,7 @@ Deno.serve(async (req) => {
         user_id: booking.buyer_user_id,
         type: 'booking',
         title: 'Booking denied',
-        body: `The parent denied your booking for "${booking.listing_title}".${refunded ? ' Your payment will be refunded.' : ''}`,
+        body: `The parent denied your booking for "${booking.listing_title}". Your payment will be refunded.`,
         link: `/bookings/${booking.id}`,
         read: false,
       });

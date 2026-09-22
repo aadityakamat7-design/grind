@@ -6,6 +6,7 @@ import { alertSecurityEvent } from '../../shared/securityMonitor.ts';
 import { notifyOwnerTransaction } from '../../shared/notifyOwnerTransaction.ts';
 import { sendBookingEmail } from '../../shared/bookingEmails.ts';
 import { getSafeOrigin } from '../../shared/safeOrigin.ts';
+import { confirmPaymentHeld } from '../../shared/bookingStateMachine.ts';
 
 Deno.serve(async (req) => {
   try {
@@ -60,28 +61,32 @@ Deno.serve(async (req) => {
     // Marks an escrow booking as paid/held and notifies the parent that they
     // can now approve. Idempotent — skips if payment is already held so the
     // duplicate payment_intent.succeeded event doesn't double-notify.
+    // The ONLY way a booking's payment_status becomes 'held'. Delegates to
+    // confirmPaymentHeld which hard-guards: the booking must be in
+    // payment_pending. A late payment on an abandoned/cancelled booking is
+    // logged and rejected — never revived.
     const markEscrowHeld = async (bookingId, paymentIntentId, isTest) => {
-      const booking = await base44.asServiceRole.entities.Booking.get(bookingId);
-      if (!booking || booking.payment_status === 'held') return;
-      await base44.asServiceRole.entities.Booking.update(bookingId, {
-        payment_status: 'held',
-        stripe_payment_intent_id: paymentIntentId,
-        is_test_mode: isTest,
-      });
-      if (booking.parent_user_id) {
-        await base44.asServiceRole.entities.Notification.create({
-          user_id: booking.parent_user_id,
-          type: 'booking',
-          title: 'Payment confirmed — please approve',
-          body: `${booking.buyer_name}'s payment for "${booking.listing_title}" is held in escrow. Please review and approve this booking.`,
-          link: `/bookings/${bookingId}`,
-          read: false,
-        });
+      try {
+        const result = await confirmPaymentHeld(base44, bookingId, paymentIntentId, isTest);
+        if (result.alreadyHeld) return;
+        const booking = result.booking;
+        if (booking.parent_user_id) {
+          await base44.asServiceRole.entities.Notification.create({
+            user_id: booking.parent_user_id,
+            type: 'booking',
+            title: 'Payment confirmed — please approve',
+            body: `${booking.buyer_name}'s payment for "${booking.listing_title}" is held in escrow. Please review and approve this booking.`,
+            link: `/bookings/${bookingId}`,
+            read: false,
+          });
+        }
+        await sendBookingEmail(base44, { booking, event: 'payment_confirmed', origin: getSafeOrigin(req) });
+      } catch (err) {
+        // The booking was not in payment_pending — it may have been abandoned
+        // or cancelled by the cleanup sweep. Log the late payment but don't
+        // fail the webhook (which would cause Stripe to retry pointlessly).
+        console.error(`markEscrowHeld: REJECTED late payment for booking ${bookingId}: ${err.message}`);
       }
-      // Selection email — fires to all three parties (buyer, teen, parent) the
-      // moment payment is confirmed held. This is the "booking submitted +
-      // payment held" notice; the final receipt fires later at parent approval.
-      await sendBookingEmail(base44, { booking, event: 'payment_confirmed', origin: getSafeOrigin(req) });
     };
 
     if (event.type === 'checkout.session.completed') {

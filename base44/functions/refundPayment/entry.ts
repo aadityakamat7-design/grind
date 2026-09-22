@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
-import { refundHeldPayment } from '../../shared/stripeRefund.ts';
+import { refundEscrowPayment } from '../../shared/stripeRefund.ts';
 import { notifyOwnerTransaction } from '../../shared/notifyOwnerTransaction.ts';
 
 Deno.serve(async (req) => {
@@ -16,7 +16,7 @@ Deno.serve(async (req) => {
 
     const isParticipant = [booking.buyer_user_id, booking.teen_user_id, booking.parent_user_id].includes(user.id);
     if (!isParticipant) return Response.json({ error: 'Forbidden' }, { status: 403 });
-    if (!['pending_parent_approval', 'confirmed', 'in_progress'].includes(booking.status)) {
+    if (!['payment_pending', 'pending_parent_approval', 'confirmed', 'in_progress'].includes(booking.status)) {
       return Response.json({ error: 'Booking can no longer be cancelled' }, { status: 400 });
     }
 
@@ -58,21 +58,35 @@ Deno.serve(async (req) => {
       return Response.json({ success: true, disputed: true });
     }
 
-    await refundHeldPayment(base44, booking);
-
-    await notifyOwnerTransaction(base44, {
-      type: 'Refund',
-      title: `"${booking.listing_title}" — $${Number(booking.charge_amount || booking.price_total || 0).toFixed(2)} returned to buyer`,
-      details: `Booking: ${booking.id}\nBuyer: ${booking.buyer_name || booking.buyer_user_id}\nCancelled by: ${user.id}`,
-    });
-
-    await base44.asServiceRole.entities.Booking.update(booking.id, {
-      status: 'cancelled',
-      payment_status: booking.payment_status === 'unpaid' ? 'unpaid' : 'refunded',
-    });
+    // HARD GUARD: only refund if payment was actually held. An unpaid booking
+    // (payment_pending + unpaid) has nothing to refund — just cancel it. This
+    // prevents the negative-balance bug where refunding an unpaid booking
+    // would create a debt against nothing.
+    if (booking.payment_status === 'held') {
+      try {
+        await refundEscrowPayment(base44, booking);
+      } catch (refundErr) {
+        console.error('refundPayment: refund REJECTED:', refundErr.message);
+        return Response.json({ error: 'Could not process refund — no captured payment found. Please contact support.' }, { status: 500 });
+      }
+      await base44.asServiceRole.entities.Booking.update(booking.id, {
+        status: 'cancelled',
+        payment_status: 'refunded',
+      });
+      await notifyOwnerTransaction(base44, {
+        type: 'Refund',
+        title: `"${booking.listing_title}" — $${Number(booking.charge_amount || booking.price_total || 0).toFixed(2)} returned to buyer`,
+        details: `Booking: ${booking.id}\nBuyer: ${booking.buyer_name || booking.buyer_user_id}\nCancelled by: ${user.id}`,
+      });
+    } else {
+      // Unpaid booking — no refund needed, just cancel. There was never any
+      // money captured, so there's nothing to return.
+      await base44.asServiceRole.entities.Booking.update(booking.id, {
+        status: 'cancelled',
+      });
+    }
 
     // Re-list the job post so other teens can see and accept it again.
-    // Only re-list if the job is still in 'assigned' status (not yet completed).
     const jobPosts = await base44.asServiceRole.entities.JobPost.filter({ booking_id: booking.id });
     if (jobPosts[0] && jobPosts[0].status === 'assigned') {
       await base44.asServiceRole.entities.JobPost.update(jobPosts[0].id, {
@@ -91,7 +105,7 @@ Deno.serve(async (req) => {
         user_id: otherId,
         type: 'booking',
         title: 'Booking cancelled',
-        body: `"${booking.listing_title}" was cancelled and any held payment was refunded.`,
+        body: `"${booking.listing_title}" was cancelled${booking.payment_status === 'held' ? ' and the payment was refunded.' : '.'}`,
         link: `/bookings/${booking.id}`,
         read: false,
       });

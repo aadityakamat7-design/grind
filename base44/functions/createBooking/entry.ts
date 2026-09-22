@@ -10,12 +10,21 @@ import { nextOccurrenceDate } from '../../shared/recurringDates.ts';
 import { getStripeContext } from '../../shared/stripeEnv.ts';
 import { MAX_UNIT_PRICE, MAX_ESTIMATED_HOURS } from '../../shared/pricing.ts';
 import { sendBookingEmail } from '../../shared/bookingEmails.ts';
+import { confirmPaymentHeld } from '../../shared/bookingStateMachine.ts';
 
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+
+    // ── Maintenance gate ──
+    // Booking creation can be paused via the AppSetting 'booking_creation_paused'.
+    // This is the kill switch used during the payment-system rebuild.
+    const pauseSettings = await base44.asServiceRole.entities.AppSetting.filter({ key: 'booking_creation_paused' });
+    if (pauseSettings[0]?.value === 'true') {
+      return Response.json({ error: 'Booking is temporarily unavailable while we improve our payment system. Please try again shortly.' }, { status: 503 });
+    }
 
     const { listingId, scheduledStart, address, notes, recurrence, hours, endDate, origin: clientOrigin } = await req.json();
     if (!listingId) {
@@ -33,7 +42,7 @@ Deno.serve(async (req) => {
       const recentBookings = await base44.asServiceRole.entities.Booking.filter({
         buyer_user_id: user.id,
         listing_id: listingId,
-        status: 'pending_parent_approval',
+        status: 'payment_pending',
       }, '-created_date', 10);
       const targetTime = new Date(scheduledStart).toISOString();
       const now = Date.now();
@@ -198,7 +207,7 @@ Deno.serve(async (req) => {
     });
     const parentUserId = links[0]?.parent_user_id || '';
     const buyerName = user.full_name?.split(' ')[0] || 'Neighbor';
-    const bookingStatus = 'pending_parent_approval';
+    const bookingStatus = 'payment_pending';
 
     const isRecurring = !!recurrence && recurrence !== 'none';
 
@@ -334,12 +343,12 @@ Deno.serve(async (req) => {
       return Response.json({ bookingId: booking.id, url: session.url });
     }
 
-    // Charge below Stripe's $0.50 minimum — mark payment as held. The booking
-    // stays at pending_parent_approval until the parent approves (decideBooking).
+    // Sub-minimum charge (cents > 0 but < 50): the amount is too small for
+    // Stripe Checkout, so payment is held immediately. Transition through the
+    // state machine — the same path the webhook uses for normal payments.
     if (cents > 0) {
-      await base44.asServiceRole.entities.Booking.update(booking.id, {
-        payment_status: 'held',
-      });
+      const result = await confirmPaymentHeld(base44, booking.id, `submin_${booking.id}`, false);
+      const heldBooking = result.booking;
       if (parentUserId) {
         await base44.asServiceRole.entities.Notification.create({
           user_id: parentUserId,
@@ -359,9 +368,7 @@ Deno.serve(async (req) => {
         read: false,
       });
       const origin = clientOrigin ? safeOriginFromString(clientOrigin) : getSafeOrigin(req);
-      // Sub-minimum charge: payment is immediately held, so fire the selection
-      // email to all three parties now (same event the webhook uses).
-      await sendBookingEmail(base44, { booking, event: 'payment_confirmed', origin });
+      await sendBookingEmail(base44, { booking: heldBooking, event: 'payment_confirmed', origin });
     }
 
     return Response.json({ bookingId: booking.id, paid: cents > 0 && cents < 50 });

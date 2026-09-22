@@ -239,16 +239,18 @@
     "status": {
       "type": "string",
       "enum": [
+        "payment_pending",
         "pending_parent_approval",
         "confirmed",
         "in_progress",
         "completed",
         "cancelled",
         "denied",
-        "disputed"
+        "disputed",
+        "abandoned"
       ],
-      "default": "pending_parent_approval",
-      "description": "Advanced to in_progress/completed only by the server. disputed = neighbor reported the work wasn't done, pending admin review.",
+      "default": "payment_pending",
+      "description": "payment_pending = buyer opened checkout, no money moved; pending_parent_approval = payment held, waiting for parent; confirmed = parent approved; in_progress = job started; completed = job done and funds released; cancelled = cancelled; denied = parent denied (refunded); disputed = neighbor reported the work wasn't done; abandoned = checkout expired after 30 min with no payment. Advanced to in_progress/completed only by the server.",
       "rls": {
         "write": {
           "user_condition": {
