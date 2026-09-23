@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -6,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import ResponsiveSelect from "@/components/grind/ResponsiveSelect";
-import { ShieldCheck, ShieldX, Sparkles, Lock, Tag, AlertCircle, Zap } from "lucide-react";
+import { ShieldCheck, ShieldX, Sparkles, Lock, Tag, AlertCircle, Zap, ExternalLink } from "lucide-react";
 import { CATEGORIES, CATEGORY_LABELS, categoryMinimum, categoryRecommendedRange, computeFees, money, MAX_UNIT_PRICE, MIN_UNIT_PRICE, isOnlineCategory, HOURS_OPTIONS } from "@/lib/grind";
 import { cn } from "@/lib/utils";
 import { getMinAgeForCategory } from "@/lib/stateWorkRules";
@@ -34,6 +35,7 @@ function clearDraft() {
 }
 
 export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, onPosted }) {
+  const navigate = useNavigate();
   const [form, setForm] = useState(() => loadDraft()?.form || {
     title: "", description: "", price: "",
     price_model: "FIXED", state: "", scheduled_start: "",
@@ -377,7 +379,20 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
               )}
 
               <div className="bg-secondary rounded-xl p-3 text-xs text-muted-foreground space-y-1">
-                <div className="flex justify-between"><span>Stripe processing fee (incl. payout)</span><span>{money(platform_fee)}</span></div>
+                <div className="flex justify-between">
+                  <span className="flex items-center gap-1">
+                    Service fee
+                    <button
+                      type="button"
+                      onClick={() => { onOpenChange(false); navigate("/pricing"); }}
+                      className="inline-flex items-center gap-0.5 text-primary font-semibold hover:underline"
+                    >
+                      <ExternalLink className="w-3 h-3" />
+                      <span className="text-[11px]">Pricing guide</span>
+                    </button>
+                  </span>
+                  <span>{money(platform_fee)}</span>
+                </div>
                 <div className="flex justify-between"><span>Teen earns</span><span>{money(net_amount)}</span></div>
               </div>
             </div>
