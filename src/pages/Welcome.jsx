@@ -14,8 +14,10 @@ import EarningsCalculator from "@/components/landing/EarningsCalculator";
 import SafetyGrid from "@/components/landing/SafetyGrid";
 import FaqSection from "@/components/landing/FaqSection";
 import SafetySummary from "@/components/landing/SafetySummary";
+import ScrambleText from "@/components/landing/ScrambleText";
 import SiteFooter from "@/components/SiteFooter";
 import Seo from "@/components/Seo";
+import { Lock } from "lucide-react";
 
 const ROLE_HOME = { teen: "/teen", parent: "/parent", buyer: "/buyer", admin: "/admin" };
 
@@ -157,7 +159,7 @@ export default function Welcome() {
         <EarningsCalculator />
       </Section>
 
-      <section id="safety" className="relative max-w-6xl mx-auto px-6 py-10 sm:py-24 font-display">
+      <section id="safety" className="relative max-w-6xl mx-auto px-6 py-10 sm:py-24">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -166,14 +168,49 @@ export default function Welcome() {
           className="mb-10 max-w-2xl"
         >
           <p className="text-xs font-semibold text-primary uppercase tracking-[0.2em] mb-3">Why parents trust us</p>
-          <h2 className="font-display text-3xl sm:text-4xl leading-tight text-foreground">
+          <h2 className="font-grotesk text-3xl sm:text-4xl leading-tight text-foreground">
             Safety isn't a feature. It's the foundation.
           </h2>
-          <p className="font-display text-muted-foreground mt-3 text-lg leading-relaxed">
+          <p className="font-grotesk text-muted-foreground mt-3 text-lg leading-relaxed">
             Every layer of Blockwork is built to protect teens and reassure parents. This is what makes us different.
           </p>
         </motion.div>
         <SafetyGrid />
+      </section>
+
+      {/* Encrypted data — prominent decoder reveal */}
+      <section className="relative max-w-6xl mx-auto px-6 py-12 sm:py-20">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.5 }}
+          className="relative overflow-hidden rounded-3xl border border-border bg-card shadow-elevated px-6 py-14 sm:px-12 sm:py-20 text-center"
+        >
+          <div className="absolute inset-0 opacity-[0.04] pointer-events-none"
+            style={{
+              backgroundImage:
+                "repeating-linear-gradient(0deg, hsl(var(--foreground)) 0px, hsl(var(--foreground)) 1px, transparent 1px, transparent 28px)",
+            }}
+          />
+          <div className="relative z-10">
+            <Lock className="w-10 h-10 sm:w-12 sm:h-12 text-primary mx-auto mb-5" />
+            <ScrambleText
+              text="ENCRYPTED DATA"
+              as="h2"
+              className="font-grotesk text-foreground"
+              style={{
+                fontWeight: 700,
+                fontSize: "clamp(40px, 7vw, 88px)",
+                lineHeight: 1.05,
+                letterSpacing: "-0.02em",
+              }}
+            />
+            <p className="font-grotesk text-muted-foreground mt-5 max-w-lg mx-auto text-base sm:text-lg leading-relaxed">
+              Every profile, payment, and message is protected end-to-end. Your family's information stays private — always.
+            </p>
+          </div>
+        </motion.div>
       </section>
 
       <section className="relative z-10 max-w-6xl mx-auto px-6 pb-10 sm:pb-16">
