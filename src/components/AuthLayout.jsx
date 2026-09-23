@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Boxes } from "lucide-react";
 import ScrambleText from "@/components/landing/ScrambleText";
+import DecodeBackdrop from "@/components/landing/DecodeBackdrop";
 
 const TRUST_POINTS = [
   "Every job parent-approved",
@@ -13,9 +14,11 @@ export default function AuthLayout({ title, subtitle, footer, children }) {
   return (
     <div className="min-h-[100dvh] flex bg-background">
       {/* Left column — form */}
-      <div className="w-full md:w-[45%] flex flex-col min-h-[100dvh] px-6 sm:px-10 lg:px-16 pt-[max(2rem,env(safe-area-inset-top))] pb-[max(2rem,env(safe-area-inset-bottom))] overflow-y-auto">
+      <div className="relative w-full md:w-[45%] flex flex-col min-h-[100dvh] px-6 sm:px-10 lg:px-16 pt-[max(2rem,env(safe-area-inset-top))] pb-[max(2rem,env(safe-area-inset-bottom))] overflow-y-auto">
+        {/* Decode-text decorative backdrop — aria-hidden, behind form content */}
+        <DecodeBackdrop />
         {/* Wordmark */}
-        <Link to="/" className="flex items-center gap-2.5 self-start">
+        <Link to="/" className="relative z-10 flex items-center gap-2.5 self-start">
           <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-soft">
             <Boxes className="w-5 h-5 text-primary-foreground" />
           </div>
@@ -23,7 +26,7 @@ export default function AuthLayout({ title, subtitle, footer, children }) {
         </Link>
 
         {/* Vertically centered form block */}
-        <div className="flex-1 flex items-center justify-center py-10">
+        <div className="relative z-10 flex-1 flex items-center justify-center py-10">
           <div className="w-full max-w-[400px]">
             <h1 className="text-[28px] font-bold tracking-tight text-foreground leading-tight">{title}</h1>
             {subtitle && <p className="text-muted-foreground mt-2 text-[15px] leading-relaxed">{subtitle}</p>}
@@ -33,7 +36,7 @@ export default function AuthLayout({ title, subtitle, footer, children }) {
         </div>
 
         {/* Legal links */}
-        <div className="flex items-center gap-5 text-xs text-muted-foreground">
+        <div className="relative z-10 flex items-center gap-5 text-xs text-muted-foreground">
           <Link to="/terms" className="hover:text-foreground hover:underline">Terms</Link>
           <Link to="/privacy" className="hover:text-foreground hover:underline">Privacy</Link>
           <span>© {new Date().getFullYear()} Blockwork</span>
