@@ -7,15 +7,12 @@ import { useAppUser } from "@/lib/useAppUser";
 import SplitHero from "@/components/landing/SplitHero";
 import TrustBar from "@/components/landing/TrustBar";
 import HowItWorks from "@/components/landing/HowItWorks";
-import ServicesGrid from "@/components/landing/ServicesGrid";
 import MarketplacePreview from "@/components/landing/MarketplacePreview";
 import EarningsCalculator from "@/components/landing/EarningsCalculator";
 import FaqSection from "@/components/landing/FaqSection";
 import SafetySummary from "@/components/landing/SafetySummary";
-import ScrambleText from "@/components/landing/ScrambleText";
 import SiteFooter from "@/components/SiteFooter";
 import Seo from "@/components/Seo";
-import { Lock } from "lucide-react";
 
 const ROLE_HOME = { teen: "/teen", parent: "/parent", buyer: "/buyer", admin: "/admin" };
 
@@ -141,10 +138,6 @@ export default function Welcome() {
         <HowItWorks />
       </Section>
 
-      <Section eyebrow="Services" title="What can you offer?" subtitle="Whatever you're great at, there's a neighbor who needs it.">
-        <ServicesGrid />
-      </Section>
-
       <Section eyebrow="Marketplace" title="The kinds of jobs neighbors post" subtitle="Examples of what you'll find on Blockwork — real listings near you appear once you sign up.">
         <MarketplacePreview />
       </Section>
@@ -152,41 +145,6 @@ export default function Welcome() {
       <Section eyebrow="Earnings" title="See what you could make" subtitle="Teens earn real money at fair rates — neighbors pay a fraction of what pro services charge. Everyone wins.">
         <EarningsCalculator />
       </Section>
-
-      {/* Encrypted data — prominent decoder reveal */}
-      <section className="relative max-w-6xl mx-auto px-6 py-12 sm:py-20">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-60px" }}
-          transition={{ duration: 0.5 }}
-          className="relative overflow-hidden rounded-3xl border border-border bg-card shadow-elevated px-6 py-14 sm:px-12 sm:py-20 text-center"
-        >
-          <div className="absolute inset-0 opacity-[0.04] pointer-events-none"
-            style={{
-              backgroundImage:
-                "repeating-linear-gradient(0deg, hsl(var(--foreground)) 0px, hsl(var(--foreground)) 1px, transparent 1px, transparent 28px)",
-            }}
-          />
-          <div className="relative z-10">
-            <Lock className="w-10 h-10 sm:w-12 sm:h-12 text-primary mx-auto mb-5" />
-            <ScrambleText
-              text="ENCRYPTED DATA"
-              as="h2"
-              className="font-grotesk text-foreground"
-              style={{
-                fontWeight: 700,
-                fontSize: "clamp(40px, 7vw, 88px)",
-                lineHeight: 1.05,
-                letterSpacing: "-0.02em",
-              }}
-            />
-            <p className="font-grotesk text-muted-foreground mt-5 max-w-lg mx-auto text-base sm:text-lg leading-relaxed">
-              Every profile, payment, and message is protected end-to-end. Your family's information stays private — always.
-            </p>
-          </div>
-        </motion.div>
-      </section>
 
       <section className="relative z-10 max-w-6xl mx-auto px-6 pb-10 sm:pb-16">
         <SafetySummary />
