@@ -150,6 +150,7 @@ export default function Register() {
         icon={UserPlus}
         title="Quick eligibility check"
         subtitle="Teen work rules vary by state — let's make sure you can join"
+        showBackdrop={false}
         footer={
           <>
             Already have an account?{" "}
@@ -183,6 +184,7 @@ export default function Register() {
         icon={Mail}
         title="Verify your email"
         subtitle={`We sent a code to ${email}`}
+        showBackdrop={false}
       >
         {error && (
           <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
@@ -236,6 +238,7 @@ export default function Register() {
       icon={UserPlus}
       title="Create your account"
       subtitle={`Signing up as a ${ROLE_TITLES[role]}`}
+      showBackdrop={false}
       footer={
         <>
           Already have an account?{" "}

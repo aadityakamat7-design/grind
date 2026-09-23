@@ -10,13 +10,13 @@ const TRUST_POINTS = [
   "Payments held safely in escrow",
 ];
 
-export default function AuthLayout({ title, subtitle, footer, children }) {
+export default function AuthLayout({ title, subtitle, footer, children, showBackdrop = true }) {
   return (
     <div className="min-h-[100dvh] flex bg-background">
       {/* Left column — form */}
       <div className="relative w-full md:w-[45%] flex flex-col min-h-[100dvh] px-6 sm:px-10 lg:px-16 pt-[max(2rem,env(safe-area-inset-top))] pb-[max(2rem,env(safe-area-inset-bottom))] overflow-y-auto">
         {/* Decode-text decorative backdrop — aria-hidden, behind form content */}
-        <DecodeBackdrop />
+        {showBackdrop && <DecodeBackdrop />}
         {/* Wordmark */}
         <Link to="/" className="relative z-10 flex items-center gap-2.5 self-start">
           <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-soft">
