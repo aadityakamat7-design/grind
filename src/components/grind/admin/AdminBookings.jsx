@@ -13,8 +13,6 @@ export default function AdminBookings({ bookings, listings }) {
   const [statusFilter, setStatusFilter] = useState("all");
   const [selected, setSelected] = useState(null);
 
-  const listingMap = useMemo(() => Object.fromEntries(listings.map((l) => [l.id, l])), [listsings] ?? [listings]);
-
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return bookings.filter((b) => {
