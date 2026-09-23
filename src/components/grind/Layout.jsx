@@ -1,9 +1,11 @@
 import React, { useRef, useEffect } from "react";
 import { Outlet, NavLink, Navigate, Link, useLocation, useNavigate } from "react-router-dom";
-import { Home, List, CalendarDays, MessageCircle, Wallet, LayoutDashboard, ShieldCheck, Search, Briefcase, ArrowLeft, Settings } from "lucide-react";
+import { Home, List, CalendarDays, MessageCircle, Wallet, LayoutDashboard, ShieldCheck, Search, Briefcase, ArrowLeft, Settings, Instagram } from "lucide-react";
 import { useAppUser } from "@/lib/useAppUser";
 import NotificationBell from "@/components/grind/NotificationBell";
 import SiteFooter from "@/components/SiteFooter";
+import StripeBadge from "@/components/StripeBadge";
+import SSLBadge from "@/components/SSLBadge";
 import BlockworkLogo from "@/components/BlockworkLogo";
 import HelpWidget from "@/components/grind/HelpWidget";
 import OfflineBanner from "@/components/grind/OfflineBanner";
@@ -263,15 +265,29 @@ export default function Layout() {
           </div>
         </header>
 
-        <main className="flex-1 max-w-3xl lg:max-w-5xl w-full mx-auto px-4 lg:px-8 pt-5 lg:pt-8 pb-28 lg:pb-12">
+        <main className="flex-1 max-w-3xl lg:max-w-5xl w-full mx-auto px-4 lg:px-8 pt-5 lg:pt-8 pb-36 lg:pb-12">
           <Outlet context={{ user, reload }} />
         </main>
-        <SiteFooter />
+        <SiteFooter hideBadgesOnMobile />
       </div>
 
       {/* Mobile bottom bar */}
-      <nav className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-card/95 backdrop-blur-xl border-t border-border pb-[env(safe-area-inset-bottom)]">
-        <div className="max-w-3xl mx-auto flex items-stretch justify-around">
+      <nav className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-card/95 backdrop-blur-xl border-t border-border">
+        {/* Trust badges — always visible above tabs */}
+        <div className="flex items-center justify-center gap-3 py-1.5 border-b border-border/50">
+          <StripeBadge showText={false} />
+          <SSLBadge />
+          <a
+            href="https://www.instagram.com/blockworkjobsforteens/"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Blockwork on Instagram"
+            className="text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <Instagram className="w-4 h-4" />
+          </a>
+        </div>
+        <div className="max-w-3xl mx-auto flex items-stretch justify-around pb-[env(safe-area-inset-bottom)]">
           {primaryTabs.map((tab) => {
             const Icon = tab.icon;
             return (

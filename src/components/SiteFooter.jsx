@@ -36,7 +36,7 @@ const COLUMNS = [
   },
 ];
 
-export default function SiteFooter({ compact = false }) {
+export default function SiteFooter({ compact = false, hideBadgesOnMobile = false }) {
   const size = compact ? "text-[11px]" : "text-xs";
   const pad = compact ? "py-3" : "py-6";
 
@@ -67,7 +67,7 @@ export default function SiteFooter({ compact = false }) {
         </div>
 
         {/* Trust badges + copyright */}
-        <div className="flex flex-col items-center gap-2 pt-4 border-t border-border/40">
+        <div className={`flex flex-col items-center gap-2 pt-4 border-t border-border/40 ${hideBadgesOnMobile ? "lg:flex hidden" : ""}`}>
           <div className="flex items-center gap-3">
             <StripeBadge showText={false} />
             <SSLBadge />
