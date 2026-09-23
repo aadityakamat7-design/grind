@@ -6,6 +6,7 @@ import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip } from "rec
 import { Download, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/grind/PageHeader";
+import PayoutStatusSection from "@/components/grind/teen/PayoutStatusSection";
 import { PLATFORM_FEE_RATE, PLATFORM_FEE_FIXED } from "@/lib/grind";
 import PullToRefresh from "@/components/PullToRefresh";
 
@@ -88,6 +89,7 @@ export default function TeenEarnings() {
   const [held, setHeld] = useState([]);
   const [cashouts, setCashouts] = useState([]);
   const [releasedBookings, setReleasedBookings] = useState([]);
+  const [withdrawalMode, setWithdrawalMode] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [range, setRange] = useState("1M");
@@ -95,16 +97,26 @@ export default function TeenEarnings() {
   const load = useCallback(async () => {
     try {
       setError(false);
-      const [r, h, c, rb] = await Promise.all([
+      const [r, h, c, rb, links] = await Promise.all([
         base44.entities.EarningsRecord.filter({ teen_user_id: user.id }, "-occurred_at"),
         base44.entities.Booking.filter({ teen_user_id: user.id, payment_status: "held" }),
         base44.entities.WalletTransaction.filter({ teen_user_id: user.id, type: "cashout" }, "-occurred_at"),
         base44.entities.Booking.filter({ teen_user_id: user.id, payment_status: "released" }),
+        base44.entities.ParentTeenLink.filter({ teen_user_id: user.id, status: "confirmed" }),
       ]);
       setRecords(r);
       setHeld(h);
       setCashouts(c);
       setReleasedBookings(rb);
+      // Withdrawal mode = confirmed parent link with an active payout account
+      // and withdrawals not locked. Payout status is only meaningful then.
+      const link = links[0];
+      let canWithdraw = false;
+      if (link?.parent_user_id && !link.withdrawals_locked) {
+        const parentProfiles = await base44.entities.ParentProfile.filter({ user_id: link.parent_user_id });
+        canWithdraw = parentProfiles[0]?.connect_status === "active";
+      }
+      setWithdrawalMode(canWithdraw);
     } catch (err) {
       console.error("TeenEarnings load failed:", err);
       setError(true);
@@ -280,6 +292,9 @@ export default function TeenEarnings() {
           </div>
         ))}
       </div>
+
+      {/* Payout status — only shown when the teen is in withdrawal mode */}
+      {withdrawalMode && <PayoutStatusSection releasedBookings={releasedBookings} />}
 
       {/* Transactions */}
       <div>
