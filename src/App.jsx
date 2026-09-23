@@ -52,6 +52,11 @@ import HowItWorks from '@/pages/HowItWorks';
 import OAuthConsent from '@/pages/OAuthConsent';
 import WithdrawalAssistant from '@/pages/WithdrawalAssistant';
 import ResolveExpiredJob from '@/pages/ResolveExpiredJob';
+import ParentGuide from '@/pages/ParentGuide';
+import NeighborGuide from '@/pages/NeighborGuide';
+import Pricing from '@/pages/Pricing';
+import RefundsDisputes from '@/pages/RefundsDisputes';
+import ReportSafetyConcern from '@/pages/ReportSafetyConcern';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -109,6 +114,11 @@ const AuthenticatedApp = () => {
       <Route path="/terms" element={<TermsOfService />} />
       <Route path="/privacy" element={<PrivacyPolicy />} />
       <Route path="/oauth-consent" element={<OAuthConsent />} />
+      <Route path="/parent-guide" element={<ParentGuide />} />
+      <Route path="/neighbor-guide" element={<NeighborGuide />} />
+      <Route path="/pricing" element={<Pricing />} />
+      <Route path="/refunds" element={<RefundsDisputes />} />
+      <Route path="/report-safety" element={<ReportSafetyConcern />} />
 
       {/* Onboarding — standalone page like auth (no app nav) */}
       <Route path="/onboarding" element={<Onboarding />} />

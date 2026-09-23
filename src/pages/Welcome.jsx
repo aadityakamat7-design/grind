@@ -9,9 +9,7 @@ import TrustBar from "@/components/landing/TrustBar";
 import HowItWorks from "@/components/landing/HowItWorks";
 import ServicesGrid from "@/components/landing/ServicesGrid";
 import MarketplacePreview from "@/components/landing/MarketplacePreview";
-import WhyBlockwork from "@/components/landing/WhyBlockwork";
 import EarningsCalculator from "@/components/landing/EarningsCalculator";
-import SafetyGrid from "@/components/landing/SafetyGrid";
 import FaqSection from "@/components/landing/FaqSection";
 import SafetySummary from "@/components/landing/SafetySummary";
 import ScrambleText from "@/components/landing/ScrambleText";
@@ -151,32 +149,9 @@ export default function Welcome() {
         <MarketplacePreview />
       </Section>
 
-      <Section id="why" eyebrow="Why Blockwork" title="Better than a paper route" subtitle="Everything a first job should be — without the downsides.">
-        <WhyBlockwork />
-      </Section>
-
       <Section eyebrow="Earnings" title="See what you could make" subtitle="Teens earn real money at fair rates — neighbors pay a fraction of what pro services charge. Everyone wins.">
         <EarningsCalculator />
       </Section>
-
-      <section id="safety" className="relative max-w-6xl mx-auto px-6 py-10 sm:py-24">
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-60px" }}
-          transition={{ duration: 0.5 }}
-          className="mb-10 max-w-2xl"
-        >
-          <p className="text-xs font-semibold text-primary uppercase tracking-[0.2em] mb-3">Why parents trust us</p>
-          <h2 className="font-grotesk text-3xl sm:text-4xl leading-tight text-foreground">
-            Safety isn't a feature. It's the foundation.
-          </h2>
-          <p className="font-grotesk text-muted-foreground mt-3 text-lg leading-relaxed">
-            Every layer of Blockwork is built to protect teens and reassure parents. This is what makes us different.
-          </p>
-        </motion.div>
-        <SafetyGrid />
-      </section>
 
       {/* Encrypted data — prominent decoder reveal */}
       <section className="relative max-w-6xl mx-auto px-6 py-12 sm:py-20">

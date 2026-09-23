@@ -3,52 +3,78 @@ import { Link } from "react-router-dom";
 import StripeBadge from "@/components/StripeBadge";
 import SSLBadge from "@/components/SSLBadge";
 
-// Compact, professional site footer — a quiet closing line.
-// Single row of legal links + copyright + trust badges on desktop,
-// wrapping cleanly on mobile with 44px tap targets.
-export default function SiteFooter({ compact = false }) {
-  const links = [
-    { to: "/about", label: "About" },
-    { to: "/terms", label: "Terms" },
-    { to: "/privacy", label: "Privacy" },
-    { to: "/support", label: "Support" },
-    { to: "/safety", label: "Safety" },
-    { to: "/compliance", label: "Payments & Compliance" },
-  ];
+// Dense, multi-column link grid footer — Robinhood-style density in
+// Blockwork's own visual system. Small text, grouped columns, trust
+// badges + copyright anchored at the bottom.
+const COLUMNS = [
+  {
+    header: "Company",
+    links: [
+      { to: "/how-it-works", label: "How it works" },
+      { to: "/about", label: "About" },
+      { to: "/support", label: "Contact / Support" },
+    ],
+  },
+  {
+    header: "Guides",
+    links: [
+      { to: "/parent-guide", label: "Parent Guide" },
+      { to: "/neighbor-guide", label: "Neighbor Guide" },
+      { to: "/pricing", label: "Pricing" },
+      { to: "/refunds", label: "Refunds & Disputes" },
+    ],
+  },
+  {
+    header: "Legal & Safety",
+    links: [
+      { to: "/terms", label: "Terms of Service" },
+      { to: "/privacy", label: "Privacy Policy" },
+      { to: "/safety", label: "Safety Center" },
+      { to: "/report-safety", label: "Report a Safety Concern" },
+    ],
+  },
+];
 
+export default function SiteFooter({ compact = false }) {
   const size = compact ? "text-[11px]" : "text-xs";
-  const pad = compact ? "py-2.5" : "py-4";
+  const pad = compact ? "py-3" : "py-6";
 
   return (
     <footer className="border-t border-border/60 bg-card/30">
       <div className={`max-w-5xl mx-auto px-4 lg:px-8 ${pad}`}>
-        {/* Trust badges — centered, small */}
-        <div className="flex items-center justify-center gap-2 mb-2">
-          <StripeBadge showText={false} />
-          <SSLBadge />
+        {/* Link grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-4 mb-5">
+          {COLUMNS.map((col) => (
+            <div key={col.header}>
+              <p className={`${size} font-semibold text-foreground/80 uppercase tracking-wider mb-2`}>
+                {col.header}
+              </p>
+              <ul className="space-y-1">
+                {col.links.map((l) => (
+                  <li key={l.to}>
+                    <Link
+                      to={l.to}
+                      className={`${size} text-muted-foreground hover:text-foreground hover:underline underline-offset-2 transition-colors inline-block min-h-[20px]`}
+                    >
+                      {l.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
 
-        {/* Copyright */}
-        <p className={`${size} text-muted-foreground/70 text-center mb-1.5 leading-none`}>
-          © {new Date().getFullYear()} Blockwork
-        </p>
-
-        {/* Legal links — single row on desktop, wraps on mobile */}
-        <nav className={`flex flex-wrap items-center justify-center gap-x-1 gap-y-0 ${size} text-muted-foreground`}>
-          {links.map((l, i) => (
-            <React.Fragment key={l.to}>
-              <Link
-                to={l.to}
-                className="min-h-[44px] inline-flex items-center px-1.5 hover:text-foreground hover:underline underline-offset-2 transition-colors"
-              >
-                {l.label}
-              </Link>
-              {i < links.length - 1 && (
-                <span className="text-border/50 select-none hidden sm:inline">·</span>
-              )}
-            </React.Fragment>
-          ))}
-        </nav>
+        {/* Trust badges + copyright */}
+        <div className="flex flex-col items-center gap-2 pt-4 border-t border-border/40">
+          <div className="flex items-center gap-2">
+            <StripeBadge showText={false} />
+            <SSLBadge />
+          </div>
+          <p className={`${size} text-muted-foreground/70 text-center leading-none`}>
+            © {new Date().getFullYear()} Blockwork
+          </p>
+        </div>
       </div>
     </footer>
   );
