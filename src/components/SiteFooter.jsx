@@ -36,13 +36,13 @@ const COLUMNS = [
   },
 ];
 
-export default function SiteFooter({ compact = false, hideBadgesOnMobile = false }) {
+export default function SiteFooter({ compact = false }) {
   const size = compact ? "text-[11px]" : "text-xs";
   const pad = compact ? "py-3" : "py-6";
 
   return (
     <footer className="border-t border-border/60 bg-card/30">
-      <div className={`max-w-5xl mx-auto px-4 lg:px-8 ${pad}`}>
+      <div className={`max-w-5xl mx-auto px-4 lg:px-8 ${pad} pb-24 lg:pb-6`}>
         {/* Link grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-4 mb-5">
           {COLUMNS.map((col) => (
@@ -67,7 +67,7 @@ export default function SiteFooter({ compact = false, hideBadgesOnMobile = false
         </div>
 
         {/* Trust badges + copyright */}
-        <div className={`flex flex-col items-center gap-2 pt-4 border-t border-border/40 ${hideBadgesOnMobile ? "lg:flex hidden" : ""}`}>
+        <div className="flex flex-col items-center gap-2 pt-4 border-t border-border/40">
           <div className="flex items-center gap-3">
             <StripeBadge showText={false} />
             <SSLBadge />
