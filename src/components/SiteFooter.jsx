@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { Instagram } from "lucide-react";
 import StripeBadge from "@/components/StripeBadge";
 import SSLBadge from "@/components/SSLBadge";
 
@@ -67,9 +68,18 @@ export default function SiteFooter({ compact = false }) {
 
         {/* Trust badges + copyright */}
         <div className="flex flex-col items-center gap-2 pt-4 border-t border-border/40">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <StripeBadge showText={false} />
             <SSLBadge />
+            <a
+              href="https://www.instagram.com/blockworkjobsforteens/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Blockwork on Instagram"
+              className="text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <Instagram className="w-5 h-5" />
+            </a>
           </div>
           <p className={`${size} text-muted-foreground/70 text-center leading-none`}>
             © {new Date().getFullYear()} Blockwork
