@@ -1,60 +1,59 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useOutletContext } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { Users, Search, CalendarDays, Wallet, Flag, BadgeCheck, TrendingUp, CheckCircle2, AlertTriangle, ShieldCheck, Repeat } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import {
+  LayoutDashboard, Users, CalendarDays, Wallet, ShieldAlert, Flag, Activity,
+} from "lucide-react";
 import PageHeader from "@/components/grind/PageHeader";
-import ReportRow from "@/components/grind/admin/ReportRow";
-import PayoutReviewQueue from "@/components/grind/admin/PayoutReviewQueue";
-import DisputeReviewQueue from "@/components/grind/admin/DisputeReviewQueue";
-import CredentialReviewQueue from "@/components/grind/admin/CredentialReviewQueue";
-import AdminAnalytics from "@/components/grind/admin/AdminAnalytics";
-import StatCard from "@/components/grind/StatCard";
-import StatusBadge from "@/components/grind/StatusBadge";
 import ErrorRetry from "@/components/grind/ErrorRetry";
-import SafetyEscrowCenter from "@/components/grind/admin/SafetyEscrowCenter";
-import StripeTestModeCard from "@/components/grind/admin/StripeTestModeCard";
-import IdentityVerificationToggle from "@/components/grind/admin/IdentityVerificationToggle";
-import StateComplianceTable from "@/components/grind/admin/StateComplianceTable";
-import ReceiptPreviewCard from "@/components/grind/admin/ReceiptPreviewCard";
-import { money } from "@/lib/grind";
+import AdminOverview from "@/components/grind/admin/AdminOverview";
+import AdminUsers from "@/components/grind/admin/AdminUsers";
+import AdminBookings from "@/components/grind/admin/AdminBookings";
+import AdminPayments from "@/components/grind/admin/AdminPayments";
+import AdminDisputes from "@/components/grind/admin/AdminDisputes";
+import AdminModeration from "@/components/grind/admin/AdminModeration";
+import AdminSystemHealth from "@/components/grind/admin/AdminSystemHealth";
+
+const TABS = [
+  { id: "overview", label: "Overview", icon: LayoutDashboard },
+  { id: "users", label: "Users", icon: Users },
+  { id: "bookings", label: "Bookings", icon: CalendarDays },
+  { id: "payments", label: "Payments & Payouts", icon: Wallet },
+  { id: "disputes", label: "Disputes & Safety", icon: ShieldAlert },
+  { id: "moderation", label: "Moderation", icon: Flag },
+  { id: "system", label: "System Health", icon: Activity },
+];
 
 export default function Admin() {
   const { user } = useOutletContext();
-  const [teens, setTeens] = useState([]);
-  const [buyers, setBuyers] = useState([]);
-  const [parents, setParents] = useState([]);
-  const [bookings, setBookings] = useState([]);
-  const [reports, setReports] = useState([]);
-  const [credentials, setCredentials] = useState([]);
-  const [referrals, setReferrals] = useState([]);
-  const [listings, setListings] = useState([]);
+  const [tab, setTab] = useState("overview");
+  const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const [acting, setActing] = useState(false);
 
   const load = useCallback(async () => {
     if (user?.app_role !== "admin") { setLoading(false); return; }
     try {
       setError(false);
-      const [t, b, p, bk, r, creds, refs, lst] = await Promise.all([
+      const [
+        users, teens, buyers, parents, bookings, reports, credentials,
+        referrals, listings, links, reviews, messages, webhooks,
+      ] = await Promise.all([
+        base44.entities.User.list("-created_date", 500),
         base44.entities.TeenProfile.list("-created_date", 500),
         base44.entities.BuyerProfile.list("-created_date", 500),
         base44.entities.ParentProfile.list("-created_date", 500),
         base44.entities.Booking.list("-created_date", 500),
-        base44.entities.Report.list("-created_date", 100),
+        base44.entities.Report.list("-created_date", 200),
         base44.entities.Credential.filter({ status: "pending" }, "-created_date", 100),
         base44.entities.Referral.list("-created_date", 100),
         base44.entities.Listing.list("-created_date", 500),
+        base44.entities.ParentTeenLink.list("-created_date", 500),
+        base44.entities.Review.list("-created_date", 500),
+        base44.entities.Message.filter({ flagged: true }, "-created_date", 100),
+        base44.entities.WebhookEvent.list("-created_date", 100),
       ]);
-      setTeens(t);
-      setBuyers(b);
-      setParents(p);
-      setBookings(bk);
-      setReports(r);
-      setCredentials(creds);
-      setReferrals(refs);
-      setListings(lst);
+      setData({ users, teens, buyers, parents, bookings, reports, credentials, referrals, listings, links, reviews, messages, webhooks });
     } catch (err) {
       console.error("Admin load failed:", err);
       setError(true);
@@ -83,268 +82,49 @@ export default function Admin() {
     );
   }
 
-  const isPreviewAdmin = user?.email === "aaditya.kamat7@gmail.com";
-
   if (loading)
     return (
       <div className="space-y-6">
-        {isPreviewAdmin && <ReceiptPreviewCard />}
         <div className="h-8 w-56 rounded-lg bg-muted skeleton-shimmer" />
+        <div className="flex gap-1 border-b border-border">
+          {Array.from({ length: 7 }).map((_, i) => <div key={i} className="h-10 w-28 rounded-lg bg-muted skeleton-shimmer" />)}
+        </div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {Array.from({ length: 8 }).map((_, i) => <div key={i} className="bg-card rounded-2xl border border-border p-4 h-24 skeleton-shimmer" />)}
         </div>
-        <div className="grid lg:grid-cols-2 gap-4">
-          <div className="bg-card rounded-2xl border border-border h-56 skeleton-shimmer" />
-          <div className="bg-card rounded-2xl border border-border h-56 skeleton-shimmer" />
-        </div>
       </div>
     );
-  if (error) return <ErrorRetry onRetry={load} />;
+  if (error || !data) return <ErrorRetry onRetry={load} />;
 
-  const resolve = async (report) => {
-    setActing(true);
-    await base44.entities.Report.update(report.id, { status: "resolved" });
-    setActing(false);
-    load();
-  };
-
-  const hideReview = async (report) => {
-    setActing(true);
-    await base44.entities.Review.update(report.review_id, { hidden: true });
-    await base44.entities.Report.update(report.id, { status: "resolved" });
-    setActing(false);
-    load();
-  };
-
-  const now = Date.now();
-  const weekAgo = now - 7 * 86400000;
-  const monthAgo = now - 30 * 86400000;
-
-  const newTeensWeek = teens.filter((t) => t.created_date && new Date(t.created_date) > weekAgo).length;
-  const newBuyersWeek = buyers.filter((b) => b.created_date && new Date(b.created_date) > weekAgo).length;
-  const newParentsWeek = parents.filter((p) => p.created_date && new Date(p.created_date) > weekAgo).length;
-  const newSignupsWeek = newTeensWeek + newBuyersWeek + newParentsWeek;
-
-  const newTeensMonth = teens.filter((t) => t.created_date && new Date(t.created_date) > monthAgo).length;
-  const newBuyersMonth = buyers.filter((b) => b.created_date && new Date(b.created_date) > monthAgo).length;
-  const newParentsMonth = parents.filter((p) => p.created_date && new Date(p.created_date) > monthAgo).length;
-  const newSignupsMonth = newTeensMonth + newBuyersMonth + newParentsMonth;
-
-  const validBookings = bookings.filter((b) => !["cancelled", "denied"].includes(b.status));
-  const gmv = validBookings.reduce((s, b) => s + (b.price_total || 0), 0);
-  const platformRevenue = validBookings.reduce((s, b) => s + (b.platform_fee || 0), 0);
-  const completed = bookings.filter((b) => b.status === "completed");
-  const activeJobs = bookings.filter((b) => b.status === "in_progress");
-  const completionRate = bookings.length > 0 ? Math.round((completed.length / bookings.length) * 100) : 0;
-  const avgBookingValue = validBookings.length > 0 ? gmv / validBookings.length : 0;
-
-  const openReports = reports.filter((r) => r.status === "open");
-  const pendingCreds = credentials.filter((c) => c.status === "pending");
-
-  // Repeat-booking rate: % of buyers who booked more than once
-  const buyerBookingCounts = {};
-  validBookings.forEach((b) => {
-    if (b.buyer_user_id) buyerBookingCounts[b.buyer_user_id] = (buyerBookingCounts[b.buyer_user_id] || 0) + 1;
-  });
-  const totalBuyersWithBookings = Object.keys(buyerBookingCounts).length;
-  const repeatBuyers = Object.values(buyerBookingCounts).filter((c) => c >= 2).length;
-  const repeatBookingRate = totalBuyersWithBookings > 0 ? Math.round((repeatBuyers / totalBuyersWithBookings) * 100) : 0;
-
-  // Low-rating flag: teens/buyers below 3.5 with 3+ reviews
-  const lowRatedTeens = teens.filter((t) => t.avg_rating > 0 && t.avg_rating < 3.5 && (t.review_count || 0) >= 3);
-  const lowRatedBuyers = buyers.filter((b) => b.avg_rating > 0 && b.avg_rating < 3.5 && (b.review_count || 0) >= 3);
-
-  const bookingsByStatus = {
-    pending_parent_approval: bookings.filter((b) => b.status === "pending_parent_approval").length,
-    confirmed: bookings.filter((b) => b.status === "confirmed").length,
-    in_progress: activeJobs.length,
-    completed: completed.length,
-    cancelled: bookings.filter((b) => b.status === "cancelled").length,
-    denied: bookings.filter((b) => b.status === "denied").length,
-  };
+  const props = { ...data, user, onReload: load };
 
   return (
-    <div className="space-y-6">
-      <PageHeader title="Admin console" subtitle="Marketplace health, moderation, and verifications." />
+    <div className="space-y-5">
+      <PageHeader title="Admin console" subtitle="Marketplace health, moderation, and operations." />
 
-      {isPreviewAdmin && <ReceiptPreviewCard />}
-
-      <StripeTestModeCard />
-
-      <IdentityVerificationToggle />
-
-      <StateComplianceTable />
-
-      <SafetyEscrowCenter bookings={bookings} reports={reports} onResolveReport={resolve} acting={acting} />
-
-      <div>
-        <h2 className="text-[17px] font-bold text-foreground mb-3">Users</h2>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          <StatCard icon={Users} label="Teens" value={teens.length} subtitle={`${newTeensWeek} this week`} accent="text-primary" />
-          <StatCard icon={Search} label="Neighbors" value={buyers.length} subtitle={`${newBuyersWeek} this week`} accent="text-primary" />
-          <StatCard icon={ShieldCheck} label="Parents" value={parents.length} subtitle={`${newParentsWeek} this week`} accent="text-primary" />
-          <StatCard icon={TrendingUp} label="New signups" value={newSignupsWeek} subtitle={`${newSignupsMonth} this month`} accent="text-emerald-600" />
-        </div>
+      {/* Tab bar */}
+      <div className="flex items-center gap-1 overflow-x-auto no-scrollbar border-b border-border -mx-1 px-1 pb-px">
+        {TABS.map(({ id, label, icon: Icon }) => (
+          <button
+            key={id}
+            onClick={() => setTab(id)}
+            className={`flex items-center gap-1.5 px-3.5 py-2.5 text-sm font-semibold whitespace-nowrap border-b-2 transition-colors ${
+              tab === id ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Icon className="w-4 h-4 shrink-0" />
+            {label}
+          </button>
+        ))}
       </div>
 
-      <div>
-        <h2 className="text-[17px] font-bold text-foreground mb-3">Bookings & revenue</h2>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          <StatCard icon={CalendarDays} label="Total bookings" value={bookings.length} subtitle={`${bookingsByStatus.in_progress} active now`} accent="text-primary" />
-          <StatCard icon={Wallet} label="GMV" value={money(gmv)} subtitle="gross booking value" accent="text-emerald-600" />
-          <StatCard icon={TrendingUp} label="Platform revenue" value={money(platformRevenue)} subtitle="12.9% + $0.30 take rate" accent="text-amber-600" />
-          <StatCard icon={CheckCircle2} label="Completion rate" value={`${completionRate}%`} subtitle={`${completed.length} completed`} accent="text-emerald-600" />
-          <StatCard icon={CheckCircle2} label="Completed jobs" value={completed.length} subtitle="all time" accent="text-emerald-600" />
-          <StatCard icon={Repeat} label="Repeat-booking rate" value={`${repeatBookingRate}%`} subtitle={`${repeatBuyers} repeat buyers`} accent="text-primary" />
-          <StatCard icon={CalendarDays} label="Avg booking value" value={money(avgBookingValue)} subtitle="per job" accent="text-primary" />
-          <StatCard icon={CheckCircle2} label="Pending approval" value={bookingsByStatus.pending_parent_approval} subtitle="awaiting parent" accent="text-amber-600" />
-          <StatCard icon={CalendarDays} label="Confirmed" value={bookingsByStatus.confirmed} subtitle="upcoming" accent="text-primary" />
-          <StatCard icon={AlertTriangle} label="Cancelled/denied" value={bookingsByStatus.cancelled + bookingsByStatus.denied} subtitle="all time" accent="text-destructive" />
-        </div>
-      </div>
-
-      <AdminAnalytics bookings={bookings} teens={teens} buyers={buyers} parents={parents} listings={listings} />
-
-      <div>
-        <h2 className="text-[17px] font-bold text-foreground mb-3">Pending review</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <StatCard icon={BadgeCheck} label="Credentials" value={pendingCreds.length} subtitle="awaiting review" accent={pendingCreds.length > 0 ? "text-amber-600" : "text-emerald-600"} />
-          <StatCard icon={Flag} label="Open reports" value={openReports.length} subtitle="needs attention" accent={openReports.length > 0 ? "text-destructive" : "text-emerald-600"} />
-          <StatCard icon={AlertTriangle} label="Payout reviews" value={bookings.filter((b) => b.payout_status === "pending_review").length} subtitle="flagged" accent="text-amber-600" />
-        </div>
-      </div>
-
-      <PayoutReviewQueue bookings={bookings} onDone={load} user={user} />
-
-      <DisputeReviewQueue bookings={bookings} onDone={load} />
-
-      <CredentialReviewQueue credentials={credentials} onDone={load} />
-
-      <section>
-        <h2 className="text-[17px] font-bold text-foreground mb-3 flex items-center gap-2">
-          <Flag className="w-[18px] h-[18px] text-rose-500" /> Reports {openReports.length > 0 && `(${openReports.length} open)`}
-        </h2>
-        {reports.length === 0 ? (
-          <div className="bg-card rounded-2xl border border-border p-6 text-center">
-            <p className="text-[14px] text-muted-foreground">No reports filed.</p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {reports.map((r) => <ReportRow key={r.id} report={r} onResolve={resolve} onHideReview={hideReview} acting={acting} />)}
-          </div>
-        )}
-      </section>
-
-      {(lowRatedTeens.length > 0 || lowRatedBuyers.length > 0) && (
-        <section>
-          <h2 className="text-[17px] font-bold text-foreground mb-3 flex items-center gap-2">
-            <AlertTriangle className="w-[18px] h-[18px] text-amber-500" /> Low-rating flags
-          </h2>
-          <div className="space-y-2.5">
-            {lowRatedTeens.map((t) => (
-              <div key={t.id} className="flex items-center justify-between bg-card rounded-2xl border border-amber-200 shadow-soft p-4">
-                <div className="min-w-0">
-                  <p className="font-bold text-foreground text-[14px] truncate">{t.display_name}</p>
-                  <p className="text-[12px] text-muted-foreground mt-0.5">{t.avg_rating.toFixed(1)}★ · {t.review_count} reviews · {t.jobs_completed || 0} jobs</p>
-                </div>
-                <Button variant="outline" size="sm" className="rounded-full text-amber-600 border-amber-200" disabled={acting}
-                  onClick={async () => { setActing(true); await base44.entities.TeenProfile.update(t.id, { status: "suspended" }); setActing(false); load(); }}>
-                  Suspend
-                </Button>
-              </div>
-            ))}
-            {lowRatedBuyers.map((b) => (
-              <div key={b.id} className="flex items-center justify-between bg-card rounded-2xl border border-amber-200 shadow-soft p-4">
-                <div className="min-w-0">
-                  <p className="font-bold text-foreground text-[14px] truncate">{b.full_name || "Neighbor"}</p>
-                  <p className="text-[12px] text-muted-foreground mt-0.5">{b.avg_rating.toFixed(1)}★ · {b.review_count} reviews · {b.jobs_completed || 0} jobs</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {referrals.length > 0 && (
-        <section>
-          <h2 className="text-[17px] font-bold text-foreground mb-3 flex items-center gap-2">
-            <TrendingUp className="w-[18px] h-[18px] text-primary" /> Referrals ({referrals.length})
-          </h2>
-          <div className="space-y-2.5">
-            {referrals.map((r) => (
-              <div key={r.id} className="flex items-center justify-between bg-card rounded-2xl border border-border shadow-soft p-4">
-                <div className="min-w-0">
-                  <p className="font-bold text-foreground text-[14px] truncate">
-                    {r.referrer_name || "Unknown"} → {r.referred_email || "New user"}
-                  </p>
-                  <p className="text-[12px] text-muted-foreground mt-0.5">
-                    {r.referrer_role} referred {r.referred_role || "—"} · {r.status}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      <section>
-        <h2 className="text-[17px] font-bold text-foreground mb-3 flex items-center gap-2">
-          <Users className="w-[18px] h-[18px]" /> Teen management
-        </h2>
-        {teens.length === 0 ? (
-          <div className="bg-card rounded-2xl border border-border p-6 text-center">
-            <p className="text-[14px] text-muted-foreground">No teens yet.</p>
-          </div>
-        ) : (
-          <div className="space-y-2.5">
-            {teens.map((t) => (
-              <div key={t.id} className="flex items-center justify-between bg-card rounded-2xl border border-border shadow-soft p-4">
-                <div className="min-w-0">
-                  <p className="font-bold text-foreground text-[14px] truncate">{t.display_name}</p>
-                  <p className="text-[12px] text-muted-foreground mt-0.5">{t.resolved_city || t.state || "—"} · {t.jobs_completed || 0} jobs · {t.avg_rating ? `${t.avg_rating.toFixed(1)}★` : "no rating"}</p>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="rounded-full"
-                  disabled={acting}
-                  onClick={async () => {
-                    setActing(true);
-                    await base44.entities.TeenProfile.update(t.id, { status: t.status === "suspended" ? "active" : "suspended" });
-                    setActing(false);
-                    load();
-                  }}
-                >
-                  {t.status === "suspended" ? "Unsuspend" : "Suspend"}
-                </Button>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
-
-      <section>
-        <h2 className="text-[17px] font-bold text-foreground mb-3 flex items-center gap-2">
-          <BadgeCheck className="w-[18px] h-[18px] text-primary" /> Neighbor verifications
-        </h2>
-        {buyers.length === 0 ? (
-          <div className="bg-card rounded-2xl border border-border p-6 text-center">
-            <p className="text-[14px] text-muted-foreground">No neighbors yet.</p>
-          </div>
-        ) : (
-          <div className="space-y-2.5">
-            {buyers.map((b) => (
-              <div key={b.id} className="flex items-center justify-between bg-card rounded-2xl border border-border shadow-soft p-4">
-                <div className="min-w-0">
-                  <p className="font-bold text-foreground text-[14px] truncate">{b.full_name || "Neighbor"}</p>
-                  <p className="text-[12px] text-muted-foreground mt-0.5">ZIP {b.zip || "—"} · {b.jobs_completed || 0} jobs · {b.avg_rating ? `${b.avg_rating.toFixed(1)}★` : "no rating"}</p>
-                </div>
-                <StatusBadge status={b.id_verification_status === "verified" ? "active" : "pending"} />
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
+      {tab === "overview" && <AdminOverview {...props} />}
+      {tab === "users" && <AdminUsers {...props} />}
+      {tab === "bookings" && <AdminBookings {...props} />}
+      {tab === "payments" && <AdminPayments {...props} />}
+      {tab === "disputes" && <AdminDisputes {...props} />}
+      {tab === "moderation" && <AdminModeration {...props} />}
+      {tab === "system" && <AdminSystemHealth {...props} />}
     </div>
   );
 }
