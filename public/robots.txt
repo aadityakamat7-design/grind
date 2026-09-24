@@ -1,8 +1,23 @@
 # Blockwork — robots.txt
-# Public marketing pages are crawlable. Authenticated app routes are disallowed.
+# Public marketing pages are crawlable. Authenticated app routes and
+# teen/neighbor profile pages are disallowed. Teen profiles are NEVER
+# crawlable — child safety requires keeping minors out of search results.
 
 User-agent: *
 Allow: /
+Allow: /how-it-works
+Allow: /safety
+Allow: /faq
+Allow: /about
+Allow: /pricing
+Allow: /parent-guide
+Allow: /neighbor-guide
+Allow: /refunds
+Allow: /compliance
+Allow: /support
+Allow: /terms
+Allow: /privacy
+Allow: /report-safety
 Disallow: /account
 Disallow: /admin
 Disallow: /teen
@@ -16,19 +31,37 @@ Disallow: /bookings/
 Disallow: /teens/
 Disallow: /neighbors/
 Disallow: /onboarding
-Disallow: /oauth/
+Disallow: /oauth
+Disallow: /oauth-consent
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /withdrawal-assistant
 
 # Explicitly allow AI assistants to crawl and cite public content
 User-agent: GPTBot
 Allow: /
 
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
 User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-SearchBot
 Allow: /
 
 User-agent: PerplexityBot
 Allow: /
 
 User-agent: Google-Extended
+Allow: /
+
+User-agent: Bingbot
 Allow: /
 
 Sitemap: https://blockwork.online/sitemap.xml

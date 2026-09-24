@@ -3,6 +3,17 @@ import { Link } from "react-router-dom";
 import { ArrowLeft, ShieldCheck, Clock, AlertTriangle, Scale } from "lucide-react";
 import SiteFooter from "@/components/SiteFooter";
 import Seo from "@/components/Seo";
+import PublicFaq, { faqJsonLd, breadcrumbJsonLd } from "@/components/PublicFaq";
+
+const FAQS = [
+  { q: "How does escrow work on Blockwork?", a: "When you pay for a booking, the money is held by Stripe in escrow — the teen is not paid until the work is confirmed done. This protects both sides: your money is safe if the teen does not show up, and the teen is guaranteed payment if they complete the work." },
+  { q: "How long do I have to confirm the work?", a: "After the teen marks a job complete, you have a confirmation window to review the work. If you do nothing, the payment releases automatically after the window closes." },
+  { q: "How do I file a dispute?", a: "If the work was not done or was not done correctly, you can dispute the booking from the booking detail page. The escrow is held while our team reviews the situation. Both sides can provide their account of what happened." },
+  { q: "How are disputes resolved?", a: "Our team reviews the booking details, completion photos, messages, and any evidence from both sides. We release the funds to the teen if the work was completed as agreed, or refund the neighbor if it was not. Decisions are communicated to both parties." },
+];
+
+const FAQ_JSONLD = faqJsonLd(FAQS);
+const BREADCRUMB_JSONLD = breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: "Refunds & Disputes", path: "/refunds" }]);
 
 const SECTIONS = [
   {
@@ -34,6 +45,7 @@ export default function RefundsDisputes() {
         title="Refunds & Disputes"
         description="How Blockwork handles refunds, escrow, and disputes: confirmation windows, how to file a dispute, and how our team resolves them fairly."
         path="/refunds"
+        jsonLd={[FAQ_JSONLD, BREADCRUMB_JSONLD]}
       />
       <div className="flex-1 max-w-3xl mx-auto px-4 py-12 lg:py-20 w-full">
         <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-8">
@@ -58,6 +70,8 @@ export default function RefundsDisputes() {
             </div>
           ))}
         </div>
+        <PublicFaq faqs={FAQS} />
+
         <div className="mt-8 bg-secondary border border-border rounded-2xl p-5">
           <p className="text-sm text-muted-foreground leading-relaxed">
             Need to file a dispute or have a question about a refund? Email{" "}

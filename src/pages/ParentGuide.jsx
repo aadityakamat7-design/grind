@@ -3,6 +3,17 @@ import { Link } from "react-router-dom";
 import { ArrowLeft, ShieldCheck, Wallet, Eye, Bell, Lock } from "lucide-react";
 import SiteFooter from "@/components/SiteFooter";
 import Seo from "@/components/Seo";
+import PublicFaq, { faqJsonLd, breadcrumbJsonLd } from "@/components/PublicFaq";
+
+const FAQS = [
+  { q: "How does parent approval work on Blockwork?", a: "No job is confirmed without a parent's explicit approval. When a neighbor books your teen, you see the job details, address, pay, and neighbor's name before saying yes. You can deny any booking at any time before it starts." },
+  { q: "How does my teen get paid?", a: "Because your teen is a minor, their earnings flow through a Stripe Connect account in your name. After each completed job, the teen's share lands in your connected bank account. Your teen sees their balance in their Blockwork Wallet but cannot cash out without your account." },
+  { q: "Can I lock my teen's withdrawals?", a: "Yes. From your dashboard you can freeze your teen's ability to cash out at any time, for any reason. The earnings stay safe in escrow until you unlock it." },
+  { q: "Do I need to verify my identity?", a: "Yes. The first time your teen accepts a job, you will verify your identity with a government ID and a quick liveness check through Stripe Identity. This is required before any booking is confirmed." },
+];
+
+const FAQ_JSONLD = faqJsonLd(FAQS);
+const BREADCRUMB_JSONLD = breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: "Parent Guide", path: "/parent-guide" }]);
 
 const STEPS = [
   {
@@ -39,6 +50,7 @@ export default function ParentGuide() {
         title="Parent Guide"
         description="How Blockwork works for parents: identity verification, booking approval, escrow payouts, withdrawal locks, and safety notifications."
         path="/parent-guide"
+        jsonLd={[FAQ_JSONLD, BREADCRUMB_JSONLD]}
       />
       <div className="flex-1 max-w-3xl mx-auto px-4 py-12 lg:py-20 w-full">
         <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-8">
@@ -63,6 +75,8 @@ export default function ParentGuide() {
             </div>
           ))}
         </div>
+        <PublicFaq faqs={FAQS} />
+
         <div className="mt-8 bg-secondary border border-border rounded-2xl p-5">
           <p className="text-sm text-muted-foreground leading-relaxed">
             Questions? Email{" "}

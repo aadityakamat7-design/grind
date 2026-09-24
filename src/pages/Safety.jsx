@@ -3,6 +3,17 @@ import { Link } from "react-router-dom";
 import { ShieldCheck, ArrowLeft, IdCard, Landmark, Lock, Eye, MessageSquare, AlertTriangle, Users, Home, Clock } from "lucide-react";
 import SiteFooter from "@/components/SiteFooter";
 import Seo from "@/components/Seo";
+import PublicFaq, { faqJsonLd, breadcrumbJsonLd } from "@/components/PublicFaq";
+
+const FAQS = [
+  { q: "Is Blockwork safe for my teen?", a: "Blockwork is built around safety. Every parent verifies their identity with a government ID, every booking requires parent approval, all in-person work happens outdoors (teens never enter a client's home), and every payment is held in escrow." },
+  { q: "Can a teen enter a client's home?", a: "No — never. All in-person work is performed outdoors on the exterior of the property, and all tutoring happens over video. Requesting a teen to enter a residence is grounds for immediate account termination." },
+  { q: "How does identity verification work?", a: "Parents verify their identity with a government ID through Stripe Identity before their teen can accept a first job. Teens also verify the first time they accept work. Blockwork never sees or stores raw ID images — only the verification result." },
+  { q: "What happens if something goes wrong during a job?", a: "Teens can alert their parent instantly from any active job. Anyone can report a safety concern, and our team reviews reports quickly. For emergencies, call 911." },
+];
+
+const FAQ_JSONLD = faqJsonLd(FAQS);
+const BREADCRUMB_JSONLD = breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: "Safety", path: "/safety" }]);
 
 const PILLARS = [
   {
@@ -55,7 +66,7 @@ const PILLARS = [
 export default function Safety() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <Seo title="Safety" description="How Blockwork keeps teens safe: parent approval, ID verification, escrow payments, enforced minor work-hour limits, and a strict no-home-entry policy." path="/safety" />
+      <Seo title="Safety" description="How Blockwork keeps teens safe: parent approval, ID verification, escrow payments, enforced minor work-hour limits, and a strict no-home-entry policy." path="/safety" jsonLd={[FAQ_JSONLD, BREADCRUMB_JSONLD]} />
       <div className="flex-1 max-w-3xl mx-auto px-4 py-12 lg:py-20 w-full">
         <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-8">
           <ArrowLeft className="w-4 h-4" /> Back to Blockwork
@@ -87,6 +98,8 @@ export default function Safety() {
             );
           })}
         </div>
+        <PublicFaq faqs={FAQS} />
+
         <div className="mt-8 bg-secondary border border-border rounded-2xl p-5">
           <p className="text-xs text-muted-foreground leading-relaxed">
             For urgent safety concerns during an active job, use the "Alert parent" or "Report" buttons directly in the booking or chat. For emergencies, call 911 immediately.

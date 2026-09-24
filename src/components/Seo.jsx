@@ -5,6 +5,7 @@ import { useEffect } from "react";
 // Meta tags are upserted in place (so the platform's injected tags are reused
 // rather than duplicated); JSON-LD scripts are refreshed on each render.
 const SITE_NAME = "Blockwork";
+const CANONICAL_ORIGIN = "https://blockwork.online";
 const DEFAULT_OG_IMAGE =
   "https://media.base44.com/images/public/6a5e69e14e9f3a6e92e2a0eb/9685a262a_generated_image.png";
 
@@ -30,21 +31,23 @@ function upsertLink(rel, href) {
   el.setAttribute("href", href);
 }
 
-export default function Seo({ title, description, path = "/", image, jsonLd = [] }) {
+export default function Seo({ title, description, path = "/", image, jsonLd = [], noindex = false }) {
   useEffect(() => {
     // document.title and the <meta name="description"> tag are managed
     // centrally by <RouteMeta /> in App.jsx so they update on every
     // route change. Here we only handle OG/Twitter tags, canonical,
-    // and JSON-LD — all of which use the page-specific props below.
+    // robots, and JSON-LD — all of which use the page-specific props below.
     const fullTitle = title
       ? `${title} — ${SITE_NAME}`
       : `${SITE_NAME} — Local teen jobs, parent-approved`;
 
-    const origin = window.location.origin;
-    const canonical = new URL(path, origin).toString();
+    const canonical = new URL(path, CANONICAL_ORIGIN).toString();
     const ogImage = image || DEFAULT_OG_IMAGE;
 
     upsertLink("canonical", canonical);
+
+    // Robots meta tag: noindex for private/teen pages, index for public
+    upsertMeta("name", "robots", noindex ? "noindex, nofollow" : "index, follow");
 
     upsertMeta("property", "og:title", fullTitle);
     upsertMeta("property", "og:description", description);

@@ -3,6 +3,9 @@ import { Link } from "react-router-dom";
 import { HelpCircle, ArrowLeft } from "lucide-react";
 import SiteFooter from "@/components/SiteFooter";
 import Seo from "@/components/Seo";
+import { breadcrumbJsonLd } from "@/components/PublicFaq";
+
+const BREADCRUMB_JSONLD = breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: "FAQ", path: "/faq" }]);
 
 const FAQS = [
   {
@@ -56,7 +59,7 @@ export default function Faq() {
         title="FAQ"
         description="Answers to common Blockwork questions: how teens get paid, safety, what teens can earn, work permits, and how parent approval works."
         path="/faq"
-        jsonLd={FAQ_JSONLD}
+        jsonLd={[FAQ_JSONLD, BREADCRUMB_JSONLD]}
       />
       <div className="flex-1 max-w-3xl mx-auto px-4 py-12 lg:py-20 w-full">
         <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-8">

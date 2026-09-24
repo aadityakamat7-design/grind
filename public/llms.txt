@@ -1,0 +1,52 @@
+# Blockwork
+
+Blockwork is a parent-approved local marketplace where California teens (ages 13+) earn real paychecks doing outdoor work and online tutoring for neighbors. Every job requires parent approval, every user is identity-verified, and every payment is protected by escrow. Blockwork currently operates in California only.
+
+## Who it's for
+
+- **Teens (13+)**: List services they offer — lawn care, car washing, pet sitting, tech help, online tutoring, and odd jobs — and set their own prices. Teens under 18 need a parent or guardian linked to their account.
+- **Parents**: The legal and financial account holder. Parents verify their identity, approve every booking, receive payouts to their connected bank account, and can lock withdrawals at any time.
+- **Neighbors**: Browse nearby teen services or post jobs. Pay securely through escrow; confirm the work before payment is released.
+
+## What Blockwork does
+
+- Connects teens with neighbors for outdoor tasks (lawn mowing, yard cleanup, car washing, pet sitting) and online tutoring
+- Enforces California child-labor laws automatically at booking time (age minimums, daily/weekly hour limits, prohibited time windows)
+- Holds payments in escrow via Stripe until both sides confirm the job is complete
+- Pays out earnings to the parent's Stripe Connect account (never directly to a minor)
+- Screens all listings for safety hazards before they go live
+
+## What Blockwork does NOT do
+
+- Teens never enter a client's home — all in-person work is outdoors, all tutoring is over video
+- Blockwork never stores card numbers, bank details, or Social Security numbers (all handled by Stripe)
+- No childcare, transportation, heavy machinery, or hazardous work is permitted
+
+## Pricing
+
+- Free to join and free to list
+- 12.9% + $0.30 platform fee per completed job (deducted from the total the neighbor pays)
+- Tips are optional, processed separately with a 3.5% + $0.50 fee
+- No signup fees, subscriptions, or listing fees
+
+## Key public pages
+
+- [Home](https://blockwork.online/)
+- [How it works](https://blockwork.online/how-it-works)
+- [Safety](https://blockwork.online/safety)
+- [FAQ](https://blockwork.online/faq)
+- [Pricing](https://blockwork.online/pricing)
+- [Parent Guide](https://blockwork.online/parent-guide)
+- [Neighbor Guide](https://blockwork.online/neighbor-guide)
+- [About](https://blockwork.online/about)
+- [Refunds & Disputes](https://blockwork.online/refunds)
+- [Compliance](https://blockwork.online/compliance)
+- [Support](https://blockwork.online/support)
+- [Terms of Service](https://blockwork.online/terms)
+- [Privacy Policy](https://blockwork.online/privacy)
+- [Report a Safety Concern](https://blockwork.online/report-safety)
+
+## Contact
+
+- Support email: support@blockwork.online
+- Based in Fremont, California

@@ -3,6 +3,17 @@ import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import SiteFooter from "@/components/SiteFooter";
 import Seo from "@/components/Seo";
+import PublicFaq, { faqJsonLd, breadcrumbJsonLd } from "@/components/PublicFaq";
+
+const FAQS = [
+  { q: "How much does Blockwork cost?", a: "Blockwork is free to join and free to list. The only cost is a 12.9% + $0.30 platform fee per completed job, deducted from the total the neighbor pays. There are no signup fees, monthly subscriptions, or listing fees." },
+  { q: "How do tips work on Blockwork?", a: "Neighbors can add an optional tip after a job well done. Tips are processed separately with a 3.5% + $0.50 fee to cover Stripe's processing cost, and the full net tip amount goes to the teen." },
+  { q: "When does Blockwork get paid?", a: "Blockwork only earns money when a job is actually completed. The platform fee is deducted from the escrow payment when it is released to the teen's parent." },
+  { q: "Are there any hidden fees?", a: "No. The 12.9% + $0.30 fee is the only charge. There are no signup fees, subscription costs, or listing fees — ever." },
+];
+
+const FAQ_JSONLD = faqJsonLd(FAQS);
+const BREADCRUMB_JSONLD = breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: "Pricing", path: "/pricing" }]);
 
 export default function Pricing() {
   return (
@@ -11,6 +22,7 @@ export default function Pricing() {
         title="Pricing"
         description="Blockwork's simple, transparent pricing: a 12.9% + $0.30 platform fee per completed job. No signup fees, no subscriptions, no hidden charges."
         path="/pricing"
+        jsonLd={[FAQ_JSONLD, BREADCRUMB_JSONLD]}
       />
       <div className="flex-1 max-w-3xl mx-auto px-4 py-12 lg:py-20 w-full">
         <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-8">
@@ -44,6 +56,8 @@ export default function Pricing() {
             Neighbors can add an optional tip after a job well done. Tips are processed separately with a 3.5% + $0.50 fee to cover Stripe's processing cost, and the full net tip amount goes to the teen.
           </p>
         </div>
+
+        <PublicFaq faqs={FAQS} />
 
         <div className="bg-secondary border border-border rounded-2xl p-5">
           <p className="text-sm text-muted-foreground leading-relaxed">

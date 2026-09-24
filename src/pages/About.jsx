@@ -4,6 +4,9 @@ import { ArrowLeft, Heart, Target, Users, X, ShieldCheck } from "lucide-react";
 import BlockworkLogo from "@/components/BlockworkLogo";
 import SiteFooter from "@/components/SiteFooter";
 import Seo from "@/components/Seo";
+import { breadcrumbJsonLd } from "@/components/PublicFaq";
+
+const BREADCRUMB_JSONLD = breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: "About", path: "/about" }]);
 
 const DONT = [
   "We never ask for payment to sign up or to get work — creating an account and finding jobs is always free.",
@@ -19,12 +22,12 @@ export default function About() {
         title="About"
         description="Blockwork is a parent-approved marketplace built in California by a teen who wanted a safer way to earn. Learn who built it, why, and what it does — and doesn't — do."
         path="/about"
-        jsonLd={{
+        jsonLd={[{
           "@context": "https://schema.org",
           "@type": "AboutPage",
           name: "About Blockwork",
           description: "Who built Blockwork, why, and what the platform does and doesn't do.",
-        }}
+        }, BREADCRUMB_JSONLD]}
       />
       <div className="flex-1 max-w-3xl mx-auto px-4 py-12 lg:py-20 w-full">
         <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-8">

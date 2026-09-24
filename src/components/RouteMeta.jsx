@@ -6,9 +6,9 @@ import { useLocation } from "react-router-dom";
 // navigation — including back/forward — regardless of whether the
 // page renders its own <Seo>. This prevents stale titles from
 // persisting when a page has no Seo component.
-const DEFAULT_TITLE = "Blockwork — Teens earn. Neighbors get things done.";
+const DEFAULT_TITLE = "Blockwork — Parent-Approved Local Jobs for Teens in California";
 const DEFAULT_DESCRIPTION =
-  "Parent-approved local marketplace where California teens earn real paychecks doing outdoor work and online tutoring. Currently available in California only.";
+  "Blockwork is a parent-approved local marketplace where California teens (13+) earn real paychecks doing lawn care, car washing, pet sitting, and online tutoring. Every job is parent-approved, every user is verified, and every payment is protected by escrow. Available in California only.";
 
 const ROUTE_META = {
   "/": { title: DEFAULT_TITLE, description: DEFAULT_DESCRIPTION },
@@ -42,7 +42,28 @@ const ROUTE_META = {
   "/notifications": { title: "Notifications — Blockwork", description: "Your Blockwork notifications." },
   "/admin": { title: "Admin — Blockwork", description: "Blockwork admin console." },
   "/withdrawal-assistant": { title: "Withdrawal Assistant — Blockwork", description: "Get help with withdrawing your Blockwork Wallet earnings." },
+  "/pricing": { title: "Pricing — Blockwork", description: "Blockwork's simple, transparent pricing: a 12.9% + $0.30 platform fee per completed job. No signup fees, no subscriptions, no hidden charges." },
+  "/parent-guide": { title: "Parent Guide — Blockwork", description: "How Blockwork works for parents: identity verification, booking approval, escrow payouts, withdrawal locks, and safety notifications." },
+  "/neighbor-guide": { title: "Neighbor Guide — Blockwork", description: "How to hire a teen on Blockwork: browse or post a job, pay securely through escrow, approve the finished work, and leave a review." },
+  "/refunds": { title: "Refunds & Disputes — Blockwork", description: "How Blockwork handles refunds, escrow, and disputes: confirmation windows, how to file a dispute, and how our team resolves them fairly." },
+  "/compliance": { title: "Payments & Compliance — Blockwork", description: "Blockwork's payment processing, California child-labor law compliance, work-hour enforcement, and Stripe Connect payout structure." },
+  "/report-safety": { title: "Report a Safety Concern — Blockwork", description: "Report a safety concern, inappropriate behavior, or an off-platform contact attempt on Blockwork." },
 };
+
+// Routes that must never be indexed by search engines or AI crawlers.
+// Teen/neighbor profiles, logged-in pages, auth pages, and admin.
+const NOINDEX_ROUTES = new Set([
+  "/login", "/register", "/forgot-password", "/reset-password",
+  "/account", "/onboarding", "/oauth-consent", "/admin",
+  "/teen", "/parent", "/buyer", "/browse", "/jobs",
+  "/messages", "/notifications", "/withdrawal-assistant",
+]);
+
+// Dynamic route prefixes that must never be indexed (child safety: teen
+// profiles, neighbor profiles, bookings, and message threads).
+const NOINDEX_PREFIXES = [
+  "/teens/", "/neighbors/", "/bookings/", "/messages/",
+];
 
 // Dynamic routes matched by pattern (checked after static lookup).
 const DYNAMIC_PATTERNS = [
@@ -78,6 +99,14 @@ export default function RouteMeta() {
     const { title, description } = resolveMeta(location.pathname);
     document.title = title;
     upsertMeta("name", "description", description);
+
+    // Child safety + private page protection: noindex, nofollow on
+    // teen profiles, logged-in pages, auth pages, and admin. Public
+    // marketing pages get index, follow.
+    const isNoindex =
+      NOINDEX_ROUTES.has(location.pathname) ||
+      NOINDEX_PREFIXES.some((p) => location.pathname.startsWith(p));
+    upsertMeta("name", "robots", isNoindex ? "noindex, nofollow" : "index, follow");
   }, [location.pathname]);
 
   return null;
