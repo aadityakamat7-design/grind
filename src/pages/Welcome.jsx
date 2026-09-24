@@ -126,6 +126,7 @@ export default function Welcome() {
         </div>
       </header>
 
+      <main>
       {/* Hero */}
       <SplitHero />
 
@@ -164,7 +165,7 @@ export default function Welcome() {
           className="relative overflow-hidden bg-card rounded-3xl p-8 sm:p-12 text-center shadow-elevated"
         >
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">Ready to Get Started?</h2>
-          <p className="text-foreground/70 mt-3 max-w-md mx-auto">Join your California community now — teens and neighbors are already helping each other. Blockwork is currently available in California only.</p>
+          <p className="text-muted-foreground mt-3 max-w-md mx-auto">Join your California community now — teens and neighbors are already helping each other. Blockwork is currently available in California only.</p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center mt-7">
             <Button
               size="lg"
@@ -180,9 +181,10 @@ export default function Welcome() {
               Find Help Near You
             </Button>
           </div>
-          <p className="text-xs text-foreground/50 mt-4">Free to join · Takes less than 2 minutes</p>
+          <p className="text-xs text-muted-foreground mt-4">Free to join · Takes less than 2 minutes</p>
         </motion.div>
       </section>
+      </main>
 
       <SiteFooter />
     </div>

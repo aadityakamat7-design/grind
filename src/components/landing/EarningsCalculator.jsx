@@ -63,7 +63,7 @@ export default function EarningsCalculator() {
           <span className="text-sm font-medium text-muted-foreground">Jobs per week</span>
           <span className="text-sm font-bold text-foreground">{jobsPerWeek}</span>
         </div>
-        <Slider value={[jobsPerWeek]} min={1} max={10} step={1} onValueChange={(v) => setJobsPerWeek(v[0])} />
+        <Slider value={[jobsPerWeek]} min={1} max={10} step={1} onValueChange={(v) => setJobsPerWeek(v[0])} aria-label="Jobs per week" />
       </div>
 
       <div className="mt-8 rounded-2xl bg-muted border border-border p-6 text-center">
