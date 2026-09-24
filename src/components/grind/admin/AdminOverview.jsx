@@ -8,10 +8,12 @@ import StateComplianceTable from "@/components/grind/admin/StateComplianceTable"
 import ReceiptPreviewCard from "@/components/grind/admin/ReceiptPreviewCard";
 import { money } from "@/lib/grind";
 
-export default function AdminOverview({ teens, buyers, parents, bookings, listings, user }) {
+export default function AdminOverview({ teens, buyers, parents, bookings, listings, links, user }) {
   const now = Date.now();
   const weekAgo = now - 7 * 86400000;
   const monthAgo = now - 30 * 86400000;
+
+  const linkedTeens = (links || []).filter((l) => l.status === "confirmed").length;
 
   const newTeensWeek = teens.filter((t) => t.created_date && new Date(t.created_date) > weekAgo).length;
   const newBuyersWeek = buyers.filter((b) => b.created_date && new Date(b.created_date) > weekAgo).length;
@@ -67,6 +69,7 @@ export default function AdminOverview({ teens, buyers, parents, bookings, listin
           <StatCard icon={Search} label="Neighbors" value={buyers.length} subtitle={`${newBuyersWeek} this week`} accent="text-primary" />
           <StatCard icon={ShieldCheck} label="Parents" value={parents.length} subtitle={`${newParentsWeek} this week`} accent="text-primary" />
           <StatCard icon={TrendingUp} label="New signups" value={newSignupsWeek} subtitle={`${newSignupsMonth} this month`} accent="text-emerald-600" />
+          <StatCard icon={ShieldCheck} label="Parent-linked teens" value={linkedTeens} subtitle="confirmed links" accent="text-primary" />
         </div>
       </div>
 
