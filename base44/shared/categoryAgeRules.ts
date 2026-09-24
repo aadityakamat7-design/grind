@@ -34,8 +34,9 @@
 //    excavation, power saws, driving, etc.).
 //    → Enforced by hazardCheck.ts (blocks for ALL ages).
 //
-// 4. Pressure washing — blocked entirely by hazardCheck.ts (no age
-//    condition; blocked for everyone).
+// 4. Car washing / detailing — allowed at 13 (platform minimum) under the
+//    odd-jobs exemption. No power-equipment restriction applies to this
+//    category.
 //
 // Source: California DIR Child Labor Law Pamphlet
 //   https://www.dir.ca.gov/dlse/ChildLaborLawPamphlet.pdf
@@ -108,10 +109,10 @@ const CA_CATEGORY_RULES: Record<JobCategory, CategoryAgeRule> = {
     confirmed: true,
   },
   car_washing: {
-    minAge: 14,
-    source: 'CA DIR Child Labor Law Pamphlet, Ch. 3 — general employment minimum',
+    minAge: 13,
+    source: 'CA DIR Child Labor Law Pamphlet — irregular odd jobs exemption',
     sourceUrl: 'https://www.dir.ca.gov/dlse/ChildLaborLawPamphlet.pdf',
-    notes: 'Manual car washing (outdoor, no power equipment). Outdoor physical work — set to CA general employment minimum (14). Odd-jobs exemption allows younger, but 14 is the standard employment floor.',
+    notes: 'Manual car washing and detailing (outdoor, no home entry). Odd-jobs exemption applies (irregular casual work in private homes). Platform minimum: 13.',
     confirmed: true,
   },
   lawn_care: {
@@ -125,7 +126,7 @@ const CA_CATEGORY_RULES: Record<JobCategory, CategoryAgeRule> = {
     minAge: 14,
     source: 'CA DIR Child Labor Law Pamphlet, Ch. 3 — general employment minimum',
     sourceUrl: 'https://www.dir.ca.gov/dlse/ChildLaborLawPamphlet.pdf',
-    notes: 'Manual outdoor odd jobs (yard cleanup, leaf raking, etc.). Outdoor physical work — set to CA general employment minimum (14). Power equipment gated at 16+ by hazardCheck.ts. Pressure washing blocked entirely by hazardCheck.ts.',
+    notes: 'Manual outdoor odd jobs (yard cleanup, leaf raking, etc.). Outdoor physical work — set to CA general employment minimum (14). Power equipment gated at 16+ by hazardCheck.ts.',
     confirmed: true,
   },
 };
