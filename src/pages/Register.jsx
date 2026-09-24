@@ -260,7 +260,7 @@ export default function Register() {
         onClick={handleGoogle}
       >
         <GoogleIcon className="w-5 h-5 mr-2" />
-        Continue with Google
+        Continue with Blockwork
       </Button>
 
       <div className="grid grid-cols-2 gap-3 mb-6">
