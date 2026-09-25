@@ -178,12 +178,12 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
             <Textarea className="rounded-xl mt-1" placeholder="Anything the teen should know?" value={notes} onChange={(e) => setNotes(e.target.value)} />
           </div>
           <div className="bg-slate-50 rounded-xl p-4 text-sm space-y-1.5">
-            <div className="flex justify-between"><span className="text-slate-500">Total (held in escrow)</span><span className="font-bold">{money(total)}</span></div>
+            <div className="flex justify-between"><span className="text-slate-500">Total</span><span className="font-bold">{money(total)}</span></div>
             <div className="flex justify-between text-xs text-slate-400"><span>Teen earns</span><span>{money(net_amount)}</span></div>
           </div>
           <div className="flex items-start gap-2 bg-emerald-50 rounded-xl p-3 text-xs text-emerald-700">
             <ShieldCheck className="w-4 h-4 mt-0.5 shrink-0" />
-            Payment is held in escrow until the job is done. Full refund if the parent declines.
+            Once you pay, your payment is held in escrow until the job is done. Full refund if the parent declines.
           </div>
           <Button
             variant="outline"
@@ -255,7 +255,7 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
                   </div>
                 )}
                 <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Total (held in escrow)</span>
+                  <span className="text-muted-foreground">Total</span>
                   <span className="font-bold text-foreground">{money(total)}</span>
                 </div>
               </div>

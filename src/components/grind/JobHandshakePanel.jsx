@@ -117,7 +117,7 @@ export default function JobHandshakePanel({ booking, isTeen, isBuyer, isParent, 
           disabled={acting}
         />
         <p className="text-xs text-center text-slate-500 font-medium">
-          Payment is held in escrow until the job is confirmed complete.
+          Once you pay, your payment is held in escrow until the job is confirmed complete.
         </p>
       </div>
     );

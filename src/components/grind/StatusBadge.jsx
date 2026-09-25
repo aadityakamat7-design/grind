@@ -21,6 +21,11 @@ const STYLES = {
   disputed: "bg-amber-100 text-amber-700 border-amber-200",
   expired: "bg-amber-100 text-amber-700 border-amber-200",
   credited: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  // Unified booking badge values (from computeBookingBadge)
+  awaiting_payment: "bg-amber-100 text-amber-700 border-amber-200",
+  payment_failed: "bg-destructive/10 text-destructive border-destructive/20",
+  paid_awaiting_approval: "bg-secondary text-muted-foreground border-border",
+  abandoned: "bg-destructive/10 text-destructive border-destructive/20",
 };
 
 const LABELS = {
@@ -33,6 +38,16 @@ const LABELS = {
   disputed: "Under review",
   expired: "Expired",
   credited: "Credited",
+  // Unified booking badge values (from computeBookingBadge)
+  awaiting_payment: "Awaiting payment",
+  payment_failed: "Payment failed",
+  paid_awaiting_approval: "Paid, waiting for parent approval",
+  confirmed: "Confirmed",
+  completed: "Completed",
+  cancelled: "Cancelled",
+  denied: "Declined, refunded",
+  abandoned: "Expired, not paid",
+  refunded: "Refunded",
 };
 
 export default function StatusBadge({ status, className = "" }) {

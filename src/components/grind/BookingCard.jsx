@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { CalendarDays, ChevronRight } from "lucide-react";
 import { format } from "date-fns";
 import StatusBadge from "@/components/grind/StatusBadge";
+import { computeBookingBadge } from "@/lib/bookingStatus";
 import { money } from "@/lib/grind";
 
 export default function BookingCard({ booking, perspective }) {
@@ -33,7 +34,7 @@ export default function BookingCard({ booking, perspective }) {
           {booking.scheduled_start && ` · ${format(new Date(booking.scheduled_start), "MMM d, h:mm a")}`}
         </p>
         <div className="mt-1.5 flex items-center gap-1.5 flex-wrap">
-          <StatusBadge status={booking.status} />
+          <StatusBadge status={computeBookingBadge(booking)} />
           {booking.is_recurring && (
             <span className="inline-flex items-center rounded-full border border-border bg-secondary text-muted-foreground px-2 py-0.5 text-[11px] font-medium capitalize">
               {booking.recurrence || "recurring"}

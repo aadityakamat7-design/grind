@@ -47,7 +47,7 @@ export default function BuyerBookings() {
   // the Active list — the 30-min cleanup workflow cancels them automatically.
   const isActive = (b) => !["completed", "cancelled", "denied", "abandoned", "payment_pending"].includes(b.status) && b.payment_status !== "unpaid";
   const active = bookings.filter(isActive);
-  const past = bookings.filter((b) => ["completed", "cancelled", "denied"].includes(b.status));
+  const past = bookings.filter((b) => ["completed", "cancelled", "denied", "abandoned"].includes(b.status));
 
   return (
     <PullToRefresh onRefresh={load}>

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { CalendarDays, MapPin, Lock, MessageCircle, FileText, Repeat, Clock, Video, Sun, MessageSquare, User, CheckCircle2, Receipt, Loader2, AlertTriangle } from "lucide-react";
 import { format } from "date-fns";
 import StatusBadge from "@/components/grind/StatusBadge";
+import { computeBookingBadge } from "@/lib/bookingStatus";
 import ReviewDialog from "@/components/grind/ReviewDialog";
 import ReviewCard from "@/components/grind/ReviewCard";
 import { money } from "@/lib/grind";
@@ -297,7 +298,9 @@ export default function BookingDetail() {
             <p className="text-xs text-emerald-600 mt-0.5">
               {booking?.payment_status === "released"
                 ? "Payment released to the teen. A receipt and notification have been sent."
-                : "Payment held in escrow. A receipt has been sent and the teen has been notified to start the job."}
+                : booking?.payment_status === "held"
+                  ? "Payment held in escrow. A receipt has been sent and the teen has been notified to start the job."
+                  : "Your booking is confirmed."}
             </p>
           </div>
         </div>
@@ -315,10 +318,7 @@ export default function BookingDetail() {
           </p>
         </div>
         <div className="flex items-center gap-2 mt-3 flex-wrap">
-          <StatusBadge status={booking.status} />
-          {!(["cancelled", "denied"].includes(booking.status) && booking.payment_status === "unpaid") && (
-            <StatusBadge status={booking.payment_status} />
-          )}
+          <StatusBadge status={computeBookingBadge(booking)} />
           {booking.is_recurring && (
             <span className="inline-flex items-center gap-1 rounded-full border border-border bg-secondary text-muted-foreground px-2.5 py-0.5 text-xs font-medium capitalize">
               <Repeat className="w-3 h-3" /> {booking.recurrence || "recurring"}
@@ -419,7 +419,7 @@ export default function BookingDetail() {
 
         {isTeen && <div className="mt-4"><EarningsBreakdown booking={booking} /></div>}
 
-        <PaymentStatusTracker booking={booking} />
+        <PaymentStatusTracker booking={booking} isBuyer={isBuyer} isTeen={isTeen} isParent={isParent} />
 
         <CheckInTimeline booking={booking} />
 

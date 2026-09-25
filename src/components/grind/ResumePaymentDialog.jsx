@@ -127,7 +127,7 @@ export default function ResumePaymentDialog({ booking, user, onResolved }) {
         <DialogHeader>
           <DialogTitle>Complete your payment</DialogTitle>
           <DialogDescription>
-            {booking?.listing_title} · {money(amount)} held in escrow until the job is done.
+            {booking?.listing_title} · {money(amount)}. Once you pay, your payment is held until the job is done.
           </DialogDescription>
         </DialogHeader>
 
@@ -165,7 +165,7 @@ export default function ResumePaymentDialog({ booking, user, onResolved }) {
             />
             <div className="flex items-start gap-2 bg-emerald-50 rounded-xl p-3 text-xs text-emerald-700">
               <ShieldCheck className="w-4 h-4 mt-0.5 shrink-0" />
-              Payment is held in escrow. Full refund if the parent declines.
+              Once you pay, your payment is held in escrow. Full refund if the parent declines.
             </div>
             <Button variant="ghost" className="w-full text-muted-foreground" onClick={cancelBooking}>
               <X className="w-4 h-4 mr-1.5" /> Cancel this booking

@@ -57,6 +57,10 @@ export default function BookingReceipt({ booking, user }) {
   const paidDate = booking.released_at || booking.transferred_at || booking.created_date;
   const categoryLabel = CATEGORY_LABELS?.[booking.category] || booking.category || "—";
   const bookingIdShort = (booking.id || "").substring(0, 12).toUpperCase();
+  // Only show the PAID stamp when a real Stripe payment was captured —
+  // payment_status must be held, releasing, or released. Never for unpaid
+  // or payment_failed bookings (no money was ever captured).
+  const isPaid = ["held", "releasing", "released"].includes(booking.payment_status);
 
   const handleCopy = () => {
     navigator.clipboard?.writeText(booking.id || "");
@@ -126,7 +130,9 @@ export default function BookingReceipt({ booking, user }) {
     doc.setFont("courier", "bold");
     doc.setFontSize(16);
     doc.setTextColor(200, 30, 30);
-    doc.text("PAID", left + 200, y);
+    if (isPaid) {
+      doc.text("PAID", left + 200, y);
+    }
     doc.setFontSize(7);
     doc.setTextColor(120, 120, 120);
     if (paidDate) {
@@ -253,6 +259,7 @@ export default function BookingReceipt({ booking, user }) {
           <div className="pt-3 flex items-center justify-between">
             <p className="text-[10px] text-muted-foreground">Thank you for using Blockwork</p>
             <div className="flex flex-col items-end">
+              {isPaid && (
               <span
                 className="text-sm font-bold tracking-wider px-2 py-0.5 border-2 rounded-md"
                 style={{
@@ -264,6 +271,7 @@ export default function BookingReceipt({ booking, user }) {
               >
                 PAID
               </span>
+              )}
               {paidDate && (
                 <span className="text-[8px] text-muted-foreground mt-1">
                   {format(new Date(paidDate), "MMM d, yyyy")}
@@ -291,7 +299,9 @@ export default function BookingReceipt({ booking, user }) {
         className="w-full max-w-[340px] mt-5 space-y-3"
       >
         <p className="text-sm font-medium text-center text-foreground">
-          {isEarningSide ? "Booking confirmed — your earnings are locked in" : "Payment successful — you're all set"}
+          {isPaid
+            ? (isEarningSide ? "Booking confirmed — your earnings are locked in" : "Payment successful — you're all set")
+            : "Booking created — complete your payment to confirm"}
         </p>
         <div className="grid grid-cols-2 gap-3">
           <Button variant="outline" className="rounded-full" onClick={handleDownloadPDF}>

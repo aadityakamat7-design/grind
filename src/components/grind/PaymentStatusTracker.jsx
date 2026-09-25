@@ -1,20 +1,25 @@
 import React from "react";
 import { CheckCircle2, Circle, Clock, Lock, RotateCcw } from "lucide-react";
 
-// Visual escrow → payout timeline so users always know where the money is.
-export default function PaymentStatusTracker({ booking }) {
-  const { payment_status, payout_status, status } = booking;
+// Role-aware payment/payout timeline. Shows different information to neighbors
+// vs teens/parents, and NEVER shows escrow or payout language for bookings
+// where payment was never actually held.
+//
+// Key rules (from the booking state machine):
+// - payment_status 'held' is only set by the verified Stripe webhook.
+// - If payment_status is 'unpaid' or 'payment_failed', no money was captured.
+// - The neighbor never sees payout/withdraw steps — those are the teen's/parent's.
+export default function PaymentStatusTracker({ booking, isBuyer, isTeen, isParent }) {
+  const { payment_status, payout_status } = booking;
   if (!payment_status) return null;
-  if (payment_status === "unpaid") {
-    if (status !== "confirmed") return null;
-    return (
-      <div className="mt-4 flex items-center gap-2 bg-slate-50 rounded-xl p-3 text-sm text-slate-600">
-        <Lock className="w-4 h-4 text-slate-400" />
-        No payment yet — you'll pay when both you and the teen tap "Start job."
-      </div>
-    );
+
+  // Unpaid or failed — no escrow/payout language. The ResumePaymentDialog
+  // and "Payment incomplete" banner handle these states.
+  if (payment_status === "unpaid" || payment_status === "payment_failed") {
+    return null;
   }
 
+  // Refunded — show the refund message.
   if (payment_status === "refunded") {
     return (
       <div className="mt-4 flex items-center gap-2 bg-slate-50 rounded-xl p-3 text-sm text-slate-600">
@@ -24,11 +29,36 @@ export default function PaymentStatusTracker({ booking }) {
     );
   }
 
+  // Neighbor: simple escrow confirmation, NO payout steps.
+  // The neighbor should never see "Released", "withdraw", or "Transferred to bank".
+  if (isBuyer && !isTeen && !isParent) {
+    if (payment_status === "held") {
+      return (
+        <div className="mt-4 flex items-center gap-2 bg-emerald-50 rounded-xl p-3 text-sm text-emerald-700">
+          <Lock className="w-4 h-4 text-emerald-500" />
+          Your payment is held securely in escrow until the job is done.
+        </div>
+      );
+    }
+    if (payment_status === "releasing" || payment_status === "released") {
+      return (
+        <div className="mt-4 flex items-center gap-2 bg-emerald-50 rounded-xl p-3 text-sm text-emerald-700">
+          <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+          Payment released to {booking.teen_display_name || "the teen"}'s parent.
+        </div>
+      );
+    }
+    return null;
+  }
+
+  // Teen/parent: full payout timeline with real state.
+  // Steps are only marked done when each one has really happened.
   const steps = [
     { key: "held", label: "Payment held", detail: "Funds are held securely in escrow until the job is done." },
     { key: "released", label: "Released — ready to withdraw", detail: releasedDetail(payout_status) },
     { key: "transferred", label: "Transferred to bank", detail: "Typically arrives in the parent's bank in 1–2 business days." },
   ];
+
   const current =
     payment_status === "held" ? 0 : payout_status === "transferred" ? 2 : 1;
 

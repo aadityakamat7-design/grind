@@ -27,14 +27,20 @@ Deno.serve(async (req) => {
     const svc = base44.asServiceRole.entities;
 
     const cutoff = new Date(Date.now() - 30 * 60 * 1000);
-    // Fetch payment_pending + unpaid bookings; age is checked in JS since the
-    // schema has no compound filter for created_date < cutoff.
+    // Fetch all payment_pending bookings (both unpaid and payment_failed);
+    // age is checked in JS since the schema has no compound filter for
+    // created_date < cutoff. A payment_failed booking (declined card) also
+    // needs to be swept — otherwise it sits in payment_pending forever.
     const stale = await svc.Booking.filter(
-      { status: 'payment_pending', payment_status: 'unpaid' },
+      { status: 'payment_pending' },
       'created_date',
       200,
     );
-    const abandoned = stale.filter((b) => new Date(b.created_date) < cutoff);
+    const abandoned = stale.filter(
+      (b) =>
+        (b.payment_status === 'unpaid' || b.payment_status === 'payment_failed') &&
+        new Date(b.created_date) < cutoff,
+    );
 
     const { stripe } = await getStripeContext(base44);
     let count = 0;
