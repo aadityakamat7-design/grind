@@ -13,6 +13,7 @@ import FaqSection from "@/components/landing/FaqSection";
 import SafetySummary from "@/components/landing/SafetySummary";
 import SiteFooter from "@/components/SiteFooter";
 import Seo from "@/components/Seo";
+import SmoothScroll from "@/components/landing/SmoothScroll";
 
 const ROLE_HOME = { teen: "/teen", parent: "/parent", buyer: "/buyer", admin: "/admin" };
 
@@ -56,7 +57,8 @@ export default function Welcome() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground overflow-x-hidden scroll-smooth">
+    <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
+      <SmoothScroll />
       <Seo
         title="Local teen jobs, parent-approved"
         description="Parent-approved local marketplace where California teens earn real paychecks doing lawn care, yard work, and online tutoring. Hire a teen or start earning. Currently available in California only."
