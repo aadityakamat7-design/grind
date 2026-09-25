@@ -14,21 +14,18 @@ export function calculateNetAmount(gross: number): number {
   return Math.round((gross - fee) * 100) / 100;
 }
 
-// Tip processing fee — 3.5% + $0.50 per tip, charged to cover Stripe's
-// processing cost on tip charges. Only applied when a tip is actually
-// charged (a $0 tip incurs no fee).
-export const TIP_FEE_RATE = 0.035;
-export const TIP_FEE_FIXED = 0.50;
+// Tips are 100% fee-free — the full tip amount goes to the teen/parent.
+// Blockwork absorbs the Stripe processing cost on tips. These functions are
+// kept for API compatibility but always return 0 fee / full tip.
+export const TIP_FEE_RATE = 0;
+export const TIP_FEE_FIXED = 0;
 
 export function calculateTipFee(tip: number): number {
-  const t = Number(tip) || 0;
-  if (t <= 0) return 0;
-  return Math.round((t * TIP_FEE_RATE + TIP_FEE_FIXED) * 100) / 100;
+  return 0;
 }
 
 export function calculateTipNet(tip: number): number {
   const t = Number(tip) || 0;
   if (t <= 0) return 0;
-  const fee = calculateTipFee(t);
-  return Math.round((t - fee) * 100) / 100;
+  return Math.round(t * 100) / 100;
 }

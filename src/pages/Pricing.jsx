@@ -7,7 +7,7 @@ import PublicFaq, { faqJsonLd, breadcrumbJsonLd } from "@/components/PublicFaq";
 
 const FAQS = [
   { q: "How much does Blockwork cost?", a: "Blockwork is free to join and free to list. The only cost is a 12.9% + $0.30 platform fee per completed job, deducted from the total the neighbor pays. There are no signup fees, monthly subscriptions, or listing fees." },
-  { q: "How do tips work on Blockwork?", a: "Neighbors can add an optional tip after a job well done. Tips are processed separately with a 3.5% + $0.50 fee to cover Stripe's processing cost, and the full net tip amount goes to the teen." },
+  { q: "How do tips work on Blockwork?", a: "Neighbors can add an optional tip after a job well done. Tips are 100% fee-free — Blockwork covers the processing cost, so the full tip amount goes straight to the teen." },
   { q: "When does Blockwork get paid?", a: "Blockwork only earns money when a job is actually completed. The platform fee is deducted from the escrow payment when it is released to the teen's parent." },
   { q: "Are there any hidden fees?", a: "No. The 12.9% + $0.30 fee is the only charge. There are no signup fees, subscription costs, or listing fees — ever." },
 ];
@@ -53,7 +53,7 @@ export default function Pricing() {
         <div className="bg-card rounded-2xl border border-border shadow-soft p-6 mb-6">
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-[0.2em] mb-3">Tips</p>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            Neighbors can add an optional tip after a job well done. Tips are processed separately with a 3.5% + $0.50 fee to cover Stripe's processing cost, and the full net tip amount goes to the teen.
+            Neighbors can add an optional tip after a job well done. Tips are 100% fee-free — Blockwork covers the processing cost, so the full tip amount goes straight to the teen.
           </p>
         </div>
 

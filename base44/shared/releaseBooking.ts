@@ -10,12 +10,10 @@ export async function releaseBookingPayment(base44, booking, tip) {
   const svc = base44.asServiceRole.entities;
   const tipAmt = Math.max(0, Math.round((Number(tip) || 0) * 100) / 100);
   // Enforce the platform fee server-side: 12.9% + $0.30 per transaction.
-  // Tips are charged a 3.5% + $0.50 processing fee to cover Stripe's cost;
-  // the net tip (after fee) is what the teen actually receives.
+  // Tips are 100% fee-free — the full tip amount goes to the teen.
   const gross = Math.round((Number(booking.price_total) || 0) * 100) / 100;
   const platformFee = calculatePlatformFee(gross);
   const netBase = calculateNetAmount(gross);
-  const tipFee = calculateTipFee(tipAmt);
   const netTip = calculateTipNet(tipAmt);
   const teenGets = Math.round((netBase + netTip) * 100) / 100;
 
@@ -37,7 +35,7 @@ export async function releaseBookingPayment(base44, booking, tip) {
     net_amount: teenGets,
     occurred_at: new Date().toISOString(),
     tax_year: new Date().getFullYear(),
-    description: tipAmt > 0 ? `Includes ${money(tipAmt)} tip (${money(netTip)} after ${money(tipFee)} processing fee)` : '',
+    description: tipAmt > 0 ? `Includes ${money(tipAmt)} tip (fee-free)` : '',
   });
 
   // Increment jobs_completed for both the teen and the buyer — this is the
@@ -64,7 +62,7 @@ export async function releaseBookingPayment(base44, booking, tip) {
     teen_user_id: booking.teen_user_id,
     type: 'earning',
     amount: teenGets,
-    description: `"${booking.listing_title}" — ${booking.buyer_name}${tipAmt > 0 ? ` (incl. ${money(netTip)} tip after fee)` : ''}`,
+    description: `"${booking.listing_title}" — ${booking.buyer_name}${tipAmt > 0 ? ` (incl. ${money(netTip)} tip)` : ''}`,
     occurred_at: new Date().toISOString(),
   });
   await svc.WalletAccount.update(wallet.id, {
@@ -76,7 +74,7 @@ export async function releaseBookingPayment(base44, booking, tip) {
     user_id: booking.teen_user_id,
     type: 'payment',
     title: tipAmt > 0 ? `You got paid — plus a ${money(netTip)} tip! 🎉` : 'You got paid!',
-    body: `${money(teenGets)} landed in your Blockwork Wallet for "${booking.listing_title}"${tipAmt > 0 ? ` (tip after ${money(tipFee)} processing fee)` : ''}.`,
+    body: `${money(teenGets)} landed in your Blockwork Wallet for "${booking.listing_title}"${tipAmt > 0 ? ` (tip is fee-free)` : ''}.`,
     link: '/teen/wallet',
   });
   // Delay the actual Stripe Connect transfer by 7 days to allow the buyer's

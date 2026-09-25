@@ -71,8 +71,8 @@ export async function reviewBookingPayout(base44, booking: any): Promise<PayoutR
 
   const baseAmount = Math.round((Number(booking.net_amount) || 0) * 100) / 100;
   const tipAmount = Math.round((Number(booking.tip_amount) || 0) * 100) / 100;
-  // The actual payout is the net base + net tip (after the 3.5% + $0.50 tip
-  // processing fee), so the reviewed amount matches what gets transferred.
+  // The actual payout is the net base + full tip (tips are fee-free), so the
+  // reviewed amount matches what gets transferred.
   const totalAmount = Math.round((baseAmount + calculateTipNet(tipAmount)) * 100) / 100;
   const gross = Math.round((Number(booking.price_total) || 0) * 100) / 100;
   const expectedFee = calculatePlatformFee(gross);
