@@ -1,35 +1,17 @@
-import React, { useRef } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import TypewriterHeadline from "./TypewriterHeadline";
-import HeroGradient from "./HeroGradient";
 
 // Typography-led hero: Fraunces headline with a one-time GSAP typewriter
-// reveal on load. An animated shader gradient sits behind the content
-// (decorative, aria-hidden). Text is white/light on the dark gradient.
+// reveal on load. The page-level gradient (in Welcome.jsx) sits behind this
+// section; the section itself is transparent so the gradient shows through.
 export default function SplitHero() {
   const navigate = useNavigate();
-  const sectionRef = useRef(null);
   return (
-    <section ref={sectionRef} className="relative min-h-[100svh] flex items-center overflow-hidden bg-background">
-      {/* Animated shader gradient — behind everything, decorative only */}
-      <HeroGradient heroRef={sectionRef} />
-
-      {/* Soft dark overlay for text readability on the moving gradient */}
-      <div
-        aria-hidden="true"
-        style={{
-          position: "absolute",
-          inset: 0,
-          zIndex: 1,
-          pointerEvents: "none",
-          background:
-            "linear-gradient(to bottom, rgba(11, 30, 51, 0.25) 0%, rgba(11, 30, 51, 0.45) 100%)",
-        }}
-      />
-
+    <section className="relative min-h-[100svh] flex items-center overflow-hidden bg-transparent">
       <div className="relative z-10 max-w-3xl mx-auto px-6 w-full py-16 md:py-0 text-center">
           <motion.p
             initial={{ opacity: 0, y: 10 }}
@@ -73,7 +55,7 @@ export default function SplitHero() {
             <Button
               variant="outline"
               size="lg"
-              className="border-white/30 text-white hover:bg-white/10 hover:border-white/50"
+              className="bg-transparent border-white/30 text-white hover:bg-white/10 hover:border-white/50"
               onClick={() => navigate("/how-it-works")}
             >
               Learn More
