@@ -1,11 +1,11 @@
-import React, { useRef } from "react";
+import React from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import BlockworkLogo from "@/components/BlockworkLogo";
 import { useAppUser } from "@/lib/useAppUser";
 import SplitHero from "@/components/landing/SplitHero";
-import HeroGradient from "@/components/landing/HeroGradient";
+import TrustBar from "@/components/landing/TrustBar";
 import HowItWorks from "@/components/landing/HowItWorks";
 import MarketplacePreview from "@/components/landing/MarketplacePreview";
 import EarningsCalculator from "@/components/landing/EarningsCalculator";
@@ -39,7 +39,6 @@ function Section({ id, eyebrow, title, subtitle, children, className = "" }) {
 export default function Welcome() {
   const { user, loading } = useAppUser();
   const navigate = useNavigate();
-  const pageRef = useRef(null);
 
   if (loading)
     return (
@@ -58,12 +57,7 @@ export default function Welcome() {
   };
 
   return (
-    <div ref={pageRef} className="dark min-h-screen overflow-x-hidden text-foreground" style={{ backgroundColor: "hsl(var(--brand-dark))" }}>
-      {/* Fixed gradient background for the whole landing page */}
-      <div className="fixed inset-0 z-0 pointer-events-none" aria-hidden="true">
-        <HeroGradient heroRef={pageRef} />
-        <div style={{ position: "absolute", inset: 0, background: "rgba(11, 30, 51, 0.35)" }} />
-      </div>
+    <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
       <SmoothScroll />
       <Seo
         title="Local teen jobs, parent-approved"
@@ -134,9 +128,14 @@ export default function Welcome() {
         </div>
       </header>
 
-      <main className="relative z-10">
+      <main>
       {/* Hero */}
       <SplitHero />
+
+      {/* Trust bar */}
+      <section className="relative z-10 max-w-5xl mx-auto px-6 pb-8">
+        <TrustBar />
+      </section>
 
       <Section id="how-it-works" eyebrow="How it works" title="Simple for teens. Simple for neighbors." subtitle="Whichever side you're on, everything happens safely inside Blockwork.">
         <HowItWorks />
@@ -189,7 +188,7 @@ export default function Welcome() {
       </section>
       </main>
 
-      <div className="relative z-10"><SiteFooter /></div>
+      <SiteFooter />
     </div>
   );
 }

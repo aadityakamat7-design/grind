@@ -5,26 +5,23 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import TypewriterHeadline from "./TypewriterHeadline";
 
-// Typography-led hero: Fraunces headline with a one-time GSAP typewriter
-// reveal on load. The page-level gradient (in Welcome.jsx) sits behind this
-// section; the section itself is transparent so the gradient shows through.
 export default function SplitHero() {
   const navigate = useNavigate();
   return (
-    <section className="relative min-h-[100svh] flex items-center overflow-hidden bg-transparent">
+    <section className="relative min-h-[100svh] flex items-center overflow-hidden bg-background">
       <div className="relative z-10 max-w-3xl mx-auto px-6 w-full py-16 md:py-0 text-center">
           <motion.p
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.35, ease: "easeOut" }}
-            className="text-xs font-semibold text-white/70 uppercase tracking-[0.2em] mb-5"
+            className="text-xs font-semibold text-muted-foreground uppercase tracking-[0.2em] mb-5"
           >
             Parent-approved teen work
           </motion.p>
 
           <TypewriterHeadline
             lines={["Your block.", "Your list."]}
-            className="font-grotesk text-white"
+            className="font-grotesk text-foreground"
             style={{
               fontWeight: 600,
               fontSize: "clamp(48px, 8vw, 104px)",
@@ -37,7 +34,7 @@ export default function SplitHero() {
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.08, ease: "easeOut" }}
-            className="text-white/80 text-lg mt-6 max-w-md mx-auto leading-relaxed"
+            className="text-muted-foreground text-lg mt-6 max-w-md mx-auto leading-relaxed"
             style={{ fontFamily: "var(--font-body)" }}
           >
             The local marketplace where California teens earn real paychecks doing outdoor work and online tutoring — with a parent approving every step. Now available in California.
@@ -55,7 +52,6 @@ export default function SplitHero() {
             <Button
               variant="outline"
               size="lg"
-              className="bg-transparent border-white/30 text-white hover:bg-white/10 hover:border-white/50"
               onClick={() => navigate("/how-it-works")}
             >
               Learn More
