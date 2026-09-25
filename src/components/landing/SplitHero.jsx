@@ -1,30 +1,48 @@
-import React from "react";
+import React, { useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import TypewriterHeadline from "./TypewriterHeadline";
+import HeroGradient from "./HeroGradient";
 
 // Typography-led hero: Fraunces headline with a one-time GSAP typewriter
-// reveal on load. No device mockup, gradients, or decorative blobs —
-// white background, hairline structure, native scroll only.
+// reveal on load. An animated shader gradient sits behind the content
+// (decorative, aria-hidden). Text is white/light on the dark gradient.
 export default function SplitHero() {
   const navigate = useNavigate();
+  const sectionRef = useRef(null);
   return (
-    <section className="relative min-h-[100svh] flex items-center overflow-hidden bg-background">
+    <section ref={sectionRef} className="relative min-h-[100svh] flex items-center overflow-hidden bg-background">
+      {/* Animated shader gradient — behind everything, decorative only */}
+      <HeroGradient heroRef={sectionRef} />
+
+      {/* Soft dark overlay for text readability on the moving gradient */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          inset: 0,
+          zIndex: 1,
+          pointerEvents: "none",
+          background:
+            "linear-gradient(to bottom, rgba(11, 30, 51, 0.25) 0%, rgba(11, 30, 51, 0.45) 100%)",
+        }}
+      />
+
       <div className="relative z-10 max-w-3xl mx-auto px-6 w-full py-16 md:py-0 text-center">
           <motion.p
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.35, ease: "easeOut" }}
-            className="text-xs font-semibold text-muted-foreground uppercase tracking-[0.2em] mb-5"
+            className="text-xs font-semibold text-white/70 uppercase tracking-[0.2em] mb-5"
           >
             Parent-approved teen work
           </motion.p>
 
           <TypewriterHeadline
             lines={["Your block.", "Your list."]}
-            className="font-grotesk text-foreground"
+            className="font-grotesk text-white"
             style={{
               fontWeight: 600,
               fontSize: "clamp(48px, 8vw, 104px)",
@@ -37,7 +55,7 @@ export default function SplitHero() {
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.08, ease: "easeOut" }}
-            className="text-muted-foreground text-lg mt-6 max-w-md mx-auto leading-relaxed"
+            className="text-white/80 text-lg mt-6 max-w-md mx-auto leading-relaxed"
             style={{ fontFamily: "var(--font-body)" }}
           >
             The local marketplace where California teens earn real paychecks doing outdoor work and online tutoring — with a parent approving every step. Now available in California.
@@ -52,7 +70,12 @@ export default function SplitHero() {
             <Button size="lg" onClick={() => navigate("/register")}>
               Get Started <ArrowRight className="w-4 h-4" />
             </Button>
-            <Button variant="outline" size="lg" onClick={() => navigate("/how-it-works")}>
+            <Button
+              variant="outline"
+              size="lg"
+              className="border-white/30 text-white hover:bg-white/10 hover:border-white/50"
+              onClick={() => navigate("/how-it-works")}
+            >
               Learn More
             </Button>
           </motion.div>
