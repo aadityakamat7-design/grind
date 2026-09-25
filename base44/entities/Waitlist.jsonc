@@ -18,6 +18,11 @@
         "buyer"
       ],
       "description": "Role the user intended to sign up as"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Optional note left by the waitlisted user"
     }
   },
   "required": [

@@ -21,6 +21,11 @@
       "type": "boolean",
       "default": false,
       "description": "Whether the auth attempt succeeded (for analytics/cleanup)"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Optional context note about this auth attempt"
     }
   },
   "required": [
