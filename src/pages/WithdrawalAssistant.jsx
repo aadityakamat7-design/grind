@@ -20,6 +20,7 @@ export default function WithdrawalAssistant() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
+  const [awaitingReply, setAwaitingReply] = useState(false);
   const [loadingConv, setLoadingConv] = useState(true);
   const scrollRef = useRef(null);
 
@@ -52,6 +53,7 @@ export default function WithdrawalAssistant() {
     const unsubscribe = base44.agents.subscribeToConversation(conversation.id, (data) => {
       setMessages(data.messages || []);
       setBusy(false);
+      setAwaitingReply(false);
     });
     return () => unsubscribe();
   }, [conversation?.id]);
@@ -67,11 +69,14 @@ export default function WithdrawalAssistant() {
     if (!raw || !conversation || busy) return;
     setInput("");
     setBusy(true);
+    setAwaitingReply(true);
     try {
       await base44.agents.addMessage(conversation, { role: "user", content: raw });
     } catch (err) {
       console.error("WithdrawalAssistant send error:", err);
       setInput(raw);
+      setAwaitingReply(false);
+    } finally {
       setBusy(false);
     }
   };
@@ -149,7 +154,7 @@ export default function WithdrawalAssistant() {
             </div>
           );
         })}
-        {busy && (
+        {awaitingReply && (
           <div className="flex justify-start">
             <div className="bg-card border border-border rounded-2xl rounded-bl-md px-3.5 py-2.5 shadow-soft">
               <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />

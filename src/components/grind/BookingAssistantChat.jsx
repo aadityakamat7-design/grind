@@ -11,6 +11,7 @@ export default function BookingAssistantChat({ threadId, bookingId, user }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
+  const [awaitingReply, setAwaitingReply] = useState(false);
   const [loadingConv, setLoadingConv] = useState(false);
   const bottomRef = useRef(null);
 
@@ -47,6 +48,7 @@ export default function BookingAssistantChat({ threadId, bookingId, user }) {
     if (!conversation?.id) return;
     const unsubscribe = base44.agents.subscribeToConversation(conversation.id, (data) => {
       setMessages(data.messages || []);
+      setAwaitingReply(false);
     });
     return () => unsubscribe();
   }, [conversation?.id]);
@@ -60,12 +62,14 @@ export default function BookingAssistantChat({ threadId, bookingId, user }) {
     if (!raw || !conversation || busy) return;
     setInput("");
     setBusy(true);
+    setAwaitingReply(true);
     try {
       const updated = await base44.agents.addMessage(conversation, { role: "user", content: raw });
       setConversation(updated);
     } catch (err) {
       console.error("BookingAssistant send error:", err);
       setInput(raw);
+      setAwaitingReply(false);
     } finally {
       setBusy(false);
     }
@@ -145,7 +149,7 @@ export default function BookingAssistantChat({ threadId, bookingId, user }) {
             </div>
           );
         })}
-        {busy && (
+        {awaitingReply && (
           <div className="flex justify-start">
             <div className="bg-card border border-border rounded-2xl rounded-bl-md px-3.5 py-2.5 shadow-soft">
               <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />

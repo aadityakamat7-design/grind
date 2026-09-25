@@ -93,6 +93,7 @@ export default function SafetyAdvisorChat({ listing, onClose }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
+  const [awaitingReply, setAwaitingReply] = useState(false);
   const [loading, setLoading] = useState(true);
   const bottomRef = useRef(null);
 
@@ -114,6 +115,7 @@ export default function SafetyAdvisorChat({ listing, onClose }) {
         const contextMsg = `I'm about to book a service: "${listing.title}" in the ${listing.category} category for ${listing.price} (${listing.price_model}). Can you walk me through the safety protocols before I finalize this booking?`;
         await base44.agents.addMessage(conv, { role: "user", content: contextMsg });
         setSending(true);
+        setAwaitingReply(true);
       }
     } catch (err) {
       console.error("Failed to init safety advisor conversation", err);
@@ -128,6 +130,7 @@ export default function SafetyAdvisorChat({ listing, onClose }) {
     const unsubscribe = base44.agents.subscribeToConversation(conversation.id, (data) => {
       setMessages(data.messages || []);
       setSending(false);
+      setAwaitingReply(false);
     });
     return () => unsubscribe();
   }, [conversation?.id]);
@@ -141,10 +144,13 @@ export default function SafetyAdvisorChat({ listing, onClose }) {
     if (!content || !conversation || sending) return;
     setInput("");
     setSending(true);
+    setAwaitingReply(true);
     try {
       await base44.agents.addMessage(conversation, { role: "user", content });
     } catch (err) {
       console.error("Failed to send message", err);
+      setAwaitingReply(false);
+    } finally {
       setSending(false);
     }
   };
@@ -172,7 +178,7 @@ export default function SafetyAdvisorChat({ listing, onClose }) {
           </div>
         )}
         {messages.map((m, i) => <MessageBubble key={i} message={m} />)}
-        {sending && messages.length > 0 && (
+        {awaitingReply && messages.length > 0 && (
           <div className="flex justify-start">
             <div className="bg-card border border-border rounded-2xl rounded-bl-md px-4 py-3 shadow-soft">
               <div className="flex items-center gap-1.5">
