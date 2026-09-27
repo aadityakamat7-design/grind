@@ -6,7 +6,7 @@ import StatusBadge from "@/components/grind/StatusBadge";
 import PayoutReviewQueue from "@/components/grind/admin/PayoutReviewQueue";
 import { money } from "@/lib/grind";
 
-export default function AdminPayments({ bookings, user, onReload }) {
+export default function AdminPayments({ bookings, withdrawals = [], user, onReload }) {
   const [tab, setTab] = useState("payouts");
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState(null);
@@ -37,12 +37,20 @@ export default function AdminPayments({ bookings, user, onReload }) {
     return refunds.filter((b) => !q || (b.listing_title || "").toLowerCase().includes(q) || (b.buyer_name || "").toLowerCase().includes(q));
   }, [refunds, query]);
 
+  // Withdrawals: teen cash-out requests (WalletTransaction type=cashout)
+  const processingWithdrawals = useMemo(() => withdrawals.filter((w) => w.status === "processing"), [withdrawals]);
+  const filteredWithdrawals = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return withdrawals.filter((w) => !q || (w.description || "").toLowerCase().includes(q) || (w.teen_user_id || "").toLowerCase().includes(q));
+  }, [withdrawals, query]);
+
   return (
     <div className="space-y-4">
       <div className="flex gap-1 border-b border-border">
         <TabButton active={tab === "payouts"} onClick={() => setTab("payouts")}>Payout review</TabButton>
         <TabButton active={tab === "recon"} onClick={() => setTab("recon")}>Stripe reconciliation {mismatches.length > 0 && <span className="ml-1 text-destructive">({mismatches.length})</span>}</TabButton>
         <TabButton active={tab === "refunds"} onClick={() => setTab("refunds")}>Refund history ({refunds.length})</TabButton>
+        <TabButton active={tab === "withdrawals"} onClick={() => setTab("withdrawals")}>Withdrawals {processingWithdrawals.length > 0 && <span className="ml-1 text-amber-600">({processingWithdrawals.length} pending)</span>}</TabButton>
       </div>
 
       {tab === "payouts" && <PayoutReviewQueue bookings={bookings} onDone={onReload} user={user} />}
@@ -128,6 +136,55 @@ export default function AdminPayments({ bookings, user, onReload }) {
               </table>
             </div>
             {filteredRefunds.length === 0 && <p className="text-center text-sm text-muted-foreground py-8">No refunds.</p>}
+          </div>
+        </div>
+      )}
+
+      {tab === "withdrawals" && (
+        <div className="space-y-3">
+          {processingWithdrawals.length > 0 && (
+            <div className="flex items-start gap-2.5 bg-amber-50 border border-amber-200 rounded-2xl p-4">
+              <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+              <div>
+                <p className="font-bold text-amber-800 text-sm">{processingWithdrawals.length} withdrawal{processingWithdrawals.length > 1 ? "s" : ""} pending settlement</p>
+                <p className="text-xs text-amber-700 mt-0.5">Funds are in the 24–48 hour transfer window.</p>
+              </div>
+            </div>
+          )}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input className="rounded-xl pl-9" placeholder="Search withdrawals…" value={query} onChange={(e) => setQuery(e.target.value)} />
+          </div>
+          <div className="bg-card rounded-2xl border border-border shadow-soft overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-secondary/50 text-muted-foreground">
+                  <tr>
+                    <th className="text-left font-semibold px-4 py-3">Teen</th>
+                    <th className="text-left font-semibold px-4 py-3 hidden sm:table-cell">Description</th>
+                    <th className="text-right font-semibold px-4 py-3">Amount</th>
+                    <th className="text-center font-semibold px-4 py-3">Status</th>
+                    <th className="text-left font-semibold px-4 py-3 hidden md:table-cell">Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredWithdrawals.map((w) => (
+                    <tr key={w.id} className="border-t border-border hover:bg-secondary/30">
+                      <td className="px-4 py-3 font-mono text-xs text-muted-foreground truncate max-w-[120px]">{w.teen_user_id?.slice(0, 8)}…</td>
+                      <td className="px-4 py-3 text-muted-foreground hidden sm:table-cell truncate max-w-[200px]">{w.description || "Cash-out"}</td>
+                      <td className="px-4 py-3 text-right font-semibold">{money(w.amount || 0)}</td>
+                      <td className="px-4 py-3 text-center">
+                        {w.status === "processing"
+                          ? <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">Processing</span>
+                          : <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">Completed</span>}
+                      </td>
+                      <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{w.occurred_at ? new Date(w.occurred_at).toLocaleString() : (w.created_date ? new Date(w.created_date).toLocaleDateString() : "—")}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {filteredWithdrawals.length === 0 && <p className="text-center text-sm text-muted-foreground py-8">No withdrawals.</p>}
           </div>
         </div>
       )}

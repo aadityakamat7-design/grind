@@ -32,13 +32,11 @@ export default function Admin() {
   const [error, setError] = useState(false);
 
   const load = useCallback(async () => {
-    if (user?.app_role !== "admin") { setLoading(false); return; }
     try {
       setError(false);
-      const [
-        users, teens, buyers, parents, bookings, reports, credentials,
-        referrals, listings, links, reviews, messages, webhooks,
-      ] = await Promise.all([
+      // Use allSettled so one failed entity call doesn't crash the entire
+      // admin console — each tab gracefully handles missing data.
+      const results = await Promise.allSettled([
         base44.entities.User.list("-created_date", 500),
         base44.entities.TeenProfile.list("-created_date", 500),
         base44.entities.BuyerProfile.list("-created_date", 500),
@@ -52,15 +50,21 @@ export default function Admin() {
         base44.entities.Review.list("-created_date", 500),
         base44.entities.Message.filter({ flagged: true }, "-created_date", 100),
         base44.entities.WebhookEvent.list("-created_date", 100),
+        base44.entities.WalletTransaction.filter({ type: "cashout" }, "-occurred_at", 200),
       ]);
-      setData({ users, teens, buyers, parents, bookings, reports, credentials, referrals, listings, links, reviews, messages, webhooks });
+      const val = (r) => (r.status === "fulfilled" ? r.value : []);
+      const [
+        users, teens, buyers, parents, bookings, reports, credentials,
+        referrals, listings, links, reviews, messages, webhooks, withdrawals,
+      ] = results.map(val);
+      setData({ users, teens, buyers, parents, bookings, reports, credentials, referrals, listings, links, reviews, messages, webhooks, withdrawals });
     } catch (err) {
       console.error("Admin load failed:", err);
       setError(true);
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, []);
 
   useEffect(() => { load(); }, [load]);
 
