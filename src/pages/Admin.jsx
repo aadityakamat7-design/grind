@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useOutletContext } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
+import { useAppUser } from "@/lib/useAppUser";
 import {
   LayoutDashboard, Users, CalendarDays, Wallet, ShieldAlert, Flag, Activity,
 } from "lucide-react";
@@ -25,7 +25,7 @@ const TABS = [
 ];
 
 export default function Admin() {
-  const { user } = useOutletContext();
+  const { user } = useAppUser();
   const [tab, setTab] = useState("overview");
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
