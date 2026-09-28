@@ -15,7 +15,7 @@ const SECTIONS = [
         <p>Here's the flow, step by step:</p>
         <ul>
           <li><strong>Pay at start.</strong> When both the teen and the neighbor confirm the job is starting, the neighbor's card is charged through Stripe.</li>
-          <li><strong>Held in escrow by Stripe.</strong> The money sits securely in a Stripe-managed escrow — not in a Blockwork bank account. Blockwork never holds anyone's money directly. Stripe does.</li>
+          <li><strong>Held by Stripe.</strong> The money sits securely in a Stripe-managed account — not in a Blockwork bank account. Blockwork never holds anyone's money directly. Stripe does.</li>
           <li><strong>Released on confirmation.</strong> The teen uploads photo proof the work is finished. Once both the teen and the neighbor confirm the job is complete, the funds are released.</li>
           <li><strong>Full refund if cancelled early.</strong> If a job is cancelled before it starts, the neighbor is automatically and fully refunded.</li>
         </ul>
@@ -112,7 +112,7 @@ const SECTIONS = [
   {
     icon: Scale,
     title: "6. California child-labor compliance",
-    summary: "Blockwork is built to stay within California child-labor law — minimum ages, verified ages, enforced hour limits, hazard screening, and parental approval on every booking.",
+    summary: "Blockwork is built to stay within California child-labor law — minimum ages, parent-confirmed ages, enforced hour limits, hazard screening, and parental approval on every booking.",
     body: (
       <>
         <p>
@@ -170,7 +170,7 @@ export default function Compliance() {
     <div className="min-h-screen bg-background flex flex-col">
       <Seo
         title="Payments & Compliance"
-        description="How money works on Blockwork and what keeps the platform legal — escrow, fees, payouts, payment security, taxes, and California child-labor compliance, explained in plain English."
+        description="How money works on Blockwork and what keeps the platform legal — held payments, fees, payouts, payment security, taxes, and California child-labor compliance, explained in plain English."
         path="/compliance"
       />
       <div className="max-w-3xl mx-auto px-6 py-16 w-full">

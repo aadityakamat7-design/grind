@@ -7,7 +7,7 @@ import Seo from "@/components/Seo";
 export default function TermsOfService() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <Seo title="Terms of Service" description="The rules for using Blockwork: eligibility, parental consent, no-home-entry policy, escrow payments, minor work-hour limits, and dispute resolution." path="/terms" />
+      <Seo title="Terms of Service" description="The rules for using Blockwork: eligibility, parental consent, no-home-entry policy, held payments, minor work-hour limits, and dispute resolution." path="/terms" />
       <div className="max-w-3xl mx-auto px-6 py-10">
         <Link to="/" className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground mb-6">
           <ArrowLeft className="w-3.5 h-3.5" /> Back to home
@@ -18,7 +18,7 @@ export default function TermsOfService() {
 
         <div className="text-[13px] leading-relaxed text-muted-foreground space-y-3 [&_h2]:text-foreground [&_h2]:font-heading [&_h2]:font-semibold [&_h2]:text-[15px] [&_h2]:mt-6 [&_h2]:mb-2 [&_p]:leading-relaxed [&_li]:leading-relaxed [&_strong]:text-foreground [&_ul]:space-y-1 [&_ul]:pl-4 [&_ul]:list-disc">
           <p className="text-[13px] text-foreground bg-muted rounded-lg p-3 border border-border">
-            <strong>Plain-language summary:</strong> Blockwork is a marketplace where adult neighbors hire local teens for outdoor tasks (like lawn care and car washing) performed outside the residence, and for online tutoring and tech help conducted over video. Every teen account is linked to a verified parent or guardian who approves each job and receives the earnings. Teens never enter a neighbor's home — all in-person work happens outdoors, and all tutoring happens remotely. We hold your payment in escrow until the teen uploads photo proof of completion and the neighbor confirms the work. We are a venue — not a party to the work itself. These terms explain the rules for using Blockwork.
+            <strong>Plain-language summary:</strong> Blockwork is a marketplace where adult neighbors hire local teens for outdoor tasks (like lawn care and car washing) performed outside the residence, and for online tutoring and tech help conducted over video. Every teen account is linked to a verified parent or guardian who approves each job and receives the earnings. Teens never enter a neighbor's home — all in-person work happens outdoors, and all tutoring happens remotely. We hold your payment until the teen uploads photo proof of completion and the neighbor confirms the work. We are a venue — not a party to the work itself. These terms explain the rules for using Blockwork.
           </p>
 
           <p className="text-[13px] text-foreground bg-muted rounded-lg p-3 border border-border">
@@ -55,7 +55,7 @@ export default function TermsOfService() {
             You agree to provide accurate information when registering, including your real name, date of birth, and email address. You are responsible for keeping your password and account secure.
           </p>
           <p>
-            <strong>Teen accounts.</strong> A teen account is not active until a parent or guardian completes the linking process: the parent enters the teen's invite code, passes identity verification (government ID + liveness check), and attests the parent-child relationship. The parent controls payout of earnings and can approve or deny any booking.
+            <strong>Teen accounts.</strong> A teen account is not active until a parent or guardian completes the linking process: the parent enters the teen's invite code, completes Stripe payout setup (which verifies they are a real adult 18+ through their legal name, date of birth, SSN, and bank account), and attests the parent-child relationship. The parent controls payout of earnings and can approve or deny any booking.
           </p>
           <p>
             <strong>Itemized parental consent.</strong> By linking to a teen account, the parent or guardian individually acknowledges each of the following:
@@ -79,7 +79,7 @@ export default function TermsOfService() {
             Blockwork provides a technology platform that connects neighbors with teens and their parents. We are <strong>not</strong> a party to any agreement between a neighbor and a teen (or their parent). We do not employ teens, do not contract with teens, do not direct or control the manner or means of how work is performed, do not set wages (teens set their own prices), do not guarantee any volume of work, and are not a staffing agency, employer, or joint employer of any teen. Any work agreement is solely between the neighbor and the teen's parent or guardian.
           </p>
           <p>
-            Our safety features — including parent approval, identity verification, hazard screening, hour limits, photo-proof completion, and in-app messaging — are risk-reduction and compliance measures required by California child-labor law. They do not constitute supervision or direction of any job, do not guarantee that any user is safe or trustworthy, and do not guarantee that any job will be completed satisfactorily or without incident. You use Blockwork at your own risk.
+            Our safety features — including parent approval, Stripe verification, hazard screening, hour limits, photo-proof completion, and in-app messaging — are risk-reduction and compliance measures required by California child-labor law. They do not constitute supervision or direction of any job, do not guarantee that any user is safe or trustworthy, and do not guarantee that any job will be completed satisfactorily or without incident. You use Blockwork at your own risk.
           </p>
 
           <h2>4. No-Home-Entry Policy</h2>
@@ -121,7 +121,7 @@ export default function TermsOfService() {
             <strong>Stripe processing fee.</strong> Blockwork charges a Stripe processing fee (including payout) on each completed booking. The fee is deducted from the teen's earnings before payout to the parent. The current fee rate is shown at checkout and on the earnings screen.
           </p>
           <p>
-            <strong>Escrow.</strong> When a job starts, the neighbor's payment is charged through Stripe and held in escrow. The teen uploads photo proof that the work is complete, and the payment is released to the teen's parent immediately upon photo upload. If the neighbor believes the work was not done correctly, they can report a problem through the booking to request a refund.
+            <strong>Held payments.</strong> When a job starts, the neighbor's payment is charged through Stripe and held until the job is done. The teen uploads photo proof that the work is complete, and the payment is released to the teen's parent immediately upon photo upload. If the neighbor believes the work was not done correctly, they can report a problem through the booking to request a refund.
           </p>
           <p>
             <strong>Payouts.</strong> Earnings are paid to the parent's connected Stripe Connect account, not directly to the teen. The parent is responsible for any tax reporting and for distributing earnings to the teen as they see fit.
@@ -132,7 +132,7 @@ export default function TermsOfService() {
 
           <h2>8. Refunds and Disputes</h2>
           <p>
-            If a booking is denied by the parent or cancelled before the job starts, the neighbor is automatically refunded. Once a job is in progress, refunds are handled case by case. If the neighbor reports that the work was not completed satisfactorily, the escrow is held while we review the teen's completion photos and the neighbor's report.
+            If a booking is denied by the parent or cancelled before the job starts, the neighbor is automatically refunded. Once a job is in progress, refunds are handled case by case. If the neighbor reports that the work was not completed satisfactorily, the payment is held while we review the teen's completion photos and the neighbor's report.
           </p>
           <p>
             <strong>Dispute resolution.</strong> If the neighbor disputes the completion, an administrator reviews the photo evidence and the neighbor's explanation, and decides whether to release the payment to the teen's parent or refund the neighbor. If you believe a job was not completed satisfactorily, report it through the booking as soon as possible after the teen marks it finished.
@@ -147,7 +147,7 @@ export default function TermsOfService() {
             <li>Post false, misleading, or discriminatory content.</li>
             <li>Harass, threaten, or harm another user.</li>
             <li>Record an online session without the other party's consent.</li>
-            <li>Attempt to bypass payment, fees, or escrow.</li>
+            <li>Attempt to bypass payment or fees.</li>
             <li>Use the service outside of California, or for anything other than the outdoor tasks and online tutoring described in these terms.</li>
           </ul>
 
@@ -189,7 +189,7 @@ export default function TermsOfService() {
 
           <h2>13. Termination</h2>
           <p>
-            You may close your account at any time. We may suspend or terminate any account that violates these terms, poses a safety risk, or is the subject of repeated complaints. Requesting or permitting a teen to enter a residence is grounds for immediate termination. Upon termination, pending escrow funds are resolved according to the refund and dispute rules above.
+            You may close your account at any time. We may suspend or terminate any account that violates these terms, poses a safety risk, or is the subject of repeated complaints. Requesting or permitting a teen to enter a residence is grounds for immediate termination. Upon termination, pending held funds are resolved according to the refund and dispute rules above.
           </p>
 
           <h2>14. Disclaimers</h2>

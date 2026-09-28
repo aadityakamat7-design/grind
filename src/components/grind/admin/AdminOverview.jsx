@@ -3,9 +3,7 @@ import { Users, Search, CalendarDays, Wallet, TrendingUp, CheckCircle2, AlertTri
 import StatCard from "@/components/grind/StatCard";
 import AdminAnalytics from "@/components/grind/admin/AdminAnalytics";
 import StripeTestModeCard from "@/components/grind/admin/StripeTestModeCard";
-import IdentityVerificationToggle from "@/components/grind/admin/IdentityVerificationToggle";
 import StateComplianceTable from "@/components/grind/admin/StateComplianceTable";
-import ReceiptPreviewCard from "@/components/grind/admin/ReceiptPreviewCard";
 import { money } from "@/lib/grind";
 
 export default function AdminOverview({ teens, buyers, parents, bookings, listings, links, user }) {
@@ -57,9 +55,7 @@ export default function AdminOverview({ teens, buyers, parents, bookings, listin
 
   return (
     <div className="space-y-6">
-      <ReceiptPreviewCard />
       <StripeTestModeCard />
-      <IdentityVerificationToggle />
       <StateComplianceTable />
 
       <div>
