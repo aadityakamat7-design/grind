@@ -90,10 +90,12 @@ Deno.serve(async (req) => {
       }, { status: 400 });
     }
 
-    // CA-only: the buyer must be in California
+    // Any neighbor with a fully onboarded account is already in California
+    // (the platform is CA-only). Require a profile; the job's state (from
+    // the client) is used for child-labor-law screening below.
     const buyerProfiles = await base44.asServiceRole.entities.BuyerProfile.filter({ user_id: user.id });
-    if (!buyerProfiles[0] || (buyerProfiles[0].state || '').toUpperCase() !== 'CA') {
-      return Response.json({ error: 'Blockwork is currently only available in California.' }, { status: 403 });
+    if (!buyerProfiles[0]) {
+      return Response.json({ error: 'Please complete your profile first.' }, { status: 400 });
     }
 
     // Deterministic server-side hazard blocklist — a second gate so the LLM

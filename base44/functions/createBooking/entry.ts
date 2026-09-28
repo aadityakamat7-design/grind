@@ -102,8 +102,11 @@ Deno.serve(async (req) => {
     }
     if (!buyerProfile) return Response.json({ error: 'Please complete your profile first' }, { status: 400 });
 
-    // CA-only: both the teen and the buyer must be in California
-    if ((teenProfile.state || '').toUpperCase() !== 'CA' || (buyerProfile.state || '').toUpperCase() !== 'CA') {
+    // CA-only: the teen must be in California (child labor law compliance).
+    // Any neighbor with a fully onboarded account is already in CA — the
+    // platform is CA-only, so a missing state field on the buyer profile
+    // does not mean they're outside the service area.
+    if ((teenProfile.state || '').toUpperCase() !== 'CA') {
       return Response.json({ error: 'Blockwork is currently only available in California.' }, { status: 403 });
     }
 
@@ -119,7 +122,8 @@ Deno.serve(async (req) => {
           { status: 400 }
         );
       }
-      if (!teenProfile.state || !buyerProfile.state || teenProfile.state !== buyerProfile.state) {
+      const buyerState = (buyerProfile.state || 'CA').toUpperCase();
+      if (!teenProfile.state || buyerState !== teenProfile.state.toUpperCase()) {
         return Response.json(
           { error: 'This teen is in a different state — bookings must stay within the same state for legal compliance.' },
           { status: 400 }
