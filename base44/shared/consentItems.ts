@@ -53,8 +53,8 @@ export const CONSENT_ITEMS: { key: string; label: string; fullLabel: string }[] 
 // backward compatibility but is no longer shown or required.
 export const IDENTITY_CONSENT_ITEM = {
   key: 'identity',
-  label: "I'll verify my identity with a government ID before payouts are released.",
-  fullLabel: "I understand I must verify my identity with a government ID before payouts are released to my bank account.",
+  label: "I'll set up my payout account through Stripe before payouts are released.",
+  fullLabel: "I understand I must set up my payout account through Stripe before payouts are released to my bank account.",
   retired: true,
 };
 

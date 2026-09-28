@@ -221,7 +221,7 @@ Deno.serve(async (req) => {
                 currency: 'usd',
                 product_data: {
                   name: `${booking.listing_title} (recurring)`,
-                  description: 'Held in escrow until this occurrence is confirmed complete.',
+                  description: 'Held safely until this occurrence is confirmed complete.',
                 },
                 unit_amount: cents,
               },

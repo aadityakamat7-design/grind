@@ -1,14 +1,26 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogAction,
+  AlertDialogCancel,
+} from "@/components/ui/alert-dialog";
 import { FlaskConical, Loader2 } from "lucide-react";
 
 // Admin-only Stripe test-mode toggle. Calls setTestMode (server-checked
 // admin-only) and reflects the current state from getTestModeStatus.
+// A confirmation dialog double-checks before flipping the switch.
 export default function StripeTestModeCard() {
   const [testMode, setTestMode] = useState(false);
   const [loading, setLoading] = useState(true);
   const [acting, setActing] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const load = async () => {
     try {
@@ -27,7 +39,7 @@ export default function StripeTestModeCard() {
     return () => clearInterval(t);
   }, []);
 
-  const toggle = async () => {
+  const doToggle = async () => {
     setActing(true);
     try {
       const next = !testMode;
@@ -67,12 +79,40 @@ export default function StripeTestModeCard() {
             variant={testMode ? "destructive" : "default"}
             size="sm"
             disabled={acting || loading}
-            onClick={toggle}
+            onClick={() => setConfirmOpen(true)}
           >
             {acting ? "…" : testMode ? "Turn off" : "Turn on"}
           </Button>
         </div>
       </div>
+
+      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {testMode ? "Turn off Stripe test mode?" : "Turn on Stripe test mode?"}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {testMode
+                ? "The app will switch back to live Stripe keys. Real cards will be charged again. Make sure no test bookings are in progress."
+                : "Every Stripe call will use test keys — no real money will move, and a test-mode banner will appear on every screen. Only turn this on if you are testing."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={acting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={acting}
+              onClick={async (e) => {
+                e.preventDefault();
+                await doToggle();
+                setConfirmOpen(false);
+              }}
+            >
+              {acting ? "…" : "Yes, confirm"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

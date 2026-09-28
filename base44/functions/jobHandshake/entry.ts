@@ -82,7 +82,7 @@ Deno.serve(async (req) => {
             currency: 'usd',
             product_data: {
               name: booking.listing_title || 'Blockwork job',
-              description: 'Held in escrow until the neighbor confirms the job is complete.',
+              description: 'Held safely until the neighbor confirms the job is complete.',
             },
             unit_amount: cents,
           },

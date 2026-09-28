@@ -54,7 +54,7 @@ Deno.serve(async (req) => {
           `How it works:\n` +
           `1. Post your job — describe it, set your price, and pay upfront.\n` +
           `2. A local teen claims it and gets it done.\n` +
-          `3. Your payment stays held safely in escrow until you confirm the work is finished.\n\n` +
+          `3. Your payment stays held safely until you confirm the work is finished.\n\n` +
           `Post your first job here: ${jobLink}\n\n` +
           `— The Blockwork team`;
 
