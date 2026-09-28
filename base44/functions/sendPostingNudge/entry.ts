@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { APP_BASE_URL } from '../../shared/safeOrigin.ts';
+import { emailFooter } from '../../shared/emailFooter.ts';
 
 // Weekly engagement nudge: emails neighbors (BuyerProfile owners) who have
 // never posted a job, encouraging them to post their first one. Runs on a
@@ -45,6 +46,9 @@ Deno.serve(async (req) => {
         const u = users?.[0];
         if (!u?.email) continue;
 
+        // Skip users who have unsubscribed from marketing emails
+        if (u.marketing_emails_unsubscribed) { skipped++; continue; }
+
         const firstName = (u.full_name || 'there').split(' ')[0];
         const subject = `Got a job that needs doing? Local teens are ready`;
         const textBody =
@@ -61,7 +65,7 @@ Deno.serve(async (req) => {
         await base44.asServiceRole.integrations.Core.SendEmail({
           to: u.email,
           subject,
-          body: textBody,
+          body: `${textBody}${emailFooter(origin, { isMarketing: true, email: u.email })}`,
         });
         sent++;
       } catch (err) {

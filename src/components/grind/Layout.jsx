@@ -7,6 +7,7 @@ import SiteFooter from "@/components/SiteFooter";
 import BlockworkLogo from "@/components/BlockworkLogo";
 import HelpWidget from "@/components/grind/HelpWidget";
 import OfflineBanner from "@/components/grind/OfflineBanner";
+import TermsAcceptanceGate from "@/components/TermsAcceptanceGate";
 
 // Primary tabs = the 4–5 essential items shown in the main nav.
 // Secondary tabs = less-used items moved into the overflow/profile menu.
@@ -299,6 +300,7 @@ export default function Layout() {
 
       <OfflineBanner />
       <HelpWidget />
+      <TermsAcceptanceGate />
     </div>
   );
 }

@@ -47,6 +47,11 @@
     "recovery_phone": {
       "type": "string",
       "description": "Phone number for account recovery \u2014 private, visible only to the user and support"
+    },
+    "marketing_emails_unsubscribed": {
+      "type": "boolean",
+      "default": false,
+      "description": "True when the user has unsubscribed from marketing emails via the one-click unsubscribe link. Transactional emails (receipts, booking notices, security) are not affected."
     }
   }
 }

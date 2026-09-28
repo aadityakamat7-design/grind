@@ -6,6 +6,7 @@ import { notifyParentJobAccepted } from '../../shared/notifyParent.ts';
 import { APP_BASE_URL } from '../../shared/safeOrigin.ts';
 import { enforceBookingHours } from '../../shared/workHourEnforcement.ts';
 import { calculatePlatformFee, calculateNetAmount } from '../../shared/platformFee.ts';
+import { hasAcceptedCurrentTerms } from '../../shared/termsAcceptance.ts';
 
 // Runs the teen's "take this job" flow server-side, since JobPost.status is
 // locked to admin/service-role writes (so a buyer/teen can never flip a job
@@ -15,6 +16,15 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+
+    // ── Terms of Service gate ──
+    // The teen (and their parent) must have accepted the current Terms.
+    const termsAccepted = await hasAcceptedCurrentTerms(base44.asServiceRole.entities, user.id);
+    if (!termsAccepted) {
+      return Response.json({
+        error: 'Please accept the updated Terms of Service before accepting jobs. Open the app to review and accept them.',
+      }, { status: 403 });
+    }
 
     const { jobId, pitch } = await req.json();
     if (!jobId) return Response.json({ error: 'jobId required' }, { status: 400 });

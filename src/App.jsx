@@ -57,6 +57,7 @@ import NeighborGuide from '@/pages/NeighborGuide';
 import Pricing from '@/pages/Pricing';
 import RefundsDisputes from '@/pages/RefundsDisputes';
 import ReportSafetyConcern from '@/pages/ReportSafetyConcern';
+import Unsubscribe from '@/pages/Unsubscribe';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -119,6 +120,7 @@ const AuthenticatedApp = () => {
       <Route path="/pricing" element={<Pricing />} />
       <Route path="/refunds" element={<RefundsDisputes />} />
       <Route path="/report-safety" element={<ReportSafetyConcern />} />
+      <Route path="/unsubscribe" element={<Unsubscribe />} />
 
       {/* Onboarding — standalone page like auth (no app nav) */}
       <Route path="/onboarding" element={<Onboarding />} />

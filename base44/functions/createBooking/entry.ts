@@ -11,12 +11,22 @@ import { getStripeContext } from '../../shared/stripeEnv.ts';
 import { MAX_UNIT_PRICE, MAX_ESTIMATED_HOURS } from '../../shared/pricing.ts';
 import { sendBookingEmail } from '../../shared/bookingEmails.ts';
 import { confirmPaymentHeld } from '../../shared/bookingStateMachine.ts';
+import { hasAcceptedCurrentTerms } from '../../shared/termsAcceptance.ts';
 
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+
+    // ── Terms of Service gate ──
+    // The buyer must have accepted the current Terms before booking.
+    const termsAccepted = await hasAcceptedCurrentTerms(base44.asServiceRole.entities, user.id);
+    if (!termsAccepted) {
+      return Response.json({
+        error: 'Please accept the updated Terms of Service before booking. Open the app to review and accept them.',
+      }, { status: 403 });
+    }
 
     // ── Maintenance gate ──
     // Booking creation can be paused via the AppSetting 'booking_creation_paused'.

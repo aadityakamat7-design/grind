@@ -5,12 +5,22 @@ import { getClientIp } from '../../shared/rateLimiter.ts';
 import { getSafeOrigin } from '../../shared/safeOrigin.ts';
 import { sendBookingEmail } from '../../shared/bookingEmails.ts';
 import { isParentVerifiedByStripe } from '../../shared/parentVerification.ts';
+import { hasAcceptedCurrentTerms } from '../../shared/termsAcceptance.ts';
 
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+
+    // ── Terms of Service gate ──
+    // The parent must have accepted the current Terms before approving.
+    const termsAccepted = await hasAcceptedCurrentTerms(base44.asServiceRole.entities, user.id);
+    if (!termsAccepted) {
+      return Response.json({
+        error: 'Please accept the updated Terms of Service before approving bookings. Open the app to review and accept them.',
+      }, { status: 403 });
+    }
 
     const { bookingId, approve } = await req.json();
     if (!bookingId) return Response.json({ error: 'bookingId required' }, { status: 400 });

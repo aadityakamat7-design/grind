@@ -8,7 +8,7 @@
 // ConsentRecord audit trail). Shortening the display does not reduce what's
 // recorded — the full legal text is always stored alongside the short version.
 
-export const CONSENT_VERSION = '1.0';
+export const CONSENT_VERSION = '2026-10-01';
 
 export const CONSENT_ITEMS: { key: string; label: string; fullLabel: string }[] = [
   {
@@ -37,16 +37,21 @@ export const CONSENT_ITEMS: { key: string; label: string; fullLabel: string }[] 
     fullLabel: "I understand I can read all messages between my teen and buyers at any time, and that Blockwork masks personal contact info (phone, email, address) until a booking is confirmed. I understand I can revoke my authorization at any time, which immediately pauses my teen's account and flags any in-progress bookings for review.",
   },
   {
-  key: 'location_safety',
-  label: "For outdoor jobs, the address is shared only after I approve, and my teen can alert me anytime.",
-  fullLabel: "I understand that for outdoor jobs, the buyer's address is revealed to my teen only after I approve the booking, and that my teen can trigger a safety alert at any time during a job.",
+    key: 'location_safety',
+    label: "For outdoor jobs, the address is shared only after I approve, and my teen can alert me anytime.",
+    fullLabel: "I understand that for outdoor jobs, the buyer's address is revealed to my teen only after I approve the booking, and that my teen can trigger a safety alert at any time during a job.",
   },
   {
-  key: 'teen_dob',
-  label: "I confirm my teen's date of birth entered above is accurate.",
-  fullLabel: "I confirm the date of birth I entered for my teen is accurate, and I understand it is used to enforce California's child-labor age and hour limits. I understand that after I confirm it, my teen cannot change their own date of birth — changes go through me or Blockwork admin.",
+    key: 'teen_dob',
+    label: "I confirm my teen's date of birth entered above is accurate.",
+    fullLabel: "I confirm the date of birth I entered for my teen is accurate, and I understand it is used to enforce California's child-labor age and hour limits. I understand that after I confirm it, my teen cannot change their own date of birth — changes go through me or Blockwork admin.",
   },
-  ];
+  {
+    key: 'terms_acceptance',
+    label: "I have read and agree to the Terms of Service and Privacy Policy on my teen's behalf.",
+    fullLabel: "I have read and agree to the Blockwork Terms of Service (version 2026-10-01) and Privacy Policy on my teen's behalf, and I accept responsibility for my teen's use of the platform.",
+  },
+];
 
 // RETIRED — Stripe Identity verification has been removed. Parents are now
 // verified through Stripe Connect Express onboarding. This item is kept for
