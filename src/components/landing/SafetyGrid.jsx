@@ -3,8 +3,8 @@ import { motion } from "framer-motion";
 import { ShieldCheck, Star, Lock, Home } from "lucide-react";
 
 // Trust section — bento layout with varied card sizes, all on white.
-// Parent-approved is the hero card (wide, serif headline). ID-verified is tall
-// (row-span-2). Escrow + No-home-entry are standard.
+// Parent-approved is the hero card (wide, serif headline). Rated & reviewed is
+// tall (row-span-2). Payments held + No-home-entry are standard.
 export default function SafetyGrid() {
   return (
     <div className="grid md:grid-cols-3 gap-4 md:gap-5">
@@ -25,7 +25,7 @@ export default function SafetyGrid() {
               Every booking gets a parent's sign-off.
             </h3>
             <p className="text-muted-foreground mt-2.5 text-[15px] leading-relaxed">
-              Your teen can't accept a job without your explicit approval. You see the job details, the neighbor's verified profile, and the pay — then you decide.
+              Your teen can't accept a job without your explicit approval. You see the job details, the neighbor's profile, and the pay — then you decide.
             </p>
           </div>
         </div>
@@ -71,7 +71,7 @@ export default function SafetyGrid() {
         >
           <Lock className="w-6 h-6 text-success" />
         </div>
-        <h3 className="font-display font-semibold text-lg text-foreground">Escrow payments</h3>
+        <h3 className="font-display font-semibold text-lg text-foreground">Payments held until done</h3>
         <p className="text-muted-foreground mt-2 text-[15px] leading-relaxed">
           Neighbors pay up front. We hold it. Your teen gets paid only after the work is complete and you confirm it's done right.
         </p>

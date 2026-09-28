@@ -1,13 +1,21 @@
-// Shared logic for finalizing identity verification and persisting verified status.
+// RETIRED — Stripe Identity verification has been removed. Parents are now
+// verified through Stripe Connect Express onboarding (legal name, DOB, SSN,
+// bank account, 18+), checked server-side via isParentVerifiedByStripe in
+// base44/shared/parentVerification.ts.
+//
+// This module is kept only for backward compatibility with any code that
+// imports it. markParentVerified now marks the parent as verified based on
+// their Connect account status (called from checkConnectStatus when the
+// account becomes active). applyVerifiedIdentity is removed.
 
-// Marks a parent as identity-verified (service role) and surfaces the trust
-// signal on any linked teen profiles. Creates the profile if it doesn't exist.
+// Marks a parent as verified based on their Stripe Connect account status.
+// Surfaces the trust signal on any linked teen profiles.
 export async function markParentVerified(base44, userId, extra = {}, fullName = '') {
   const profiles = await base44.asServiceRole.entities.ParentProfile.filter({ user_id: userId });
   let profile = profiles[0];
   const update = {
-    identity_status: 'verified',
-    is_identity_verified: true,
+    identity_status: 'verified', // legacy field — now means "Connect-verified"
+    is_identity_verified: true,  // legacy field — now means "Connect-verified"
     verified_at: new Date().toISOString(),
     ...extra,
   };
@@ -21,16 +29,15 @@ export async function markParentVerified(base44, userId, extra = {}, fullName = 
     });
   }
 
-  // Record check 1 (identity) on every link; a link only becomes confirmed —
-  // and the teen only goes live — once check 2 (relationship) has also passed.
+  // Surface the verified flag on every linked teen profile.
   const links = await base44.asServiceRole.entities.ParentTeenLink.filter({ parent_user_id: userId });
   for (const link of links) {
-    const fullyVerified = !!link.relationship_confirmed;
     await base44.asServiceRole.entities.ParentTeenLink.update(link.id, {
       identity_verified: true,
-      ...(fullyVerified ? { status: 'confirmed', confirmed_at: new Date().toISOString() } : {}),
+      status: 'confirmed',
+      ...(link.confirmed_at ? {} : { confirmed_at: new Date().toISOString() }),
     });
-    if (fullyVerified && link.teen_profile_id) {
+    if (link.teen_profile_id) {
       await base44.asServiceRole.entities.TeenProfile.update(link.teen_profile_id, {
         parent_identity_verified: true,
         status: 'active',
@@ -38,42 +45,4 @@ export async function markParentVerified(base44, userId, extra = {}, fullName = 
     }
   }
   return profile;
-}
-
-// Re-checks a Stripe Identity session's document + selfie results and persists
-// verified data to the parent profile.
-export async function applyVerifiedIdentity(base44, stripe, sessionId) {
-  const session = await stripe.identity.verificationSessions.retrieve(sessionId);
-
-  if (session.status !== 'verified') {
-    return { verified: false, status: session.status, lastError: session.last_error?.reason || null };
-  }
-
-  const reports = await stripe.identity.verificationReports.list({
-    verification_session: session.id,
-    limit: 1,
-  });
-  const report = reports.data[0];
-  const idNumberOk = report?.id_number?.status === 'verified';
-  if (!idNumberOk) {
-    return { verified: false, status: 'failed', lastError: 'ID number check did not pass' };
-  }
-
-  const userId = session.metadata?.user_id;
-  if (!userId) return { verified: false, status: 'failed', lastError: 'Missing user metadata' };
-
-  const vo = session.verified_outputs || {};
-  const dob = vo.dob
-    ? `${vo.dob.year}-${String(vo.dob.month).padStart(2, '0')}-${String(vo.dob.day).padStart(2, '0')}`
-    : undefined;
-
-  const extra = { id_type: report?.document?.type || 'unknown' };
-  if (dob) extra.dob = dob;
-  // Do NOT store the raw government ID number — data minimization. Stripe
-  // already retains the full verification record, and the app only needs to
-  // know that verification passed (identity_status: 'verified').
-
-  await markParentVerified(base44, userId, extra);
-
-  return { verified: true, status: 'verified' };
 }

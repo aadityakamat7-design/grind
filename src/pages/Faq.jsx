@@ -10,7 +10,7 @@ const BREADCRUMB_JSONLD = breadcrumbJsonLd([{ name: "Home", path: "/" }, { name:
 const FAQS = [
   {
     q: "How do teens get paid?",
-    a: "When a neighbor books a job, their payment is charged through Stripe and held safely in escrow. The teen does the work, uploads photo proof, and the neighbor confirms it's done. Only then is the money released to the teen's parent, who receives it in their connected Stripe Connect account. The teen's share appears in their in-app Blockwork Wallet, and the parent can distribute the earnings to the teen as they see fit.",
+    a: "When a neighbor books a job, their payment is charged through Stripe and held safely until the job is done. The teen does the work, uploads photo proof, and the neighbor confirms it's done. Only then is the money released to the teen's parent, who receives it in their connected Stripe Connect account. The teen's share appears in their in-app Blockwork Wallet, and the parent can distribute the earnings to the teen as they see fit.",
   },
   {
     q: "Is it safe to hire a teenager on Blockwork?",

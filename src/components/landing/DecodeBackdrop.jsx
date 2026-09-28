@@ -9,8 +9,8 @@ const PHRASES = [
   "Neighborhood teens.",
   "The neighborhood marketplace where teens find safe local work — with a parent approving every step.",
   "Every job parent-approved",
-  "ID-verified neighbors",
-  "Payments held safely in escrow",
+  "Every parent verified through Stripe",
+  "Payments held until the job is done",
 ];
 
 // Pre-placed tiles at varied sizes/positions so the backdrop feels like

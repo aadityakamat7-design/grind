@@ -18,7 +18,7 @@ export default function PrivacyPolicy() {
 
         <div className="prose prose-sm max-w-none text-muted-foreground [&_h2]:text-foreground [&_h2]:font-heading [&_h2]:font-semibold [&_h2]:mt-8 [&_h2]:mb-3 [&_p]:leading-relaxed [&_li]:leading-relaxed [&_strong]:text-foreground">
           <p className="text-base text-foreground bg-muted rounded-xl p-4 border border-border">
-            <strong>Plain-language summary:</strong> We collect the information needed to run a safe marketplace for outdoor tasks and online tutoring — names, dates of birth, emails, listings, messages, and limited location data during active jobs. We verify parent and teen identities using government IDs (processed by Stripe; we never store the raw images). We hold payments in escrow through Stripe. We do not sell your data. This policy explains what we collect, why, and your rights.
+            <strong>Plain-language summary:</strong> We collect the information needed to run a safe marketplace for outdoor tasks and online tutoring — names, dates of birth, emails, listings, messages, and limited location data during active jobs. Parents are verified through Stripe's payout setup (legal name, date of birth, SSN, bank account, 18+). We do not store SSNs or ID images. We hold payments through Stripe until the job is done. We do not sell your data. This policy explains what we collect, why, and your rights.
           </p>
 
           <p className="text-base text-foreground bg-muted rounded-xl p-4 border border-border">
@@ -29,13 +29,13 @@ export default function PrivacyPolicy() {
           <p><strong>Account data:</strong> Name, email, date of birth, and role (teen, parent, or neighbor). Used to create and manage your account and verify age eligibility.</p>
           <p><strong>Profile data:</strong> Display name (first name + last initial for teens), bio, photo, skills, and service area. Used to show your profile to other users.</p>
           <p><strong>Teen private data:</strong> Date of birth, age, ZIP code, and approximate location. Exact coordinates are used only server-side for distance matching and are never shown to other users.</p>
-          <p><strong>Identity verification data:</strong> Government ID images and a liveness check for parents and teens. These are processed by Stripe Identity; we store only the verification result and a masked reference — never the raw ID images or ID numbers.</p>
+          <p><strong>Identity verification data:</strong> Parents verify through Stripe's payout account setup (Connect Express onboarding). Stripe collects the parent's legal name, date of birth, SSN, and bank account under Stripe's own privacy policy. Blockwork does not store SSNs, ID images, or selfie data. We store only the Connect account status and masked bank references (last 4 digits).</p>
           <p><strong>Listing and job data:</strong> Job titles, descriptions, categories, prices, and photos. Used to display and match jobs. For outdoor jobs, the address is revealed to the teen and parent only after a booking is confirmed.</p>
           <p><strong>Messages:</strong> The content of in-app messages between users. We scan messages to mask personal contact information before a booking is confirmed and to flag off-platform or unsafe requests.</p>
           <p><strong>Location data:</strong> When an outdoor job is in progress, the teen's live location is shared with their parent for safety. The neighbor does not see the teen's location. Location sharing stops when the job ends. Online jobs do not share location.</p>
           <p><strong>Online session data:</strong> When a booking is for online tutoring or tech help, the platform generates a video session link. We log session metadata (start time, duration, participant IDs, and the session link) for safety, dispute resolution, and record-keeping. We do not record, store, or transcribe the audio or video of any session.</p>
           <p><strong>Completion photos:</strong> When a teen marks an outdoor job as finished, they upload photos showing the completed work. These are shown to the neighbor for confirmation and to administrators during dispute review. They are stored for the life of the booking and any related dispute, then deleted per our retention policy.</p>
-          <p><strong>Payment data:</strong> We do not store your card or bank details. Payment processing is handled by Stripe. We store transaction records, escrow status, and masked bank references (last 4 digits) returned by Stripe.</p>
+          <p><strong>Payment data:</strong> We do not store your card or bank details. Payment processing is handled by Stripe. We store transaction records, payment status, and masked bank references (last 4 digits) returned by Stripe.</p>
           <p><strong>Consent records:</strong> When a parent links to a teen, we record each itemized consent acknowledgment with a timestamp, the terms version, the parent's IP address, and user agent. This creates an auditable consent trail.</p>
           <p><strong>Device and usage data:</strong> IP address, browser type, and basic analytics. Used for security, fraud prevention, and improving the platform.</p>
 
@@ -46,7 +46,7 @@ export default function PrivacyPolicy() {
 
           <h2>3. How Minors' Data Is Handled</h2>
           <p>
-            <strong>Parental consent.</strong> We do not knowingly collect personal information from children under 13. For teens aged 13–17, we require verifiable parental consent before the account becomes active. A parent or guardian must link to the teen's account, pass identity verification, and individually acknowledge each itemized consent described in the Terms of Service.
+            <strong>Parental consent.</strong> We do not knowingly collect personal information from children under 13. For teens aged 13–17, we require verifiable parental consent before the account becomes active. A parent or guardian must link to the teen's account, complete Stripe payout setup (which verifies they are a real adult 18+), and individually acknowledge each itemized consent described in the Terms of Service.
           </p>
           <p>
             <strong>What parents can see.</strong> A linked parent can view the teen's profile, bookings, messages (read-only), earnings, online session links, and live location during active outdoor jobs. Parents can request deletion of a teen's data at any time.
@@ -68,7 +68,7 @@ export default function PrivacyPolicy() {
           <h2>6. Third-Party Sharing</h2>
           <p>We share data with:</p>
           <ul>
-            <li><strong>Stripe</strong> — for payments, identity verification, and payouts to parents.</li>
+            <li><strong>Stripe</strong> — for payments, parent verification (Connect Express onboarding), and payouts to parents.</li>
             <li><strong>Our hosting provider (Base44)</strong> — for app hosting, data storage, and infrastructure.</li>
             <li><strong>Analytics providers</strong> — for aggregate, de-identified usage statistics.</li>
           </ul>
@@ -83,7 +83,7 @@ export default function PrivacyPolicy() {
 
           <h2>8. Data Retention</h2>
           <p>
-            We keep your data for as long as your account is active. After account closure, we retain transaction, identity-verification, and consent records for as long as required by law (typically 3–7 years for tax and safety purposes), then delete or anonymize them. Messages are deleted when the account is closed. Completion photos are retained for the life of the booking and any related dispute, then deleted.
+            We keep your data for as long as your account is active. After account closure, we retain transaction, verification, and consent records for as long as required by law (typically 3–7 years for tax and safety purposes), then delete or anonymize them. Messages are deleted when the account is closed. Completion photos are retained for the life of the booking and any related dispute, then deleted.
           </p>
 
           <h2>9. Security</h2>
@@ -107,7 +107,7 @@ export default function PrivacyPolicy() {
             <strong>Card and bank details are never seen or stored by Blockwork.</strong> All card data flows through Stripe's PCI-DSS Level 1 certified infrastructure. Our servers receive only a Stripe token or PaymentIntent ID — never raw card numbers, CVCs, or bank routing numbers. Bank details entered during Connect onboarding go directly to Stripe's hosted form, never through our backend. We store only masked references returned by Stripe (e.g., last four digits of a bank account).
           </p>
           <p>
-            <strong>Raw government ID images and selfies are never stored.</strong> Identity verification is handled by Stripe Identity. We store only the verification result (verified / failed) and a masked session reference — never the ID images, ID numbers, or selfie photos. Stripe retains the full verification record on its side; we do not.
+            <strong>No ID images or selfies are stored.</strong> Parents verify through Stripe's payout account setup (Connect Express onboarding). Stripe collects the parent's legal name, date of birth, SSN, and bank account under Stripe's own privacy policy. Blockwork does not store SSNs, ID images, or selfie data — only the Connect account status and masked bank references returned by Stripe.
           </p>
 
           <h3>9.3 Access Controls</h3>
@@ -141,7 +141,7 @@ export default function PrivacyPolicy() {
 
           <h3>9.7 Data Retention</h3>
           <p>
-            We keep your data only as long as needed. Account data is retained while your account is active. After account closure, transaction, identity-verification, and consent records are retained for as long as required by law (typically 3–7 years for tax and safety purposes), then deleted or anonymized. Messages are deleted when the account is closed. Completion photos are retained for the life of the booking and any related dispute, then deleted. Audit log entries are retained for the legally required period for financial and safety records.
+            We keep your data only as long as needed. Account data is retained while your account is active. After account closure, transaction, verification, and consent records are retained for as long as required by law (typically 3–7 years for tax and safety purposes), then deleted or anonymized. Messages are deleted when the account is closed. Completion photos are retained for the life of the booking and any related dispute, then deleted. Audit log entries are retained for the legally required period for financial and safety records.
           </p>
 
           <h3>9.8 Honest Limitations</h3>
@@ -166,7 +166,7 @@ export default function PrivacyPolicy() {
 
           <h2>11. Children's Privacy (COPPA)</h2>
           <p>
-            We do not knowingly collect personal information from children under 13. If you believe a child under 13 has registered, contact us and we will promptly delete the account and associated data. For teens 13–17, we obtain verifiable parental consent through identity verification and itemized acknowledgment before activating the account, as described above and in the Terms of Service.
+            We do not knowingly collect personal information from children under 13. If you believe a child under 13 has registered, contact us and we will promptly delete the account and associated data. For teens 13–17, we obtain verifiable parental consent through Stripe payout setup (which verifies the parent is a real adult 18+) and itemized acknowledgment before activating the account, as described above and in the Terms of Service.
           </p>
 
           <h2>12. California Privacy Rights</h2>

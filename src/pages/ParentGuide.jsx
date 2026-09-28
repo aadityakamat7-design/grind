@@ -8,7 +8,7 @@ import PublicFaq, { faqJsonLd, breadcrumbJsonLd } from "@/components/PublicFaq";
 const FAQS = [
   { q: "How does parent approval work on Blockwork?", a: "No job is confirmed without a parent's explicit approval. When a neighbor books your teen, you see the job details, address, pay, and neighbor's name before saying yes. You can deny any booking at any time before it starts." },
   { q: "How does my teen get paid?", a: "Because your teen is a minor, their earnings flow through a Stripe Connect account in your name. After each completed job, the teen's share lands in your connected bank account. Your teen sees their balance in their Blockwork Wallet but cannot cash out without your account." },
-  { q: "Can I lock my teen's withdrawals?", a: "Yes. From your dashboard you can freeze your teen's ability to cash out at any time, for any reason. The earnings stay safe in escrow until you unlock it." },
+  { q: "Can I lock my teen's withdrawals?", a: "Yes. From your dashboard you can freeze your teen's ability to cash out at any time, for any reason. The earnings stay safe until you unlock it." },
   { q: "Do I need to verify my identity?", a: "Yes. The first time your teen accepts a job, you will verify your identity with a government ID and a quick liveness check through Stripe Identity. This is required before any booking is confirmed." },
 ];
 
@@ -24,7 +24,7 @@ const STEPS = [
   {
     icon: Eye,
     title: "Approve every booking",
-    body: "When a neighbor books your teen, the payment is held in escrow and you get an approval request. You see the job details, the address, the pay, and the neighbor's name before you say yes. Nothing happens until you approve.",
+    body: "When a neighbor books your teen, the payment is held by Stripe and you get an approval request. You see the job details, the address, the pay, and the neighbor's name before you say yes. Nothing happens until you approve.",
   },
   {
     icon: Wallet,
@@ -34,7 +34,7 @@ const STEPS = [
   {
     icon: Lock,
     title: "Lock withdrawals anytime",
-    body: "From your dashboard you can freeze your teen's ability to cash out at any time, for any reason. The earnings stay safe in escrow until you unlock it.",
+    body: "From your dashboard you can freeze your teen's ability to cash out at any time, for any reason. The earnings stay safe until you unlock it.",
   },
   {
     icon: Bell,
@@ -48,7 +48,7 @@ export default function ParentGuide() {
     <div className="min-h-screen bg-background flex flex-col">
       <Seo
         title="Parent Guide"
-        description="How Blockwork works for parents: identity verification, booking approval, escrow payouts, withdrawal locks, and safety notifications."
+        description="How Blockwork works for parents: Stripe verification, booking approval, payouts, withdrawal locks, and safety notifications."
         path="/parent-guide"
         jsonLd={[FAQ_JSONLD, BREADCRUMB_JSONLD]}
       />

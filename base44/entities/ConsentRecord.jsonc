@@ -57,7 +57,31 @@
     },
     "teen_verified_age": {
       "type": "number",
-      "description": "Teen's verified age at time of consent"
+      "description": "Teen's age at time of consent, computed from the parent-confirmed date of birth"
+    },
+    "teen_dob": {
+      "type": "string",
+      "format": "date",
+      "description": "The teen's date of birth as entered and confirmed by the verified parent during link confirmation. This is the source of truth for all age rules (category minimums, hour limits, 18+ independent path). After the parent confirms it, the teen cannot change their own date of birth \u2014 changes go through the parent or admin.",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "teen_dob_confirmed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the verified parent confirmed the teen's date of birth",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     },
     "ip": {
       "type": "string",

@@ -46,7 +46,7 @@ export default function About() {
               Blockwork was started in Fremont, California by a teen who wanted a safer way to earn money. The existing options weren't good enough — Craigslist is anonymous, Facebook Marketplace has no protections, and adult gig platforms like TaskRabbit aren't built for minors. Meanwhile, neighbors were already asking in community groups for a reliable teen to mow a lawn, walk a dog, or help with homework.
             </p>
             <p>
-              The idea was simple: build a marketplace where every job is approved by a parent, every user is verified, and every payment is protected by escrow. No teen walks into a stranger's home. No neighbor gets ghosted. No parent has to wonder where their kid is or whether they'll get paid.
+              The idea was simple: build a marketplace where every job is approved by a parent, every parent is verified through Stripe, and every payment is held until the job is done. No teen walks into a stranger's home. No neighbor gets ghosted. No parent has to wonder where their kid is or whether they'll get paid.
             </p>
             <p>
               We started in California because the state has clear, specific child-labor rules we could build into the platform itself — age minimums, hour limits, and hazard restrictions. Instead of relying on people to read the fine print, Blockwork enforces those rules automatically at booking. We'll expand to other states as we can meet their requirements with the same rigor.
@@ -92,7 +92,7 @@ export default function About() {
               <div>
                 <h2 className="font-bold text-foreground text-sm">How it works</h2>
                 <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
-                  Teens create listings for services they offer. Neighbors post jobs or browse service listings. When a teen accepts a job, their parent approves it. Payment is held in escrow until the job is done, then released to the parent's connected bank account. The teen earns money in their Blockwork Wallet.
+                  Teens create listings for services they offer. Neighbors post jobs or browse service listings. When a teen accepts a job, their parent approves it. Payment is held until the job is done, then released to the parent's connected bank account. The teen earns money in their Blockwork Wallet.
                 </p>
               </div>
             </div>

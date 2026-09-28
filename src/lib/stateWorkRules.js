@@ -52,9 +52,9 @@ export function calcAgeFrom(dob) {
   return age;
 }
 
-// Verified age from TeenPrivateData — uses verified_dob (Stripe-verified DOB)
-// when available, falling back to self-reported DOB only before verification.
-// Mirrors base44/shared/teenAge.ts getVerifiedAge; keep in sync.
+// Verified age from TeenPrivateData — uses verified_dob (parent-confirmed DOB)
+// when available, falling back to self-reported DOB only before the parent
+// has confirmed it. Mirrors base44/shared/teenAge.ts getVerifiedAge; keep in sync.
 export function getVerifiedAgeFromPrivate(privateData) {
   if (!privateData) return null;
   const dob = privateData.verified_dob || privateData.date_of_birth;
@@ -190,13 +190,16 @@ export const CONSENT_ITEMS = [
   { key: "payment", label: "I authorize Blockwork to process payments and send payouts to my bank account.", fullLabel: "I authorize Blockwork to process payments on my behalf — holding buyer funds in escrow and transferring payouts to my connected bank account, never directly to my teen." },
   { key: "messaging_access", label: "I can read my teen's messages and revoke access at any time.", fullLabel: "I understand I can read all messages between my teen and buyers at any time, and that Blockwork masks personal contact info (phone, email, address) until a booking is confirmed. I understand I can revoke my authorization at any time, which immediately pauses my teen's account and flags any in-progress bookings for review." },
   { key: "location_safety", label: "For outdoor jobs, the address is shared only after I approve, and my teen can alert me anytime.", fullLabel: "I understand that for outdoor jobs, the buyer's address is revealed to my teen only after I approve the booking, and that my teen can trigger a safety alert at any time during a job." },
+  { key: "teen_dob", label: "I confirm my teen's date of birth entered above is accurate.", fullLabel: "I confirm the date of birth I entered for my teen is accurate, and I understand it is used to enforce California's child-labor age and hour limits. I understand that after I confirm it, my teen cannot change their own date of birth — changes go through me or Blockwork admin." },
 ];
 
-// Conditionally shown when Stripe Identity verification is enabled (default).
+// RETIRED — Stripe Identity verification has been removed. Kept for backward
+// compatibility but no longer shown or required.
 export const IDENTITY_CONSENT_ITEM = {
   key: "identity",
   label: "I'll verify my identity with a government ID before payouts are released.",
   fullLabel: "I understand I must verify my identity with a government ID before payouts are released to my bank account.",
+  retired: true,
 };
 
 // Long legal explanation moved into a collapsible "Read full terms" section.

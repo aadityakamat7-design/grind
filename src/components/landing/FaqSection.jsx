@@ -12,7 +12,7 @@ const FAQS = [
   },
   {
     q: "Is it safe?",
-    a: "Yes. Adults verify their identity with a government ID and live selfie, parents approve every booking, contact details stay hidden until a booking is confirmed, and both sides rate each other after every job.",
+    a: "Yes. Parents are verified through Stripe's payout setup, parents approve every booking, contact details stay hidden until a booking is confirmed, and both sides rate each other after every job.",
   },
   {
     q: "How much does Blockwork charge?",

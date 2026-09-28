@@ -123,7 +123,7 @@ export default function ConsentRecordViewer() {
                   <>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm">
                       <div className="bg-white rounded-lg p-2 border border-border">
-                        <p className="text-muted-foreground">Identity verified</p>
+                        <p className="text-muted-foreground">Verified through Stripe</p>
                         <p className="font-bold text-foreground">{link.identity_verified ? "✓ Yes" : "✗ No"}</p>
                       </div>
                       <div className="bg-white rounded-lg p-2 border border-border">

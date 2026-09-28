@@ -8,7 +8,7 @@ import PublicFaq, { faqJsonLd, breadcrumbJsonLd } from "@/components/PublicFaq";
 const FAQS = [
   { q: "How much does Blockwork cost?", a: "Blockwork is free to join and free to list. The only cost is a 12.9% + $0.30 platform fee per completed job, deducted from the total the neighbor pays. There are no signup fees, monthly subscriptions, or listing fees." },
   { q: "How do tips work on Blockwork?", a: "Neighbors can add an optional tip after a job well done. Tips are 100% fee-free — Blockwork covers the processing cost, so the full tip amount goes straight to the teen." },
-  { q: "When does Blockwork get paid?", a: "Blockwork only earns money when a job is actually completed. The platform fee is deducted from the escrow payment when it is released to the teen's parent." },
+  { q: "When does Blockwork get paid?", a: "Blockwork only earns money when a job is actually completed. The platform fee is deducted from the held payment when it is released to the teen's parent." },
   { q: "Are there any hidden fees?", a: "No. The 12.9% + $0.30 fee is the only charge. There are no signup fees, subscription costs, or listing fees — ever." },
 ];
 
@@ -61,7 +61,7 @@ export default function Pricing() {
 
         <div className="bg-secondary border border-border rounded-2xl p-5">
           <p className="text-sm text-muted-foreground leading-relaxed">
-            All payments are processed by Stripe and held in escrow until the job is confirmed complete. Read our{" "}
+            All payments are processed by Stripe and held until the job is confirmed complete. Read our{" "}
             <Link to="/refunds" className="text-foreground font-medium hover:underline">Refunds & Disputes</Link>
             {" "}policy or the full{" "}
             <Link to="/compliance" className="text-foreground font-medium hover:underline">Payments & Compliance</Link>

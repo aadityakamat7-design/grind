@@ -22,13 +22,13 @@ const STEPS = [
   },
   {
     icon: CreditCard,
-    title: "4. Payment goes into escrow",
-    body: "When the job starts, the neighbor's payment (plus any tip) is charged through Stripe and held safely in escrow. The teen does the work and uploads photo proof that it's complete.",
+    title: "4. Payment is held",
+    body: "When the job starts, the neighbor's payment (plus any tip) is charged through Stripe and held safely until the job is done. The teen does the work and uploads photo proof that it's complete.",
   },
   {
     icon: Star,
     title: "5. Neighbor confirms",
-    body: "The neighbor reviews the photos and confirms the work is done. If something's wrong, they can report it and the escrow is held for review. Once confirmed, the funds are released — no chasing invoices, no awkward reminders.",
+    body: "The neighbor reviews the photos and confirms the work is done. If something's wrong, they can report it and the payment is held for review. Once confirmed, the funds are released — no chasing invoices, no awkward reminders.",
   },
   {
     icon: Wallet,
@@ -51,7 +51,7 @@ export default function HowItWorks() {
     <div className="min-h-screen bg-background flex flex-col">
       <Seo
         title="How it works"
-        description="The full Blockwork flow: teens list services, neighbors book, parents approve, escrow holds payment, and earnings land in the teen's wallet."
+        description="The full Blockwork flow: teens list services, neighbors book, parents approve, payment is held until done, and earnings land in the teen's wallet."
         path="/how-it-works"
         jsonLd={BREADCRUMB_JSONLD}
       />

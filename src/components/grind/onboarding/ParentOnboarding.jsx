@@ -1,25 +1,29 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ShieldCheck, AlertCircle, ArrowLeft, ChevronDown, ChevronUp } from "lucide-react";
+import { ShieldCheck, AlertCircle, ArrowLeft, ChevronDown, ChevronUp, Landmark, Loader2, CheckCircle2 } from "lucide-react";
 import { calcAge } from "@/lib/grind";
 import LegalModal from "@/components/grind/LegalModal";
-import { CONSENT_ITEMS, CONSENT_VERSION, IDENTITY_CONSENT_ITEM, FULL_TERMS_TEXT } from "@/lib/stateWorkRules";
+import { CONSENT_ITEMS, CONSENT_VERSION, FULL_TERMS_TEXT } from "@/lib/stateWorkRules";
 import StateRulesDisplay from "@/components/grind/parent/StateRulesDisplay";
-import { useIdentityVerification } from "@/lib/useIdentityVerification";
+import StripeBadge from "@/components/StripeBadge";
 
 const TERMS_VERSION = "2026-07";
 
-// Two-step parent onboarding:
-//   Step 1: Enter DOB (must be 18+) + teen's invite code → look up teen
-//   Step 2: See state rules + 5-6 short consent checkboxes + collapsible full
-//           terms → submit. The full legal text is recorded in the
-//           ConsentRecord audit trail regardless of display length.
+// Three-step parent onboarding:
+//   Step 1: Enter parent DOB (must be 18+) + teen's invite code → look up teen
+//   Step 2: Complete Stripe Connect Express onboarding (legal name, DOB, SSN,
+//           bank account, 18+) — required BEFORE the link can be confirmed.
+//           The teen's account stays inactive until this is done.
+//   Step 3: See state rules + consent checkboxes + enter teen's date of birth
+//           → submit. The teen DOB becomes the source of truth for all age rules.
+//
+// The server re-checks the Connect account status in confirmParentLink, so a
+// browser can never bypass the Connect requirement.
 export default function ParentOnboarding({ user, initialCode = "" }) {
-  const { identityVerificationEnabled } = useIdentityVerification();
   const [step, setStep] = useState(1);
   const [code, setCode] = useState(initialCode);
   const [name, setName] = useState(user.full_name && !user.full_name.includes("@") ? user.full_name : "");
@@ -27,19 +31,16 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
   const [error, setError] = useState("");
   const [lookingUp, setLookingUp] = useState(false);
   const [teenInfo, setTeenInfo] = useState(null);
+  const [connectStatus, setConnectStatus] = useState("not_setup"); // not_setup | pending | active | restricted
+  const [connectChecking, setConnectChecking] = useState(false);
+  const [connectStarting, setConnectStarting] = useState(false);
 
+  const [teenDob, setTeenDob] = useState("");
   const [consents, setConsents] = useState({});
   const [showFullTerms, setShowFullTerms] = useState(false);
   const [saving, setSaving] = useState(false);
   const [legalModal, setLegalModal] = useState(null);
   const [done, setDone] = useState(false);
-
-  // Build the consent items list — include the identity item only when
-  // identity verification is enabled (the default / fails-safe state).
-  const allConsentItems = useMemo(
-    () => (identityVerificationEnabled ? [...CONSENT_ITEMS, IDENTITY_CONSENT_ITEM] : CONSENT_ITEMS),
-    [identityVerificationEnabled]
-  );
 
   useEffect(() => {
     (async () => {
@@ -63,10 +64,11 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
     }
     setLookingUp(true);
     try {
-      // Persist the parent's name now that they've entered it.
       const profiles = await base44.entities.ParentProfile.filter({ user_id: user.id });
       if (profiles[0] && profiles[0].full_name !== name.trim()) {
-        await base44.entities.ParentProfile.update(profiles[0].id, { full_name: name.trim() });
+        await base44.entities.ParentProfile.update(profiles[0].id, { full_name: name.trim(), dob });
+      } else if (profiles[0]) {
+        await base44.entities.ParentProfile.update(profiles[0].id, { dob });
       }
       const res = await base44.functions.invoke("lookupTeenByCode", { code: code.trim().toUpperCase() });
       const data = res.data;
@@ -76,6 +78,10 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
         return;
       }
       setTeenInfo(data);
+      // Check if the parent already has an active Connect account
+      const connectRes = await base44.functions.invoke("checkConnectStatus", {});
+      const cs = connectRes.data?.status || "not_setup";
+      setConnectStatus(cs);
       setStep(2);
       setLookingUp(false);
     } catch (err) {
@@ -84,7 +90,64 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
     }
   };
 
-  const allConsentsChecked = allConsentItems.every((item) => consents[item.key] === true);
+  const startConnect = async () => {
+    setConnectStarting(true);
+    setError("");
+    try {
+      const res = await base44.functions.invoke("createConnectOnboarding", {
+        returnPath: "/onboarding",
+        origin: window.location.origin,
+      });
+      if (!res.data?.url) {
+        setError(res.data?.error || "Could not start payout setup. Please try again.");
+        setConnectStarting(false);
+        return;
+      }
+      if (window.self !== window.top) {
+        alert("Payout setup runs on Stripe's secure page and only works from the published app. Open the app in its own tab.");
+        setConnectStarting(false);
+        return;
+      }
+      window.location.href = res.data.url;
+    } catch (err) {
+      setError(err.response?.data?.error || "Could not start payout setup. Please try again.");
+      setConnectStarting(false);
+    }
+  };
+
+  const checkConnect = useCallback(async () => {
+    setConnectChecking(true);
+    setError("");
+    try {
+      const res = await base44.functions.invoke("checkConnectStatus", {});
+      const s = res.data?.status || "not_setup";
+      setConnectStatus(s);
+      if (s === "active") {
+        setStep(3);
+      } else if (s === "not_setup") {
+        setError("It looks like the payout setup wasn't completed. Please finish it to continue.");
+      } else if (s === "restricted") {
+        setError("Your payout account still needs a few more details. Please finish the setup to continue.");
+      } else {
+        setError("Stripe is still confirming your details — this usually takes a few minutes. Try again in a moment.");
+      }
+    } catch (err) {
+      setError(err.response?.data?.error || "We couldn't confirm your payout setup.");
+    }
+    setConnectChecking(false);
+  }, []);
+
+  // Handle redirect return from Stripe Connect onboarding
+  useEffect(() => {
+    if (step !== 2) return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("connect")) {
+      window.history.replaceState({}, "", window.location.pathname);
+      checkConnect();
+    }
+  }, [step, checkConnect]);
+
+  const allConsentsChecked = CONSENT_ITEMS.every((item) => consents[item.key] === true);
 
   const submit = async () => {
     setSaving(true);
@@ -94,10 +157,10 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
         inviteCode: code.trim().toUpperCase(),
         attestRelationship: consents.relationship === true,
         consents,
-        // State-rules acknowledgment is implicit in the labor_laws consent item
         stateRulesAcknowledged: consents.labor_laws === true,
         stateRules: teenInfo?.stateRules,
         userAgent: navigator.userAgent,
+        teenDob,
       });
       if (!res.data?.linked) {
         setError(res.data?.error || "Something went wrong. Please try again.");
@@ -190,11 +253,94 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
     );
   }
 
-  // Step 2: State rules + short consent checkboxes + collapsible full terms
+  // Step 2: Stripe Connect onboarding (required before link confirmation)
+  if (step === 2) {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center gap-2">
+          <button onClick={reset} className="p-1 rounded-lg hover:bg-slate-100 transition-colors">
+            <ArrowLeft className="w-4 h-4 text-slate-500" />
+          </button>
+          <h2 className="text-xl font-bold text-foreground">Verify your payout account</h2>
+        </div>
+
+        <div className="bg-blue-50/50 rounded-xl px-3.5 py-2.5 border border-blue-100">
+          <p className="text-xs font-bold text-blue-900">
+            Linking to: {teenInfo?.teenName}
+            {teenInfo?.teenState && ` · ${teenInfo?.teenState}`}
+            {teenInfo?.teenAge != null && ` · Age ${teenInfo?.teenAge}`}
+          </p>
+        </div>
+
+        <div className="bg-secondary border border-border rounded-xl p-4 space-y-3">
+          <div className="flex items-start gap-3">
+            <div className="w-11 h-11 rounded-xl bg-foreground flex items-center justify-center shrink-0">
+              <Landmark className="w-5 h-5 text-background" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-bold text-foreground">Set up payouts with Stripe</p>
+              <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                Before you can confirm your teen, Stripe needs to verify you're a real adult (18+). You'll enter your legal name, date of birth, the last 4 of your SSN, and your bank account directly with Stripe — we never see or store those details.
+              </p>
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            This replaces separate ID verification. Stripe confirms you're a real adult; you confirm you're this teen's parent.
+          </p>
+        </div>
+
+        {error && (
+          <div className="flex items-start gap-2 bg-destructive/10 border border-destructive/20 rounded-xl p-3 text-sm text-destructive">
+            <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
+            {error}
+          </div>
+        )}
+
+        {connectStatus === "active" ? (
+          <div className="flex flex-col items-center gap-3 py-4">
+            <div className="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center">
+              <CheckCircle2 className="w-7 h-7 text-emerald-600" />
+            </div>
+            <p className="text-sm font-bold text-foreground">Your payout account is ready!</p>
+            <Button className="w-full rounded-xl" onClick={() => setStep(3)}>
+              Continue to consent
+            </Button>
+          </div>
+        ) : connectChecking || connectStarting ? (
+          <div className="flex flex-col items-center gap-3 py-8">
+            <Loader2 className="w-7 h-7 animate-spin text-muted-foreground" />
+            <p className="text-sm font-medium text-foreground">
+              {connectStarting ? "Opening Stripe's secure setup…" : "Confirming your payout setup…"}
+            </p>
+          </div>
+        ) : (
+          <>
+            <Button className="w-full rounded-xl" onClick={startConnect}>
+              {connectStatus === "pending" || connectStatus === "restricted" ? "Continue on Stripe" : "Set up payouts with Stripe"}
+            </Button>
+            {connectStatus !== "not_setup" && (
+              <Button variant="outline" className="w-full rounded-xl" onClick={checkConnect}>
+                Check setup status
+              </Button>
+            )}
+            <p className="text-xs text-muted-foreground text-center">
+              Required before you can confirm your teen or approve any bookings.
+            </p>
+          </>
+        )}
+        <div className="flex justify-center pt-2">
+          <StripeBadge />
+        </div>
+        <LegalModal type={legalModal} open={!!legalModal} onOpenChange={(v) => !v && setLegalModal(null)} />
+      </div>
+    );
+  }
+
+  // Step 3: State rules + consent checkboxes + teen DOB entry
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
-        <button onClick={reset} className="p-1 rounded-lg hover:bg-slate-100 transition-colors">
+        <button onClick={() => setStep(2)} className="p-1 rounded-lg hover:bg-slate-100 transition-colors">
           <ArrowLeft className="w-4 h-4 text-slate-500" />
         </button>
         <h2 className="text-xl font-bold text-foreground">Consent & link</h2>
@@ -206,7 +352,6 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
           {teenInfo?.teenState && ` · ${teenInfo?.teenState}`}
           {teenInfo?.teenAge != null && ` · Age ${teenInfo?.teenAge}`}
         </p>
-
       </div>
 
       <div>
@@ -216,9 +361,17 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
         <StateRulesDisplay stateRules={teenInfo?.stateRules} teenName={teenInfo?.teenName} />
       </div>
 
+      <div>
+        <Label className="text-foreground">{teenInfo?.teenName || "Your teen"}'s date of birth</Label>
+        <Input type="date" className="rounded-xl mt-1" value={teenDob} onChange={(e) => setTeenDob(e.target.value)} />
+        <p className="text-xs text-muted-foreground mt-1">
+          You confirm this is accurate. It's used to enforce California's age and hour limits. After you confirm it, your teen can't change it — changes go through you or admin.
+        </p>
+      </div>
+
       <div className="space-y-2.5">
         <p className="text-xs font-bold text-foreground">Parental consent — check each box</p>
-        {allConsentItems.map((item) => (
+        {CONSENT_ITEMS.map((item) => (
           <label key={item.key} className="flex items-start gap-2.5 text-[13px] text-slate-700 cursor-pointer leading-snug">
             <Checkbox
               checked={consents[item.key] === true}
@@ -255,14 +408,14 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
 
       <Button
         className="w-full rounded-xl"
-        disabled={!allConsentsChecked || saving}
+        disabled={!allConsentsChecked || !teenDob || saving}
         onClick={submit}
       >
         {saving ? "Linking..." : `Confirm & approve my teen (consent v${CONSENT_VERSION})`}
       </Button>
       {!allConsentsChecked && (
         <p className="text-[11px] text-muted-foreground text-center">
-          {allConsentItems.filter((i) => consents[i.key] !== true).length} of {allConsentItems.length} consent items still need to be checked
+          {CONSENT_ITEMS.filter((i) => consents[i.key] !== true).length} of {CONSENT_ITEMS.length} consent items still need to be checked
         </p>
       )}
       <LegalModal type={legalModal} open={!!legalModal} onOpenChange={(v) => !v && setLegalModal(null)} />

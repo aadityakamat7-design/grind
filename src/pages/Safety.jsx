@@ -6,7 +6,7 @@ import Seo from "@/components/Seo";
 import PublicFaq, { faqJsonLd, breadcrumbJsonLd } from "@/components/PublicFaq";
 
 const FAQS = [
-  { q: "Is Blockwork safe for my teen?", a: "Blockwork is built around safety. Every parent verifies their identity with a government ID, every booking requires parent approval, all in-person work happens outdoors (teens never enter a client's home), and every payment is held in escrow." },
+  { q: "Is Blockwork safe for my teen?", a: "Blockwork is built around safety. Every parent is verified through Stripe, every booking requires parent approval, all in-person work happens outdoors (teens never enter a client's home), and every payment is held until the job is done." },
   { q: "Can a teen enter a client's home?", a: "No — never. All in-person work is performed outdoors on the exterior of the property, and all tutoring happens over video. Requesting a teen to enter a residence is grounds for immediate account termination." },
   { q: "How does identity verification work?", a: "Parents verify their identity with a government ID through Stripe Identity before their teen can accept a first job. Teens also verify the first time they accept work. Blockwork never sees or stores raw ID images — only the verification result." },
   { q: "What happens if something goes wrong during a job?", a: "Teens can alert their parent instantly from any active job. Anyone can report a safety concern, and our team reviews reports quickly. For emergencies, call 911." },
@@ -33,8 +33,8 @@ const PILLARS = [
   },
   {
     icon: Lock,
-    title: "Escrow-protected payments",
-    body: "When a neighbor books a job, their payment is held in escrow. The teen gets paid only after both sides confirm the job is complete. If something goes wrong, the parent can deny the booking and the neighbor gets a full refund.",
+    title: "Payments held until done",
+    body: "When a neighbor books a job, their payment is held by Stripe. The teen gets paid only after both sides confirm the job is complete. If something goes wrong, the parent can deny the booking and the neighbor gets a full refund.",
   },
   {
     icon: Users,
@@ -66,7 +66,7 @@ const PILLARS = [
 export default function Safety() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <Seo title="Safety" description="How Blockwork keeps teens safe: parent approval, ID verification, escrow payments, enforced minor work-hour limits, and a strict no-home-entry policy." path="/safety" jsonLd={[FAQ_JSONLD, BREADCRUMB_JSONLD]} />
+      <Seo title="Safety" description="How Blockwork keeps teens safe: parent approval, Stripe verification, payments held until done, enforced minor work-hour limits, and a strict no-home-entry policy." path="/safety" jsonLd={[FAQ_JSONLD, BREADCRUMB_JSONLD]} />
       <div className="flex-1 max-w-3xl mx-auto px-4 py-12 lg:py-20 w-full">
         <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-8">
           <ArrowLeft className="w-4 h-4" /> Back to Blockwork

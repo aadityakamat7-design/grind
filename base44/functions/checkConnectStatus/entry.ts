@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 import { getStripeForApp } from '../../shared/stripeEnv.ts';
+import { markParentVerified } from '../../shared/identityVerification.ts';
 
 // Syncs the Stripe Connect account status for a parent or an independent
 // 18+ teen. Only stores the status and masked bank info returned by Stripe —
@@ -41,8 +42,11 @@ Deno.serve(async (req) => {
       throw retrieveErr;
     }
 
+    const detailsSubmitted = !!account.details_submitted;
+    const payoutsEnabled = !!account.payouts_enabled;
+    const currentlyDue = (account.requirements?.currently_due?.length ?? 0) > 0;
     let status = 'pending';
-    if (account.payouts_enabled && account.details_submitted) status = 'active';
+    if (payoutsEnabled && detailsSubmitted && !currentlyDue) status = 'active';
     else if (account.requirements?.disabled_reason) status = 'restricted';
 
     const bank = account.external_accounts?.data?.find((a) => a.object === 'bank_account')
@@ -54,6 +58,13 @@ Deno.serve(async (req) => {
       bank_last4: bank?.last4 || '',
       bank_name: bank?.bank_name || '',
     });
+
+    // When a parent's Connect account becomes fully active, sync the legacy
+    // verified flags so existing UI that reads is_identity_verified stays
+    // accurate (now meaning "Connect-verified", not "Stripe Identity-verified").
+    if (isParent && status === 'active' && !profile.is_identity_verified) {
+      await markParentVerified(base44, user.id);
+    }
 
     return Response.json({ status, bankLast4: bank?.last4 || '', bankName: bank?.bank_name || '' });
   } catch (error) {

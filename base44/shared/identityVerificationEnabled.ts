@@ -1,12 +1,6 @@
-// Reads the admin-controlled identity-verification toggle from AppSetting.
-// Defaults to ENABLED (true) when the setting is unset or on any read error,
-// so the platform fails safe — identity verification is only skipped when an
-// admin has explicitly turned it off for the pilot.
+// RETIRED — Stripe Identity verification has been removed. Parents are now
+// verified through Stripe Connect Express onboarding. This function always
+// returns false so any code that checks it skips the identity flow.
 export async function isIdentityVerificationEnabled(base44): Promise<boolean> {
-  try {
-    const rows = await base44.asServiceRole.entities.AppSetting.filter({ key: 'identity_verification_enabled' });
-    return rows[0]?.value !== 'false';
-  } catch {
-    return true;
-  }
+  return false;
 }

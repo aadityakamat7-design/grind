@@ -2,9 +2,9 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 
 // Returns anonymized reviews. Strips author_id and author_name from the
 // response — the caller only gets an is_mine flag (for edit/delete) and an
-// author_label ("Verified Neighbor" / "Verified Teen"). Admins get the
-// full raw review data for moderation. Reviews are fetched by subject_id
-// (for profile pages) or booking_id (for booking detail).
+// author_label ("Neighbor" / "Teen"). Admins get the full raw review data
+// for moderation. Reviews are fetched by subject_id (for profile pages) or
+// booking_id (for booking detail).
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -36,7 +36,7 @@ Deno.serve(async (req) => {
 
     const anonymized = visible.map((r) => {
       if (isAdmin) return r;
-      const authorLabel = r.direction === 'buyer_to_teen' ? 'Verified Neighbor' : 'Verified Teen';
+      const authorLabel = r.direction === 'buyer_to_teen' ? 'Neighbor' : 'Teen';
       return {
         id: r.id,
         booking_id: r.booking_id,

@@ -37,19 +37,25 @@ export const CONSENT_ITEMS: { key: string; label: string; fullLabel: string }[] 
     fullLabel: "I understand I can read all messages between my teen and buyers at any time, and that Blockwork masks personal contact info (phone, email, address) until a booking is confirmed. I understand I can revoke my authorization at any time, which immediately pauses my teen's account and flags any in-progress bookings for review.",
   },
   {
-    key: 'location_safety',
-    label: "For outdoor jobs, the address is shared only after I approve, and my teen can alert me anytime.",
-    fullLabel: "I understand that for outdoor jobs, the buyer's address is revealed to my teen only after I approve the booking, and that my teen can trigger a safety alert at any time during a job.",
+  key: 'location_safety',
+  label: "For outdoor jobs, the address is shared only after I approve, and my teen can alert me anytime.",
+  fullLabel: "I understand that for outdoor jobs, the buyer's address is revealed to my teen only after I approve the booking, and that my teen can trigger a safety alert at any time during a job.",
   },
-];
+  {
+  key: 'teen_dob',
+  label: "I confirm my teen's date of birth entered above is accurate.",
+  fullLabel: "I confirm the date of birth I entered for my teen is accurate, and I understand it is used to enforce California's child-labor age and hour limits. I understand that after I confirm it, my teen cannot change their own date of birth — changes go through me or Blockwork admin.",
+  },
+  ];
 
-// Conditionally required when Stripe Identity verification is enabled (the
-// default). When the admin toggle is off, this item is excluded from the
-// required set and the identity verification step is skipped entirely.
+// RETIRED — Stripe Identity verification has been removed. Parents are now
+// verified through Stripe Connect Express onboarding. This item is kept for
+// backward compatibility but is no longer shown or required.
 export const IDENTITY_CONSENT_ITEM = {
   key: 'identity',
   label: "I'll verify my identity with a government ID before payouts are released.",
   fullLabel: "I understand I must verify my identity with a government ID before payouts are released to my bank account.",
+  retired: true,
 };
 
 // The long legal explanation moved out of the checkboxes into a collapsible

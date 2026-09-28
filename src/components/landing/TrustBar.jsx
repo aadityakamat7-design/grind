@@ -6,8 +6,8 @@ import { ShieldCheck, BadgeCheck, Lock, MapPin, Users } from "lucide-react";
 // Wraps naturally on small screens; the dividers only show on sm+.
 const ITEMS = [
   { icon: ShieldCheck, label: "Safe community" },
-  { icon: BadgeCheck, label: "Verified users" },
-  { icon: Lock, label: "Secure payments" },
+  { icon: ShieldCheck, label: "Parent-approved" },
+  { icon: Lock, label: "Payments held until done" },
   { icon: MapPin, label: "Local opportunities" },
   { icon: Users, label: "Built for teens & neighbors" },
 ];

@@ -4,6 +4,7 @@ import { writeAuditLog } from '../../shared/auditLog.ts';
 import { getClientIp } from '../../shared/rateLimiter.ts';
 import { getSafeOrigin } from '../../shared/safeOrigin.ts';
 import { sendBookingEmail } from '../../shared/bookingEmails.ts';
+import { isParentVerifiedByStripe } from '../../shared/parentVerification.ts';
 
 Deno.serve(async (req) => {
   try {
@@ -26,6 +27,21 @@ Deno.serve(async (req) => {
     }
     if (booking.payment_status !== 'held') {
       return Response.json({ error: "The neighbor's payment hasn't been confirmed yet. Please wait for payment before approving or denying." }, { status: 400 });
+    }
+
+    // HARD GUARD: the parent's Stripe Connect account must be fully verified
+    // (details_submitted, payouts_enabled, no currently_due) before they can
+    // approve a booking. Checked on the server every time — never trust a
+    // status sent from the browser. Denial is always allowed (refunds the
+    // neighbor); only approval requires the Connect check.
+    if (approve) {
+      const connectCheck = await isParentVerifiedByStripe(base44, booking.parent_user_id);
+      if (!connectCheck.verified) {
+        return Response.json({
+          error: connectCheck.message || 'You must complete your Stripe payout setup before you can approve bookings.',
+          connectStatus: connectCheck.status,
+        }, { status: 403 });
+      }
     }
 
     if (approve) {

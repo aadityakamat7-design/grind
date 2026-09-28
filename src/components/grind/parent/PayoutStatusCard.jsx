@@ -4,11 +4,10 @@ import { CheckCircle2, AlertCircle, ChevronRight, Clock } from "lucide-react";
 import { format } from "date-fns";
 import IdentityVerificationGate from "@/components/grind/parent/IdentityVerificationGate";
 
-// Status card shown on the parent dashboard ONLY after setup is complete
-// (identity verified + bank connected). The setup prompt itself lives
-// exclusively on the approval page — this card never renders as a prompt
-// or locked placeholder. The "Manage" button opens the gate to let the
-// parent update their bank connection if needed.
+// Status card shown on the parent dashboard after setup is complete. The
+// parent is verified through Stripe's payout account setup (Connect Express
+// onboarding: legal name, DOB, SSN, bank account, 18+). The "Manage" button
+// opens the gate to let the parent update their bank connection if needed.
 export default function PayoutStatusCard({ profile, onUpdated, returnPath = "/parent" }) {
   const [gateOpen, setGateOpen] = useState(false);
 
@@ -23,7 +22,6 @@ export default function PayoutStatusCard({ profile, onUpdated, returnPath = "/pa
         open={gateOpen}
         onOpenChange={setGateOpen}
         onVerified={handleVerified}
-        initialStep="bank"
       />
 
       <div className="bg-card rounded-2xl border border-border shadow-soft p-5">
@@ -34,8 +32,8 @@ export default function PayoutStatusCard({ profile, onUpdated, returnPath = "/pa
             <CheckCircle2 className="w-5 h-5 text-emerald-600" />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold text-foreground">1. Identity verified</p>
-            <p className="text-xs text-muted-foreground">Verified ✓</p>
+            <p className="text-sm font-semibold text-foreground">Verified through Stripe</p>
+            <p className="text-xs text-muted-foreground">Your identity and bank are confirmed ✓</p>
           </div>
         </div>
 
@@ -44,7 +42,7 @@ export default function PayoutStatusCard({ profile, onUpdated, returnPath = "/pa
             <CheckCircle2 className="w-5 h-5 text-emerald-600" />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold text-foreground">2. Bank connected</p>
+            <p className="text-sm font-semibold text-foreground">Bank connected</p>
             <p className="text-xs text-muted-foreground">
               {profile.bank_name || "Bank"} ••••{profile.bank_last4 || "????"} · Active
             </p>

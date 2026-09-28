@@ -125,7 +125,7 @@ export default function AdminUsers({ users, teens, buyers, parents, links, repor
                 {selected.parent && (
                   <div className="rounded-xl border border-border p-3 space-y-1.5">
                     <p className="font-bold text-foreground flex items-center gap-1.5"><ShieldCheck className="w-4 h-4 text-primary" /> Parent profile</p>
-                    <Field label="Identity verified" value={selected.parent.is_identity_verified ? "Yes" : "No"} />
+                    <Field label="Verified through Stripe" value={selected.parent.is_identity_verified ? "Yes" : "No"} />
                     <Field label="Connect status" value={selected.parent.connect_status || "not_setup"} />
                     <Field label="Bank" value={selected.parent.bank_last4 ? `****${selected.parent.bank_last4}` : "—"} />
                     <div>

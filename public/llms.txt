@@ -1,18 +1,18 @@
 # Blockwork
 
-Blockwork is a parent-approved local marketplace where California teens (ages 13+) earn real paychecks doing outdoor work and online tutoring for neighbors. Every job requires parent approval, every user is identity-verified, and every payment is protected by escrow. Blockwork currently operates in California only.
+Blockwork is a parent-approved local marketplace where California teens (ages 13+) earn real paychecks doing outdoor work and online tutoring for neighbors. Every job requires parent approval, every parent is verified through Stripe, and every payment is held until the job is done. Blockwork currently operates in California only.
 
 ## Who it's for
 
 - **Teens (13+)**: List services they offer — lawn care, car washing, pet sitting, tech help, online tutoring, and odd jobs — and set their own prices. Teens under 18 need a parent or guardian linked to their account.
-- **Parents**: The legal and financial account holder. Parents verify their identity, approve every booking, receive payouts to their connected bank account, and can lock withdrawals at any time.
-- **Neighbors**: Browse nearby teen services or post jobs. Pay securely through escrow; confirm the work before payment is released.
+- **Parents**: The legal and financial account holder. Parents are verified through Stripe's payout setup (legal name, date of birth, SSN, bank account, 18+), approve every booking, receive payouts to their connected bank account, and can lock withdrawals at any time.
+- **Neighbors**: Browse nearby teen services or post jobs. Pay securely up front; confirm the work before payment is released. Neighbors are not identity-checked — they only pay.
 
 ## What Blockwork does
 
 - Connects teens with neighbors for outdoor tasks (lawn mowing, yard cleanup, car washing, pet sitting) and online tutoring
 - Enforces California child-labor laws automatically at booking time (age minimums, daily/weekly hour limits, prohibited time windows)
-- Holds payments in escrow via Stripe until both sides confirm the job is complete
+- Holds payments via Stripe until both sides confirm the job is complete
 - Pays out earnings to the parent's Stripe Connect account (never directly to a minor)
 - Screens all listings for safety hazards before they go live
 
@@ -21,6 +21,7 @@ Blockwork is a parent-approved local marketplace where California teens (ages 13
 - Teens never enter a client's home — all in-person work is outdoors, all tutoring is over video
 - Blockwork never stores card numbers, bank details, or Social Security numbers (all handled by Stripe)
 - No childcare, transportation, heavy machinery, or hazardous work is permitted
+- Neighbors are not identity-checked or background-checked
 
 ## Pricing
 

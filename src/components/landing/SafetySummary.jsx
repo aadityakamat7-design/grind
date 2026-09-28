@@ -8,8 +8,8 @@ import { Check, X, ShieldCheck, ArrowRight } from "lucide-react";
 // the full Payments & Compliance page.
 const DO = [
   "Parent approval on every job",
-  "Verified ages and identity",
-  "Payments held in escrow until work is confirmed",
+  "Parents verified through Stripe",
+  "Payments held until the job is done",
   "No home entry — outdoor work and online tutoring only",
   "Card and bank details handled entirely by Stripe",
 ];

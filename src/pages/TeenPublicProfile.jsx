@@ -89,7 +89,7 @@ export default function TeenPublicProfile() {
           <TrustBadge type="parent_approved" />
           {profile.parent_identity_verified && (
             <span className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium bg-secondary text-muted-foreground border-border">
-              <ShieldCheck className="w-3 h-3" /> Parent identity verified
+              <ShieldCheck className="w-3 h-3" /> Parent verified through Stripe
             </span>
           )}
           <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium ${

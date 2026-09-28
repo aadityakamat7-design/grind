@@ -1,19 +1,20 @@
 import { useState, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
 
-// Wraps the booking approval/denial flow. Parents can approve bookings without
-// identity verification or a payout account — the teen can do the job and earn
-// money, but earnings are locked in the Blockwork Wallet until the parent
-// completes payout setup (walletCashOut and the payout transfer both enforce
-// this). No gate is shown.
+// Wraps the booking approval/denial flow. The parent's Stripe Connect account
+// must be fully verified before they can approve a booking — the server
+// enforces this in decideBooking. If approval fails with a Connect-required
+// error, the caller can redirect the parent to complete their payout setup.
+// Denial is always allowed (it just refunds the neighbor).
 //
 // profile: the parent's ParentProfile record (kept for API compatibility)
 // onDecided: callback after a successful approve/deny
 //
-// Returns: { gateOpen, setGateOpen, attempt, onVerified, acting, initialStep }
+// Returns: { attempt, acting, connectRequired, clearConnectRequired }
 //   attempt(booking, approve) — call from an Approve/Deny button
 export function useApprovalWithVerification(profile, onDecided) {
   const [acting, setActing] = useState(null);
+  const [connectRequired, setConnectRequired] = useState(false);
 
   const runDecide = useCallback(async (booking, approve) => {
     setActing(booking.id);
@@ -32,19 +33,28 @@ export function useApprovalWithVerification(profile, onDecided) {
   }, []);
 
   const attempt = useCallback(async (booking, approve) => {
+    setConnectRequired(false);
     try {
       await runDecide(booking, approve);
       onDecided?.();
     } catch (err) {
-      alert(err.response?.data?.error || "This booking could not be updated.");
+      const msg = err.response?.data?.error || "";
+      // The server rejected approval because the parent's Connect account
+      // isn't fully verified. Surface this so the UI can prompt them to
+      // complete payout setup.
+      if (err.response?.data?.connectStatus && !approve) {
+        // Denial should always work — but if it somehow fails, show the error.
+        alert(msg || "This booking could not be updated.");
+      } else if (err.response?.data?.connectStatus) {
+        setConnectRequired(true);
+        alert(msg || "You must complete your Stripe payout setup before approving bookings.");
+      } else {
+        alert(msg || "This booking could not be updated.");
+      }
     }
   }, [onDecided, runDecide]);
 
-  // Kept for API compatibility — no gate is shown anymore.
-  const gateOpen = false;
-  const setGateOpen = () => {};
-  const onVerified = useCallback(() => { onDecided?.(); }, [onDecided]);
-  const initialStep = "bank";
+  const clearConnectRequired = useCallback(() => setConnectRequired(false), []);
 
-  return { gateOpen, setGateOpen, attempt, onVerified, acting, initialStep };
+  return { attempt, acting, connectRequired, clearConnectRequired };
 }

@@ -2,15 +2,26 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 import { notifyAdmins } from '../../shared/notifyAdmins.ts';
 import { CONSENT_ITEMS, CONSENT_VERSION, FULL_TERMS_TEXT } from '../../shared/consentItems.ts';
 import { getVerifiedAge } from '../../shared/teenAge.ts';
+import { isParentVerifiedByStripe } from '../../shared/parentVerification.ts';
 
 // Parent-teen linking — relationship attestation model:
-//   The parent enters the teen's invite code and explicitly attests the
-//   relationship. The link becomes 'confirmed' immediately and the teen
-//   goes 'active' — they can post services and take jobs right away.
-//   Bank/payout setup is a separate step the parent completes when ready.
+//   The parent enters the teen's invite code, explicitly attests the
+//   relationship, enters the teen's date of birth, and confirms it's accurate.
+//   The link becomes 'confirmed' and the teen goes 'active' ONLY when the
+//   parent's Stripe Connect Express account is fully verified (details_submitted,
+//   payouts_enabled, no currently_due) — checked on the server every time.
 //
-// Every itemized consent, the state-rules snapshot shown, the parent's IP, and
-// the user agent are recorded in a ConsentRecord for a complete audit trail.
+//   Stripe confirms the person is a real adult (legal name, DOB, SSN, bank, 18+);
+//   it does NOT confirm they're the teen's parent. The "I am this teen's parent
+//   or legal guardian" attestation + the full ConsentRecord handle that.
+//
+//   The teen's date of birth is entered by the verified parent and stored in
+//   TeenPrivateData.verified_dob — it becomes the source of truth for every
+//   age rule (category minimums, hour limits, 18+ independent path). After the
+//   parent confirms it, the teen can't change their own date of birth.
+//
+// Every itemized consent, the state-rules snapshot shown, the parent's IP, the
+// user agent, and the teen DOB confirmation are recorded in a ConsentRecord.
 //
 // Rate limiting: max 5 attempts per 10 minutes per user and per IP, with
 // exponential backoff between attempts. Invite codes are locked after 10
@@ -27,10 +38,13 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { inviteCode, attestRelationship, consents, stateRulesAcknowledged, stateRules, userAgent } = await req.json();
+    const { inviteCode, attestRelationship, consents, stateRulesAcknowledged, stateRules, userAgent, teenDob } = await req.json();
     if (!inviteCode) return Response.json({ error: 'inviteCode required' }, { status: 400 });
     if (attestRelationship !== true) {
       return Response.json({ error: 'You must explicitly confirm you are this teen\'s parent or legal guardian.' }, { status: 400 });
+    }
+    if (!teenDob) {
+      return Response.json({ error: 'Please enter your teen\'s date of birth.' }, { status: 400 });
     }
     // Require the state-rules acknowledgment and every itemized consent before
     // the link is confirmed — no partial consent is accepted.
@@ -52,6 +66,18 @@ Deno.serve(async (req) => {
       || req.headers.get('x-real-ip') || 'unknown';
     const code = String(inviteCode).trim().toUpperCase();
     const now = Date.now();
+
+    // --- Server-side check: parent must have a fully verified Stripe Connect
+    // account before they can confirm the link. This prevents an unverified
+    // account (e.g. a teen using a second email as their own "parent") from
+    // approving bookings. Never trust a status sent from the browser.
+    const connectCheck = await isParentVerifiedByStripe(base44, user.id);
+    if (!connectCheck.verified) {
+      return Response.json({
+        error: connectCheck.message || 'You must complete your Stripe payout setup before you can confirm your teen.',
+        connectStatus: connectCheck.status,
+      }, { status: 403 });
+    }
 
     // --- Rate limiting: fetch recent attempts ---
     const [userAttempts, ipAttempts, codeAttempts] = await Promise.all([
@@ -147,14 +173,12 @@ Deno.serve(async (req) => {
 
     // --- Proceed with the link ---
     const nowIso = new Date().toISOString();
-    // The link is always confirmed — the parent attested the relationship.
-    // Bank/payout setup is a separate step the parent completes when ready.
-    const fullyVerified = true;
-
+    // The link is confirmed — the parent attested the relationship AND their
+    // Stripe Connect account is fully verified (checked above).
     const data = {
       teen_profile_id: teen.id,
       teen_display_name: teen.display_name,
-      identity_verified: false,
+      identity_verified: true, // now means "Connect-verified" (legacy field name kept for backward compat)
       relationship_confirmed: true,
       relationship_attested_at: nowIso,
       status: 'confirmed',
@@ -172,17 +196,21 @@ Deno.serve(async (req) => {
     }
 
     await svc.TeenProfile.update(teen.id, {
-      parent_identity_verified: false,
+      parent_identity_verified: true, // now means "parent Connect-verified"
       status: 'active',
     });
 
+    // --- Store the parent-confirmed teen DOB as the source of truth ---
     const privateRecords = await svc.TeenPrivateData.filter({ user_id: teen.user_id });
     if (privateRecords[0]) {
-      await svc.TeenPrivateData.update(privateRecords[0].id, { parent_user_id: user.id });
+      await svc.TeenPrivateData.update(privateRecords[0].id, {
+        parent_user_id: user.id,
+        verified_dob: teenDob, // parent-confirmed DOB — source of truth for all age rules
+      });
     }
 
     // --- Record the full itemized consent for audit ---
-    const teenVerifiedAge = getVerifiedAge(privateRecords[0]);
+    const teenVerifiedAge = getVerifiedAge({ verified_dob: teenDob });
     const consentRecords = allConsentItems.map((item) => ({
       key: item.key,
       label: item.label,
@@ -209,6 +237,8 @@ Deno.serve(async (req) => {
       state_rules_acknowledged: true,
       teen_state: teen.state || '',
       teen_verified_age: teenVerifiedAge,
+      teen_dob: teenDob,
+      teen_dob_confirmed_at: nowIso,
       ip,
       user_agent: userAgent || '',
       status: 'active',
@@ -225,11 +255,11 @@ Deno.serve(async (req) => {
       user_id: user.id,
       type: 'approval',
       title: `You're linked with ${teen.display_name}! 🎉`,
-      body: `You'll now see their bookings, income, and safety status on your dashboard. Connect your bank account to receive their earnings.`,
+      body: `You'll now see their bookings, income, and safety status on your dashboard. Your payout account is ready to receive their earnings.`,
       link: '/parent',
     });
 
-    return Response.json({ linked: true, fullyVerified, teenName: teen.display_name });
+    return Response.json({ linked: true, fullyVerified: true, teenName: teen.display_name });
   } catch (error) {
     console.error('confirmParentLink error:', error.message);
     return Response.json({ error: 'Something went wrong' }, { status: 500 });

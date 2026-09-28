@@ -7,7 +7,7 @@ import StripeBadge from "@/components/StripeBadge";
 
 // Stripe Connect Express bank linking. The parent enters bank details directly
 // with Stripe — the app only ever stores the account id, status, and masked last 4.
-export default function ConnectBankCard({ profile, onUpdated, returnPath = "/parent/payouts", identityVerified }) {
+export default function ConnectBankCard({ profile, onUpdated, returnPath = "/parent/payouts" }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
@@ -103,16 +103,13 @@ export default function ConnectBankCard({ profile, onUpdated, returnPath = "/par
           <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" /> {error}
         </div>
       )}
-      <Button className="rounded-xl mt-4 w-full" disabled={!(identityVerified ?? profile?.is_identity_verified)} onClick={start}>
+      <Button className="rounded-xl mt-4 w-full" onClick={start}>
         {status === "pending" || status === "restricted" ? "Continue on Stripe" : "Set up payouts with Stripe"}
       </Button>
       {status !== "not_setup" && (
         <Button variant="outline" className="rounded-xl mt-2 w-full" onClick={refresh}>
           Refresh status
         </Button>
-      )}
-      {!(identityVerified ?? profile?.is_identity_verified) && (
-        <p className="text-xs text-amber-600 font-semibold mt-2">Identity verification is required before payouts can be enabled.</p>
       )}
       <p className="text-xs text-slate-400 flex items-center justify-center gap-1 mt-3">
         <Lock className="w-3 h-3" /> Bank details go directly to Stripe — we never see your account or routing numbers.

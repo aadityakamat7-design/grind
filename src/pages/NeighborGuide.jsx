@@ -6,8 +6,8 @@ import Seo from "@/components/Seo";
 import PublicFaq, { faqJsonLd, breadcrumbJsonLd } from "@/components/PublicFaq";
 
 const FAQS = [
-  { q: "How do I hire a teen on Blockwork?", a: "Browse verified teens near you by category and availability, or post a job describing what you need. You set the price and schedule; teens apply or accept. When you book, your payment is held in escrow until the work is done." },
-  { q: "How does payment work?", a: "When you book, your payment is charged through Stripe and held safely in escrow. The teen does not get paid until you confirm the work is done. Your card details never touch Blockwork — they go straight to Stripe." },
+  { q: "How do I hire a teen on Blockwork?", a: "Browse teens near you by category and availability, or post a job describing what you need. You set the price and schedule; teens apply or accept. When you book, your payment is held until the work is done." },
+  { q: "How does payment work?", a: "When you book, your payment is charged through Stripe and held safely until the job is done. The teen does not get paid until you confirm the work is done. Your card details never touch Blockwork — they go straight to Stripe." },
   { q: "What if the work is not done right?", a: "After the teen marks the job done, you get a confirmation window to review the work. If something is wrong, you can dispute and our team reviews the situation. You can also file a dispute from the booking detail page." },
   { q: "Can a teen enter my home?", a: "No. All in-person work is performed outdoors on the exterior of your property, and all tutoring happens over video. Requesting a teen to enter your home is a violation of Blockwork's terms." },
 ];
@@ -24,12 +24,12 @@ const STEPS = [
   {
     icon: CreditCard,
     title: "Pay securely up front",
-    body: "When you book, your payment is held in escrow by Stripe — the teen doesn't get paid until the work is done. Your card details never touch Blockwork; they go straight to Stripe.",
+    body: "When you book, your payment is held by Stripe — the teen doesn't get paid until the work is done. Your card details never touch Blockwork; they go straight to Stripe.",
   },
   {
     icon: CheckCircle2,
     title: "Approve the finished work",
-    body: "After the teen marks the job done, you get a confirmation window to review the work. If it's good, the escrow releases. If something's wrong, you can dispute and our team reviews it.",
+    body: "After the teen marks the job done, you get a confirmation window to review the work. If it's good, the payment is released. If something's wrong, you can dispute and our team reviews it.",
   },
   {
     icon: Star,
@@ -43,7 +43,7 @@ export default function NeighborGuide() {
     <div className="min-h-screen bg-background flex flex-col">
       <Seo
         title="Neighbor Guide"
-        description="How to hire a teen on Blockwork: browse or post a job, pay securely through escrow, approve the finished work, and leave a review."
+        description="How to hire a teen on Blockwork: browse or post a job, pay securely up front, approve the finished work, and leave a review."
         path="/neighbor-guide"
         jsonLd={[FAQ_JSONLD, BREADCRUMB_JSONLD]}
       />

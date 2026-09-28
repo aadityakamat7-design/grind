@@ -6,8 +6,8 @@ import DecodeBackdrop from "@/components/landing/DecodeBackdrop";
 
 const TRUST_POINTS = [
   "Every job parent-approved",
-  "ID-verified neighbors",
-  "Payments held safely in escrow",
+  "Every parent verified through Stripe",
+  "Payments held until the job is done",
 ];
 
 export default function AuthLayout({ title, subtitle, footer, children, showBackdrop = true }) {

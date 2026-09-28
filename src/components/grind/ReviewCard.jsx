@@ -64,7 +64,7 @@ export default function ReviewCard({ review, viewer, onChanged }) {
           <p className="font-bold text-foreground text-sm truncate">{review.author_label || "Neighbor"}</p>
           {review.booking_id && (
             <span className="inline-flex items-center gap-1 rounded-full bg-secondary text-muted-foreground border border-border px-2 py-0.5 text-sm font-bold shrink-0">
-              <BadgeCheck className="w-3 h-3" /> Verified job
+              <BadgeCheck className="w-3 h-3" /> Completed booking
             </span>
           )}
         </div>
