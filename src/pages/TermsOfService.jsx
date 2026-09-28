@@ -283,7 +283,7 @@ export default function TermsOfService() {
           {/* Section 17 (was 18) */}
           <h2 id="section-17">17. Governing law and venue</h2>
           <p>Before filing any claim, please email <a href="mailto:support@blockwork.online">support@blockwork.online</a> with your name, address, a description of the issue, and what you're asking for, so we can try to resolve it within 45 days.</p>
-          <p>These Terms are governed by California law and applicable U.S. federal law, without regard to conflict-of-law rules. For any dispute not subject to arbitration, you and Blockwork agree to the exclusive jurisdiction of the state and federal courts located in Alameda County, California.</p>
+          <p>These Terms are governed by California law and applicable U.S. federal law, without regard to conflict-of-law rules. For any dispute, you and Blockwork agree to the exclusive jurisdiction of the state and federal courts located in Alameda County, California.</p>
 
           {/* Section 18 (was 19) */}
           <h2 id="section-18">18. General terms</h2>
