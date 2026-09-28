@@ -4,298 +4,297 @@ import { ArrowLeft } from "lucide-react";
 import SiteFooter from "@/components/SiteFooter";
 import Seo from "@/components/Seo";
 
+// Terms of Service — version 2026-10-01
+// Publicly readable without an account (public route in App.jsx).
+// When a user accepts, the version, timestamp, IP, and user agent are
+// saved in their ConsentRecord (see base44/shared/termsAcceptance.ts).
+
+const TERMS_VERSION = "2026-10-01";
+const EFFECTIVE_DATE = "October 1, 2026";
+
+const TOC = [
+  { num: 1, title: "What Blockwork is" },
+  { num: 2, title: "Who can use Blockwork" },
+  { num: 3, title: "Parent verification, consent, and approval" },
+  { num: 4, title: "Safety rules for Jobs" },
+  { num: 5, title: "Your responsibilities" },
+  { num: 6, title: "Not employment; taxes and insurance" },
+  { num: 7, title: "Payments" },
+  { num: 8, title: "Cancellations, refunds, and disputes" },
+  { num: 9, title: "Communication stays on the Platform" },
+  { num: 10, title: "Reviews and content" },
+  { num: 11, title: "Prohibited conduct" },
+  { num: 12, title: "Privacy" },
+  { num: 13, title: "Disclaimers" },
+  { num: 14, title: "Limitation of liability" },
+  { num: 15, title: "Indemnification" },
+  { num: 16, title: "Suspension and termination" },
+  { num: 17, title: "Governing law and venue" },
+  { num: 18, title: "General terms" },
+];
+
 export default function TermsOfService() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <Seo title="Terms of Service" description="The rules for using Blockwork: eligibility, parental consent, no-home-entry policy, held payments, minor work-hour limits, and dispute resolution." path="/terms" />
+      <Seo
+        title="Terms of Service"
+        description="The rules for using Blockwork: eligibility, parental consent, no-home-entry policy, held payments, minor work-hour limits, and dispute resolution."
+        path="/terms"
+      />
       <div className="max-w-3xl mx-auto px-6 py-10">
         <Link to="/" className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground mb-6">
           <ArrowLeft className="w-3.5 h-3.5" /> Back to home
         </Link>
 
         <h1 className="font-heading text-2xl font-bold text-foreground mb-1">Terms of Service</h1>
-        <p className="text-xs text-muted-foreground mb-6">Last updated: August 27, 2026</p>
+        <p className="text-xs text-muted-foreground mb-2">Last updated: {EFFECTIVE_DATE}</p>
+        <p className="text-[11px] text-muted-foreground/70 mb-6">Version {TERMS_VERSION}</p>
 
-        <div className="text-[13px] leading-relaxed text-muted-foreground space-y-3 [&_h2]:text-foreground [&_h2]:font-heading [&_h2]:font-semibold [&_h2]:text-[15px] [&_h2]:mt-6 [&_h2]:mb-2 [&_p]:leading-relaxed [&_li]:leading-relaxed [&_strong]:text-foreground [&_ul]:space-y-1 [&_ul]:pl-4 [&_ul]:list-disc">
-          <p className="text-[13px] text-foreground bg-muted rounded-lg p-3 border border-border">
-            <strong>Plain-language summary:</strong> Blockwork is a marketplace where adult neighbors hire local teens for outdoor tasks (like lawn care and car washing) performed outside the residence, and for online tutoring and tech help conducted over video. Every teen account is linked to a verified parent or guardian who approves each job and receives the earnings. Teens never enter a neighbor's home — all in-person work happens outdoors, and all tutoring happens remotely. We hold your payment until the teen uploads photo proof of completion and the neighbor confirms the work. We are a venue — not a party to the work itself. These terms explain the rules for using Blockwork.
-          </p>
+        {/* Table of contents */}
+        <nav className="bg-muted rounded-2xl border border-border p-5 mb-8">
+          <p className="text-xs font-semibold text-foreground uppercase tracking-wider mb-3">Table of contents</p>
+          <ol className="space-y-1.5">
+            {TOC.map((s) => (
+              <li key={s.num}>
+                <a
+                  href={`#section-${s.num}`}
+                  className="text-[13px] text-primary hover:underline underline-offset-2"
+                >
+                  {s.num}. {s.title}
+                </a>
+              </li>
+            ))}
+          </ol>
+        </nav>
 
-          <p className="text-[13px] text-foreground bg-muted rounded-lg p-3 border border-border">
-            <strong>California only.</strong> Blockwork currently operates only in California. All services, features, and terms described here are available and apply solely to California residents. We do not currently offer services in any other state.
-          </p>
-
-          <h2>1. Eligibility and Age Requirements</h2>
+        <div className="text-[13px] leading-relaxed text-muted-foreground space-y-3 [&_h2]:text-foreground [&_h2]:font-heading [&_h2]:font-semibold [&_h2]:text-[15px] [&_h2]:mt-7 [&_h2]:mb-2 [&_h3]:text-foreground [&_h3]:font-heading [&_h3]:font-semibold [&_h3]:text-[14px] [&_h3]:mt-4 [&_h3]:mb-1.5 [&_p]:leading-relaxed [&_li]:leading-relaxed [&_strong]:text-foreground [&_ul]:space-y-1 [&_ul]:pl-4 [&_ul]:list-disc [&_ol]:space-y-1 [&_ol]:pl-5 [&_ol]:list-[lower-alpha] [&_a]:text-primary [&_a]:hover:underline">
           <p>
-            <strong>Minimum age.</strong> You must be at least 13 years old to use Blockwork. Users under 13 are not permitted.
+            These Terms of Service ("Terms") are a legal agreement between you and Blockwork ("Blockwork," "we," "us," or "our"). They cover your use of blockwork.online and any Blockwork app, feature, or service that links to these Terms (together, the "Platform").
           </p>
           <p>
-            <strong>Teen users (ages 13–17).</strong> Teens may register and create a profile only with verifiable parent or guardian consent. At signup, a teen provides their date of birth and state. A parent or guardian must then link to the teen's account, verify their own identity, and explicitly attest the relationship before the teen can accept jobs or receive payments. The parent is the legal and financial account holder.
+            <strong>Please read these Terms carefully.</strong> By creating an account, checking the box to accept these Terms, or using the Platform, you agree to these Terms and to our <Link to="/privacy">Privacy Policy</Link>. If you don't agree, don't use the Platform.
           </p>
           <p>
-            <strong>Adult users (18+).</strong> Neighbors hiring teens and parents managing teen accounts must be at least 18 years old and legally able to enter contracts. Teens who are 18 or older may use the platform independently without a linked parent.
-          </p>
-
-          <h2>1A. Work-Hour Limits for Minors (California)</h2>
-          <p>
-            <strong>Enforced automatically.</strong> Blockwork enforces California child-labor hour limits at booking, in the API — not only in the UI — so they cannot be bypassed by a direct call. Limits vary by the teen's age band (14–15 and 16–17; teens 18 and older are not subject to minor hour limits). They include maximum hours per day on school days and on non-school days, maximum hours per week during the school year and during summer, and prohibited time windows (for example, no work before 7am or after 7pm on school nights for 14–15 year olds, and no work during school hours on school days where required).
-          </p>
-          <p>
-            The specific limits that apply to a teen are shown to the parent during the consent flow and are drawn from our verified California child-labor lookup table, sourced from the California DIR Child Labor Law Pamphlet. The platform counts a teen's already-scheduled and completed hours using their verified age, and rejects any booking that would push the teen over a daily or weekly limit or that falls in a prohibited time window, with a clear message stating the limit and the teen's current total.
-          </p>
-          <p>
-            <strong>California odd-jobs exemption.</strong> The casual, irregular odd jobs offered on Blockwork (light outdoor tasks and online tutoring) are generally exempt from California's work-permit requirement under the state's odd-jobs exemption for irregular casual work in private homes, as described in the California DIR Child Labor Law Pamphlet (dir.ca.gov/dlse). However, parents and teens remain responsible for confirming any permit or employment requirements applicable to their specific situation — Blockwork does not determine permit eligibility. This exemption does <strong>not</strong> remove the hour limits, minimum-age restrictions, or hazardous-occupation rules described above — those still apply and are enforced by the platform.
-          </p>
-          <p>
-            <strong>Parent's monitoring responsibility.</strong> Parents are responsible for monitoring their teen's overall working hours — including any work the teen performs outside Blockwork — to ensure compliance with California law and to prevent the teen from working during school hours or past permitted times. The platform's limits reflect California child-labor rules but do not track hours worked off-platform.
+            <strong>If you are under 18,</strong> your parent or legal guardian must agree to these Terms for you before you can use the Platform, and you may only use it with their permission and supervision.
           </p>
 
-          <h2>2. Accounts and Parental Consent</h2>
-          <p>
-            You agree to provide accurate information when registering, including your real name, date of birth, and email address. You are responsible for keeping your password and account secure.
-          </p>
-          <p>
-            <strong>Teen accounts.</strong> A teen account is not active until a parent or guardian completes the linking process: the parent enters the teen's invite code, completes Stripe payout setup (which verifies they are a real adult 18+ through their legal name, date of birth, SSN, and bank account), and attests the parent-child relationship. The parent controls payout of earnings and can approve or deny any booking.
-          </p>
-          <p>
-            <strong>Itemized parental consent.</strong> By linking to a teen account, the parent or guardian individually acknowledges each of the following:
-          </p>
+          {/* Section 1 */}
+          <h2 id="section-1">1. What Blockwork is</h2>
+          <p><strong>1.1 A marketplace, not an employer.</strong> Blockwork is an online marketplace that connects people who need help with small, occasional tasks ("Neighbors") with teens who want to do them ("Teens"). Blockwork doesn't perform any tasks, doesn't hire or employ Teens, and isn't a party to the arrangement between a Neighbor and a Teen, except as a limited payment collection agent under Section 7.</p>
+          <p><strong>1.2 The kinds of jobs allowed.</strong> The Platform is only for casual, occasional, age-appropriate tasks ("Jobs") in these categories: lawn and yard care, car washing, other outdoor odd jobs, pet care that happens outside the home (such as dog walking), and live online tutoring. We may add, change, or remove categories. The categories and minimum ages shown in the app are the ones that apply.</p>
+          <p><strong>1.3 Where we operate.</strong> The Platform is currently available only for Jobs performed in California. In-person Jobs must be at a location in California, and users must provide accurate location information.</p>
+          <p><strong>1.4 No work inside homes.</strong> In-person Jobs must be done outdoors, such as in a yard, driveway, or on a sidewalk. Teens may not enter a Neighbor's home or any other enclosed private building to do a Job, and Neighbors may not ask them to.</p>
+          <p><strong>1.5 No licensed or regulated work.</strong> A Job may not require a license, permit, or certification, and may not be work that California or federal law bars minors from doing. A Job, or a series of related Jobs for the same Neighbor, may not be used for construction, repair, or improvement work that would require a contractor's license under California law. Blockwork may set a maximum price per Job and limit repeat bookings to help keep Jobs within these limits.</p>
+
+          {/* Section 2 */}
+          <h2 id="section-2">2. Who can use Blockwork</h2>
+          <p><strong>2.1 Roles.</strong></p>
           <ul>
-            <li><strong>Guardianship authority</strong> — "I am the parent or legal guardian of this teen and have the legal authority to make decisions on their behalf."</li>
-            <li><strong>Work authorization</strong> — "I authorize my teen to perform the types of outdoor tasks and online tutoring offered on Blockwork."</li>
-            <li><strong>Per-job approval</strong> — "I understand that I must approve each booking before it is confirmed, and that I can deny any booking."</li>
-            <li><strong>Permitted work types</strong> — "I understand that my teen may only perform outdoor tasks outside a neighbor's residence and online tutoring over video, and will never enter a neighbor's home."</li>
-            <li><strong>Age accuracy</strong> — "I confirm that the date of birth provided for my teen is accurate."</li>
-            <li><strong>California child-labor rules</strong> — "I have reviewed the California child-labor rules for my teen's age and understand the restrictions on hours and work types that apply."</li>
-            <li><strong>Hour monitoring</strong> — "I understand it is my responsibility to monitor my teen's working hours to ensure compliance with California law and to prevent my teen from working during school hours or past permitted times."</li>
-            <li><strong>Acceptance of terms on the teen's behalf</strong> — "I have read and agree to the Terms of Service and Privacy Policy on my teen's behalf, and I accept responsibility for my teen's use of the platform."</li>
+            <li><strong>Teens</strong> are users aged 13 through 17 who offer to do Jobs, with a Parent's consent and approval.</li>
+            <li><strong>Independent Teens</strong> are users aged 18 or older who offer to do Jobs. They don't need a Parent and agree to these Terms for themselves.</li>
+            <li><strong>Parents</strong> are the parents or legal guardians of Teens. A Parent agrees to these Terms for themselves and on behalf of their Teen, and approves each Job.</li>
+            <li><strong>Neighbors</strong> are users aged 18 or older who book and pay for Jobs.</li>
           </ul>
-          <p>
-            <strong>Revocable and versioned consent.</strong> Parental consent can be revoked at any time, which immediately suspends the teen's profile and flags any pending bookings for review. Each consent acknowledgment is timestamped and recorded with the version of these terms that was in effect. When the terms change in a way that requires re-consent, the parent must re-acknowledge before the teen can continue accepting jobs.
-          </p>
+          <p><strong>2.2 Minimum age.</strong> You must be at least 13 to use the Platform. We don't knowingly collect information from children under 13. If we learn that someone under 13 has created an account, we'll delete it.</p>
+          <p><strong>2.3 Your account.</strong> You must give accurate, current, and complete information, and keep it updated. You may have only one account per role. You're responsible for keeping your password secure and for everything that happens in your account. Tell us right away at <a href="mailto:support@blockwork.online">support@blockwork.online</a> if you think someone else has accessed it. If we suspend or close your account, you may not create a new one.</p>
 
-          <h2>3. Our Role — Marketplace Venue</h2>
-          <p>
-            Blockwork provides a technology platform that connects neighbors with teens and their parents. We are <strong>not</strong> a party to any agreement between a neighbor and a teen (or their parent). We do not employ teens, do not contract with teens, do not direct or control the manner or means of how work is performed, do not set wages (teens set their own prices), do not guarantee any volume of work, and are not a staffing agency, employer, or joint employer of any teen. Any work agreement is solely between the neighbor and the teen's parent or guardian.
-          </p>
-          <p>
-            Our safety features — including parent approval, Stripe verification, hazard screening, hour limits, photo-proof completion, and in-app messaging — are risk-reduction and compliance measures required by California child-labor law. They do not constitute supervision or direction of any job, do not guarantee that any user is safe or trustworthy, and do not guarantee that any job will be completed satisfactorily or without incident. You use Blockwork at your own risk.
-          </p>
-
-          <h2>4. No-Home-Entry Policy</h2>
-          <p>
-            <strong>This is a core safety rule of the platform.</strong> Teens never enter a neighbor's home under any circumstances. All in-person work is performed outdoors on the exterior of the property. All tutoring and instructional work is conducted remotely via video session.
-          </p>
-          <p>
-            <strong>Prohibited conduct.</strong> Requesting, encouraging, or permitting a teen to enter a residence — for any reason, including to use a restroom, retrieve equipment, or wait indoors — is a material violation of these terms and grounds for immediate account termination. This rule applies to neighbors, parents, and teens alike. If a job cannot be completed without the teen entering a home, the job must not be performed.
-          </p>
-
-          <h2>5. Permitted and Prohibited Services</h2>
-          <p>
-            <strong>Permitted services.</strong> Blockwork permits only two categories of work:
-          </p>
+          {/* Section 3 */}
+          <h2 id="section-3">3. Parent verification, consent, and approval</h2>
+          <p><strong>3.1 Payout account setup.</strong> Before a Teen's account becomes active, the Parent must set up a payout account through our payment provider, Stripe. Stripe checks the Parent's legal name, date of birth, and Social Security number, confirms they are an adult, and connects the bank account where the Teen's earnings will be paid. Blockwork doesn't receive or store full Social Security numbers or bank account numbers.</p>
+          <p><strong>3.2 What the Parent confirms.</strong> By linking to a Teen's account, the Parent confirms that:</p>
           <ul>
-            <li><strong>Outdoor tasks</strong> — performed entirely outside the residence, such as lawn mowing, leaf raking, yard cleanup, car washing, snow shoveling, and similar light outdoor odd jobs.</li>
-            <li><strong>Online tutoring and tech help</strong> — conducted entirely over a remote video session, such as academic tutoring, homework help, and basic technology guidance.</li>
+            <li>(a) they are the Teen's parent or legal guardian;</li>
+            <li>(b) the Teen's name and date of birth they provide are true and accurate;</li>
+            <li>(c) they consent to the Teen using the Platform under these Terms; and</li>
+            <li>(d) they will supervise the Teen's use of the Platform and the Jobs the Teen does.</li>
           </ul>
-          <p>
-            <strong>Prohibited services.</strong> The following are not permitted on Blockwork: any service that requires entering a neighbor's home; in-home pet sitting or animal care inside a residence; babysitting or childcare; any service involving heavy machinery, power tools restricted to adults, firearms, adult content, medical or personal care requiring certification; transportation of people; and any service that violates California child-labor laws.
-          </p>
-          <p>
-            We screen listings and job posts for safety hazards and may reject or remove any posting that violates these rules or that we determine is inappropriate for a teen.
-          </p>
-
-          <h2>6. Online Sessions</h2>
-          <p>
-            <strong>How sessions work.</strong> When a booking is for online tutoring or tech help, the platform generates a video session link that is visible to the teen, the neighbor, and the teen's parent. The session is conducted over that link. Both parties should join from a safe, appropriate location.
-          </p>
-          <p>
-            <strong>Conduct rules.</strong> All participants in a video session must be appropriately dressed, must not record the session without the other party's consent, and must not engage in any inappropriate or harassing conduct. The teen's parent may join or monitor any session involving their teen. Any violation should be reported through the platform immediately.
-          </p>
-          <p>
-            <strong>Recording.</strong> Blockwork does not record, store, or transcribe video sessions. Session metadata (start time, duration, and participant IDs) is logged for safety and dispute resolution. See the Privacy Policy for details.
-          </p>
-
-          <h2>7. Fees and Payments</h2>
-          <p>
-            <strong>Stripe processing fee.</strong> Blockwork charges a Stripe processing fee (including payout) on each completed booking. The fee is deducted from the teen's earnings before payout to the parent. The current fee rate is shown at checkout and on the earnings screen.
-          </p>
-          <p>
-            <strong>Held payments.</strong> When a job starts, the neighbor's payment is charged through Stripe and held until the job is done. The teen uploads photo proof that the work is complete, and the payment is released to the teen's parent immediately upon photo upload. If the neighbor believes the work was not done correctly, they can report a problem through the booking to request a refund.
-          </p>
-          <p>
-            <strong>Payouts.</strong> Earnings are paid to the parent's connected Stripe Connect account, not directly to the teen. The parent is responsible for any tax reporting and for distributing earnings to the teen as they see fit.
-          </p>
-          <p>
-            <strong>New-account security hold.</strong> The first payout from a newly created payout account is held for 72 hours as a fraud-prevention measure. Once the 72-hour window passes, the payout is released automatically — no manual action is required. This hold applies once per new account and stacks with the safety review described above; a payout subject to both is held for the 72-hour window first, then reviewed.
-          </p>
-
-          <h2>8. Refunds and Disputes</h2>
-          <p>
-            If a booking is denied by the parent or cancelled before the job starts, the neighbor is automatically refunded. Once a job is in progress, refunds are handled case by case. If the neighbor reports that the work was not completed satisfactorily, the payment is held while we review the teen's completion photos and the neighbor's report.
-          </p>
-          <p>
-            <strong>Dispute resolution.</strong> If the neighbor disputes the completion, an administrator reviews the photo evidence and the neighbor's explanation, and decides whether to release the payment to the teen's parent or refund the neighbor. If you believe a job was not completed satisfactorily, report it through the booking as soon as possible after the teen marks it finished.
-          </p>
-
-          <h2>9. Acceptable Use</h2>
-          <p>You agree not to:</p>
+          <p><strong>3.3 Approving every Job.</strong> Every Job booked with a Teen needs the Parent's approval in the app before it's confirmed. The Parent can see the Job details, location, price, and the Neighbor's name before deciding, and can decline any Job. If a Parent declines, the Neighbor's payment is refunded under Section 8.</p>
+          <p><strong>3.4 Parent responsibilities.</strong> Parents are responsible for:</p>
           <ul>
-            <li>Share contact information (phone, email, address) outside the platform before a booking is confirmed.</li>
-            <li>Request, encourage, or permit a teen to enter a residence for any reason.</li>
-            <li>Request or perform services that are illegal, dangerous, or involve hazardous equipment prohibited for minors.</li>
-            <li>Post false, misleading, or discriminatory content.</li>
-            <li>Harass, threaten, or harm another user.</li>
-            <li>Record an online session without the other party's consent.</li>
-            <li>Attempt to bypass payment or fees.</li>
-            <li>Use the service outside of California, or for anything other than the outdoor tasks and online tutoring described in these terms.</li>
+            <li>deciding whether each Job, location, and Neighbor is suitable and safe for their Teen;</li>
+            <li>deciding whether an adult should be present during a Job;</li>
+            <li>making sure their Teen can do each Job safely;</li>
+            <li>making sure their Teen's work follows the child labor laws that apply, including limits on hours and times of day; and</li>
+            <li>their Teen's conduct on the Platform and while doing Jobs.</li>
           </ul>
+          <p>The Platform may apply its own age and hour limits, but these don't replace a Parent's judgment or legal responsibilities.</p>
 
-          <h2>10. Assumption of Risk and Safety Responsibilities</h2>
-          <p>
-            <strong>Inherent risks.</strong> Outdoor physical work carries inherent risks, including but not limited to injury from tools, terrain, weather, traffic, and animals. The teen and their parent acknowledge that they are voluntarily participating in this work and that no amount of screening or platform safety features can eliminate these risks.
-          </p>
-          <p>
-            <strong>Neighbor's responsibility.</strong> The neighbor is responsible for providing a safe outdoor work environment, free of known hazards, and for warning the teen of any conditions on the property that could pose a risk. The neighbor must not ask the teen to perform work that is dangerous, illegal, or beyond the teen's capacity.
-          </p>
-          <p>
-            <strong>Parent's responsibility.</strong> The parent is responsible for assessing whether each job is suitable for their teen, for supervising their teen's participation as appropriate, and for ensuring compliance with California child-labor laws including hour restrictions and permitted work types.
-          </p>
-          <p>
-            <strong>Platform's role.</strong> Blockwork does not supervise, direct, or control how any work is performed. We do not inspect job sites, verify the safety of any property, or guarantee the competence of any teen. Our safety features are risk-reduction measures, not supervision.
-          </p>
-          <p className="bg-muted rounded-lg p-3 border border-border text-foreground">
-            <strong>[PENDING LEGAL REVIEW]</strong> The assumption-of-risk and waiver language as applied to minors requires review by legal counsel. Parental pre-injury waivers on behalf of minors are of limited or no enforceability in many states, including California. No binding waiver language is in effect until counsel approves it. The acknowledgments above describe responsibilities and awareness of risk, not a waiver of claims.
-          </p>
-
-          <h2>11. Incident Reporting and Emergencies</h2>
-          <p>
-            <strong>Emergencies first.</strong> In any emergency — injury, dangerous situation, or threat to safety — contact emergency services (911) immediately before doing anything else on the platform.
-          </p>
-          <p>
-            <strong>How to report an incident.</strong> After ensuring safety, report any injury, safety incident, or emergency through the platform: use the "Alert parent" button in the booking for immediate parental notification, or the "Report" button for any safety concern, inappropriate behavior, or off-platform attempt. You can also email us at <a href="mailto:support@blockwork.online" className="text-foreground font-medium hover:underline">support@blockwork.online</a>.
-          </p>
-          <p>
-            <strong>Reporting window.</strong> You must report any incident within 48 hours of becoming aware of it. Reports made after 48 hours may still be reviewed, but timely reporting helps us respond effectively.
-          </p>
-          <p>
-            <strong>Our response.</strong> We review safety reports within 1 business day. Depending on severity, we may suspend accounts, remove listings, hold payments, contact the parties involved, or report to authorities. We will acknowledge your report and keep you informed of the outcome where appropriate.
-          </p>
-
-          <h2>12. Content and Intellectual Property</h2>
-          <p>
-            You retain ownership of content you post (listings, photos, messages, completion photos). You grant Blockwork a limited license to display that content on the platform for the purpose of operating the service, including showing completion photos to the neighbor and to administrators during dispute review. You agree not to post content that infringes another's intellectual property rights.
-          </p>
-
-          <h2>13. Termination</h2>
-          <p>
-            You may close your account at any time. We may suspend or terminate any account that violates these terms, poses a safety risk, or is the subject of repeated complaints. Requesting or permitting a teen to enter a residence is grounds for immediate termination. Upon termination, pending held funds are resolved according to the refund and dispute rules above.
-          </p>
-
-          <h2>14. Disclaimers</h2>
-          <p>
-            Blockwork is provided "as is" without warranties of any kind. We do not guarantee that every job will be completed, that every user is who they claim to be, that any outdoor work site is safe, or that the platform will be uninterrupted. You are responsible for evaluating the suitability of any match and the safety of any work environment.
-          </p>
-
-          <h2>15. Limitation of Liability</h2>
-          <p className="bg-muted rounded-lg p-3 border border-border text-foreground">
-            <strong>[PENDING LEGAL REVIEW]</strong> The limitation-of-liability cap (including the proposed cap of fees paid in the preceding 12 months) and its applicability to minors and personal-injury claims require review by legal counsel. Many jurisdictions restrict or prohibit limiting liability for gross negligence, willful misconduct, or personal injury, and may not enforce liability caps against minors. No binding limitation language is in effect until counsel approves it.
-          </p>
-
-          <h2>16. Indemnification</h2>
-          <p className="bg-muted rounded-lg p-3 border border-border text-foreground">
-            <strong>[PENDING LEGAL REVIEW]</strong> The scope of indemnification — including whether it covers personal-injury claims, whether it is mutual, and whether it is enforceable against minors and parents acting on their behalf — requires review by legal counsel. No binding indemnification language is in effect until counsel approves it.
-          </p>
-
-          <h2>17. Insurance</h2>
-          <p>
-            <strong>No insurance provided.</strong> Blockwork does not provide any insurance coverage — including general liability, workers' compensation, accident, health, or property insurance — for teens, parents, or neighbors. Blockwork is not an insurer and does not imply or represent that any coverage exists. Participants are solely responsible for obtaining and maintaining any insurance coverage they deem appropriate for their situation. Do not rely on Blockwork for any insurance protection.
-          </p>
-          <p className="bg-muted rounded-lg p-3 border border-border text-foreground">
-            <strong>[PENDING LEGAL REVIEW]</strong> Whether Blockwork should carry general liability, errors-and-omissions, or other insurance as a business, and whether users should be required to carry their own insurance as a condition of using the platform, requires review by legal counsel and a determination of business needs. The disclaimer above is in effect regardless.
-          </p>
-
-          <h2>18. Dispute Resolution and Governing Law</h2>
-          <p>
-            These terms are governed by the laws of the State of California, United States, without regard to conflict-of-law principles. Any dispute will first be attempted through good-faith negotiation.
-          </p>
-          <p className="bg-muted rounded-lg p-3 border border-border text-foreground">
-            <strong>[PENDING LEGAL REVIEW]</strong> The arbitration clause and class-action waiver — including their enforceability as applied to minors, whether they can be imposed on parents acting on behalf of minors, and whether they survive California's restrictions on arbitration of claims involving minors — require review by legal counsel. No binding arbitration or class-action waiver language is in effect until counsel approves it.
-          </p>
-
-          <h2>19. Changes to These Terms</h2>
-          <p>
-            We may update these terms from time to time. We will notify users of material changes through the app or by email. Continued use after changes take effect means you accept the updated terms. Changes that materially alter the scope of parental consent will require re-acknowledgment before the affected teen can continue accepting jobs.
-          </p>
-
-          <h2>20. Copyright (DMCA)</h2>
-          <p>
-            <strong>DMCA designated agent.</strong> We respect the intellectual property rights of others and expect users to do the same. If you believe that content on Blockwork infringes your copyright, you may submit a takedown notice under the Digital Millennium Copyright Act (DMCA), 17 U.S.C. § 512. Our DMCA designated agent is:
-          </p>
-          <p className="bg-muted rounded-lg p-3 border border-border text-foreground">
-            <strong>[PENDING — DMCA agent registration with the U.S. Copyright Office is in progress.]</strong> Once registered, the designated agent's name, address, phone number, and email will be listed here. Until then, copyright takedown requests can be sent to <a href="mailto:support@blockwork.online" className="text-foreground font-medium hover:underline">support@blockwork.online</a> with the subject line "DMCA Takedown Request." Include the copyrighted work claimed to have been infringed, the infringing material's location on Blockwork, your contact information, and a good-faith statement that the use is unauthorized.
-          </p>
-          <p className="text-[12px] text-muted-foreground">
-            Note: Designating a DMCA agent with the U.S. Copyright Office is required for online service providers to qualify for safe-harbor protection under 17 U.S.C. § 512(c). This registration is an external legal step that must be completed outside the platform.
-          </p>
-
-          <h2>21. Contact</h2>
-          <p>
-            Questions about these terms? Contact us through the in-app support or at <a href="mailto:support@blockwork.online" className="text-foreground font-medium hover:underline">support@blockwork.online</a>.
-          </p>
-
-          {/* ===== Per-Service Terms ===== */}
-          <h2 className="!mt-10 !mb-1">Service-Specific Terms</h2>
-          <p className="text-[12px] text-muted-foreground !mb-4">
-            The following terms apply to each type of service offered on Blockwork, in addition to the general terms above.
-          </p>
-
-          <h3 className="text-foreground font-heading font-semibold text-[14px] mt-5 mb-1.5">A. Lawn Care & Yard Maintenance</h3>
+          {/* Section 4 */}
+          <h2 id="section-4">4. Safety rules for Jobs</h2>
+          <p><strong>4.1 Age limits by category.</strong> Each Job category has a minimum age, shown in the app. Teens may only accept Jobs in categories they're old enough for, based on the date of birth their Parent confirmed.</p>
+          <p><strong>4.2 Prohibited Jobs and requests.</strong> Nobody may post, request, accept, or do a Job that:</p>
           <ul>
-            <li><strong>Scope.</strong> Mowing, edging, leaf raking, yard debris cleanup, weed pulling, and light landscaping performed entirely outdoors on the exterior of the property.</li>
-            <li><strong>Equipment.</strong> The neighbor must provide all equipment (mower, rake, bags, etc.) or arrange for it to be available outdoors. Teens may not operate power equipment restricted to adults under California law. The parent is responsible for confirming their teen is trained and permitted to use any equipment provided.</li>
-            <li><strong>Prohibited.</strong> Use of ride-on mowers by teens under 16, tree trimming above shoulder height, work on slopes requiring harnesses, and any work requiring entry into the residence or garage.</li>
-            <li><strong>Completion.</strong> The teen uploads photos of the completed work before leaving the property. The neighbor confirms the work is done correctly to release payment.</li>
+            <li>(a) involves hazardous work, including operating equipment or power tools that the law bars minors from using;</li>
+            <li>(b) involves working at heights, on roofs, or on ladders beyond what is safe and lawful for the Teen's age;</li>
+            <li>(c) involves handling chemicals that aren't ordinary household products;</li>
+            <li>(d) takes place during hours when the law bars minors from working;</li>
+            <li>(e) requires a Teen to enter a home or enclosed private building;</li>
+            <li>(f) requires a Teen to drive a vehicle; or</li>
+            <li>(g) involves any activity that is illegal or unsafe for a minor.</li>
+          </ul>
+          <p><strong>4.3 Age-restricted products.</strong> Nobody may ask, require, or allow a Teen to buy, carry, deliver, handle, or use any product or service that minors can't legally buy or receive. This includes alcohol, tobacco, nicotine and vaping products, cannabis products, prescription drugs, weapons, ammunition, fireworks, lottery tickets, and sexually explicit material.</p>
+          <p><strong>4.4 Online tutoring.</strong> Tutoring sessions must happen through the Platform's video tool, or another method the Platform provides. Tutoring sessions are not recorded by Blockwork. Nobody may ask a Teen to turn on their camera in a private space, share personal contact information, or continue a session outside the Platform.</p>
+          <p><strong>4.5 Reporting concerns.</strong> If anything about a Job, message, or user makes you feel unsafe, stop and report it through <Link to="/report-safety">Report a Safety Concern</Link> or the report option in the app. In an emergency, call 911 first. We may share reports of suspected child exploitation or abuse with law enforcement and other authorities, and we will cooperate with their investigations.</p>
+          <p><strong>4.6 No background checks.</strong> Blockwork does <strong>not</strong> run criminal background checks on Neighbors, Teens, or Parents, and doesn't verify the identity of Neighbors. Parents are responsible for deciding whether a Neighbor and a Job are suitable for their Teen.</p>
+
+          {/* Section 5 */}
+          <h2 id="section-5">5. Your responsibilities</h2>
+          <p><strong>5.1 Neighbors must:</strong></p>
+          <ul>
+            <li>describe each Job accurately, including its scope, location, equipment, pets, and any known hazards;</li>
+            <li>give a safe place to work and any safety instructions needed;</li>
+            <li>pay only through the Platform;</li>
+            <li>treat Teens with respect and communicate only through the Platform; and</li>
+            <li>confirm in the app when a Job is complete.</li>
+          </ul>
+          <p><strong>5.2 Teens must:</strong></p>
+          <ul>
+            <li>only accept Jobs they can do safely and have their Parent's approval for;</li>
+            <li>do accepted Jobs carefully and as agreed;</li>
+            <li>respect the Neighbor's property and return any tools or equipment they're given;</li>
+            <li>ask their Parent or the Neighbor for help if they're unsure how to do something safely; and</li>
+            <li>stop and tell their Parent if anything feels unsafe.</li>
+          </ul>
+          <p><strong>5.3 Everyone must follow the law</strong> and these Terms.</p>
+
+          {/* Section 6 */}
+          <h2 id="section-6">6. Not employment; taxes and insurance</h2>
+          <p><strong>6.1 No employment relationship.</strong> Blockwork doesn't employ, hire, supervise, or direct Teens, Independent Teens, Parents, or Neighbors. Blockwork doesn't:</p>
+          <ul>
+            <li>choose which Jobs a Teen accepts;</li>
+            <li>decide how or when a Job is done;</li>
+            <li>provide tools or equipment; or</li>
+            <li>require Teens to work any minimum amount.</li>
+          </ul>
+          <p>Nothing in these Terms creates an employment, joint employment, agency, partnership, or joint venture relationship between Blockwork and any user.</p>
+          <p><strong>6.2 Occasional help only.</strong> The Platform is for occasional, neighbor-to-neighbor help. Don't use it to set up regular or ongoing employment. If you want to hire someone on an ongoing basis, the Platform isn't the right tool.</p>
+          <p><strong>6.3 No insurance.</strong> Blockwork doesn't provide workers' compensation, accident insurance, liability insurance, or any other insurance for any user or Job. Users are responsible for any insurance they choose to have, such as a Neighbor's homeowner's insurance.</p>
+          <p><strong>6.4 Taxes.</strong> Blockwork doesn't withhold taxes or provide payroll services. Teens (through their Parents) and Independent Teens are responsible for reporting their own earnings as the law requires. Stripe may issue tax forms where the law requires it.</p>
+
+          {/* Section 7 */}
+          <h2 id="section-7">7. Payments</h2>
+          <p><strong>7.1 Payment processing.</strong> Payments are processed by Stripe. By paying through the Platform, you also agree to Stripe's terms. Blockwork doesn't store full card numbers.</p>
+          <p><strong>7.2 How payment works.</strong></p>
+          <ul>
+            <li>(a) A Neighbor pays in full when booking a Job. A booking isn't submitted until payment has been authorized.</li>
+            <li>(b) The payment is held by Stripe until both the Neighbor and the Teen confirm in the app that the Job is complete.</li>
+            <li>(c) Once both confirm, the Teen's earnings, minus the fees described in Section 7.4, are paid out. For a Teen under 18, earnings are paid to the Parent's Stripe payout account. For an Independent Teen, they are paid to the Independent Teen's own Stripe payout account.</li>
+            <li>(d) Paid-out funds may take several business days to become available, as shown in the app.</li>
+          </ul>
+          <p><strong>7.3 Limited payment collection agent.</strong> Each Teen (through their Parent) and each Independent Teen appoints Blockwork as their limited agent for the sole purpose of receiving payments from Neighbors on their behalf. When a Neighbor's payment is received through the Platform, it counts as received by the Teen or Independent Teen. After that, the Neighbor owes nothing more for that Job, even if the payout is later delayed.</p>
+          <p><strong>7.4 Prices and fees.</strong></p>
+          <ul>
+            <li>Neighbors see the price of each Job before paying.</li>
+            <li>Prices must fall within the minimum and maximum amounts the Platform sets.</li>
+            <li>Blockwork charges a platform fee, which is shown on our <Link to="/pricing">Pricing</Link> page and in the app before a Job is confirmed. We may change our fees with notice, but changes won't affect Jobs already booked.</li>
+            <li>Except as described in Section 8 or required by law, fees aren't refundable.</li>
+          </ul>
+          <p><strong>7.5 Tips.</strong> Neighbors may add a tip through the Platform. Tips go to the Teen's payout (or the Independent Teen's) the same way as their earnings.</p>
+          <p><strong>7.6 No off-platform payments.</strong> All payments for Jobs found or arranged through the Platform must be made through the Platform. Cash, Venmo, Zelle, Cash App, checks, bank transfers, and other off-platform payments aren't allowed. Blockwork isn't responsible for any payment made outside the Platform.</p>
+
+          {/* Section 8 */}
+          <h2 id="section-8">8. Cancellations, refunds, and disputes</h2>
+          <p><strong>8.1 Cancellations and refunds.</strong> Cancellation and refund rules, including deadlines, are explained on our <Link to="/refunds">Refunds & Disputes</Link> page and are part of these Terms. In particular:</p>
+          <ul>
+            <li>if a Parent declines a Job, or the booking is cancelled before the Job starts as allowed on that page, the Neighbor gets a full refund; and</li>
+            <li>if a booking's payment was never completed, no charge is made and the booking expires.</li>
+          </ul>
+          <p><strong>8.2 Disputes about a Job.</strong> If a Neighbor or Parent believes a Job wasn't done as agreed, they can open a dispute in the app before confirming completion. The payment stays held while we review it. We'll consider the information both sides give us and decide whether to release, partly refund, or fully refund the payment. Our decision on how held funds are handled is final for purposes of the Platform, but it doesn't limit your legal rights against the other user.</p>
+          <p><strong>8.3 Chargebacks.</strong> If a Neighbor disputes a charge with their card issuer, we and Stripe may hold, reverse, or recover the related payout while the dispute is resolved.</p>
+
+          {/* Section 9 */}
+          <h2 id="section-9">9. Communication stays on the Platform</h2>
+          <p>To protect Teens and keep Parents informed, all communication about a Job must happen through the Platform's messaging tools, except brief in-person coordination during a Job that's already confirmed. Don't ask for or share phone numbers, email addresses, social media accounts, or home addresses outside what the Platform shows. Messages may be automatically screened, and reviewed by us, to protect users and enforce these Terms. A Parent can see messages involving their Teen.</p>
+
+          {/* Section 10 */}
+          <h2 id="section-10">10. Reviews and content</h2>
+          <p><strong>10.1 Your content.</strong> You keep ownership of what you post, such as Job descriptions, reviews, messages, and photos ("Your Content"). You give Blockwork a worldwide, non-exclusive, royalty-free license to host, store, display, and use Your Content to operate, improve, and promote the Platform. You confirm that you have the rights to post Your Content.</p>
+          <p><strong>10.2 Reviews.</strong></p>
+          <ul>
+            <li>Reviews must be honest, reflect your own experience of a real Job, and not include personal information such as addresses, phone numbers, school names, or last names.</li>
+            <li>Reviews are the opinions of the users who write them, not statements by Blockwork.</li>
+            <li>We may remove reviews that break these Terms. We don't edit the substance of reviews.</li>
+          </ul>
+          <p><strong>10.3 Copyright.</strong> If you believe content on the Platform infringes your copyright, email <a href="mailto:support@blockwork.online">support@blockwork.online</a> with the details required by 17 U.S.C. § 512(c)(3).</p>
+
+          {/* Section 11 */}
+          <h2 id="section-11">11. Prohibited conduct</h2>
+          <p>You may not:</p>
+          <ul>
+            <li>(a) use the Platform to harm, exploit, groom, or endanger a minor in any way;</li>
+            <li>(b) harass, threaten, bully, or discriminate against anyone;</li>
+            <li>(c) give false information, impersonate anyone, or create an account for someone else without authority (except a Parent linking to their own Teen);</li>
+            <li>(d) get around the Platform's payment system, fees, approvals, age limits, or safety features;</li>
+            <li>(e) post illegal, hateful, sexually explicit, or misleading content;</li>
+            <li>(f) send spam or unsolicited advertising;</li>
+            <li>(g) scrape, crawl, or copy the Platform or its data by automated means, except as allowed by our robots.txt file for public pages;</li>
+            <li>(h) try to access accounts, data, or systems you're not authorized to access, or interfere with the Platform's security or performance; or</li>
+            <li>(i) use the Platform to break any law, including child labor, consumer protection, and privacy laws.</li>
           </ul>
 
-          <h3 className="text-foreground font-heading font-semibold text-[14px] mt-5 mb-1.5">B. Car Washing & Detailing</h3>
+          {/* Section 12 */}
+          <h2 id="section-12">12. Privacy</h2>
+          <p>Our <Link to="/privacy">Privacy Policy</Link> explains how we collect, use, and protect personal information, including information about Teens. We only collect a Teen's personal information with their Parent's consent.</p>
+
+          {/* Section 13 */}
+          <h2 id="section-13">13. Disclaimers</h2>
+          <p>The Platform is provided "as is" and "as available." To the fullest extent the law allows, Blockwork disclaims all warranties, express or implied, including warranties of merchantability, fitness for a particular purpose, title, and non-infringement.</p>
+          <p>Blockwork doesn't guarantee:</p>
           <ul>
-            <li><strong>Scope.</strong> Exterior hand washing, drying, window cleaning, and interior vacuuming of vehicles parked outdoors in the driveway or street. All work is performed outside.</li>
-            <li><strong>Equipment.</strong> The neighbor provides hoses, buckets, soap, sponges, towels, and a vacuum. The teen does not supply cleaning materials unless agreed in advance.</li>
-            <li><strong>Prohibited.</strong> Use of mechanical buffers or power washers by teens under 16, work inside a garage or enclosed structure, and any work requiring the teen to enter the residence.</li>
-            <li><strong>Liability.</strong> The teen is not responsible for pre-existing vehicle damage. The neighbor must disclose any known damage before the job begins.</li>
+            <li>the quality, safety, or legality of any Job;</li>
+            <li>the conduct, identity, or ability of any user; or</li>
+            <li>that the Platform will be uninterrupted or error-free.</li>
+          </ul>
+          <p>Blockwork isn't responsible for:</p>
+          <ul>
+            <li>the acts or omissions of users;</li>
+            <li>conditions at any Job location; or</li>
+            <li>interactions between users, whether online or in person.</li>
+          </ul>
+          <p>Some jurisdictions don't allow certain warranty disclaimers, so some of these may not apply to you.</p>
+
+          {/* Section 14 */}
+          <h2 id="section-14">14. Limitation of liability</h2>
+          <p>To the fullest extent the law allows:</p>
+          <ul>
+            <li>Blockwork won't be liable for any indirect, incidental, special, consequential, or punitive damages, or for lost profits, data, or goodwill, arising from or related to the Platform, any Job, or these Terms.</li>
+            <li>Blockwork's total liability for all claims won't exceed the greater of $100 or the fees you paid to Blockwork in the 12 months before the event giving rise to the claim.</li>
+          </ul>
+          <p>Nothing in these Terms limits liability that can't be limited by law, including liability for gross negligence or willful misconduct.</p>
+
+          {/* Section 15 */}
+          <h2 id="section-15">15. Indemnification</h2>
+          <p>To the extent the law allows, you (and a Parent, for their Teen) agree to defend, indemnify, and hold harmless Blockwork and its owners, officers, and agents from any claims, losses, damages, and expenses, including reasonable attorneys' fees, arising from:</p>
+          <ul>
+            <li>(a) your or your Teen's use of the Platform;</li>
+            <li>(b) any Job you or your Teen post, book, or do;</li>
+            <li>(c) your or your Teen's breach of these Terms or violation of any law or anyone's rights; or</li>
+            <li>(d) Your Content.</li>
           </ul>
 
-          <h3 className="text-foreground font-heading font-semibold text-[14px] mt-5 mb-1.5">C. Odd Jobs & Light Outdoor Tasks</h3>
+          {/* Section 16 */}
+          <h2 id="section-16">16. Suspension and termination</h2>
           <ul>
-            <li><strong>Scope.</strong> Snow shoveling, moving outdoor furniture, sweeping patios, cleaning gutters from ground level, trash removal, and similar light outdoor tasks performed entirely outside the residence.</li>
-            <li><strong>Prohibited.</strong> Any task requiring entry into the home, attic, or crawlspace; heavy lifting beyond the teen's capacity; and work involving hazardous materials, chemicals requiring certification, or conditions posing a safety risk.</li>
-            <li><strong>Parental judgment.</strong> The parent is responsible for assessing whether each odd job is suitable for their teen and for declining any job that is unsafe or inappropriate.</li>
+            <li>You may close your account at any time from your settings or by contacting us.</li>
+            <li>We may suspend or close an account, cancel Jobs, or remove content if we reasonably believe someone has broken these Terms or the law, or poses a risk to others, especially to a minor. We may do this immediately if there's a safety risk.</li>
+            <li>Sections that by their nature should survive termination, including payment obligations and Sections 6, 13–15, and 17–18, will survive.</li>
           </ul>
 
-          <h3 className="text-foreground font-heading font-semibold text-[14px] mt-5 mb-1.5">D. Academic Tutoring (Online)</h3>
-          <ul>
-            <li><strong>Scope.</strong> One-on-one academic tutoring, homework help, and test preparation conducted entirely over a remote video session. No in-person meetings.</li>
-            <li><strong>Session conduct.</strong> Both parties must be appropriately dressed and join from a safe, appropriate location. The teen's parent may join or monitor any session. Recording the session without the other party's consent is prohibited.</li>
-            <li><strong>No guarantee of results.</strong> The teen is not a licensed educator. Tutoring is peer-to-peer help and does not guarantee improved grades or test scores. The neighbor is responsible for evaluating the teen's qualifications and reviews.</li>
-            <li><strong>Prohibited.</strong> In-person tutoring, overnight sessions, and any session involving content that is inappropriate, illegal, or outside the teen's academic competence.</li>
-          </ul>
+          {/* Section 17 (was 18) */}
+          <h2 id="section-17">17. Governing law and venue</h2>
+          <p>Before filing any claim, please email <a href="mailto:support@blockwork.online">support@blockwork.online</a> with your name, address, a description of the issue, and what you're asking for, so we can try to resolve it within 45 days.</p>
+          <p>These Terms are governed by California law and applicable U.S. federal law, without regard to conflict-of-law rules. For any dispute not subject to arbitration, you and Blockwork agree to the exclusive jurisdiction of the state and federal courts located in Alameda County, California.</p>
 
-          <h3 className="text-foreground font-heading font-semibold text-[14px] mt-5 mb-1.5">E. Tech Help & Device Support (Online)</h3>
-          <ul>
-            <li><strong>Scope.</strong> Basic technology guidance, device setup help, software troubleshooting, and app instruction conducted entirely over a remote video session. No in-person meetings.</li>
-            <li><strong>No remote access.</strong> The teen may not request remote control of the neighbor's device, passwords, or account credentials. Guidance is instructional only — the neighbor performs all actions on their own device.</li>
-            <li><strong>No guarantee.</strong> The teen is not a certified technician. Help is peer-to-peer guidance and does not guarantee resolution of any technical issue. The neighbor is responsible for backing up data before following any instructions.</li>
-            <li><strong>Prohibited.</strong> In-person tech support, accessing the neighbor's accounts, handling payment information, and any work involving data recovery from damaged devices.</li>
-          </ul>
-
-          <h3 className="text-foreground font-heading font-semibold text-[14px] mt-5 mb-1.5">F. Pet Sitting & Dog Walking (Outdoor Only)</h3>
-          <ul>
-            <li><strong>Scope.</strong> Dog walking, outdoor pet feeding, and yard cleanup for pets — performed entirely outdoors. The teen may not enter the residence to care for pets.</li>
-            <li><strong>Outdoor only.</strong> If pet care requires entering the home (indoor feeding, medication, overnight stays), the job is not permitted on Blockwork. Pet sitting that requires the teen to remain on the property inside the home is prohibited.</li>
-            <li><strong>Safety.</strong> The neighbor must disclose any pet's behavioral issues, vaccination status, and temperament before the job. The teen may decline any job involving an animal they are not comfortable handling. The parent is responsible for confirming their teen is capable of safely handling the specific animal.</li>
-            <li><strong>Leash requirement.</strong> All dog walking must use a leash provided by the neighbor. The teen is not responsible for providing leashes, harnesses, or waste bags unless agreed in advance.</li>
-          </ul>
+          {/* Section 18 (was 19) */}
+          <h2 id="section-18">18. General terms</h2>
+          <p><strong>18.1 Changes to these Terms.</strong> We may update these Terms from time to time. If we make material changes, we'll notify you by email or in the app before they take effect and ask you to accept them. The "Last updated" date shows when these Terms last changed.</p>
+          <p><strong>18.2 Electronic communications.</strong> You agree to receive notices, agreements, and other communications from us electronically (including for your Teen), and that these satisfy any legal requirement that they be in writing.</p>
+          <p><strong>18.3 Assignment.</strong> You may not transfer your rights or obligations under these Terms without our written consent. We may transfer ours, for example as part of a merger or sale.</p>
+          <p><strong>18.4 Severability.</strong> If any part of these Terms is found unenforceable, it will be limited only as much as necessary, and the rest will stay in effect.</p>
+          <p><strong>18.5 No waiver.</strong> Our not enforcing a provision isn't a waiver of our right to enforce it later.</p>
+          <p><strong>18.6 Entire agreement.</strong> These Terms, our Privacy Policy, and the policies linked in these Terms (including Pricing and Refunds & Disputes) are the entire agreement between you and Blockwork about the Platform.</p>
+          <p><strong>18.7 California consumer notice.</strong> Under California Civil Code Section 1789.3, California users are entitled to the following notice: the Platform is provided by Blockwork. For questions or complaints, contact <a href="mailto:support@blockwork.online">support@blockwork.online</a>. You may also contact the Complaint Assistance Unit of the Division of Consumer Services of the California Department of Consumer Affairs in writing at 1625 North Market Blvd., Suite N 112, Sacramento, CA 95834, or by phone at (916) 445-1254 or (800) 952-5210.</p>
+          <p><strong>18.8 Contact.</strong> Questions about these Terms? Email <a href="mailto:support@blockwork.online">support@blockwork.online</a>.</p>
         </div>
       </div>
       <SiteFooter compact />
