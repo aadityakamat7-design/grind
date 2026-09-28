@@ -45,9 +45,8 @@ export async function notifyParentJobAccepted(base44, opts) {
 
     const body = setupNeeded
       ? `Hi ${parent.full_name || ''},\n\n${teenName} accepted "${jobTitle}" from ${buyerName}. ` +
-        `Before you can approve this job, you need to complete two quick steps for safety and so ${teenName} can receive earnings:\n\n` +
-        `1. Verify your identity (government ID — takes about a minute)\n` +
-        `2. Connect your bank account for payouts (directly with Stripe)\n\n` +
+        `Before you can approve this job, you need to complete one quick step for safety and so ${teenName} can receive earnings:\n\n` +
+        `1. Set up your payout account through Stripe (legal name, date of birth, SSN, and bank account — takes a few minutes)\n\n` +
         `The booking is safely waiting — it won't be approved or cancelled until you're ready.\n\n` +
         `Complete setup here: ${deepLink}${emailFooter(origin)}`
       : `Hi ${parent.full_name || ''},\n\n${teenName} accepted "${jobTitle}" from ${buyerName}. ` +

@@ -18,7 +18,7 @@ export default function ParentStatsGrid({ records, bookings, links, teenProfiles
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
       <StatCard icon={Wallet} label="Total earned" value={money(totalEarned)} subtitle={`${links.length} teen${links.length !== 1 ? "s" : ""}`} to="/parent/payouts" accent="text-primary" />
-      <StatCard icon={Clock} label="Pending payout" value={money(pendingPayout)} subtitle="in escrow" to="/parent/payouts" accent="text-amber-600" />
+      <StatCard icon={Clock} label="Pending payout" value={money(pendingPayout)} subtitle="pending release" to="/parent/payouts" accent="text-amber-600" />
       <StatCard icon={CheckCircle2} label="Jobs completed" value={completed.length} subtitle="all teens" to="/parent" accent="text-emerald-600" />
       <StatCard icon={Star} label="Avg rating" value={avgRating} subtitle={`${totalReviews} reviews`} to="/parent" accent="text-amber-500" />
     </div>

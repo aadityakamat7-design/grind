@@ -14,7 +14,7 @@ const FAQS = [
   },
   {
     q: "Is it safe to hire a teenager on Blockwork?",
-    a: "Blockwork is built around safety. Every parent verifies their identity with a government ID before their teen can accept a first job, and teens verify the first time they accept work. A parent must approve every booking before it's confirmed. All in-person work happens outdoors — teens never enter a client's home — and all tutoring happens over video. Messages are monitored for attempts to share contact info before a booking is confirmed, and a teen can alert their parent instantly from any active job.",
+    a: "Blockwork is built around safety. Every parent sets up a payout account through Stripe when they link to their teen, which confirms the parent is a real adult. A parent must approve every booking before it's confirmed. All in-person work happens outdoors — teens never enter a client's home — and all tutoring happens over video. Messages are monitored for attempts to share contact info before a booking is confirmed, and a teen can alert their parent instantly from any active job.",
   },
   {
     q: "How much can a teen earn doing yard work?",

@@ -8,7 +8,7 @@ import { useLocation } from "react-router-dom";
 // persisting when a page has no Seo component.
 const DEFAULT_TITLE = "Blockwork — Parent-Approved Local Jobs for Teens in California";
 const DEFAULT_DESCRIPTION =
-  "Blockwork is a parent-approved local marketplace where California teens (13+) earn real paychecks doing lawn care, car washing, pet sitting, and online tutoring. Every job is parent-approved, every user is verified, and every payment is protected by escrow. Available in California only.";
+  "Blockwork is a parent-approved local marketplace where California teens (13+) earn real paychecks doing lawn care, car washing, pet sitting, and online tutoring. Every job is parent-approved, every parent is verified through Stripe, and every payment is held until the job is done. Available in California only.";
 
 const ROUTE_META = {
   "/": { title: DEFAULT_TITLE, description: DEFAULT_DESCRIPTION },
@@ -16,13 +16,13 @@ const ROUTE_META = {
   "/register": { title: "Sign up — Blockwork", description: "Create a Blockwork account as a teen, parent, or neighbor." },
   "/forgot-password": { title: "Reset password — Blockwork", description: "Reset your Blockwork password." },
   "/reset-password": { title: "Reset password — Blockwork", description: "Set a new password for your Blockwork account." },
-  "/terms": { title: "Terms of Service — Blockwork", description: "The rules for using Blockwork: eligibility, parental consent, no-home-entry policy, escrow payments, minor work-hour limits, and dispute resolution." },
+  "/terms": { title: "Terms of Service — Blockwork", description: "The rules for using Blockwork: eligibility, parental consent, no-home-entry policy, held payments, minor work-hour limits, and dispute resolution." },
   "/privacy": { title: "Privacy Policy — Blockwork", description: "What Blockwork collects, why, and your rights — including minors' data, parental consent, and payment data processed by Stripe." },
-  "/safety": { title: "Safety — Blockwork", description: "How Blockwork keeps teens safe: parent approval, ID verification, escrow payments, enforced minor work-hour limits, and a strict no-home-entry policy." },
+  "/safety": { title: "Safety — Blockwork", description: "How Blockwork keeps teens safe: parent approval, Stripe verification, held payments, enforced minor work-hour limits, and a strict no-home-entry policy." },
   "/about": { title: "About — Blockwork", description: "A secure, parent-monitored marketplace where neighborhood teens find local work and adults get reliable help with outdoor tasks and online tutoring." },
   "/support": { title: "Support — Blockwork", description: "Get help with Blockwork — contact our team for any question or issue." },
   "/faq": { title: "FAQ — Blockwork", description: "Answers to common Blockwork questions: how teens get paid, safety, what teens can earn, work permits, and how parent approval works." },
-  "/how-it-works": { title: "How it works — Blockwork", description: "How Blockwork connects California teens with neighbors for outdoor tasks and online tutoring, with parent approval and escrow-protected payments." },
+  "/how-it-works": { title: "How it works — Blockwork", description: "How Blockwork connects California teens with neighbors for outdoor tasks and online tutoring, with parent approval and payments held until the work is done." },
   "/oauth/consent": { title: "Authorize — Blockwork", description: "Authorize a third-party application to access your Blockwork account." },
   "/onboarding": { title: "Get started — Blockwork", description: "Set up your Blockwork account as a teen, parent, or neighbor." },
   "/account": { title: "Account — Blockwork", description: "Manage your Blockwork account settings." },
@@ -43,9 +43,9 @@ const ROUTE_META = {
   "/admin": { title: "Admin — Blockwork", description: "Blockwork admin console." },
   "/withdrawal-assistant": { title: "Withdrawal Assistant — Blockwork", description: "Get help with withdrawing your Blockwork Wallet earnings." },
   "/pricing": { title: "Pricing — Blockwork", description: "Blockwork's simple, transparent pricing: a 12.9% + $0.30 platform fee per completed job. No signup fees, no subscriptions, no hidden charges." },
-  "/parent-guide": { title: "Parent Guide — Blockwork", description: "How Blockwork works for parents: identity verification, booking approval, escrow payouts, withdrawal locks, and safety notifications." },
-  "/neighbor-guide": { title: "Neighbor Guide — Blockwork", description: "How to hire a teen on Blockwork: browse or post a job, pay securely through escrow, approve the finished work, and leave a review." },
-  "/refunds": { title: "Refunds & Disputes — Blockwork", description: "How Blockwork handles refunds, escrow, and disputes: confirmation windows, how to file a dispute, and how our team resolves them fairly." },
+  "/parent-guide": { title: "Parent Guide — Blockwork", description: "How Blockwork works for parents: payout account setup, booking approval, payouts, withdrawal locks, and safety notifications." },
+  "/neighbor-guide": { title: "Neighbor Guide — Blockwork", description: "How to hire a teen on Blockwork: browse or post a job, pay securely up front, approve the finished work, and leave a review." },
+  "/refunds": { title: "Refunds & Disputes — Blockwork", description: "How Blockwork handles refunds, held payments, and disputes: confirmation windows, how to file a dispute, and how our team resolves them fairly." },
   "/compliance": { title: "Payments & Compliance — Blockwork", description: "Blockwork's payment processing, California child-labor law compliance, work-hour enforcement, and Stripe Connect payout structure." },
   "/report-safety": { title: "Report a Safety Concern — Blockwork", description: "Report a safety concern, inappropriate behavior, or an off-platform contact attempt on Blockwork." },
 };

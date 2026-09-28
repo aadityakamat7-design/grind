@@ -123,7 +123,7 @@ export default function ParentApprovals() {
                 )}
 
                 <p className="text-[12px] text-muted-foreground/70 mt-3">
-                  Payment is held in escrow. Approving confirms the booking; denying refunds the neighbor.
+                  Payment is held safely. Approving confirms the booking; denying refunds the neighbor.
                 </p>
                 {profile?.connect_status !== "active" && (
                   <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-xl p-3 text-[12px] text-amber-700 mt-3">

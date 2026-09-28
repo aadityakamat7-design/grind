@@ -256,7 +256,7 @@ export default function JobPostForm({ open, onOpenChange, buyer, buyerProfile, o
           <div className="space-y-4">
             <div className="bg-secondary border border-border rounded-2xl p-3 text-xs text-muted-foreground flex items-start gap-2">
               <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5 text-primary" />
-              Your job passed the safety check. Pay the upfront escrow to post it live — held safely until a teen completes the job.
+              Your job passed the safety check. Pay the upfront posting fee to post it live — held safely until a teen completes the job.
             </div>
             <ExpressCheckout
               jobId={payJob.id}

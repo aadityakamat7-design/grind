@@ -29,15 +29,15 @@ const EVENTS = {
   payment_confirmed: {
     teen: (b, link) => ({
       subject: `Payment confirmed for "${b.listing_title}"`,
-      body: `${b.buyer_name}'s payment for "${b.listing_title}" is now held in escrow. The job is waiting for parent approval.\n\nView the booking: ${link}`,
+      body: `${b.buyer_name}'s payment for "${b.listing_title}" is now held safely. The job is waiting for parent approval.\n\nView the booking: ${link}`,
     }),
     buyer: (b, link) => ({
-      subject: `Payment held in escrow for "${b.listing_title}"`,
-      body: `Your payment for "${b.listing_title}" is safely held in escrow. The teen's parent will review and approve the booking next.\n\nView the booking: ${link}`,
+      subject: `Payment held safely for "${b.listing_title}"`,
+      body: `Your payment for "${b.listing_title}" is safely held. The teen's parent will review and approve the booking next.\n\nView the booking: ${link}`,
     }),
     parent: (b, link) => ({
       subject: `Payment confirmed — please approve "${b.listing_title}"`,
-      body: `${b.buyer_name}'s payment for "${b.listing_title}" is held in escrow. Please review and approve this booking so the job can proceed.\n\nReview and approve: ${link}`,
+      body: `${b.buyer_name}'s payment for "${b.listing_title}" is held safely. Please review and approve this booking so the job can proceed.\n\nReview and approve: ${link}`,
     }),
   },
   approved: {
@@ -118,17 +118,17 @@ const EVENTS = {
   teen_ready: {
     buyer: (b, link) => ({
       subject: `${b.teen_display_name} is ready to start`,
-      body: `${b.teen_display_name} confirmed they're ready to start "${b.listing_title}". Press "Start job" to pay and hold the escrow.\n\nView the booking: ${link}`,
+      body: `${b.teen_display_name} confirmed they're ready to start "${b.listing_title}". Press "Start job" to pay and hold the payment.\n\nView the booking: ${link}`,
     }),
     parent: (b, link) => ({
       subject: `${b.teen_display_name} is ready to start`,
-      body: `${b.teen_display_name} is ready to start "${b.listing_title}". Waiting for the neighbor to pay the escrow to begin.\n\nView the booking: ${link}`,
+      body: `${b.teen_display_name} is ready to start "${b.listing_title}". Waiting for the neighbor to pay to begin.\n\nView the booking: ${link}`,
     }),
   },
   buyer_ready: {
     teen: (b, link) => ({
       subject: `${b.buyer_name} is ready to start`,
-      body: `${b.buyer_name} paid the escrow for "${b.listing_title}". Press "Start job" to begin.\n\nView the booking: ${link}`,
+      body: `${b.buyer_name} paid for "${b.listing_title}". Press "Start job" to begin.\n\nView the booking: ${link}`,
     }),
   },
   finished: {

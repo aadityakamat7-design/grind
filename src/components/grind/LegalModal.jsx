@@ -23,7 +23,7 @@ function TermsContent() {
   return (
     <>
       <p className="text-foreground bg-muted rounded-xl p-3 border border-border">
-        <strong>Plain-language summary:</strong> Blockwork is a marketplace where adult neighbors hire local California teens for everyday services. Every teen account (ages 13–17) is linked to a verified parent or guardian who approves jobs and receives payments. We hold your payment in escrow until the job is done, then pay the teen's parent. We are a venue — not a party to the work itself. Blockwork currently operates in California only.
+        <strong>Plain-language summary:</strong> Blockwork is a marketplace where adult neighbors hire local California teens for everyday services. Every teen account (ages 13–17) is linked to a verified parent or guardian who approves jobs and receives payments. We hold your payment until the job is done, then pay the teen's parent. We are a venue — not a party to the work itself. Blockwork currently operates in California only.
       </p>
       <Section title="1. Eligibility and Age Requirements">
         <p><strong>Minimum age.</strong> You must be at least 13 years old to use Blockwork.</p>
@@ -32,14 +32,14 @@ function TermsContent() {
       </Section>
       <Section title="2. Accounts and Parental Consent">
         <p>You agree to provide accurate information when registering. You are responsible for keeping your password and account secure.</p>
-        <p><strong>Teen accounts (13–17).</strong> Not active until a parent completes linking, identity verification, and relationship attestation. The parent controls payouts and can approve or deny any booking.</p>
+        <p><strong>Teen accounts (13–17).</strong> Not active until a parent completes linking, payout account setup, and relationship attestation. The parent controls payouts and can approve or deny any booking.</p>
       </Section>
       <Section title="3. Our Role — Marketplace Venue">
         <p>Blockwork is a venue that connects neighbors with teens and their parents. We are not a party to any agreement between a neighbor and a teen. We do not employ teens and are not responsible for the quality, safety, or legality of any service.</p>
       </Section>
       <Section title="4. Fees and Payments">
         <p><strong>Stripe processing fee.</strong> A processing fee (including payout) is deducted from the teen's earnings before payout.</p>
-        <p><strong>Escrow.</strong> Payment is charged through Stripe and held in escrow. Funds are released to the teen's parent only when both sides confirm the job is finished. If cancelled or denied, the neighbor is refunded.</p>
+        <p><strong>Held payments.</strong> Payment is charged through Stripe and held safely. Funds are released to the teen's parent only when both sides confirm the job is finished. If cancelled or denied, the neighbor is refunded.</p>
         <p><strong>Payouts.</strong> Earnings are paid to the parent's connected Stripe Connect account, not directly to the teen.</p>
       </Section>
       <Section title="5. Refunds and Disputes">
@@ -68,13 +68,13 @@ function PrivacyContent() {
   return (
     <>
       <p className="text-foreground bg-muted rounded-xl p-3 border border-border">
-        <strong>Plain-language summary:</strong> We collect the information needed to run a safe marketplace — names, dates of birth, emails, listings, messages, and limited location data during active jobs. We verify identities using government IDs (processed by Stripe; we never store raw images). We hold payments in escrow through Stripe. We do not sell your data.
+        <strong>Plain-language summary:</strong> We collect the information needed to run a safe marketplace — names, dates of birth, emails, listings, messages, and limited location data during active jobs. Parents verify through Stripe's payout account setup (we never store full SSNs or bank details). We hold payments through Stripe until the job is done. We do not sell your data.
       </p>
       <Section title="1. What Data We Collect">
         <p><strong>Account data:</strong> Name, email, date of birth, and role. Used to manage your account and verify age eligibility.</p>
         <p><strong>Profile data:</strong> Display name, bio, skills, and service area. Shown to other users.</p>
         <p><strong>Teen private data:</strong> Date of birth, age, ZIP, and approximate location. Exact coordinates are used only server-side and never shown to other users.</p>
-        <p><strong>Identity verification:</strong> Government ID processed by Stripe Identity. We store only the verification result — never raw ID images or numbers.</p>
+        <p><strong>Parent verification:</strong> Parents verify through Stripe's payout account setup (Connect Express onboarding). Stripe collects the parent's legal name, date of birth, SSN, and bank account. We store only the account status and masked bank references — never full SSNs or bank details.</p>
         <p><strong>Messages:</strong> Scanned to mask personal contact info before booking confirmation and to flag unsafe requests.</p>
         <p><strong>Location:</strong> During active jobs, the teen's live location is shared with their parent for safety. Stops when the job ends.</p>
         <p><strong>Payment data:</strong> Handled by Stripe. We store transaction records and masked bank references only.</p>
@@ -86,7 +86,7 @@ function PrivacyContent() {
         <p>All payment information is processed by Stripe, a PCI-compliant processor. We never see or store your full card or bank details.</p>
       </Section>
       <Section title="4. Third-Party Sharing">
-        <p>We share data with Stripe (payments, identity verification, payouts), our hosting provider (Base44), and analytics providers (aggregate, de-identified). We do not sell your data.</p>
+        <p>We share data with Stripe (payments, payout account setup, payouts), our hosting provider (Base44), and analytics providers (aggregate, de-identified). We do not sell your data.</p>
       </Section>
       <Section title="5. Data Retention and Security">
         <p>We keep your data while your account is active. After closure, we retain records as required by law, then delete or anonymize them. We use encryption in transit and at rest and never store raw ID images or payment credentials.</p>

@@ -231,7 +231,7 @@ Respond with:
           currency: 'usd',
           product_data: {
             name: job.title || 'Blockwork job post',
-            description: 'Held in escrow until a teen completes the job. Refunded if no teen takes it within 7 days.',
+            description: 'Held safely until a teen completes the job. Refunded if no teen takes it within 7 days.',
           },
           unit_amount: Math.round(chargeAmount * 100),
         },

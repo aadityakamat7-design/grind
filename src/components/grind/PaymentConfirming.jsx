@@ -51,7 +51,7 @@ export default function PaymentConfirming({ bookingId, onConfirmed, onTimeout, o
     <div className="flex flex-col items-center text-center gap-3 py-6">
       <Loader2 className="w-8 h-8 text-primary animate-spin" />
       <p className="text-base font-bold text-foreground">Confirming your payment…</p>
-      <p className="text-sm text-muted-foreground max-w-xs">Securing your payment in escrow. This usually takes a few seconds.</p>
+      <p className="text-sm text-muted-foreground max-w-xs">Securing your payment. This usually takes a few seconds.</p>
     </div>
   );
 }

@@ -263,7 +263,7 @@ export default function BookingDetail() {
           <Loader2 className="w-5 h-5 text-primary animate-spin shrink-0" />
           <div>
             <p className="text-sm font-bold text-foreground">Confirming your payment…</p>
-            <p className="text-xs text-muted-foreground mt-0.5">Securing your payment in escrow. This usually takes a few seconds.</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Securing your payment. This usually takes a few seconds.</p>
           </div>
         </div>
       )}
@@ -299,7 +299,7 @@ export default function BookingDetail() {
               {booking?.payment_status === "released"
                 ? "Payment released to the teen. A receipt and notification have been sent."
                 : booking?.payment_status === "held"
-                  ? "Payment held in escrow. A receipt has been sent and the teen has been notified to start the job."
+                  ? "Payment held safely. A receipt has been sent and the teen has been notified to start the job."
                   : "Your booking is confirmed."}
             </p>
           </div>

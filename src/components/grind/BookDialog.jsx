@@ -183,7 +183,7 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
           </div>
           <div className="flex items-start gap-2 bg-emerald-50 rounded-xl p-3 text-xs text-emerald-700">
             <ShieldCheck className="w-4 h-4 mt-0.5 shrink-0" />
-            Once you pay, your payment is held in escrow until the job is done. Full refund if the parent declines.
+            Once you pay, your payment is held safely until the job is done. Full refund if the parent declines.
           </div>
           <Button
             variant="outline"
@@ -263,7 +263,7 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
 
             <div className="flex items-start gap-2 bg-amber-50 rounded-xl p-3 text-xs text-amber-700">
               <ShieldCheck className="w-4 h-4 mt-0.5 shrink-0" />
-              <span>Your payment is held safely in escrow. If the parent declines, you get a full refund automatically.</span>
+              <span>Your payment is held safely. If the parent declines, you get a full refund automatically.</span>
             </div>
 
             <div className="space-y-2">

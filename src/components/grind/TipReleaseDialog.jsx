@@ -69,7 +69,7 @@ export default function TipReleaseDialog({ open, onOpenChange, booking, onReleas
             <Input type="number" min="0" className="rounded-xl mt-2" placeholder="Custom amount" value={tip} onChange={(e) => setTip(e.target.value)} />
           </div>
           <div className="bg-secondary rounded-xl p-4 text-sm space-y-1.5">
-            <div className="flex justify-between text-xs text-muted-foreground"><span>Job payment (escrow)</span><span>{money(escrowAmount)}</span></div>
+            <div className="flex justify-between text-xs text-muted-foreground"><span>Job payment</span><span>{money(escrowAmount)}</span></div>
             {tipAmt > 0 && <>
               <div className="flex justify-between text-xs text-muted-foreground"><span>Tip (fee-free)</span><span>+{money(tipAmt)}</span></div>
             </>}

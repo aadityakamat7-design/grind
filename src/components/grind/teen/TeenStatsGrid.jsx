@@ -23,7 +23,7 @@ export default function TeenStatsGrid({ records, bookings, profile }) {
       <StatCard icon={Wallet} label="Total earned" value={money(totalEarned)} subtitle="all time" to="/teen/earnings" accent="text-primary" />
       <StatCard icon={TrendingUp} label="This week" value={money(weekEarned)} subtitle="last 7 days" to="/teen/earnings" accent="text-emerald-600" />
       <StatCard icon={CalendarDays} label="This month" value={money(monthEarned)} subtitle="last 30 days" to="/teen/earnings" accent="text-primary" />
-      <StatCard icon={Clock} label="Pending payout" value={money(pendingPayout)} subtitle="in escrow" to="/teen/bookings" accent="text-amber-600" />
+      <StatCard icon={Clock} label="Pending payout" value={money(pendingPayout)} subtitle="pending release" to="/teen/bookings" accent="text-amber-600" />
       <StatCard icon={PlayCircle} label="Active jobs" value={active.length} subtitle={`${upcoming.length} upcoming`} to="/teen/bookings" accent="text-primary" />
     </div>
   );

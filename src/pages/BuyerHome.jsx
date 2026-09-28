@@ -18,7 +18,7 @@ import { useTour } from "@/hooks/useTour";
 const buyerTourSteps = [
   { target: "tour-browse", title: "Browse", subtitle: "Find verified teens near you and see their prices and reviews." },
   { target: "tour-jobs", title: "Jobs", subtitle: "Post a job and a local teen will claim it. Pay upfront — held safely until the work's done." },
-  { title: "How payment works", subtitle: "You pay upfront when you post. The money is held in escrow and released to the teen only once you confirm the work is done." },
+  { title: "How payment works", subtitle: "You pay upfront when you post. The money is held safely and released to the teen only once you confirm the work is done." },
   { target: "tour-messages", title: "Messages", subtitle: "Talk to teens you've booked. Contact details stay private until a booking is confirmed." },
 ];
 
@@ -114,7 +114,7 @@ export default function BuyerHome() {
           </h2>
           <div className="bg-primary/5 border border-primary/20 rounded-2xl p-6 text-center">
             <h3 className="font-bold text-foreground text-[15px]">Need something done around the house?</h3>
-            <p className="text-[13px] text-muted-foreground mt-1">Post a job and a verified local teen will claim it. Pay upfront — held safely in escrow until you confirm the work is done.</p>
+            <p className="text-[13px] text-muted-foreground mt-1">Post a job and a verified local teen will claim it. Pay upfront — held safely until you confirm the work is done.</p>
             <Link to="/jobs" className="inline-flex items-center gap-1.5 mt-4 bg-primary text-primary-foreground text-[13px] font-semibold rounded-full px-5 h-10 shadow-soft hover:opacity-90 transition-opacity">
               <Briefcase className="w-4 h-4" /> Post a job
             </Link>

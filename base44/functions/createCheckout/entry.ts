@@ -45,7 +45,7 @@ Deno.serve(async (req) => {
         {
           price_data: {
             currency: 'usd',
-            product_data: { name: booking.listing_title || 'Blockwork booking', description: `Booked with ${booking.teen_display_name || 'a local teen'} — held in escrow until the job is done.` },
+            product_data: { name: booking.listing_title || 'Blockwork booking', description: `Booked with ${booking.teen_display_name || 'a local teen'} — held safely until the job is done.` },
             unit_amount: cents,
           },
           quantity: 1,

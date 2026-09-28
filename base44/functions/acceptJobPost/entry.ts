@@ -172,7 +172,7 @@ Deno.serve(async (req) => {
         user_id: parentUserId,
         type: 'booking',
         title: 'Your teen took a job',
-        body: `${profile?.display_name || 'Your teen'} accepted "${job.title}" for ${job.buyer_name}. Payment is held in escrow.`,
+        body: `${profile?.display_name || 'Your teen'} accepted "${job.title}" for ${job.buyer_name}. Payment is held safely.`,
         link: `/bookings/${booking.id}`,
         read: false,
       });
@@ -196,7 +196,7 @@ Deno.serve(async (req) => {
       user_id: job.buyer_user_id,
       type: 'booking',
       title: 'A teen took your job!',
-      body: `${profile?.display_name || 'A teen'} accepted "${job.title}". Payment is held in escrow — ready to start.`,
+      body: `${profile?.display_name || 'A teen'} accepted "${job.title}". Payment is held safely — ready to start.`,
       link: `/bookings/${booking.id}`,
       read: false,
     });
@@ -204,7 +204,7 @@ Deno.serve(async (req) => {
       user_id: user.id,
       type: 'booking',
       title: 'Job accepted — confirmed',
-      body: `You accepted "${job.title}". Payment is held in escrow — ready to start.`,
+      body: `You accepted "${job.title}". Payment is held safely — ready to start.`,
       link: `/bookings/${booking.id}`,
       read: false,
     });

@@ -15,7 +15,7 @@ export default function StateRulesDisplay({ stateRules, teenName }) {
             <p className="text-xs font-bold text-amber-700">State rules unavailable</p>
             <p className="text-sm text-amber-600 mt-0.5">
               {teenName}'s state or age isn't on file yet. They'll need to complete their profile
-              and identity verification before the link can be fully confirmed.
+              and payout account setup before the link can be fully confirmed.
             </p>
           </div>
         </div>

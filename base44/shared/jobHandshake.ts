@@ -64,7 +64,7 @@ export async function recordStart(base44, booking, origin) {
       user_id: booking.buyer_user_id,
       type: 'booking',
       title: `${booking.teen_display_name} is ready to start`,
-      body: `Press "Start job" on "${booking.listing_title}" to pay and hold the escrow.`,
+      body: `Press "Start job" on "${booking.listing_title}" to pay and hold the payment.`,
       link: `/bookings/${booking.id}`,
     });
     if (booking.parent_user_id) {
@@ -72,7 +72,7 @@ export async function recordStart(base44, booking, origin) {
         user_id: booking.parent_user_id,
         type: 'booking',
         title: `${booking.teen_display_name} is ready to start`,
-        body: `Waiting for the neighbor to pay the escrow on "${booking.listing_title}" to begin.`,
+        body: `Waiting for the neighbor to pay on "${booking.listing_title}" to begin.`,
         link: `/bookings/${booking.id}`,
       });
     }

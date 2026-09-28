@@ -29,7 +29,7 @@ export default function StudentIncomeCard({ name, total, week, pending, connectS
         </div>
         <div>
           <p className="text-lg font-extrabold text-slate-900">{money(pending)}</p>
-          <p className="text-[11px] text-slate-500">Pending escrow</p>
+          <p className="text-[11px] text-slate-500">Pending release</p>
         </div>
       </div>
       <div className="flex items-center gap-4 mt-3 text-[11px] text-slate-500">

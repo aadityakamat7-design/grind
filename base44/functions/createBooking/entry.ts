@@ -311,7 +311,7 @@ Deno.serve(async (req) => {
             currency: 'usd',
             product_data: {
               name: booking.listing_title || 'Blockwork job',
-              description: 'Held in escrow until the job is confirmed complete. Refunded if the parent declines.',
+              description: 'Held safely until the job is confirmed complete. Refunded if the parent declines.',
             },
             unit_amount: cents,
           },
@@ -354,7 +354,7 @@ Deno.serve(async (req) => {
           user_id: parentUserId,
           type: 'booking',
           title: 'Payment confirmed — please approve',
-          body: `${buyerName}'s payment for "${listing.title}" is held in escrow. Please review and approve this booking.`,
+          body: `${buyerName}'s payment for "${listing.title}" is held safely. Please review and approve this booking.`,
           link: `/bookings/${booking.id}`,
           read: false,
         });

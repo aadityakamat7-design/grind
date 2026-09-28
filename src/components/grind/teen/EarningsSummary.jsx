@@ -30,7 +30,7 @@ export default function EarningsSummary({ balance, week, pending, onCashOut }) {
         </div>
         <div>
           <p className="text-lg font-extrabold">{money(pending)}</p>
-          <p className="text-[11px] opacity-80">Pending in escrow</p>
+          <p className="text-[11px] opacity-80">Pending release</p>
         </div>
       </div>
     </div>

@@ -5,11 +5,11 @@ import { HelpCircle, X, ChevronDown, LifeBuoy, ExternalLink } from "lucide-react
 const QUICK_FAQS = [
   {
     q: "How do teens get paid?",
-    a: "Payment is charged through Stripe and held in escrow. The teen does the work, uploads photo proof, the neighbor confirms, and only then is the money released to the teen's parent.",
+    a: "Payment is charged through Stripe and held safely. The teen does the work, uploads photo proof, the neighbor confirms, and only then is the money released to the teen's parent.",
   },
   {
     q: "Is it safe?",
-    a: "Every parent verifies with a government ID, a parent approves every booking, all in-person work is outdoors, and a teen can alert their parent instantly from any active job.",
+    a: "Every parent sets up a payout account through Stripe, a parent approves every booking, all in-person work is outdoors, and a teen can alert their parent instantly from any active job.",
   },
   {
     q: "How does parent approval work?",

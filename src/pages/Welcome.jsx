@@ -106,7 +106,7 @@ export default function Welcome() {
             serviceType: "Local teen jobs marketplace",
             provider: { "@type": "Organization", name: "Blockwork", url: "https://blockwork.online" },
             areaServed: "CA",
-            description: "California teens offer lawn care, car washing, pet sitting, tech help, tutoring, and odd jobs to neighbors — with a parent approving every booking and escrow-protected payments. Currently available in California only.",
+            description: "California teens offer lawn care, car washing, pet sitting, tech help, tutoring, and odd jobs to neighbors — with a parent approving every booking and payments held until the work is done. Currently available in California only.",
           },
         ]}
       />

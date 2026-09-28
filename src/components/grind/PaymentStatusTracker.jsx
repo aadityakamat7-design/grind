@@ -36,7 +36,7 @@ export default function PaymentStatusTracker({ booking, isBuyer, isTeen, isParen
       return (
         <div className="mt-4 flex items-center gap-2 bg-emerald-50 rounded-xl p-3 text-sm text-emerald-700">
           <Lock className="w-4 h-4 text-emerald-500" />
-          Your payment is held securely in escrow until the job is done.
+          Your payment is held securely until the job is done.
         </div>
       );
     }
@@ -54,7 +54,7 @@ export default function PaymentStatusTracker({ booking, isBuyer, isTeen, isParen
   // Teen/parent: full payout timeline with real state.
   // Steps are only marked done when each one has really happened.
   const steps = [
-    { key: "held", label: "Payment held", detail: "Funds are held securely in escrow until the job is done." },
+    { key: "held", label: "Payment held", detail: "Funds are held securely until the job is done." },
     { key: "released", label: "Released — ready to withdraw", detail: releasedDetail(payout_status) },
     { key: "transferred", label: "Transferred to bank", detail: "Typically arrives in the parent's bank in 1–2 business days." },
   ];

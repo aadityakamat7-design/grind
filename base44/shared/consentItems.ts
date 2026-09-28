@@ -29,7 +29,7 @@ export const CONSENT_ITEMS: { key: string; label: string; fullLabel: string }[] 
   {
     key: 'payment',
     label: "I authorize Blockwork to process payments and send payouts to my bank account.",
-    fullLabel: "I authorize Blockwork to process payments on my behalf — holding buyer funds in escrow and transferring payouts to my connected bank account, never directly to my teen.",
+    fullLabel: "I authorize Blockwork to process payments on my behalf — holding buyer funds until the job is done and transferring payouts to my connected bank account, never directly to my teen.",
   },
   {
     key: 'messaging_access',

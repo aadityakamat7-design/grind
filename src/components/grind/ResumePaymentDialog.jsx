@@ -165,7 +165,7 @@ export default function ResumePaymentDialog({ booking, user, onResolved }) {
             />
             <div className="flex items-start gap-2 bg-emerald-50 rounded-xl p-3 text-xs text-emerald-700">
               <ShieldCheck className="w-4 h-4 mt-0.5 shrink-0" />
-              Once you pay, your payment is held in escrow. Full refund if the parent declines.
+              Once you pay, your payment is held safely. Full refund if the parent declines.
             </div>
             <Button variant="ghost" className="w-full text-muted-foreground" onClick={cancelBooking}>
               <X className="w-4 h-4 mr-1.5" /> Cancel this booking
