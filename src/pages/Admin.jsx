@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
 import { useAppUser } from "@/lib/useAppUser";
 import {
-  LayoutDashboard, Users, CalendarDays, Wallet, ShieldAlert, Flag, Activity,
+  LayoutDashboard, Users, CalendarDays, Wallet, ShieldAlert, Flag, Activity, ShieldCheck,
 } from "lucide-react";
 import PageHeader from "@/components/grind/PageHeader";
 import ErrorRetry from "@/components/grind/ErrorRetry";
@@ -13,6 +13,7 @@ import AdminPayments from "@/components/grind/admin/AdminPayments";
 import AdminDisputes from "@/components/grind/admin/AdminDisputes";
 import AdminModeration from "@/components/grind/admin/AdminModeration";
 import AdminSystemHealth from "@/components/grind/admin/AdminSystemHealth";
+import AdminAuditTab from "@/components/grind/admin/AdminAuditTab";
 
 const TABS = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
@@ -22,6 +23,7 @@ const TABS = [
   { id: "disputes", label: "Disputes & Safety", icon: ShieldAlert },
   { id: "moderation", label: "Moderation", icon: Flag },
   { id: "system", label: "System Health", icon: Activity },
+  { id: "audit", label: "Audit log", icon: ShieldCheck },
 ];
 
 export default function Admin() {
@@ -129,6 +131,7 @@ export default function Admin() {
       {tab === "disputes" && <AdminDisputes {...props} />}
       {tab === "moderation" && <AdminModeration {...props} />}
       {tab === "system" && <AdminSystemHealth {...props} />}
+      {tab === "audit" && <AdminAuditTab />}
     </div>
   );
 }

@@ -5,10 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import StatusBadge from "@/components/grind/StatusBadge";
 import { money } from "@/lib/grind";
+import AdminBookingDetail from "./AdminBookingDetail";
 
-const STATUS_OPTIONS = ["all", "payment_pending", "pending_parent_approval", "confirmed", "in_progress", "completed", "disputed", "cancelled", "denied", "abandoned"];
+const STATUS_OPTIONS = ["all", "payment_pending", "pending_parent_approval", "confirmed", "in_progress", "completed", "disputed", "cancelled", "cancelled_by_admin", "refunded", "denied", "abandoned"];
 
-export default function AdminBookings({ bookings, listings }) {
+export default function AdminBookings({ bookings, reports, onReload }) {
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [selected, setSelected] = useState(null);
@@ -29,19 +30,6 @@ export default function AdminBookings({ bookings, listings }) {
   const isAbandoned = (b) => b.status === "abandoned" || isStuckPayment(b);
 
   const anomalies = bookings.filter((b) => isStuckApproval(b) || isStuckPayment(b));
-
-  const timeline = (b) => {
-    const steps = [
-      { label: "Created", date: b.created_date, done: true },
-      { label: "Payment held", date: b.payment_status === "held" || b.payment_status === "released" || b.payment_status === "releasing" ? b.created_date : null, done: ["held", "released", "releasing", "refunded"].includes(b.payment_status) },
-      { label: "Parent approved", date: b.parent_started_at || (["confirmed", "in_progress", "completed"].includes(b.status) ? b.created_date : null), done: ["confirmed", "in_progress", "completed"].includes(b.status) },
-      { label: "Job started", date: b.teen_started_at, done: ["in_progress", "completed"].includes(b.status) },
-      { label: "Job completed", date: b.teen_finished_at, done: b.status === "completed" },
-      { label: "Payment released", date: b.released_at, done: b.payment_status === "released" },
-      { label: "Refunded", date: b.payment_status === "refunded" ? b.updated_date : null, done: b.payment_status === "refunded" },
-    ];
-    return steps;
-  };
 
   return (
     <div className="space-y-4">
@@ -110,71 +98,12 @@ export default function AdminBookings({ bookings, listings }) {
       </div>
       <p className="text-xs text-muted-foreground">{filtered.length} of {bookings.length} bookings</p>
 
-      <Dialog open={!!selected} onOpenChange={(o) => !o && setSelected(null)}>
-        <DialogContent className="rounded-2xl max-w-lg max-h-[85vh] overflow-y-auto">
-          {selected && (
-            <>
-              <DialogHeader><DialogTitle>{selected.listing_title}</DialogTitle></DialogHeader>
-              <div className="space-y-4 text-sm">
-                <div className="grid grid-cols-2 gap-3">
-                  <Field label="Status" value={<StatusBadge status={selected.status} />} />
-                  <Field label="Payment" value={<StatusBadge status={selected.payment_status} />} />
-                  <Field label="Teen" value={selected.teen_display_name} />
-                  <Field label="Neighbor" value={selected.buyer_name} />
-                  <Field label="Scheduled" value={selected.scheduled_start ? new Date(selected.scheduled_start).toLocaleString() : "—"} />
-                  <Field label="Delivery" value={selected.delivery_mode} />
-                </div>
-
-                <div className="grid grid-cols-2 gap-3 bg-secondary rounded-xl p-3">
-                  <Field label="Price total" value={money(selected.price_total || 0)} />
-                  <Field label="Charge amount" value={money(selected.charge_amount || 0)} />
-                  <Field label="Platform fee" value={money(selected.platform_fee || 0)} />
-                  <Field label="Net to teen" value={money(selected.net_amount || 0)} />
-                  <Field label="Tip" value={money(selected.tip_amount || 0)} />
-                  <Field label="Payout status" value={selected.payout_status} />
-                </div>
-
-                <div>
-                  <p className="font-bold text-foreground mb-2">Timeline</p>
-                  <div className="space-y-2.5">
-                    {timeline(selected).map((step, i) => (
-                      <div key={i} className="flex items-center gap-3">
-                        <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${step.done ? "bg-primary" : "bg-border"}`} />
-                        <div className="flex-1">
-                          <p className={`text-sm font-medium ${step.done ? "text-foreground" : "text-muted-foreground"}`}>{step.label}</p>
-                          {step.date && <p className="text-xs text-muted-foreground">{new Date(step.date).toLocaleString()}</p>}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {selected.dispute_reason && (
-                  <div className="bg-rose-50 border border-rose-200 rounded-xl p-3">
-                    <p className="font-bold text-rose-800 text-xs mb-1">Dispute reason</p>
-                    <p className="text-sm text-rose-700">{selected.dispute_reason}</p>
-                  </div>
-                )}
-
-                <div className="text-xs text-muted-foreground break-all">
-                  <p><span className="font-semibold">Booking ID:</span> {selected.id}</p>
-                  {selected.stripe_payment_intent_id && <p><span className="font-semibold">Stripe PI:</span> {selected.stripe_payment_intent_id}</p>}
-                  {selected.stripe_transfer_id && <p><span className="font-semibold">Stripe transfer:</span> {selected.stripe_transfer_id}</p>}
-                </div>
-              </div>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
-    </div>
-  );
-}
-
-function Field({ label, value }) {
-  return (
-    <div>
-      <p className="text-xs text-muted-foreground">{label}</p>
-      <div className="text-sm font-medium text-foreground">{value ?? "—"}</div>
+      <AdminBookingDetail
+        booking={selected}
+        reports={reports}
+        onClose={() => setSelected(null)}
+        onReload={onReload}
+      />
     </div>
   );
 }
