@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import StatusBadge from "@/components/grind/StatusBadge";
 import PayoutReviewQueue from "@/components/grind/admin/PayoutReviewQueue";
+import AdminPaymentHistory from "@/components/grind/admin/AdminPaymentHistory";
 import { money } from "@/lib/grind";
 
 export default function AdminPayments({ bookings, withdrawals = [], user, onReload }) {
@@ -48,12 +49,15 @@ export default function AdminPayments({ bookings, withdrawals = [], user, onRelo
     <div className="space-y-4">
       <div className="flex gap-1 border-b border-border">
         <TabButton active={tab === "payouts"} onClick={() => setTab("payouts")}>Payout review</TabButton>
+        <TabButton active={tab === "history"} onClick={() => setTab("history")}>Payment history</TabButton>
         <TabButton active={tab === "recon"} onClick={() => setTab("recon")}>Stripe reconciliation {mismatches.length > 0 && <span className="ml-1 text-destructive">({mismatches.length})</span>}</TabButton>
         <TabButton active={tab === "refunds"} onClick={() => setTab("refunds")}>Refund history ({refunds.length})</TabButton>
         <TabButton active={tab === "withdrawals"} onClick={() => setTab("withdrawals")}>Withdrawals {processingWithdrawals.length > 0 && <span className="ml-1 text-amber-600">({processingWithdrawals.length} pending)</span>}</TabButton>
       </div>
 
       {tab === "payouts" && <PayoutReviewQueue bookings={bookings} onDone={onReload} user={user} />}
+
+      {tab === "history" && <AdminPaymentHistory />}
 
       {tab === "recon" && (
         <div className="space-y-3">
