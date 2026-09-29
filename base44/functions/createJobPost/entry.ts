@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
+import { isAccountSuspended, suspendedError } from '../../shared/accountStatus.ts';
 import { getDeliveryMode, isRemovedCategory } from '../../shared/deliveryMode.ts';
 import { calculatePlatformFee, calculateNetAmount } from '../../shared/platformFee.ts';
 import { getStripeContext } from '../../shared/stripeEnv.ts';
@@ -27,6 +28,7 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    if (isAccountSuspended(user)) return suspendedError();
 
     const body = await req.json();
     const title = (body.title || '').trim();

@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
+import { isAccountSuspended, suspendedError } from '../../shared/accountStatus.ts';
 import { maskPII } from '../../shared/piiMask.ts';
 import { notifyAdmins } from '../../shared/notifyAdmins.ts';
 
@@ -12,6 +13,7 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    if (isAccountSuspended(user)) return suspendedError();
 
     const { threadId, body: rawBody } = await req.json();
     if (!threadId || !rawBody || !rawBody.trim()) {

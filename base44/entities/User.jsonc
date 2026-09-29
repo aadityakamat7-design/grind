@@ -52,6 +52,20 @@
       "type": "boolean",
       "default": false,
       "description": "True when the user has unsubscribed from marketing emails via the one-click unsubscribe link. Transactional emails (receipts, booking notices, security) are not affected."
+    },
+    "account_status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "suspended"
+      ],
+      "default": "active",
+      "description": "Set to suspended by Blockwork support when an account must stop acting on the marketplace (admin-set only). A suspended account can still sign in and see its own records, and work already agreed stays in place \u2014 it just cannot start anything new."
+    },
+    "account_status_reason": {
+      "type": "string",
+      "maxLength": 500,
+      "description": "Why the account is on hold \u2014 shown to the account holder and recorded in the admin audit log (admin-set only)"
     }
   }
 }
