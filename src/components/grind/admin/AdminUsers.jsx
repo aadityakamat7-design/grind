@@ -1,5 +1,8 @@
 import React, { useState, useMemo } from "react";
 import { Search, X, ShieldCheck, BadgeCheck, AlertTriangle, Star } from "lucide-react";
+import AdminUserActions from "@/components/grind/admin/AdminUserActions";
+import AdminSuspendDialog from "@/components/grind/admin/AdminSuspendDialog";
+import AdminUnlinkDialog from "@/components/grind/admin/AdminUnlinkDialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -8,10 +11,12 @@ import { money } from "@/lib/grind";
 
 const ROLE_LABELS = { teen: "Teen", parent: "Parent", buyer: "Neighbor", admin: "Admin" };
 
-export default function AdminUsers({ users, teens, buyers, parents, links, reports, listings, bookings }) {
+export default function AdminUsers({ users, teens, buyers, parents, links, reports, listings, bookings, onReload }) {
   const [query, setQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
   const [selected, setSelected] = useState(null);
+  const [suspendOpen, setSuspendOpen] = useState(false);
+  const [unlinkLink, setUnlinkLink] = useState(null);
 
   const teenByUserId = useMemo(() => Object.fromEntries(teens.map((t) => [t.user_id, t])), [teens]);
   const buyerByUserId = useMemo(() => Object.fromEntries(buyers.map((b) => [b.user_id, b])), [buyers]);
@@ -41,6 +46,22 @@ export default function AdminUsers({ users, teens, buyers, parents, links, repor
   const userBookings = (selected ? bookings.filter((b) => b.teen_user_id === selected.id || b.buyer_user_id === selected.id || b.parent_user_id === selected.id) : []);
   const userListings = (selected ? listings.filter((l) => l.teen_user_id === selected.id) : []);
   const userLinks = (selected ? links.filter((l) => l.parent_user_id === selected.id || l.teen_user_id === selected.id) : []);
+  // Only a confirmed link gives a parent any authority, so those are the only
+  // ones support can end.
+  const confirmedLinks = userLinks.filter((l) => l.status === "confirmed");
+  const nameFor = (id) => {
+    const u = users.find((x) => x.id === id);
+    return u?.full_name || u?.email || "";
+  };
+
+  // Once a safety action lands, close the panel and refresh the console so the
+  // table and the panel both show the account's new state.
+  const afterAccountAction = () => {
+    setSuspendOpen(false);
+    setUnlinkLink(null);
+    setSelected(null);
+    onReload?.();
+  };
 
   return (
     <div className="space-y-4">
@@ -80,7 +101,9 @@ export default function AdminUsers({ users, teens, buyers, parents, links, repor
                   <td className="px-4 py-3"><span className="text-xs font-bold px-2 py-0.5 rounded-full bg-secondary">{ROLE_LABELS[u.role] || u.role}</span></td>
                   <td className="px-4 py-3 text-muted-foreground hidden sm:table-cell">{u.created_date ? new Date(u.created_date).toLocaleDateString() : "—"}</td>
                   <td className="px-4 py-3 hidden md:table-cell">
-                    {u.teen?.status === "suspended" ? <StatusBadge status="denied" /> :
+                    {u.account_status === "suspended" ? (
+                      <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-destructive/10 text-destructive">On hold</span>
+                    ) : u.teen?.status === "suspended" ? <StatusBadge status="denied" /> :
                      u.teen?.status === "active" ? <StatusBadge status="active" /> :
                      u.parent?.identity_status === "verified" ? <StatusBadge status="active" /> :
                      <StatusBadge status="pending" />}
@@ -174,11 +197,36 @@ export default function AdminUsers({ users, teens, buyers, parents, links, repor
                     </div>
                   )}
                 </div>
+
+                <AdminUserActions
+                  target={selected}
+                  confirmedLinks={confirmedLinks}
+                  onSuspend={() => setSuspendOpen(true)}
+                  onUnlink={setUnlinkLink}
+                />
               </div>
             </>
           )}
         </DialogContent>
       </Dialog>
+
+      {selected && (
+        <>
+          <AdminSuspendDialog
+            open={suspendOpen}
+            onOpenChange={setSuspendOpen}
+            target={selected}
+            onDone={afterAccountAction}
+          />
+          <AdminUnlinkDialog
+            open={!!unlinkLink}
+            onOpenChange={(o) => !o && setUnlinkLink(null)}
+            link={unlinkLink}
+            parentName={unlinkLink ? nameFor(unlinkLink.parent_user_id) : ""}
+            onDone={afterAccountAction}
+          />
+        </>
+      )}
     </div>
   );
 }

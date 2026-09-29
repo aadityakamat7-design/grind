@@ -97,3 +97,27 @@ export const RESEND_REASONS = list([
   ["user_request", "User asked for another copy"],
   ["other", "Other"],
 ]);
+
+export const SUSPENSION_REASONS = list([
+  ["safety_concern", "Safety concern"],
+  ["under_investigation", "Open investigation"],
+  ["fraud_review", "Fraud review"],
+  ["policy_violation", "Broke our community rules"],
+  ["minor_work_rules", "Work-hour or age rules breached"],
+  ["account_takeover", "Suspected account takeover"],
+  ["duplicate_account", "Duplicate account"],
+  ["review_finished", "Review finished — safe to lift"],
+  ["support_error", "Correcting a support error"],
+  ["other", "Other"],
+]);
+
+export const UNLINK_REASONS = list([
+  ["guardian_request", "Parent or guardian asked"],
+  ["teen_request", "Teen asked to change their guardian"],
+  ["not_the_guardian", "Couldn't confirm this person is the guardian"],
+  ["abuse_report", "Report of abuse or neglect"],
+  ["safety_concern", "Safety concern"],
+  ["duplicate_link", "Duplicate or mistaken link"],
+  ["review_finished", "Review is finished"],
+  ["other", "Other"],
+]);
