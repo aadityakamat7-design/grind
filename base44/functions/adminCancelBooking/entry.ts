@@ -122,6 +122,9 @@ Deno.serve(async (req) => {
         'Support cancelled a booking whose payment had already been released — a manual Stripe transfer reversal is needed.';
     }
     await svc.Booking.update(booking.id, patch);
+    // Re-read so the audit trail records the booking's real end state (the
+    // release above changes payment_status outside of `patch`).
+    const settled = await svc.Booking.get(booking.id);
 
     // Put an assigned job post back on the board so the neighbor can find
     // someone else (same behaviour as a normal cancellation).
@@ -159,7 +162,7 @@ Deno.serve(async (req) => {
       reasonCode: reason.reasonCode,
       reasonNote: reason.reasonNote,
       before,
-      after: { ...bookingSnapshot({ ...booking, ...patch }), refunded, released_to_teen: releasedToTeen },
+      after: { ...bookingSnapshot(settled), refunded, released_to_teen: releasedToTeen },
       refundAmount: refunded,
       stripeRefs: { payment_intent_id: booking.stripe_payment_intent_id || '', refund_id: refundId },
       summary: `Cancelled "${booking.listing_title}" — ${moneyMode} money handling. ${moneyLine}`,

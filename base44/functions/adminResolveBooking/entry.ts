@@ -126,6 +126,9 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Re-read so the audit trail records the booking's real end state.
+    const settled = await svc.Booking.get(booking.id);
+
     const outcomeLine = refunded > 0 && teenGets > 0
       ? `${money(refunded)} was refunded to the neighbor and the rest was released to the teen.`
       : refunded > 0
@@ -150,7 +153,7 @@ Deno.serve(async (req) => {
       reasonCode: reason.reasonCode,
       reasonNote: reason.reasonNote,
       before,
-      after: { ...bookingSnapshot({ ...booking, status: finalStatus }), refunded, teen_got: teenGets },
+      after: { ...bookingSnapshot(settled), refunded, teen_got: teenGets },
       refundAmount: refunded,
       stripeRefs: { payment_intent_id: booking.stripe_payment_intent_id || '', refund_id: refundId },
       summary: `Resolved "${booking.listing_title}" as ${resolutionLabel}. ${outcomeLine}`,
