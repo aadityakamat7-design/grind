@@ -18,10 +18,16 @@ export function isLiveMode() {
 
 // Reads the admin-controlled test-mode flag from AppSetting. Defaults to live
 // (false) when unset or on any read error — the app never silently goes test.
+// The flag can be time-boxed: when an expiry is stored it flips itself off the
+// moment that passes, so a testing window can never be left running by mistake.
 export async function getTestModeEnabled(base44) {
   try {
     const rows = await base44.asServiceRole.entities.AppSetting.filter({ key: 'stripe_test_mode' });
-    return rows[0]?.value === 'true';
+    if (rows[0]?.value !== 'true') return false;
+    const expiryRows = await base44.asServiceRole.entities.AppSetting.filter({ key: 'stripe_test_mode_expires_at' });
+    const expiresAt = expiryRows[0]?.value;
+    if (expiresAt && Date.now() >= new Date(expiresAt).getTime()) return false;
+    return true;
   } catch (err) {
     console.error('getTestModeEnabled error:', err.message);
     return false;

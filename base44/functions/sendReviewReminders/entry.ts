@@ -1,21 +1,18 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
+import { verifyWorkflowCall } from '../../shared/workflowAuth.ts';
 
 // Called on a schedule. Reminds both parties on a completed booking to leave
 // a review once it has been ~24h since the job was marked complete, if they
 // haven't reviewed yet. Sends once per booking (guarded by review_reminder_sent).
 Deno.serve(async (req) => {
   try {
-    // Called by a scheduled workflow — no user session is available, so we
-    // use the service role directly. Only the workflow engine can invoke this.
+    // Runs under the workflow engine's admin context, so we use the service
+    // role directly. Only the workflow engine can invoke this.
     const body = await req.json();
-    // Auth: check both body and headers for the workflow secret.
-    const WF_SECRET = Deno.env.get('WORKFLOW_SECRET');
-    const _hdrs = Object.fromEntries(req.headers.entries());
-    const _hdrMatch = WF_SECRET && Object.values(_hdrs).some(v => v === WF_SECRET);
-    if (!WF_SECRET || (body?._workflowSecret !== WF_SECRET && !_hdrMatch)) {
-      console.error('Workflow auth failed. Headers:', JSON.stringify(_hdrs));
-      return Response.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    // Auth: workflow-invoked handler — only the admin context the workflow
+    // engine presents may run it.
+    const authError = await verifyWorkflowCall(req);
+    if (authError) return authError;
 
     const base44 = createClientFromRequest(req);
     const svc = base44.asServiceRole.entities;

@@ -1,17 +1,24 @@
-// The platform injects the WORKFLOW_SECRET app secret into every
-// invoke_backend_function call made by a workflow. Workflow-handler functions
-// call verifyWorkflowCall() to confirm the request came from a workflow (which
-// carries the platform-injected secret) and not a random internet user hitting
-// the public function URL. The secret is never hardcoded in source — it lives
-// only in the app's secrets and is injected by the platform at call time.
-const WORKFLOW_SECRET = Deno.env.get('WORKFLOW_SECRET');
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.52';
 
-export function verifyWorkflowCall(req: Request, body: any): Response | null {
-  const headers = Object.fromEntries(req.headers.entries());
-  const headerMatch = WORKFLOW_SECRET && Object.values(headers).some(v => v === WORKFLOW_SECRET);
-  if (!WORKFLOW_SECRET || (body?._workflowSecret !== WORKFLOW_SECRET && !headerMatch)) {
-    console.error('Workflow auth failed. Headers:', JSON.stringify(headers));
+// Gate for scheduled/maintenance handlers — the functions a workflow calls
+// server-to-server. The workflow engine invokes these with an admin identity,
+// so that identity (not a shared secret) is what we check. The platform no
+// longer injects a WORKFLOW_SECRET into the call, which is why the old secret
+// check rejected every workflow run with a 401.
+//
+// A public call arrives with no user (→ 401) and a signed-in non-admin is
+// refused (→ 403), so nobody outside the workflow engine can run these.
+export async function verifyWorkflowCall(req: Request): Promise<Response | null> {
+  try {
+    const base44 = createClientFromRequest(req);
+    const user = await base44.auth.me();
+    if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    if (user.role !== 'admin' && user.app_role !== 'admin') {
+      return Response.json({ error: 'Forbidden — admins only' }, { status: 403 });
+    }
+    return null;
+  } catch {
+    // auth.me() throws when the request carries no valid session.
     return Response.json({ error: 'Unauthorized' }, { status: 401 });
   }
-  return null;
 }

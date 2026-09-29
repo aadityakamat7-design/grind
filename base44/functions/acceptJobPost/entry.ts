@@ -7,6 +7,7 @@ import { APP_BASE_URL } from '../../shared/safeOrigin.ts';
 import { enforceBookingHours } from '../../shared/workHourEnforcement.ts';
 import { calculatePlatformFee, calculateNetAmount } from '../../shared/platformFee.ts';
 import { hasAcceptedCurrentTerms } from '../../shared/termsAcceptance.ts';
+import { getTestModeEnabled } from '../../shared/stripeEnv.ts';
 
 // Runs the teen's "take this job" flow server-side, since JobPost.status is
 // locked to admin/service-role writes (so a buyer/teen can never flip a job
@@ -133,6 +134,8 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'This job has already been taken by another teen.' }, { status: 409 });
     }
 
+    const isTestMode = await getTestModeEnabled(base44);
+
     const booking = await svc.Booking.create({
       listing_title: job.title,
       teen_user_id: user.id,
@@ -153,8 +156,10 @@ Deno.serve(async (req) => {
       net_amount: netAmount,
       payment_status: 'held',
       stripe_payment_intent_id: job.stripe_payment_intent_id || '',
-      is_test_mode: !!job.is_test_mode,
-      status: 'confirmed',
+      is_test_mode: isTestMode || !!job.is_test_mode,
+      // Test-mode bookings are never confirmed — they stay parked at pending
+      // approval so a testing window can't create a real appointment.
+      status: (isTestMode || job.is_test_mode) ? 'pending_parent_approval' : 'confirmed',
     });
 
     await svc.JobPost.update(job.id, { booking_id: booking.id });

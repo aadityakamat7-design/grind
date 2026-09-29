@@ -36,7 +36,16 @@ Deno.serve(async (req) => {
 
     const base44 = createClientFromRequest(req);
     const rows = await base44.asServiceRole.entities.AppSetting.filter({ key: 'stripe_test_mode' });
-    return Response.json({ testMode: rows[0]?.value === 'true' });
+    if (rows[0]?.value !== 'true') {
+      return Response.json({ testMode: false, expiresAt: null });
+    }
+    // Honor a stored time-box — a test session past its expiry reads as off.
+    const expiryRows = await base44.asServiceRole.entities.AppSetting.filter({ key: 'stripe_test_mode_expires_at' });
+    const expiresAt = expiryRows[0]?.value || null;
+    if (expiresAt && Date.now() >= new Date(expiresAt).getTime()) {
+      return Response.json({ testMode: false, expiresAt });
+    }
+    return Response.json({ testMode: true, expiresAt });
   } catch (error) {
     console.error('getTestModeStatus error:', error.message);
     return Response.json({ testMode: false });

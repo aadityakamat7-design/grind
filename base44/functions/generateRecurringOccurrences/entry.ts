@@ -9,6 +9,7 @@ import { notifyParentApprovalNeeded } from '../../shared/notifyParent.ts';
 import { APP_BASE_URL } from '../../shared/safeOrigin.ts';
 import { getStripeContext } from '../../shared/stripeEnv.ts';
 import { nextOccurrenceDate } from '../../shared/recurringDates.ts';
+import { verifyWorkflowCall } from '../../shared/workflowAuth.ts';
 
 // Called by a daily workflow. For each active RecurringSeries whose
 // next_occurrence_at is within the generation window (3 days ahead),
@@ -17,14 +18,10 @@ import { nextOccurrenceDate } from '../../shared/recurringDates.ts';
 Deno.serve(async (req) => {
   try {
     const body = await req.json();
-    // Auth: check both body and headers for the workflow secret.
-    const WF_SECRET = Deno.env.get('WORKFLOW_SECRET');
-    const _hdrs = Object.fromEntries(req.headers.entries());
-    const _hdrMatch = WF_SECRET && Object.values(_hdrs).some(v => v === WF_SECRET);
-    if (!WF_SECRET || (body?._workflowSecret !== WF_SECRET && !_hdrMatch)) {
-      console.error('Workflow auth failed. Headers:', JSON.stringify(_hdrs));
-      return Response.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    // Auth: workflow-invoked handler — only the admin context the workflow
+    // engine presents may run it.
+    const authError = await verifyWorkflowCall(req);
+    if (authError) return authError;
 
     const base44 = createClientFromRequest(req);
     // System-level function — guarded by workflow secret (called by workflow).

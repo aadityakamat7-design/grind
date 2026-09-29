@@ -70,7 +70,11 @@ export async function confirmPaymentHeld(base44, bookingId, paymentIntentId, isT
   }
 
   // Determine the next workflow state: minor → parent approval, 18+ → confirmed.
-  const nextStatus = booking.parent_user_id ? 'pending_parent_approval' : 'confirmed';
+  // Test-mode bookings never reach 'confirmed' — they stay parked at pending
+  // approval so a testing window can't create a real, confirmed appointment.
+  const nextStatus = (booking.parent_user_id || isTestMode)
+    ? 'pending_parent_approval'
+    : 'confirmed';
 
   await svc.Booking.update(bookingId, {
     payment_status: 'held',

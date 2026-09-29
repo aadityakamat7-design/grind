@@ -15,8 +15,16 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Forbidden — admins only' }, { status: 403 });
     }
 
-    const { enabled } = await req.json();
+    const { enabled, durationMinutes } = await req.json();
     const value = enabled === true ? 'true' : 'false';
+
+    // Optional time-box. When enabled with a duration, the flag carries an
+    // expiry and getTestModeEnabled treats it as off once that passes — so a
+    // testing window can't be left on by mistake.
+    const minutes = Number(durationMinutes);
+    const expiresAt = (enabled === true && Number.isFinite(minutes) && minutes > 0)
+      ? new Date(Date.now() + minutes * 60_000).toISOString()
+      : '';
 
     const existing = await base44.asServiceRole.entities.AppSetting.filter({ key: 'stripe_test_mode' });
     if (existing[0]) {
@@ -33,7 +41,22 @@ Deno.serve(async (req) => {
       });
     }
 
-    return Response.json({ testMode: value === 'true' });
+    const expiryRows = await base44.asServiceRole.entities.AppSetting.filter({ key: 'stripe_test_mode_expires_at' });
+    if (expiryRows[0]) {
+      await base44.asServiceRole.entities.AppSetting.update(expiryRows[0].id, {
+        value: expiresAt,
+        updated_by_id: user.id,
+      });
+    } else {
+      await base44.asServiceRole.entities.AppSetting.create({
+        key: 'stripe_test_mode_expires_at',
+        value: expiresAt,
+        label: 'Stripe test mode expiry',
+        updated_by_id: user.id,
+      });
+    }
+
+    return Response.json({ testMode: value === 'true', expiresAt: expiresAt || null });
   } catch (error) {
     console.error('setTestMode error:', error.message);
     return Response.json({ error: 'Something went wrong' }, { status: 500 });

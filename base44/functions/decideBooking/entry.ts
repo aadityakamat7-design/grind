@@ -39,6 +39,12 @@ Deno.serve(async (req) => {
       return Response.json({ error: "The neighbor's payment hasn't been confirmed yet. Please wait for payment before approving or denying." }, { status: 400 });
     }
 
+    // A booking created during a testing window must never become a real
+    // appointment — test-mode bookings can be denied but not confirmed.
+    if (approve && booking.is_test_mode) {
+      return Response.json({ error: 'This booking was created in test mode and cannot be confirmed. Turn off test mode to create real bookings.' }, { status: 403 });
+    }
+
     // HARD GUARD: the parent's Stripe Connect account must be fully verified
     // (details_submitted, payouts_enabled, no currently_due) before they can
     // approve a booking. Checked on the server every time — never trust a
