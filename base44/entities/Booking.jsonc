@@ -211,10 +211,13 @@
       "enum": [
         "none",
         "released",
-        "refunded"
+        "refunded",
+        "split",
+        "no_show_teen",
+        "no_show_buyer"
       ],
       "default": "none",
-      "description": "Admin's decision on a disputed booking: released = teen did the work, refunded = neighbor gets their money back (server-set only)",
+      "description": "Admin's decision on a disputed or stuck booking: released = teen did the work, refunded = neighbor gets their money back, split = part refunded and the rest released, no_show_* = which side failed to show (server-set only)",
       "rls": {
         "write": {
           "user_condition": {
@@ -245,12 +248,14 @@
         "in_progress",
         "completed",
         "cancelled",
+        "cancelled_by_admin",
+        "refunded",
         "denied",
         "disputed",
         "abandoned"
       ],
       "default": "payment_pending",
-      "description": "payment_pending = buyer opened checkout, no money moved; pending_parent_approval = payment held, waiting for parent; confirmed = parent approved; in_progress = job started; completed = job done and funds released; cancelled = cancelled; denied = parent denied (refunded); disputed = neighbor reported the work wasn't done; abandoned = checkout expired after 30 min with no payment. Advanced to in_progress/completed only by the server.",
+      "description": "payment_pending = buyer opened checkout, no money moved; pending_parent_approval = payment held, waiting for parent; confirmed = parent approved; in_progress = job started; completed = job done and funds released; cancelled = cancelled; cancelled_by_admin = cancelled by Blockwork support; refunded = cancelled by support with money returned to the neighbor; denied = parent denied (refunded); disputed = neighbor reported the work wasn't done; abandoned = checkout expired after 30 min with no payment. Advanced to in_progress/completed only by the server.",
       "rls": {
         "write": {
           "user_condition": {
@@ -493,6 +498,97 @@
       "type": "boolean",
       "default": false,
       "description": "Whether the 'leave a review' reminder has been sent for this completed booking"
+    },
+    "payout_hold": {
+      "type": "boolean",
+      "default": false,
+      "description": "True while Blockwork support has frozen this booking's payout during an investigation. Shows to the parent as 'Under review' and blocks the scheduled payout pass from transferring (admin-set only).",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "payout_hold_reason": {
+      "type": "string",
+      "maxLength": 500,
+      "description": "Why the payout was frozen (admin-set only)",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "payout_held_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When support froze the payout (admin-set only)",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "admin_notes": {
+      "type": "array",
+      "description": "Internal notes visible only to admins. Each entry: { note, admin_user_id, admin_name, at }. Append-only \u2014 support never edits or removes an earlier note (admin-set only).",
+      "items": {
+        "type": "object",
+        "properties": {
+          "note": {
+            "type": "string",
+            "maxLength": 1000
+          },
+          "admin_user_id": {
+            "type": "string"
+          },
+          "admin_name": {
+            "type": "string"
+          },
+          "at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "admin_refund_amount": {
+      "type": "number",
+      "minimum": 0,
+      "default": 0,
+      "description": "Total amount Blockwork support has refunded on this booking across all admin actions (admin-set only).",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "admin_action_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the most recent support action was taken on this booking (admin-set only)",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     }
   },
   "required": [

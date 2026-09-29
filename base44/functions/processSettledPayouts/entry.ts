@@ -61,6 +61,9 @@ Deno.serve(async (req) => {
     const seen = new Set();
     const bookings = allBookings.filter((b) => {
       if (seen.has(b.id)) return false;
+      // Support can freeze a payout while an investigation is open. A held
+      // booking is skipped entirely, so the transfer genuinely cannot go out.
+      if (b.payout_hold === true) return false;
       seen.add(b.id);
       return true;
     });

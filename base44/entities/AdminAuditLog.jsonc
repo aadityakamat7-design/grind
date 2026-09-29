@@ -1,0 +1,107 @@
+{
+  "name": "AdminAuditLog",
+  "type": "object",
+  "properties": {
+    "admin_user_id": {
+      "type": "string",
+      "description": "The admin who performed the action"
+    },
+    "admin_email": {
+      "type": "string"
+    },
+    "admin_name": {
+      "type": "string"
+    },
+    "action": {
+      "type": "string",
+      "description": "Machine key for the action, e.g. cancel_booking, reschedule_booking, resolve_booking, hold_payout, adjust_price, change_address, add_note, send_system_message, resend_notifications"
+    },
+    "action_group": {
+      "type": "string",
+      "enum": [
+        "booking",
+        "payment",
+        "account",
+        "other"
+      ],
+      "description": "Grouping for filtering"
+    },
+    "target_type": {
+      "type": "string",
+      "description": "Entity acted upon, e.g. Booking or User"
+    },
+    "target_id": {
+      "type": "string"
+    },
+    "booking_id": {
+      "type": "string",
+      "description": "Set when the action concerned a booking, so the log can be filtered by booking"
+    },
+    "subject_user_id": {
+      "type": "string",
+      "description": "The user the action affected, so the log can be filtered by user"
+    },
+    "reason_code": {
+      "type": "string",
+      "description": "The short reason selected by the admin before the action ran"
+    },
+    "reason_note": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Optional free-text note from the admin"
+    },
+    "before": {
+      "type": "object",
+      "description": "The affected values as they were immediately before the action"
+    },
+    "after": {
+      "type": "object",
+      "description": "The affected values immediately after the action"
+    },
+    "refund_amount": {
+      "type": "number",
+      "description": "Amount refunded through Stripe by this action, if any"
+    },
+    "stripe_refs": {
+      "type": "object",
+      "description": "Stripe identifiers involved: payment_intent_id, refund_id, transfer_id"
+    },
+    "requester_verified": {
+      "type": "boolean",
+      "default": false,
+      "description": "For account changes requested by a user: the admin confirmed the request came from the account owner"
+    },
+    "summary": {
+      "type": "string",
+      "maxLength": 500,
+      "description": "Human-readable description of what changed"
+    },
+    "ip": {
+      "type": "string",
+      "description": "Admin's IP address at the time of the action"
+    }
+  },
+  "required": [
+    "admin_user_id",
+    "action",
+    "reason_code"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "audit_log_immutable"
+      }
+    },
+    "delete": false
+  }
+}

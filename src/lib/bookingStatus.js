@@ -31,6 +31,11 @@ export function computeBookingBadge(booking) {
   if (status === "in_progress") return "in_progress";
   if (status === "completed") return "completed";
   if (status === "cancelled") return "cancelled";
+  // Support cancelled the booking. "refunded" additionally means money went
+  // back to the neighbor — the two are tracked separately so the badge never
+  // implies a refund that didn't happen.
+  if (status === "cancelled_by_admin") return "cancelled_by_admin";
+  if (status === "refunded") return "refunded";
   if (status === "denied") return "denied";
   if (status === "disputed") return "disputed";
   if (status === "abandoned") return "abandoned";
