@@ -7,6 +7,7 @@ import { Download, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/grind/PageHeader";
 import PayoutStatusSection from "@/components/grind/teen/PayoutStatusSection";
+import EarningsSetupTip from "@/components/grind/teen/EarningsSetupTip";
 import { PLATFORM_FEE_RATE, PLATFORM_FEE_FIXED } from "@/lib/grind";
 import PullToRefresh from "@/components/PullToRefresh";
 
@@ -90,6 +91,7 @@ export default function TeenEarnings() {
   const [cashouts, setCashouts] = useState([]);
   const [releasedBookings, setReleasedBookings] = useState([]);
   const [withdrawalMode, setWithdrawalMode] = useState(false);
+  const [setup, setSetup] = useState({ hasParent: false, verified: false });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [range, setRange] = useState("1M");
@@ -97,12 +99,10 @@ export default function TeenEarnings() {
   const load = useCallback(async () => {
     try {
       setError(false);
-      const [r, h, c, rb, links] = await Promise.all([
-        base44.entities.EarningsRecord.filter({ teen_user_id: user.id }, "-occurred_at"),
-        base44.entities.Booking.filter({ teen_user_id: user.id, payment_status: "held" }),
-        base44.entities.WalletTransaction.filter({ teen_user_id: user.id, type: "cashout" }, "-occurred_at"),
-        base44.entities.Booking.filter({ teen_user_id: user.id, payment_status: "released" }),
+      const [r, h, c, rb, links, profiles] = await Promise.all([
+...
         base44.entities.ParentTeenLink.filter({ teen_user_id: user.id, status: "confirmed" }),
+        base44.entities.TeenProfile.filter({ user_id: user.id }),
       ]);
       setRecords(r);
       setHeld(h);
@@ -117,6 +117,16 @@ export default function TeenEarnings() {
         canWithdraw = parentProfiles[0]?.connect_status === "active";
       }
       setWithdrawalMode(canWithdraw);
+      // Reminder state: a teen can earn without a linked parent, but earnings
+      // only pay out once a parent is linked and verified.
+      const profile = profiles[0];
+      setSetup({
+        hasParent: !!link,
+        verified:
+          profile?.identity_status === "verified" ||
+          profile?.parent_identity_verified === true ||
+          link?.identity_verified === true,
+      });
     } catch (err) {
       console.error("TeenEarnings load failed:", err);
       setError(true);
@@ -225,6 +235,9 @@ export default function TeenEarnings() {
       <Button className="w-full" onClick={() => navigate("/teen/wallet")}>
         <Wallet className="w-4 h-4 mr-1.5" /> Cash Out
       </Button>
+
+      {/* Reminder — only while a linked, verified parent is missing */}
+      <EarningsSetupTip hasParent={setup.hasParent} verified={setup.verified} />
 
       {/* Chart */}
       <div className="bg-card rounded-2xl border border-border p-4">
