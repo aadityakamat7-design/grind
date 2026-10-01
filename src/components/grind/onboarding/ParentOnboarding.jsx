@@ -1,29 +1,27 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ShieldCheck, AlertCircle, ArrowLeft, ChevronDown, ChevronUp, Landmark, Loader2, CheckCircle2 } from "lucide-react";
+import { ShieldCheck, AlertCircle, ArrowLeft, ChevronDown, ChevronUp } from "lucide-react";
 import { calcAge } from "@/lib/grind";
 import LegalModal from "@/components/grind/LegalModal";
 import { CONSENT_ITEMS, CONSENT_VERSION, FULL_TERMS_TEXT } from "@/lib/stateWorkRules";
 import StateRulesDisplay from "@/components/grind/parent/StateRulesDisplay";
-import StripeBadge from "@/components/StripeBadge";
 import { isRealName } from "@/lib/signupState";
 
 const TERMS_VERSION = "2026-07";
 
-// Three-step parent onboarding:
-//   Step 1: Enter parent DOB (must be 18+) + teen's invite code → look up teen
-//   Step 2: Complete Stripe Connect Express onboarding (legal name, DOB, SSN,
-//           bank account, 18+) — required BEFORE the link can be confirmed.
-//           The teen's account stays inactive until this is done.
-//   Step 3: See state rules + consent checkboxes + enter teen's date of birth
-//           → submit. The teen DOB becomes the source of truth for all age rules.
+// Two-step parent onboarding:
+//   Step 1: legal first and last name + your own date of birth (18+) + the
+//           teen's connection code → look the teen up and show who it is.
+//   Step 2: California child-labor rules + itemized consent + the teen's date of
+//           birth → submit. The link is active right away.
 //
-// The server re-checks the Connect account status in confirmParentLink, so a
-// browser can never bypass the Connect requirement.
+// Stripe is NOT required to link. The parent's payout account is set up later
+// (it's needed before the teen's first cash-out and before a payout can leave),
+// so a parent can always link and their teen can start working.
 export default function ParentOnboarding({ user, initialCode = "" }) {
   const [step, setStep] = useState(1);
   const [code, setCode] = useState(initialCode);
@@ -34,9 +32,6 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
   const [error, setError] = useState("");
   const [lookingUp, setLookingUp] = useState(false);
   const [teenInfo, setTeenInfo] = useState(null);
-  const [connectStatus, setConnectStatus] = useState("not_setup"); // not_setup | pending | active | restricted
-  const [connectChecking, setConnectChecking] = useState(false);
-  const [connectStarting, setConnectStarting] = useState(false);
 
   const [teenDob, setTeenDob] = useState("");
   const [consents, setConsents] = useState({});
@@ -79,10 +74,6 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
         return;
       }
       setTeenInfo(data);
-      // Check if the parent already has an active Connect account
-      const connectRes = await base44.functions.invoke("checkConnectStatus", {});
-      const cs = connectRes.data?.status || "not_setup";
-      setConnectStatus(cs);
       setStep(2);
       setLookingUp(false);
     } catch (err) {
@@ -90,63 +81,6 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
       setLookingUp(false);
     }
   };
-
-  const startConnect = async () => {
-    setConnectStarting(true);
-    setError("");
-    try {
-      const res = await base44.functions.invoke("createConnectOnboarding", {
-        returnPath: "/onboarding",
-        origin: window.location.origin,
-      });
-      if (!res.data?.url) {
-        setError(res.data?.error || "Could not start payout setup. Please try again.");
-        setConnectStarting(false);
-        return;
-      }
-      if (window.self !== window.top) {
-        alert("Payout setup runs on Stripe's secure page and only works from the published app. Open the app in its own tab.");
-        setConnectStarting(false);
-        return;
-      }
-      window.location.href = res.data.url;
-    } catch (err) {
-      setError(err.response?.data?.error || "Could not start payout setup. Please try again.");
-      setConnectStarting(false);
-    }
-  };
-
-  const checkConnect = useCallback(async () => {
-    setConnectChecking(true);
-    setError("");
-    try {
-      const res = await base44.functions.invoke("checkConnectStatus", {});
-      const s = res.data?.status || "not_setup";
-      setConnectStatus(s);
-      if (s === "active") {
-        setStep(3);
-      } else if (s === "not_setup") {
-        setError("It looks like the payout setup wasn't completed. Please finish it to continue.");
-      } else if (s === "restricted") {
-        setError("Your payout account still needs a few more details. Please finish the setup to continue.");
-      } else {
-        setError("Stripe is still confirming your details — this usually takes a few minutes. Try again in a moment.");
-      }
-    } catch (err) {
-      setError(err.response?.data?.error || "We couldn't confirm your payout setup.");
-    }
-    setConnectChecking(false);
-  }, []);
-
-  // Handle redirect return from Stripe Connect onboarding
-  useEffect(() => {
-    if (step !== 2) return;
-    const params = new URLSearchParams(window.location.search);
-    if (params.get("connect")) {
-      window.history.replaceState({}, "", window.location.pathname);
-      checkConnect();
-    }
-  }, [step, checkConnect]);
 
   const allConsentsChecked = CONSENT_ITEMS.every((item) => consents[item.key] === true);
 
@@ -209,7 +143,8 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
         </div>
         <h2 className="text-xl font-bold text-foreground">You're linked!</h2>
         <p className="text-sm text-muted-foreground">
-          You're now set up as your teen's approved parent. You'll approve every booking and manage their payouts.
+          You're your teen's approved parent. They can post services and take jobs now, and you'll approve each one.
+          Connect your payout account when you're ready so they can cash out.
         </p>
         <Button className="w-full rounded-xl" onClick={() => { window.location.href = "/parent"; }}>
           Go to dashboard
@@ -217,7 +152,7 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
       </div>
     );
 
-  // Step 1: DOB + invite code
+  // Step 1: your legal name + DOB + the teen's code
   if (step === 1) {
     return (
       <div className="space-y-4">
@@ -239,6 +174,11 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
           </p>
         </div>
         <div>
+          <Label className="text-foreground">Your date of birth</Label>
+          <Input type="date" className="rounded-xl mt-1" value={dob} onChange={(e) => setDob(e.target.value)} />
+          <p className="text-xs text-muted-foreground mt-1">You must be 18 or older to manage your teen's account and payouts.</p>
+        </div>
+        <div>
           <Label className="text-foreground">Enter your teen's connection code</Label>
           <Input
             className="rounded-xl mt-1 uppercase tracking-widest font-medium text-center text-lg"
@@ -248,11 +188,6 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
             maxLength={8}
           />
         </div>
-        <div>
-          <Label className="text-foreground">Your date of birth</Label>
-          <Input type="date" className="rounded-xl mt-1" value={dob} onChange={(e) => setDob(e.target.value)} />
-          <p className="text-xs text-muted-foreground mt-1">You must be 18 or older to manage your teen's account and payouts.</p>
-        </div>
         {error && (
           <div className="flex items-start gap-2 bg-destructive/10 border border-destructive/20 rounded-xl p-3 text-sm text-destructive">
             <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
@@ -260,9 +195,10 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
           </div>
         )}
         <div className="bg-secondary border border-border rounded-xl p-4 space-y-2 text-xs text-muted-foreground">
-          <p className="flex items-start gap-2"><ShieldCheck className="w-4 h-4 shrink-0" /> You approve or deny every booking before it's confirmed.</p>
+          <p className="flex items-start gap-2"><ShieldCheck className="w-4 h-4 shrink-0" /> You approve or deny every service and every job before it goes ahead.</p>
           <p className="flex items-start gap-2"><ShieldCheck className="w-4 h-4 shrink-0" /> You can read all of your teen's messages.</p>
           <p className="flex items-start gap-2"><ShieldCheck className="w-4 h-4 shrink-0" /> All payments go to your payout account — never directly to the teen.</p>
+          <p className="flex items-start gap-2"><ShieldCheck className="w-4 h-4 shrink-0" /> No bank account needed to link. You'll set up payouts when your teen is ready to cash out.</p>
         </div>
         <Button className="w-full rounded-xl" disabled={!name.trim() || !code || !dob || lookingUp} onClick={lookup}>
           {lookingUp ? "Looking up..." : "Look up teen & review rules"}
@@ -272,110 +208,30 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
     );
   }
 
-  // Step 2: Stripe Connect onboarding (required before link confirmation)
-  if (step === 2) {
-    return (
-      <div className="space-y-4">
-        <div className="flex items-center gap-2">
-          <button onClick={reset} className="p-1 rounded-lg hover:bg-slate-100 transition-colors">
-            <ArrowLeft className="w-4 h-4 text-slate-500" />
-          </button>
-          <h2 className="text-xl font-bold text-foreground">Verify your payout account</h2>
-        </div>
-
-        <div className="bg-blue-50/50 rounded-xl px-3.5 py-2.5 border border-blue-100">
-          <p className="text-xs font-bold text-blue-900">
-            Linking to: {teenInfo?.teenName}
-            {teenInfo?.teenState && ` · ${teenInfo?.teenState}`}
-            {teenInfo?.teenAge != null && ` · Age ${teenInfo?.teenAge}`}
-          </p>
-        </div>
-
-        <div className="bg-secondary border border-border rounded-xl p-4 space-y-3">
-          <div className="flex items-start gap-3">
-            <div className="w-11 h-11 rounded-xl bg-foreground flex items-center justify-center shrink-0">
-              <Landmark className="w-5 h-5 text-background" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-sm font-bold text-foreground">Set up payouts with Stripe</p>
-              <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                Before you can confirm your teen, Stripe needs to verify you're a real adult (18+). You'll enter your legal name, date of birth, the last 4 of your SSN, and your bank account directly with Stripe — we never see or store those details.
-              </p>
-            </div>
-          </div>
-          <p className="text-xs text-muted-foreground">
-            This replaces separate ID verification. Stripe confirms you're a real adult; you confirm you're this teen's parent.
-          </p>
-        </div>
-
-        {error && (
-          <div className="flex items-start gap-2 bg-destructive/10 border border-destructive/20 rounded-xl p-3 text-sm text-destructive">
-            <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
-            {error}
-          </div>
-        )}
-
-        {connectStatus === "active" ? (
-          <div className="flex flex-col items-center gap-3 py-4">
-            <div className="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center">
-              <CheckCircle2 className="w-7 h-7 text-emerald-600" />
-            </div>
-            <p className="text-sm font-bold text-foreground">Your payout account is ready!</p>
-            <Button className="w-full rounded-xl" onClick={() => setStep(3)}>
-              Continue to consent
-            </Button>
-          </div>
-        ) : connectChecking || connectStarting ? (
-          <div className="flex flex-col items-center gap-3 py-8">
-            <Loader2 className="w-7 h-7 animate-spin text-muted-foreground" />
-            <p className="text-sm font-medium text-foreground">
-              {connectStarting ? "Opening Stripe's secure setup…" : "Confirming your payout setup…"}
-            </p>
-          </div>
-        ) : (
-          <>
-            <Button className="w-full rounded-xl" onClick={startConnect}>
-              {connectStatus === "pending" || connectStatus === "restricted" ? "Continue on Stripe" : "Set up payouts with Stripe"}
-            </Button>
-            {connectStatus !== "not_setup" && (
-              <Button variant="outline" className="w-full rounded-xl" onClick={checkConnect}>
-                Check setup status
-              </Button>
-            )}
-            <p className="text-xs text-muted-foreground text-center">
-              Required before you can confirm your teen or approve any bookings.
-            </p>
-          </>
-        )}
-        <div className="flex justify-center pt-2">
-          <StripeBadge />
-        </div>
-        <LegalModal type={legalModal} open={!!legalModal} onOpenChange={(v) => !v && setLegalModal(null)} />
-      </div>
-    );
-  }
-
-  // Step 3: State rules + consent checkboxes + teen DOB entry
+  // Step 2: confirm the teen, the state rules, consent, and the teen's DOB
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
-        <button onClick={() => setStep(2)} className="p-1 rounded-lg hover:bg-slate-100 transition-colors">
-          <ArrowLeft className="w-4 h-4 text-slate-500" />
+        <button onClick={reset} className="p-1 rounded-lg hover:bg-secondary transition-colors">
+          <ArrowLeft className="w-4 h-4 text-muted-foreground" />
         </button>
         <h2 className="text-xl font-bold text-foreground">Consent & link</h2>
       </div>
 
-      <div className="bg-blue-50/50 rounded-xl px-3.5 py-2.5 border border-blue-100">
-        <p className="text-xs font-bold text-blue-900">
-          Linking to: {teenInfo?.teenName}
+      <div className="bg-secondary rounded-xl px-3.5 py-2.5 border border-border">
+        <p className="text-xs font-bold text-foreground">
+          Confirm this is your teen: {teenInfo?.teenName}
           {teenInfo?.teenState && ` · ${teenInfo?.teenState}`}
           {teenInfo?.teenAge != null && ` · Age ${teenInfo?.teenAge}`}
+        </p>
+        <p className="text-[11px] text-muted-foreground mt-1">
+          If this isn't the right teen, go back and check the code — never link to an account you don't recognize.
         </p>
       </div>
 
       <div>
         <p className="text-xs font-bold text-foreground mb-2 flex items-center gap-1.5">
-          <ShieldCheck className="w-3.5 h-3.5 text-blue-500" /> California child-labor rules
+          <ShieldCheck className="w-3.5 h-3.5 text-primary" /> California child-labor rules
         </p>
         <StateRulesDisplay stateRules={teenInfo?.stateRules} teenName={teenInfo?.teenName} />
       </div>

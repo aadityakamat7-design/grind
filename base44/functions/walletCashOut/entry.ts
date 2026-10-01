@@ -1,6 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 import { checkRateLimit, recordSuccess, getClientIp } from '../../shared/rateLimiter.ts';
 import { writeAuditLog } from '../../shared/auditLog.ts';
+import { notifyParentPayoutSetupNeeded } from '../../shared/notifyParent.ts';
 
 Deno.serve(async (req) => {
   try {
@@ -61,10 +62,19 @@ Deno.serve(async (req) => {
       const parentProfiles = await base44.asServiceRole.entities.ParentProfile.filter({ user_id: link.parent_user_id });
       const parentProfile = parentProfiles[0];
       if (!parentProfile || parentProfile.connect_status !== 'active') {
+        // Tell the parent once — in-app and by email — with a link that starts
+        // their payout setup, so the teen's earnings aren't stuck silently.
+        const teenProfiles = await base44.asServiceRole.entities.TeenProfile.filter({ user_id: user.id });
+        await notifyParentPayoutSetupNeeded(base44, {
+          parentUserId: link.parent_user_id,
+          teenName: teenProfiles[0]?.display_name || 'Your teen',
+          amount: amt,
+        });
         return Response.json({
           success: false,
           no_payout_account: true,
-          message: "Your parent hasn't set up their payout account yet. Ask them to connect their bank from the parent dashboard so you can cash out.",
+          parent_notified: true,
+          message: "Your parent needs to set up payouts before you can cash out. We've sent them a link.",
         });
       }
     } else {

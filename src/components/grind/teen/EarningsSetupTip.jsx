@@ -14,12 +14,12 @@ export default function EarningsSetupTip({ hasParent, verified }) {
       <ShieldAlert className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
       <div className="flex-1 min-w-0">
         <p className="text-sm font-semibold text-amber-700">
-          {needsParent ? "Link your parent to cash out" : "Waiting on your parent's verification"}
+          {needsParent ? "Link your parent to start working" : "Waiting on your parent's payout setup"}
         </p>
         <p className="text-xs text-amber-600 mt-1 leading-relaxed">
           {needsParent
-            ? "You can keep earning right now — but your money can't be paid out until a parent links to your account. Share your invite code so they can connect."
-            : "Your parent is linked. Cash-outs unlock once their verification and bank setup finish — they can check their Payouts tab."}
+            ? "Share your invite code with your parent or guardian. Once they link, you can take jobs, and they'll approve each one."
+            : "Your parent is linked. Cash-outs unlock once they connect a payout account — they can do that from their Payouts tab."}
         </p>
         {needsParent && (
           <Link

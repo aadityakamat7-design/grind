@@ -30,7 +30,7 @@ export default function TeenPublicProfile() {
   const load = useCallback(async () => {
     const [profiles, teenListings, reviewsRes, buyers, creds] = await Promise.all([
       base44.entities.TeenProfile.filter({ user_id: teenUserId }),
-      base44.entities.Listing.filter({ teen_user_id: teenUserId, status: "published" }),
+      base44.entities.Listing.filter({ teen_user_id: teenUserId, status: "published", parent_approval_status: { $ne: "pending" } }),
       base44.functions.invoke("getReviews", { subject_id: teenUserId }),
       base44.entities.BuyerProfile.filter({ user_id: user.id }),
       base44.entities.Credential.filter({ teen_user_id: teenUserId, status: "approved" }),

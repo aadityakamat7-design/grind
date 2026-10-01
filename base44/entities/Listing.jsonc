@@ -192,6 +192,46 @@
         }
       }
     },
+    "parent_approval_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "rejected"
+      ],
+      "description": "A service posted by a teen under 18 stays hidden from neighbors ('draft') until their linked parent approves it. Independent 18+ teens are approved automatically. Price, category or service-area edits send it back to 'pending' (server-set only).",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "parent_approval_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the linked parent approved this service (server-set only)",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "parent_rejection_reason": {
+      "type": "string",
+      "maxLength": 500,
+      "description": "The parent's optional explanation when they decline a service \u2014 shown to the teen (server-set only)",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
     "status": {
       "type": "string",
       "enum": [
@@ -199,7 +239,8 @@
         "published",
         "paused"
       ],
-      "default": "published"
+      "default": "draft",
+      "description": "draft = not visible to neighbors (a minor's service waits here until their parent approves); published = live on the marketplace; paused = temporarily hidden by the teen."
     }
   },
   "required": [

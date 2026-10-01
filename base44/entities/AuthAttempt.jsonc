@@ -22,6 +22,14 @@
       "default": false,
       "description": "Whether the auth attempt succeeded (for analytics/cleanup)"
     },
+    "user_id": {
+      "type": "string",
+      "description": "The user this attempt belongs to \u2014 recorded server-side on a successful sign-up so a later parent link from the same machine can be flagged for review"
+    },
+    "user_agent": {
+      "type": "string",
+      "description": "Device user agent recorded at sign-up (server-side, for the same-device review flag)"
+    },
     "description": {
       "type": "string",
       "maxLength": 1000,

@@ -4,6 +4,7 @@ import { getVerifiedAge } from '../../shared/teenAge.ts';
 import { getMinAgeForCategory } from '../../shared/categoryAgeRules.ts';
 import { getDeliveryMode, isRemovedCategory, generateSessionLink } from '../../shared/deliveryMode.ts';
 import { notifyParentJobAccepted } from '../../shared/notifyParent.ts';
+import { PARENT_LINK_REQUIRED } from '../../shared/parentGate.ts';
 import { APP_BASE_URL } from '../../shared/safeOrigin.ts';
 import { enforceBookingHours } from '../../shared/workHourEnforcement.ts';
 import { calculatePlatformFee, calculateNetAmount } from '../../shared/platformFee.ts';
@@ -84,6 +85,15 @@ Deno.serve(async (req) => {
     }
     const teenAge = getVerifiedAge(teenPrivate);
 
+    // A teen under 18 can't take a job until a parent is linked — without a
+    // linked parent there is nobody to approve the work. Independent 18+ teens
+    // need no link. Checked before the job is claimed, so a blocked teen never
+    // takes it away from someone else.
+    const isIndependentTeen = teenAge != null && teenAge >= 18;
+    if (!link && !isIndependentTeen) {
+      return Response.json({ error: PARENT_LINK_REQUIRED, needsParent: true }, { status: 403 });
+    }
+
     // Category age gate — reject if the job's category exceeds the teen's
     // eligible age for their state. Uses the verified age, never self-reported.
     const categoryMinAge = getMinAgeForCategory(job.state, job.category);
@@ -159,9 +169,11 @@ Deno.serve(async (req) => {
       payment_status: 'held',
       stripe_payment_intent_id: job.stripe_payment_intent_id || '',
       is_test_mode: isTestMode || !!job.is_test_mode,
-      // Test-mode bookings are never confirmed — they stay parked at pending
-      // approval so a testing window can't create a real appointment.
-      status: (isTestMode || job.is_test_mode) ? 'pending_parent_approval' : 'confirmed',
+      // Every job a minor takes waits for their parent's approval before it is
+      // confirmed. Independent 18+ teens are confirmed right away. Test-mode
+      // bookings are never confirmed — they stay parked at pending approval so
+      // a testing window can't create a real appointment.
+      status: (isTestMode || job.is_test_mode || !isIndependentTeen) ? 'pending_parent_approval' : 'confirmed',
     });
 
     await svc.JobPost.update(job.id, { booking_id: booking.id });
@@ -187,9 +199,9 @@ Deno.serve(async (req) => {
     if (parentUserId) {
       await svc.Notification.create({
         user_id: parentUserId,
-        type: 'booking',
-        title: 'Your teen took a job',
-        body: `${profile?.display_name || 'Your teen'} accepted "${job.title}" for ${job.buyer_name}. Payment is held safely.`,
+        type: 'approval',
+        title: `Approve: ${profile?.display_name || 'your teen'} took a job`,
+        body: `They accepted "${job.title}" from ${job.buyer_name}. The neighbor's payment is held safely — the work starts once you approve it.`,
         link: `/bookings/${booking.id}`,
         read: false,
       });
@@ -213,15 +225,19 @@ Deno.serve(async (req) => {
       user_id: job.buyer_user_id,
       type: 'booking',
       title: 'A teen took your job!',
-      body: `${profile?.display_name || 'A teen'} accepted "${job.title}". Payment is held safely — ready to start.`,
+      body: isIndependentTeen
+        ? `${profile?.display_name || 'A teen'} accepted "${job.title}". Payment is held safely — ready to start.`
+        : `${profile?.display_name || 'A teen'} accepted "${job.title}". Payment is held safely — the work starts once their parent approves.`,
       link: `/bookings/${booking.id}`,
       read: false,
     });
     await svc.Notification.create({
       user_id: user.id,
       type: 'booking',
-      title: 'Job accepted — confirmed',
-      body: `You accepted "${job.title}". Payment is held safely — ready to start.`,
+      title: isIndependentTeen ? 'Job accepted — confirmed' : 'Job accepted — waiting for your parent',
+      body: isIndependentTeen
+        ? `You accepted "${job.title}". Payment is held safely — ready to start.`
+        : `You accepted "${job.title}". You're all set once your parent approves it.`,
       link: `/bookings/${booking.id}`,
       read: false,
     });

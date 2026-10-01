@@ -16,7 +16,10 @@ Deno.serve(async (req) => {
 
     const svc = base44.asServiceRole.entities;
     const [listings, buyerProfiles] = await Promise.all([
-      svc.Listing.filter({ status: 'published' }, '-created_date', 100),
+      // Services waiting for a parent's approval are never shown to neighbors.
+      // ($ne, not an equality match, so services created before parent approval
+      // existed still count as approved.)
+      svc.Listing.filter({ status: 'published', parent_approval_status: { $ne: 'pending' } }, '-created_date', 100),
       svc.BuyerProfile.filter({ user_id: user.id }),
     ]);
     const buyer = buyerProfiles[0];

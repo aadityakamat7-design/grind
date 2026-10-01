@@ -237,10 +237,10 @@ export default function TeenOnboarding({ user }) {
       </div>
       <h2 className="text-xl font-bold text-foreground">You're ready to go!</h2>
       <p className="text-sm text-muted-foreground">
-        You can <span className="font-semibold text-foreground">post services and take jobs right away</span>. When you're ready to cash out your earnings, your parent will need to link with your code below.
+        Share your code below with your parent or guardian. Once they link, you can <span className="font-semibold text-foreground">post services and take jobs</span>, and they'll approve each one.
       </p>
       <div className="bg-muted rounded-2xl p-5">
-        <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Your parent code (for cashing out later)</p>
+        <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Your parent code</p>
         <p className="text-3xl font-bold tracking-[0.3em] text-foreground mt-1">{inviteCode}</p>
       </div>
       <ShareInvite code={inviteCode} />

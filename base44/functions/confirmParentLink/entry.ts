@@ -2,7 +2,7 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 import { notifyAdmins } from '../../shared/notifyAdmins.ts';
 import { CONSENT_ITEMS, CONSENT_VERSION, FULL_TERMS_TEXT } from '../../shared/consentItems.ts';
 import { getVerifiedAge } from '../../shared/teenAge.ts';
-import { isParentVerifiedByStripe } from '../../shared/parentVerification.ts';
+import { emailsAreSameOwner, looksLikeSelfLinkedParent } from '../../shared/parentLinkGuards.ts';
 
 // Parent-teen linking — relationship attestation model:
 //   The parent enters the teen's invite code, explicitly attests the
@@ -67,17 +67,10 @@ Deno.serve(async (req) => {
     const code = String(inviteCode).trim().toUpperCase();
     const now = Date.now();
 
-    // --- Server-side check: parent must have a fully verified Stripe Connect
-    // account before they can confirm the link. This prevents an unverified
-    // account (e.g. a teen using a second email as their own "parent") from
-    // approving bookings. Never trust a status sent from the browser.
-    const connectCheck = await isParentVerifiedByStripe(base44, user.id);
-    if (!connectCheck.verified) {
-      return Response.json({
-        error: connectCheck.message || 'You must complete your Stripe payout setup before you can confirm your teen.',
-        connectStatus: connectCheck.status,
-      }, { status: 403 });
-    }
+    // Stripe is NOT required to link. The parent links with their code,
+    // attestation, and the teen's date of birth; the payout account can be set
+    // up later (it's needed before the teen's first cash-out). Requiring it here
+    // blocked parents from linking at all and left teens unable to start.
 
     // --- Rate limiting: fetch recent attempts ---
     const [userAttempts, ipAttempts, codeAttempts] = await Promise.all([
@@ -136,6 +129,15 @@ Deno.serve(async (req) => {
     if (teen.user_id === user.id) {
       return Response.json({ error: 'You cannot link to your own account.' }, { status: 400 });
     }
+    // Block the "be your own parent" trick: a second account whose address
+    // delivers to the same inbox (name+1@gmail.com, or a Gmail dotted variant).
+    const teenUsers = await svc.User.filter({ id: teen.user_id });
+    const teenUser = teenUsers[0];
+    if (emailsAreSameOwner(user.email, teenUser?.email)) {
+      return Response.json({
+        error: 'Use your own separate email address — this one delivers to the same inbox as the teen account.',
+      }, { status: 403 });
+    }
     // CA-only: the teen must be in California
     if ((teen.state || '').toUpperCase() !== 'CA') {
       return Response.json({ error: 'Blockwork is currently only available in California.' }, { status: 403 });
@@ -175,14 +177,24 @@ Deno.serve(async (req) => {
     const nowIso = new Date().toISOString();
     // The link is confirmed — the parent attested the relationship AND their
     // Stripe Connect account is fully verified (checked above).
+    // Same device or IP as the teen's sign-up, within 24 hours, is never a
+    // block — families share phones and home networks — but it is recorded so
+    // admins can review a possible self-linked parent.
+    const selfLinked = await looksLikeSelfLinkedParent({
+      svc, parentUser: user, teenUser, parentIp: ip, userAgent: userAgent || '',
+    });
+
     const data = {
       teen_profile_id: teen.id,
       teen_display_name: teen.display_name,
-      identity_verified: true, // now means "Connect-verified" (legacy field name kept for backward compat)
+      identity_verified: true, // means the parent attested the relationship
       relationship_confirmed: true,
       relationship_attested_at: nowIso,
       status: 'confirmed',
       confirmed_at: nowIso,
+      admin_review_flag: selfLinked,
+      admin_review_reason: selfLinked ? 'Possible self-linked parent' : '',
+      flagged_at: selfLinked ? nowIso : undefined,
     };
 
     const existing = await svc.ParentTeenLink.filter({ parent_user_id: user.id, teen_user_id: teen.user_id });
@@ -255,7 +267,7 @@ Deno.serve(async (req) => {
       user_id: user.id,
       type: 'approval',
       title: `You're linked with ${teen.display_name}! 🎉`,
-      body: `You'll now see their bookings, income, and safety status on your dashboard. Your payout account is ready to receive their earnings.`,
+      body: `You'll now see their bookings, income, and safety status on your dashboard. Connect your payout account when you're ready so they can cash out.`,
       link: '/parent',
     });
 

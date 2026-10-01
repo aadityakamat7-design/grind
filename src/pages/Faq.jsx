@@ -10,11 +10,11 @@ const BREADCRUMB_JSONLD = breadcrumbJsonLd([{ name: "Home", path: "/" }, { name:
 const FAQS = [
   {
     q: "How do teens get paid?",
-    a: "When a neighbor books a job, their payment is charged through Stripe and held safely until the job is done. The teen does the work, uploads photo proof, and the neighbor confirms it's done. Only then is the money released to the teen's parent, who receives it in their connected Stripe Connect account. The teen's share appears in their in-app Blockwork Wallet, and the parent can distribute the earnings to the teen as they see fit.",
+    a: "When a neighbor books a job, their payment is charged through Stripe and held safely until the job is done. The teen does the work, uploads photo proof, and the neighbor confirms it's done. Only then is the money released to the teen's parent, who receives it in their connected Stripe Connect account — the parent sets that account up before the teen's first cash-out, and earnings stay held in the teen's Blockwork Wallet until it's ready. The parent can distribute the earnings to the teen as they see fit.",
   },
   {
     q: "Is it safe to hire a teenager on Blockwork?",
-    a: "Blockwork is built around safety. Every parent sets up a payout account through Stripe when they link to their teen, which confirms the parent is a real adult. A parent must approve every booking before it's confirmed. All in-person work happens outdoors — teens never enter a client's home — and all tutoring happens over video. Messages are monitored for attempts to share contact info before a booking is confirmed, and a teen can alert their parent instantly from any active job.",
+    a: "Blockwork is built around safety. A parent must link to their teen's account before the teen can post a service or take a job, and the parent approves every service and every booking before it goes ahead. Before any earnings can be paid out, the parent sets up a payout account through Stripe, which confirms they're a real adult. All in-person work happens outdoors — teens never enter a client's home — and all tutoring happens over video. Messages are monitored for attempts to share contact info before a booking is confirmed, and a teen can alert their parent instantly from any active job.",
   },
   {
     q: "How much can a teen earn doing yard work?",
@@ -26,7 +26,7 @@ const FAQS = [
   },
   {
     q: "How does parent approval work?",
-    a: "No job is confirmed without a parent's explicit approval. When a teen accepts or receives a booking request, the parent sees the job details, the neighbor's name, the location, and the pay before saying yes. A parent can deny any booking at any time before it starts. The parent is the legal and financial account holder: they connect the bank account, receive the payouts, and can revoke consent at any time, which immediately suspends the teen's profile.",
+    a: "No service is published and no job is confirmed without a parent's explicit approval. A service a teen posts stays hidden from neighbors until the parent approves it, and a job can't be confirmed until the parent approves the booking. When a teen accepts or receives a booking request, the parent sees the job details, the neighbor's name, the location, and the pay before saying yes. A parent can deny any booking at any time before it starts. The parent is the legal and financial account holder: they connect the bank account, receive the payouts, and can revoke consent at any time, which immediately suspends the teen's profile.",
   },
   {
     q: "What kinds of jobs can teens do on Blockwork?",
@@ -38,7 +38,7 @@ const FAQS = [
   },
   {
     q: "How old do teens need to be to use Blockwork?",
-    a: "Teens must be at least 13 years old. Users under 13 are not permitted. Teens aged 13–17 need a parent or guardian linked to their account, verified and consenting, before they can accept jobs or receive payments. Teens who are 18 or older may use the platform independently.",
+    a: "Teens must be at least 13 years old. Users under 13 are not permitted. Teens aged 13–17 need a parent or guardian linked to their account, and consenting, before they can post services or accept jobs; the parent approves each one. Teens who are 18 or older may use the platform independently.",
   },
 ];
 

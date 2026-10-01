@@ -22,7 +22,7 @@ export default function CashOutDialog({ open, onOpenChange, wallet, onDone }) {
       if (data.locked) {
         setResult({ type: "locked", message: data.message || "Withdrawals are paused." });
       } else if (data.no_payout_account) {
-        setResult({ type: "no_payout", message: data.message || "Your parent hasn't set up their payout account yet." });
+        setResult({ type: "no_payout", message: data.message || "Your parent needs to set up payouts before you can cash out. We've sent them a link." });
       } else if (data.error) {
         setResult({ type: "error", message: data.error });
       } else {
@@ -40,7 +40,7 @@ export default function CashOutDialog({ open, onOpenChange, wallet, onDone }) {
         message: isLocked
           ? (err.response.data.message || "Your parent has paused withdrawals.")
           : isNoPayout
-            ? (err.response.data.message || "Your parent hasn't set up their payout account yet.")
+            ? (err.response.data.message || "Your parent needs to set up payouts before you can cash out. We've sent them a link.")
             : msg,
       });
     } finally {

@@ -6,10 +6,10 @@ import Seo from "@/components/Seo";
 import PublicFaq, { faqJsonLd, breadcrumbJsonLd } from "@/components/PublicFaq";
 
 const FAQS = [
-  { q: "How does parent approval work on Blockwork?", a: "No job is confirmed without a parent's explicit approval. When a neighbor books your teen, you see the job details, address, pay, and neighbor's name before saying yes. You can deny any booking at any time before it starts." },
+  { q: "How does parent approval work on Blockwork?", a: "Your teen can't post a service or take a job until you're linked to their account, and nothing goes ahead without your approval. A service they post stays hidden from neighbors until you approve it, and when a neighbor books them you see the job details, address, pay, and neighbor's name before saying yes. You can deny any booking at any time before it starts." },
   { q: "How does my teen get paid?", a: "Because your teen is a minor, their earnings flow through a Stripe Connect account in your name. After each completed job, the teen's share lands in your connected bank account. Your teen sees their balance in their Blockwork Wallet but cannot cash out without your account." },
   { q: "Can I lock my teen's withdrawals?", a: "Yes. From your dashboard you can freeze your teen's ability to cash out at any time, for any reason. The earnings stay safe until you unlock it." },
-  { q: "What do I need to set up?", a: "A payout account through Stripe. When you link to your teen's account, Stripe checks your legal name, date of birth, and Social Security number to confirm you're an adult, and connects your bank account for your teen's earnings. You'll also confirm your teen's date of birth and that you're their parent or legal guardian. Until that's done, your teen's account stays inactive and no bookings can be approved." },
+  { q: "What do I need to set up?", a: "Just your teen's connection code to start. You'll enter your legal name and date of birth, confirm you're your teen's parent or legal guardian, and confirm their date of birth — that's all linking takes, and no bank account is needed for it. Before your teen's first cash-out you'll set up a payout account through Stripe, which checks your legal name, date of birth, and Social Security number to confirm you're an adult and connects your bank account for their earnings. Until that account is active, your teen's earnings stay held in their wallet." },
 ];
 
 const FAQ_JSONLD = faqJsonLd(FAQS);
@@ -18,18 +18,18 @@ const BREADCRUMB_JSONLD = breadcrumbJsonLd([{ name: "Home", path: "/" }, { name:
 const STEPS = [
   {
     icon: ShieldCheck,
-    title: "Set up your payout account",
-    body: "Before your teen's account goes live, you'll set up a payout account through Stripe, our payment provider. Stripe confirms you're an adult by checking your legal name, date of birth, and Social Security number, and connects the bank account where your teen's earnings will go. You won't be able to approve any bookings until this is done. Blockwork never sees or stores your full SSN or bank details.",
+    title: "Link with your teen's code",
+    body: "Your teen shares a connection code from their app. You enter it with your legal name and date of birth, confirm you're their parent or legal guardian, and confirm their date of birth. The link is active right away — no bank account needed. From then on your teen can post services and take jobs, and you approve each one.",
   },
   {
     icon: Eye,
-    title: "Approve every booking",
-    body: "When a neighbor books your teen, the payment is held by Stripe and you get an approval request. You see the job details, the address, the pay, and the neighbor's name before you say yes. Nothing happens until you approve.",
+    title: "Approve every service and every job",
+    body: "A service your teen posts is hidden from neighbors until you approve it, and a booking isn't confirmed until you approve that too. You see the job details, the address, the pay, and the neighbor's name before you say yes. Nothing happens until you approve.",
   },
   {
     icon: Wallet,
-    title: "Hold the payout account",
-    body: "Because your teen is a minor, their earnings flow through a Stripe Connect account in your name. You connect a bank account once, when you first set up your payout account; after each completed job, the teen's share lands there. Your teen sees their balance in their Blockwork Wallet but can't cash out without your account.",
+    title: "Set up payouts before the first cash-out",
+    body: "Your teen's earnings build up in their Blockwork Wallet as they work, and they stay held there until you set up a payout account. When your teen tries to cash out without one, we email you with a link to start. Stripe confirms you're an adult by checking your legal name, date of birth, and Social Security number, and connects the bank account their earnings are paid into. You connect a bank account once; after each completed job, the teen's share lands there.",
   },
   {
     icon: Lock,

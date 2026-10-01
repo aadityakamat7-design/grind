@@ -46,6 +46,16 @@ Deno.serve(async (req) => {
     const listing = await base44.asServiceRole.entities.Listing.get(listingId);
     if (!listing) return Response.json({ error: 'Listing not found' }, { status: 404 });
 
+    // A service that isn't live — still waiting for the teen's parent to approve
+    // it, declined, or paused — can't be booked, even by a direct API call.
+    if (
+      listing.status !== 'published' ||
+      listing.parent_approval_status === 'pending' ||
+      listing.parent_approval_status === 'rejected'
+    ) {
+      return Response.json({ error: "This service isn't available for booking right now." }, { status: 400 });
+    }
+
     // Idempotency: if an identical pending booking already exists for the same
     // buyer, listing, and scheduled time within the last 60 seconds, return it
     // instead of creating a duplicate. Protects against double-taps, retry
@@ -90,10 +100,11 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'address is required for outdoor jobs' }, { status: 400 });
     }
 
-    const [teenProfiles, buyerProfiles, teenPrivate] = await Promise.all([
+    const [teenProfiles, buyerProfiles, teenPrivate, teenLinks] = await Promise.all([
       base44.asServiceRole.entities.TeenProfile.filter({ user_id: listing.teen_user_id }),
       base44.asServiceRole.entities.BuyerProfile.filter({ user_id: user.id }),
       base44.asServiceRole.entities.TeenPrivateData.filter({ user_id: listing.teen_user_id }),
+      base44.asServiceRole.entities.ParentTeenLink.filter({ teen_user_id: listing.teen_user_id, status: 'confirmed' }),
     ]);
     const teenProfile = teenProfiles[0];
     const buyerProfile = buyerProfiles[0];
@@ -110,6 +121,18 @@ Deno.serve(async (req) => {
     // does not mean they're outside the service area.
     if ((teenProfile.state || '').toUpperCase() !== 'CA') {
       return Response.json({ error: 'Blockwork is currently only available in California.' }, { status: 403 });
+    }
+
+    // A teen can only be booked once a parent is linked (or as an independent
+    // 18+ teen) — with no linked parent there is nobody to approve the job, so
+    // it could never be confirmed. Enforced here, not in the page.
+    const teenLink = teenLinks[0] || null;
+    const bookingTeenAge = getVerifiedAge(teenPrivateData);
+    const teenIsIndependent = bookingTeenAge != null && bookingTeenAge >= 18;
+    if (!teenLink && !teenIsIndependent) {
+      return Response.json({
+        error: "This teen is still linking their parent, so their services can't be booked yet.",
+      }, { status: 403 });
     }
 
     // Location/distance + state matching only for outdoor jobs — online jobs
@@ -217,11 +240,8 @@ Deno.serve(async (req) => {
       return Response.json({ error: hourCheck.reason, nextEligible: hourCheck.nextEligible }, { status: 403 });
     }
 
-    // Look up the parent link for notifications/payout routing — not a gate.
-    const links = await base44.asServiceRole.entities.ParentTeenLink.filter({
-      teen_user_id: listing.teen_user_id, status: 'confirmed',
-    });
-    const parentUserId = links[0]?.parent_user_id || '';
+    // The parent link resolved above routes approvals, notifications and payouts.
+    const parentUserId = teenLink?.parent_user_id || '';
     const buyerName = user.full_name?.split(' ')[0] || 'Neighbor';
     const bookingStatus = 'payment_pending';
 

@@ -5,7 +5,6 @@ import { writeAuditLog } from '../../shared/auditLog.ts';
 import { getClientIp } from '../../shared/rateLimiter.ts';
 import { getSafeOrigin } from '../../shared/safeOrigin.ts';
 import { sendBookingEmail } from '../../shared/bookingEmails.ts';
-import { isParentVerifiedByStripe } from '../../shared/parentVerification.ts';
 import { hasAcceptedCurrentTerms } from '../../shared/termsAcceptance.ts';
 
 Deno.serve(async (req) => {
@@ -47,20 +46,12 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'This booking was created in test mode and cannot be confirmed. Turn off test mode to create real bookings.' }, { status: 403 });
     }
 
-    // HARD GUARD: the parent's Stripe Connect account must be fully verified
-    // (details_submitted, payouts_enabled, no currently_due) before they can
-    // approve a booking. Checked on the server every time — never trust a
-    // status sent from the browser. Denial is always allowed (refunds the
-    // neighbor); only approval requires the Connect check.
-    if (approve) {
-      const connectCheck = await isParentVerifiedByStripe(base44, booking.parent_user_id);
-      if (!connectCheck.verified) {
-        return Response.json({
-          error: connectCheck.message || 'You must complete your Stripe payout setup before you can approve bookings.',
-          connectStatus: connectCheck.status,
-        }, { status: 403 });
-      }
-    }
+    // Stripe is deliberately NOT required to approve. A parent can approve
+    // without a payout account: the job runs, and the release pass parks the
+    // earnings as 'awaiting_active_account' until their account is ready (see
+    // payoutTransfer). Requiring Connect here blocked teens from working at all,
+    // which is worse than holding the money safely.
+
 
     if (approve) {
       await base44.asServiceRole.entities.Booking.update(booking.id, { status: 'confirmed' });

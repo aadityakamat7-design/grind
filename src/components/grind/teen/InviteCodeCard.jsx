@@ -58,9 +58,9 @@ export default function InviteCodeCard({ profile, onUpdated }) {
       <div className="flex items-start gap-3">
         <ShieldAlert className="w-5 h-5 text-muted-foreground mt-0.5 shrink-0" />
         <div className="flex-1">
-          <p className="font-semibold text-sm text-foreground">Link your parent to cash out</p>
+          <p className="font-semibold text-sm text-foreground">Link your parent to start working.</p>
           <p className="text-xs mt-1 text-muted-foreground">
-            You can post services and take jobs right away. To withdraw your earnings, your parent needs to link with your code:
+            Share the code below with your parent or guardian. Once they link, you can post services and take jobs, and they'll approve each one.
           </p>
           <div className="mt-3">
             <span className="font-bold tracking-[0.25em] bg-muted rounded-lg px-3 py-1.5 text-sm border border-border text-foreground">

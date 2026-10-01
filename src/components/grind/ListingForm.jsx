@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import ResponsiveSelect from "@/components/grind/ResponsiveSelect";
 import { AlertTriangle } from "lucide-react";
 import { checkHazard, MAX_UNIT_PRICE, MIN_UNIT_PRICE, SKILL_CATEGORIES, categoryRecommendedRange, HOURS_OPTIONS, money } from "@/lib/grind";
+import { toast } from "@/components/ui/use-toast";
 import { getMinAgeForCategory } from "@/lib/stateWorkRules";
 import CredentialUpload from "@/components/grind/CredentialUpload";
 import SlideToConfirm from "@/components/grind/SlideToConfirm";
@@ -106,6 +107,14 @@ export default function ListingForm({ open, onOpenChange, listing, profile, onSa
     }
     setSaving(false);
     onOpenChange(false);
+    // A minor's service isn't live yet — say so instead of implying it's posted.
+    const pendingApproval = res?.parentApprovalPending ?? res?.data?.parentApprovalPending;
+    if (pendingApproval) {
+      toast({
+        title: "Sent to your parent",
+        description: "Your service stays hidden from neighbors until your parent approves it.",
+      });
+    }
     onSaved?.();
   };
 
@@ -183,7 +192,11 @@ export default function ListingForm({ open, onOpenChange, listing, profile, onSa
           {hazard && (
             <div className="flex items-start gap-2 bg-rose-50 border border-rose-200 rounded-xl p-3 text-sm text-rose-700">
               <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
-              <p><span className="font-semibold">Safety check:</span> {hazard} Please adjust your listing.</p>
+              <p>
+                {hazard.startsWith("Link your parent")
+                  ? hazard
+                  : <><span className="font-semibold">Safety check:</span> {hazard} Please adjust your listing.</>}
+              </p>
             </div>
           )}
           {SKILL_CATEGORIES.includes(form.category) && (

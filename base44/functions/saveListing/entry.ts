@@ -6,6 +6,7 @@ import { getMinAgeForCategory } from '../../shared/categoryAgeRules.ts';
 import { getDeliveryMode, isRemovedCategory } from '../../shared/deliveryMode.ts';
 import { getHourLimits } from '../../shared/stateHourLimits.ts';
 import { MAX_UNIT_PRICE, MIN_UNIT_PRICE, MAX_ESTIMATED_HOURS } from '../../shared/pricing.ts';
+import { resolveWorkEligibility, PARENT_LINK_REQUIRED } from '../../shared/parentGate.ts';
 
 const MIN_TITLE = 3;
 const MAX_TITLE = 80;
@@ -48,15 +49,18 @@ Deno.serve(async (req) => {
 
     const svc = base44.asServiceRole.entities;
 
- // Teens can create and edit listings as soon as they have a profile —
-    // parent verification is only required for payouts, not for listing
-    // creation. Suspended teens are still blocked.
-    const teenProfiles = await svc.TeenProfile.filter({ user_id: user.id });
-    if (!teenProfiles[0] || teenProfiles[0].status === 'suspended') {
+    // Working requires a linked parent (or an independent 18+ teen). Resolved
+    // on the server so a direct API call can't post a service without one.
+    const eligibility = await resolveWorkEligibility(svc, user.id);
+    const teenProfile = eligibility.profile;
+    if (!teenProfile || teenProfile.status === 'suspended') {
       return Response.json({ error: 'Your account is not active yet.' }, { status: 403 });
     }
+    if (!eligibility.canWork) {
+      return Response.json({ error: PARENT_LINK_REQUIRED, needsParent: true }, { status: 403 });
+    }
     // CA-only: the teen must be in California
-    if ((teenProfiles[0].state || '').toUpperCase() !== 'CA') {
+    if ((teenProfile.state || '').toUpperCase() !== 'CA') {
       return Response.json({ error: 'Blockwork is currently only available in California.' }, { status: 403 });
     }
 
@@ -64,7 +68,7 @@ Deno.serve(async (req) => {
     // saveListing directly with a prohibited task.
     const privateData = await svc.TeenPrivateData.filter({ user_id: user.id });
     const age = getVerifiedAge(privateData[0]) ?? 18;
-    const hourLimits = getHourLimits(teenProfiles[0].state, age);
+    const hourLimits = getHourLimits(teenProfile.state, age);
     const hazard = checkHazard(`${title} ${body.description || ''}`, age);
     if (hazard.flagged) {
       return Response.json({ error: hazard.reason }, { status: 400 });
@@ -103,13 +107,17 @@ Deno.serve(async (req) => {
     // Category age gate — reject any category the teen isn't old enough for
     // in their state. Uses the verified age (Stripe DOB via getVerifiedAge),
     // never the self-reported age. A direct API call can't bypass this.
-    const minAge = getMinAgeForCategory(teenProfiles[0].state, body.category);
+    const minAge = getMinAgeForCategory(teenProfile.state, body.category);
     if (age < minAge) {
       return Response.json(
         { error: `This category requires age ${minAge}+ in your state. You'll be eligible when you turn ${minAge}.` },
         { status: 403 }
       );
     }
+
+    // A minor's service stays hidden from neighbors ('draft') until their linked
+    // parent approves it. An independent 18+ teen publishes immediately.
+    const needsParentApproval = !eligibility.isIndependentAdult;
 
     const data = {
       category: body.category,
@@ -121,18 +129,37 @@ Deno.serve(async (req) => {
       estimated_hours: estimatedHours,
       service_area: body.zip || '',
       teen_zip: body.zip || '',
-      status: 'published',
+      parent_approval_status: needsParentApproval ? 'pending' : 'approved',
+      status: needsParentApproval ? 'draft' : 'published',
       availability,
       teen_hour_limits: hourLimits,
     };
 
     let listing;
+    let approvalRequested = false;
     if (body.listingId) {
       const existing = await svc.Listing.get(body.listingId);
       if (!existing || existing.teen_user_id !== user.id) {
         return Response.json({ error: 'Listing not found.' }, { status: 404 });
       }
-      await svc.Listing.update(body.listingId, data);
+      // Price, category and service area decide what a neighbor pays and where
+      // the work happens — changing any of them sends the service back to the
+      // parent for re-approval. Text-only edits keep the existing approval.
+      const termsChanged =
+        Number(existing.price) !== Number(price) ||
+        existing.price_model !== priceModel ||
+        existing.category !== body.category ||
+        (existing.service_area || '') !== (body.zip || '');
+
+      let update: Record<string, unknown> = data;
+      if (needsParentApproval && termsChanged) {
+        approvalRequested = true;
+      } else {
+        // Visibility and approval state are untouched by this edit.
+        const { status: _status, parent_approval_status: _approval, ...rest } = data;
+        update = rest;
+      }
+      await svc.Listing.update(body.listingId, update);
       listing = { id: body.listingId };
     } else {
       // Enforce caller ownership — never trust a client-supplied teenUserId.
@@ -151,10 +178,26 @@ Deno.serve(async (req) => {
         teen_profile_id: body.teenProfileId,
         teen_display_name: teenDisplayName,
       });
-      base44.analytics.track({ eventName: 'listing_published' });
+      if (needsParentApproval) {
+        approvalRequested = true;
+      } else {
+        base44.analytics.track({ eventName: 'listing_published' });
+      }
     }
 
-    return Response.json({ listing });
+    // Ask the parent to approve, so a new service isn't silently stuck hidden.
+    if (approvalRequested && eligibility.link?.parent_user_id) {
+      await svc.Notification.create({
+        user_id: eligibility.link.parent_user_id,
+        type: 'approval',
+        title: 'A new service needs your approval',
+        body: `"${title}" from ${teenProfile.display_name || 'your teen'} is hidden from neighbors until you approve it.`,
+        link: '/parent/approvals',
+        read: false,
+      });
+    }
+
+    return Response.json({ listing, parentApprovalPending: approvalRequested });
   } catch (error) {
     console.error('saveListing error:', error.message);
     return Response.json({ error: 'Something went wrong' }, { status: 500 });

@@ -21,6 +21,7 @@ const STYLES = {
   suspended: "bg-destructive/10 text-destructive border-destructive/20",
   disputed: "bg-amber-100 text-amber-700 border-amber-200",
   expired: "bg-amber-100 text-amber-700 border-amber-200",
+  rejected: "bg-destructive/10 text-destructive border-destructive/20",
   credited: "bg-emerald-50 text-emerald-700 border-emerald-200",
   // Unified booking badge values (from computeBookingBadge)
   awaiting_payment: "bg-amber-100 text-amber-700 border-amber-200",
@@ -38,6 +39,7 @@ const LABELS = {
   released: "Paid out",
   disputed: "Under review",
   expired: "Expired",
+  rejected: "Declined by your parent",
   credited: "Credited",
   // Unified booking badge values (from computeBookingBadge)
   awaiting_payment: "Awaiting payment",

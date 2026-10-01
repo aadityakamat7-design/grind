@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <!-- This page exists so link previews work: Messages and other apps read
+         these tags from the raw HTML and never run JavaScript. The teen's name,
+         code, and any other personal detail are deliberately absent — previews
+         are cached and can be seen by anyone the link is forwarded to. The code
+         travels in the query string and is only used by the redirect below. -->
+    <title>You've been invited to Blockwork</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="description" content="Your teen wants you as their parent on Blockwork. Link to approve every job they take." />
+    <meta property="og:title" content="You've been invited to Blockwork" />
+    <meta property="og:description" content="Your teen wants you as their parent on Blockwork. Link to approve every job they take." />
+    <meta property="og:image" content="https://blockwork.online/og/invite.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:url" content="https://blockwork.online/invite.html" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Blockwork" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="You've been invited to Blockwork" />
+    <meta name="twitter:description" content="Your teen wants you as their parent on Blockwork. Link to approve every job they take." />
+    <meta name="twitter:image" content="https://blockwork.online/og/invite.png" />
+  </head>
+  <body style="margin:0;font-family:system-ui,-apple-system,sans-serif;background:#f9f9f9;color:#1a1a1a">
+    <noscript>
+      <p style="padding:24px">Blockwork needs JavaScript to open the app. Continue to <a href="https://blockwork.online/onboarding">blockwork.online</a> and enter your teen's code.</p>
+    </noscript>
+    <p style="padding:24px;font-size:14px;color:#666">
+      Taking you to Blockwork… <a id="continue" href="/onboarding" style="color:#2563eb">Continue</a>
+    </p>
+    <script>
+      // Carry the invite code into the app. Only the code in the query string is
+      // read — nothing personal is ever written into this page.
+      (function () {
+        var params = new URLSearchParams(window.location.search);
+        var code = params.get("code") || params.get("c") || "";
+        var url = "/onboarding" + (code ? "?code=" + encodeURIComponent(code) : "");
+        var link = document.getElementById("continue");
+        if (link) link.setAttribute("href", url);
+        window.location.replace(url);
+      })();
+    </script>
+  </body>
+</html>

@@ -84,7 +84,10 @@ export default function TeenListings() {
     );
   if (error) return <ErrorRetry onRetry={load} />;
 
-  const canPublish = !!profile && profile.status !== "suspended";
+  // A teen under 18 can post a service only once their parent is linked (the
+  // server enforces this too). Linked and independent 18+ teens are 'active'.
+  const linked = profile?.status === "active";
+  const canPublish = linked;
 
   return (
     <div className="space-y-5">
@@ -93,6 +96,13 @@ export default function TeenListings() {
           <Plus className="w-4 h-4 mr-1.5" /> New
         </Button>
       </PageHeader>
+
+      {!linked && (
+        <div className="rounded-2xl border border-border bg-secondary p-4 text-[13px] text-muted-foreground">
+          <span className="font-semibold text-foreground">Link your parent to start working.</span> Share your code with
+          your parent or guardian — once they link, you can post services and take jobs, and they'll approve each one.
+        </div>
+      )}
 
       {listings.length === 0 ? (
         <EmptyState icon={List} title="No services yet" subtitle="List a skill you already have — tutoring, lawn care, pet sitting, tech help..." />
@@ -111,13 +121,35 @@ export default function TeenListings() {
                 </p>
               </div>
               <p className="text-[13px] text-muted-foreground mt-1.5 line-clamp-2">{l.description}</p>
+              {l.parent_approval_status === "pending" && (
+                <p className="text-[12px] text-muted-foreground mt-1.5">Hidden from neighbors until your parent approves it.</p>
+              )}
+              {l.parent_approval_status === "rejected" && l.parent_rejection_reason && (
+                <p className="text-[12px] text-destructive mt-1.5">Your parent said: {l.parent_rejection_reason}</p>
+              )}
               <div className="flex items-center justify-between mt-3.5">
-                <StatusBadge status={l.status} />
+                <StatusBadge
+                  status={
+                    l.parent_approval_status === "pending"
+                      ? "pending_parent_approval"
+                      : l.parent_approval_status === "rejected"
+                        ? "rejected"
+                        : l.status
+                  }
+                />
                 <div className="flex items-center gap-1">
                   <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground hover:text-foreground" onClick={() => { setEditing(l); setFormOpen(true); }}>
                     <Pencil className="w-4 h-4" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground hover:text-foreground" onClick={() => togglePause(l)}>
+                  {/* A service waiting for approval (or declined) can't be made
+                      live from here — only the parent's approval publishes it. */}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-9 w-9 text-muted-foreground hover:text-foreground"
+                    disabled={l.parent_approval_status !== "approved"}
+                    onClick={() => togglePause(l)}
+                  >
                     {l.status === "paused" ? <Play className="w-4 h-4" /> : <Pause className="w-4 h-4" />}
                   </Button>
                   <Button variant="ghost" size="icon" className="h-9 w-9 text-muted-foreground hover:text-destructive" onClick={() => setDeleteTarget(l)}>

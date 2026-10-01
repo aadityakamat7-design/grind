@@ -123,12 +123,12 @@ export default function ParentDashboard() {
     return (
       <PullToRefresh onRefresh={load}>
         <div className="space-y-6">
-          <PageHeader title="Parent dashboard" subtitle="Your teen can start working right away." />
+          <PageHeader title="Parent dashboard" subtitle="Full visibility into your teen's activity." />
           {pendingLinks.map((l) => (
             <div key={l.id} className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4">
               <p className="font-bold text-emerald-700 text-sm">Linked with {l.teen_display_name}</p>
               <p className="text-xs text-emerald-600 mt-1">
-                Your teen can post services and take jobs now. To receive their earnings, connect your bank account below.
+                Your teen can post services and take jobs now — you approve each one from your Approvals tab. Connect your bank account below so they can cash out their earnings.
               </p>
             </div>
           ))}

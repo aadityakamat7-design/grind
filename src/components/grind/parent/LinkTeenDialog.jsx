@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import LinkTeenCard from "@/components/grind/parent/LinkTeenCard";
 
-// Small, subtle "Link another student" hyperlink that opens the same linking
-// flow in a dialog — a footer-level link, not a featured card or button.
-export default function LinkTeenDialog({ onLinked }) {
+// Small, subtle "Link another student" hyperlink that opens the same inline
+// code-entry card in a dialog — a footer-level link, not a featured card.
+export default function LinkTeenDialog() {
   const [open, setOpen] = useState(false);
 
   return (
@@ -21,15 +21,10 @@ export default function LinkTeenDialog({ onLinked }) {
           <DialogHeader>
             <DialogTitle>Link a student</DialogTitle>
             <DialogDescription>
-              Enter the parent code your teen generated in their app to connect their account to yours.
+              Enter the connection code your teen generated in their app to connect their account to yours.
             </DialogDescription>
           </DialogHeader>
-          <LinkTeenCard
-            onLinked={() => {
-              setOpen(false);
-              onLinked?.();
-            }}
-          />
+          <LinkTeenCard />
         </DialogContent>
       </Dialog>
     </>

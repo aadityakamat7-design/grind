@@ -100,7 +100,8 @@ export default function TermsOfService() {
 
           {/* Section 3 */}
           <h2 id="section-3">3. Parent verification, consent, and approval</h2>
-          <p><strong>3.1 Payout account setup.</strong> Before a Teen's account becomes active, the Parent must set up a payout account through our payment provider, Stripe. Stripe checks the Parent's legal name, date of birth, and Social Security number, confirms they are an adult, and connects the bank account where the Teen's earnings will be paid. Blockwork doesn't receive or store full Social Security numbers or bank account numbers.</p>
+          <p><strong>3.1 Linking a Parent.</strong> A Parent must link to a Teen's account before the Teen can post a service or take a Job. The Parent links with the Teen's connection code, provides their legal name and date of birth, confirms they are the Teen's parent or legal guardian, and confirms the Teen's date of birth. No bank account is required to link, and linking makes the Teen's account active.</p>
+          <p><strong>3.1.1 Payout account.</strong> Before the Teen's first cash-out, the Parent must set up a payout account through our payment provider, Stripe. Stripe checks the Parent's legal name, date of birth, and Social Security number, confirms they are an adult, and connects the bank account where the Teen's earnings will be paid. Until that account is active, the Teen's earnings stay held in their Blockwork Wallet. Blockwork doesn't receive or store full Social Security numbers or bank account numbers.</p>
           <p><strong>3.2 What the Parent confirms.</strong> By linking to a Teen's account, the Parent confirms that:</p>
           <ul>
             <li>(a) they are the Teen's parent or legal guardian;</li>
@@ -108,7 +109,7 @@ export default function TermsOfService() {
             <li>(c) they consent to the Teen using the Platform under these Terms; and</li>
             <li>(d) they will supervise the Teen's use of the Platform and the Jobs the Teen does.</li>
           </ul>
-          <p><strong>3.3 Approving every Job.</strong> Every Job booked with a Teen needs the Parent's approval in the app before it's confirmed. The Parent can see the Job details, location, price, and the Neighbor's name before deciding, and can decline any Job. If a Parent declines, the Neighbor's payment is refunded under Section 8.</p>
+          <p><strong>3.3 Approving every service and every Job.</strong> Every service a Teen posts is hidden from Neighbors until the Parent approves it, and every Job booked with a Teen needs the Parent's approval in the app before it's confirmed. The Parent can see the Job details, location, price, and the Neighbor's name before deciding, and can decline any Job. If a Parent declines, the Neighbor's payment is refunded under Section 8.</p>
           <p><strong>3.4 Parent responsibilities.</strong> Parents are responsible for:</p>
           <ul>
             <li>deciding whether each Job, location, and Neighbor is suitable and safe for their Teen;</li>

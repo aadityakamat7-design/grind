@@ -56,7 +56,7 @@
         "confirmed"
       ],
       "default": "pending",
-      "description": "Confirmed only when both identity_verified and relationship_confirmed are true (set server-side)",
+      "description": "Confirmed once the parent attested the relationship with the teen's code (set server-side)",
       "rls": {
         "write": {
           "user_condition": {
@@ -68,6 +68,42 @@
     "confirmed_at": {
       "type": "string",
       "format": "date-time",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "admin_review_flag": {
+      "type": "boolean",
+      "default": false,
+      "description": "Set when the parent account shows a self-linking signal (created on the same device or IP as the teen within 24 hours). Never blocks the link \u2014 admins review it (server-set only).",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "admin_review_reason": {
+      "type": "string",
+      "maxLength": 200,
+      "description": "Why this link was flagged, e.g. 'Possible self-linked parent' (server-set only)",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "flagged_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the self-linking signal was recorded (server-set only)",
       "rls": {
         "write": {
           "user_condition": {

@@ -6,9 +6,9 @@ import Seo from "@/components/Seo";
 import PublicFaq, { faqJsonLd, breadcrumbJsonLd } from "@/components/PublicFaq";
 
 const FAQS = [
-  { q: "Is Blockwork safe for my teen?", a: "Blockwork is built around safety. Every parent is verified through Stripe, every booking requires parent approval, all in-person work happens outdoors (teens never enter a client's home), and every payment is held until the job is done." },
+  { q: "Is Blockwork safe for my teen?", a: "Blockwork is built around safety. A teen can't post a service or take a job until their parent is linked to their account, and the parent approves every service and every booking before anything goes ahead. All in-person work happens outdoors (teens never enter a client's home), and every payment is held until the job is done." },
   { q: "Can a teen enter a client's home?", a: "No — never. All in-person work is performed outdoors on the exterior of the property, and all tutoring happens over video. Requesting a teen to enter a residence is grounds for immediate account termination." },
-  { q: "How does parent verification work?", a: "Parents set up a payout account through Stripe when they link to their teen. Stripe checks the parent's legal name, date of birth, and Social Security number to confirm they're an adult, and connects their bank account for the teen's earnings. Blockwork never sees or stores full SSNs or bank details — only the account status." },
+  { q: "How does parent verification work?", a: "A parent links with the teen's connection code, enters their own legal name and date of birth, and attests that they are the teen's parent or legal guardian — that's what activates the teen's account, and it needs no bank account. Before any earnings can be paid out, the parent sets up a payout account through Stripe: Stripe checks their legal name, date of birth, and Social Security number to confirm they're a real adult and connects their bank account. Blockwork never sees or stores full SSNs or bank details — only the account status." },
   { q: "What happens if something goes wrong during a job?", a: "Teens can alert their parent instantly from any active job. Anyone can report a safety concern, and our team reviews reports quickly. For emergencies, call 911." },
 ];
 
@@ -23,8 +23,8 @@ const PILLARS = [
   },
   {
     icon: IdCard,
-    title: "Verified parents through Stripe",
-    body: "Every parent sets up a payout account through Stripe when they link to their teen. Stripe confirms the parent is a real adult (18+) by checking their legal name, date of birth, and Social Security number, and connects their bank account for payouts. Blockwork never sees or stores full SSNs or bank details — only the account status.",
+    title: "A linked, verified parent for every teen",
+    body: "A teen under 18 can't post a service or take a job until a parent links to their account with their connection code and attests they're the teen's parent or legal guardian. Before any earnings are paid out, that parent sets up a payout account through Stripe, which confirms they're a real adult (18+) by checking their legal name, date of birth, and Social Security number and connects their bank account. Blockwork never sees or stores full SSNs or bank details — only the account status.",
   },
   {
     icon: Landmark,

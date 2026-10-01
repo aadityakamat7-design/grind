@@ -70,9 +70,13 @@ export default async function (req: Request): Promise<Response> {
     waitUntil(
       base44.asServiceRole.entities.AuthAttempt.create({ ip, action, success: false })
     );
+    // Registration rows are kept: they record which device and IP an account
+    // was created from, which the parent-link review flag reads. Everything
+    // else is the sliding rate-limit window and is pruned as before.
     waitUntil(
       base44.asServiceRole.entities.AuthAttempt.deleteMany({
         created_date: { $lt: tenMinutesAgo },
+        action: { $ne: "register" },
       })
     );
 
@@ -119,6 +123,21 @@ export default async function (req: Request): Promise<Response> {
       }
       default:
         return Response.json({ error: "Invalid action." }, { status: 400 });
+    }
+
+    // Record the signing-up device server-side (never from the browser) so a
+    // parent link from the same machine within 24 hours can be flagged later.
+    const registeredUser = (result as { user?: { id?: string } } | null)?.user;
+    if (action === "register" && registeredUser?.id) {
+      waitUntil(
+        base44.asServiceRole.entities.AuthAttempt.create({
+          ip,
+          action: "register",
+          success: true,
+          user_id: registeredUser.id,
+          user_agent: req.headers.get("user-agent") || "",
+        })
+      );
     }
 
     return Response.json(result, { status: 200 });
