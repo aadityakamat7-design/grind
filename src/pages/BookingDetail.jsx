@@ -20,6 +20,7 @@ import JobHandshakePanel from "@/components/grind/JobHandshakePanel";
 import OnlineSessionPanel from "@/components/grind/OnlineSessionPanel";
 import OnlineCompletionDialog from "@/components/grind/OnlineCompletionDialog";
 import CompletionPhotoUpload from "@/components/grind/CompletionPhotoUpload";
+import ChangeJobAddressDialog from "@/components/grind/ChangeJobAddressDialog";
 import DisputeDialog from "@/components/grind/DisputeDialog";
 import RecurringSeriesManager from "@/components/grind/RecurringSeriesManager";
 import BookDialog from "@/components/grind/BookDialog";
@@ -48,6 +49,7 @@ export default function BookingDetail() {
   const [tipOpen, setTipOpen] = useState(false);
   const [reschedOpen, setReschedOpen] = useState(false);
   const [photoUploadOpen, setPhotoUploadOpen] = useState(false);
+  const [addressOpen, setAddressOpen] = useState(false);
   const [onlineCompletionOpen, setOnlineCompletionOpen] = useState(false);
   const [disputeOpen, setDisputeOpen] = useState(false);
   const [bookAgainOpen, setBookAgainOpen] = useState(false);
@@ -388,13 +390,26 @@ export default function BookingDetail() {
           {booking.delivery_mode === "online" ? (
             <VideoSessionPanel booking={booking} confirmedPlus={confirmedPlus} />
           ) : (
-            <p className="flex items-center gap-2">
-              {addressVisible ? (
-                <><MapPin className="w-4 h-4 text-muted-foreground" /> {booking.address || "Address not provided"}</>
-              ) : (
-                <><Lock className="w-4 h-4 text-muted-foreground" /> Address revealed after parent approval</>
+            <div className="space-y-1.5">
+              <p className="flex items-center gap-2">
+                {addressVisible ? (
+                  <><MapPin className="w-4 h-4 text-muted-foreground" /> {booking.address || "Address not provided"}</>
+                ) : (
+                  <><Lock className="w-4 h-4 text-muted-foreground" /> Address revealed after parent approval</>
+                )}
+              </p>
+              {/* Moving a booked job is done here — never by editing a saved
+                  address. For a teen under 18 it goes back to the parent. */}
+              {isBuyer && ["pending_parent_approval", "confirmed"].includes(booking.status) && (
+                <button
+                  type="button"
+                  onClick={() => setAddressOpen(true)}
+                  className="text-xs font-semibold text-primary hover:underline"
+                >
+                  Change job address
+                </button>
               )}
-            </p>
+            </div>
           )}
           {booking.notes && (
             <p className="flex items-start gap-2">
@@ -600,6 +615,14 @@ export default function BookingDetail() {
           onOpenChange={setReschedOpen}
           booking={booking}
           actorIsBuyer={isBuyer}
+          onDone={load}
+        />
+      )}
+      {addressOpen && (
+        <ChangeJobAddressDialog
+          open={addressOpen}
+          onOpenChange={setAddressOpen}
+          booking={booking}
           onDone={load}
         />
       )}

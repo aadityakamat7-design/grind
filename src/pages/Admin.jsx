@@ -14,6 +14,7 @@ import AdminDisputes from "@/components/grind/admin/AdminDisputes";
 import AdminModeration from "@/components/grind/admin/AdminModeration";
 import AdminSystemHealth from "@/components/grind/admin/AdminSystemHealth";
 import AdminAuditTab from "@/components/grind/admin/AdminAuditTab";
+import AdminAccountChanges from "@/components/grind/admin/AdminAccountChanges";
 
 const TABS = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
@@ -24,6 +25,7 @@ const TABS = [
   { id: "moderation", label: "Moderation", icon: Flag },
   { id: "system", label: "System Health", icon: Activity },
   { id: "audit", label: "Audit log", icon: ShieldCheck },
+  { id: "account", label: "Account changes", icon: ShieldAlert },
 ];
 
 export default function Admin() {
@@ -132,6 +134,7 @@ export default function Admin() {
       {tab === "moderation" && <AdminModeration {...props} />}
       {tab === "system" && <AdminSystemHealth {...props} />}
       {tab === "audit" && <AdminAuditTab />}
+      {tab === "account" && <AdminAccountChanges />}
     </div>
   );
 }

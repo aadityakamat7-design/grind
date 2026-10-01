@@ -11,6 +11,11 @@
       "maxLength": 20,
       "description": "Optional US phone number, stored in a normalised (555) 123-4567 form. Private: only the owner and admins can read it."
     },
+    "photo_url": {
+      "type": "string",
+      "maxLength": 500,
+      "description": "The account's profile photo, square-cropped and stripped of location data before upload. For a teen this is also their public profile photo."
+    },
     "notifications": {
       "type": "object",
       "description": "Per-type notification preferences, each with an email and an in-app switch. Security and account notices are not listed here because they can never be turned off.",

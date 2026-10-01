@@ -60,6 +60,8 @@ import ReportSafetyConcern from '@/pages/ReportSafetyConcern';
 import Unsubscribe from '@/pages/Unsubscribe';
 import WorkRecordVerify from '@/pages/WorkRecordVerify';
 import ParentLink from '@/pages/ParentLink';
+import AccountEmailConfirm from '@/pages/AccountEmailConfirm';
+import AccountAlert from '@/pages/AccountAlert';
 
 // Old sign-in / sign-up addresses go straight to /start with everything in the URL
 // (invite codes, returnTo, role) intact, so old links and emails keep working.
@@ -88,7 +90,7 @@ const AuthenticatedApp = () => {
     } else if (authError.type === 'auth_required') {
       // Auth pages and the public landing must always render, otherwise
       // unauthenticated users get a blank screen instead of a login form.
-      const publicPaths = ['/', '/start', '/login', '/signup', '/register', '/onboarding', '/link', '/forgot-password', '/reset-password'];
+      const publicPaths = ['/', '/start', '/login', '/signup', '/register', '/onboarding', '/link', '/forgot-password', '/reset-password', '/account-email', '/account-alert'];
       // A Work Record verification link is opened by schools and employers who
       // have no Blockwork account, so that page must render without signing in.
       const isPublicPath =
@@ -142,6 +144,9 @@ const AuthenticatedApp = () => {
       <Route path="/report-safety" element={<ReportSafetyConcern />} />
       <Route path="/unsubscribe" element={<Unsubscribe />} />
       <Route path="/verify/:recordId" element={<WorkRecordVerify />} />
+      {/* Opened from an email, so they must work signed out */}
+      <Route path="/account-email" element={<AccountEmailConfirm />} />
+      <Route path="/account-alert" element={<AccountAlert />} />
 
 
       {/* Authenticated app — Layout provides nav + footer */}

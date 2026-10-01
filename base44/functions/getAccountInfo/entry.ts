@@ -74,10 +74,12 @@ Deno.serve(async (req) => {
 
     const payload: any = {
       identity: {
+        user_id: user.id,
         full_name: user.full_name || '',
         signin_email: user.email || '',
         contact_email: user.contact_email || '',
         phone: settings?.phone || user.recovery_phone || '',
+        photo_url: settings?.photo_url || '',
         auth_method: authMethod,
         has_password: authMethod === 'password',
         role,

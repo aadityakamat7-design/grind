@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.52';
-import { validateFullName, validatePhone, validateBio, deriveDisplayName, BIO_MAX } from '../../shared/accountValidation.ts';
+import { validateFullName, validatePhone, validateBio, validateZip, deriveDisplayName, BIO_MAX } from '../../shared/accountValidation.ts';
+import { geocodeAddress } from '../../shared/geocode.ts';
 import { normalizeNotifications, loadAccountSettings } from '../../shared/accountPrefs.ts';
 import { writeAuditLog } from '../../shared/auditLog.ts';
 import { getClientIp } from '../../shared/rateLimiter.ts';
@@ -101,6 +102,14 @@ Deno.serve(async (req) => {
       else await svc.AccountSettings.create({ user_id: user.id, phone });
     }
 
+    // The account photo. For a teen it is also the public profile photo, which
+    // is mirrored onto TeenProfile below and notified to their parent.
+    if (has('photo_url')) {
+      const photo = String(body.photo_url || '').slice(0, 500);
+      if (settings) await svc.AccountSettings.update(settings.id, { photo_url: photo });
+      else await svc.AccountSettings.create({ user_id: user.id, photo_url: photo });
+    }
+
     if (newName) {
       await svc.User.update(user.id, { full_name: newName });
       if (payoutStripeName) {
@@ -141,12 +150,73 @@ Deno.serve(async (req) => {
         if (bio !== null) patch.bio = bio;
         if (has('photo_url')) patch.photo_url = String(body.photo_url || '').slice(0, 500);
         if (has('is_available')) patch.is_available = body.is_available !== false;
+        if (Array.isArray(body.skills)) patch.skills = body.skills.slice(0, 20).map((s: unknown) => String(s).slice(0, 40));
         if (radius !== null) patch.service_radius_miles = radius;
         if (newName) patch.display_name = deriveDisplayName(newName);
         if (Object.keys(patch).length) await svc.TeenProfile.update(profile.id, patch);
       }
       if (newName && privates[0]) {
         await svc.TeenPrivateData.update(privates[0].id, { legal_name: newName });
+      }
+
+      // Home ZIP code: checked on the server against California and re-geocoded,
+      // because it decides which jobs count as nearby. A teen under 18 has their
+      // parent told, since it changes where they can work.
+      if (has('home_zip')) {
+        const zipCheck = validateZip(body.home_zip);
+        if (!zipCheck.ok) return Response.json({ error: zipCheck.error }, { status: 400 });
+        let geo;
+        try {
+          geo = await geocodeAddress(`${zipCheck.value}, CA`);
+        } catch (err: any) {
+          return Response.json({ error: err?.message || 'We couldn\'t verify that ZIP code. Please check it and try again.' }, { status: 400 });
+        }
+        if (String(geo.state || '').toUpperCase() !== 'CA') {
+          return Response.json({
+            error: `Blockwork only works in California right now — that ZIP code is in ${geo.state || 'another state'}.`,
+          }, { status: 403 });
+        }
+        if (privates[0]) {
+          await svc.TeenPrivateData.update(privates[0].id, {
+            zip: zipCheck.value,
+            latitude: geo.lat,
+            longitude: geo.lng,
+          });
+        }
+        if (profile) {
+          await svc.TeenProfile.update(profile.id, { resolved_city: geo.city || '', state: geo.state || 'CA' });
+        }
+        await writeAuditLog(base44, {
+          actor_user_id: user.id, actor_role: role, action: 'account_zip_changed', category: 'security',
+          target_type: 'TeenPrivateData', target_id: privates[0]?.id || '',
+          summary: `Home ZIP code changed to ${zipCheck.value}${geo.city ? ` (${geo.city})` : ''}`,
+          metadata: { before: privates[0]?.zip || '', after: zipCheck.value, city: geo.city, state: geo.state }, ip,
+        });
+        const zipToken = await createAccountAlert(svc, {
+          userId: user.id,
+          changeType: 'address',
+          detail: `your home ZIP code is now ${zipCheck.value}${geo.city ? ` (${geo.city})` : ''}`,
+        });
+        await sendChangeNotice(base44, {
+          to: user.contact_email || user.email,
+          name: user.full_name,
+          what: 'home ZIP code',
+          detail: `your home ZIP code is now ${zipCheck.value}${geo.city ? ` (${geo.city})` : ''}`,
+          token: zipToken,
+          origin: getSafeOrigin(req),
+        });
+        const zipLinks = await svc.ParentTeenLink.filter({ teen_user_id: user.id, status: 'confirmed' });
+        if (zipLinks[0]?.parent_user_id) {
+          await svc.Notification.create({
+            user_id: zipLinks[0].parent_user_id,
+            type: 'account',
+            title: `${user.full_name || 'Your teen'} changed their ZIP code`,
+            body: `Their home ZIP is now ${zipCheck.value}${geo.city ? ` (${geo.city})` : ''}. Nearby jobs are matched from this.`,
+            link: '/parent',
+            read: false,
+          });
+          notices.push('Your parent was told about the new ZIP code.');
+        }
       }
     } else if (role === 'parent') {
       const profiles = await svc.ParentProfile.filter({ user_id: user.id });

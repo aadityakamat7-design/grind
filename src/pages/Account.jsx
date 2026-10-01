@@ -7,6 +7,7 @@ import PageHeader from "@/components/grind/PageHeader";
 import DeleteAccountButton from "@/components/grind/DeleteAccountButton";
 import AccountReviewsTab from "@/components/grind/AccountReviewsTab";
 import ProfileSettingsCard from "@/components/grind/ProfileSettingsCard";
+import AccountInformation from "@/components/account/AccountInformation";
 import RecoveryPhoneCard from "@/components/grind/RecoveryPhoneCard";
 import ThemeToggle from "@/components/grind/ThemeToggle";
 import { replayTour } from "@/hooks/useTour";
@@ -20,7 +21,11 @@ const ROLE_HOME = { teen: "/teen", parent: "/parent", buyer: "/buyer", admin: "/
 export default function Account() {
   const { user } = useOutletContext();
   const navigate = useNavigate();
-  const [tab, setTab] = useState("profile");
+  // The profile menu and the gear icon both open Settings; "Account
+  // information" deep-links straight to the account section.
+  const [tab, setTab] = useState(
+    new URLSearchParams(window.location.search).get("tab") === "account" ? "account" : "profile"
+  );
   const initials = (user.full_name || user.email || "?")
     .split(" ")
     .map((p) => p[0])
@@ -43,6 +48,7 @@ export default function Account() {
   // Role-specific tabs
   const tabs = [
     { key: "profile", label: "Profile" },
+    { key: "account", label: "Account information" },
     ...(user.app_role !== "admin" ? [{ key: "reviews", label: "Reviews" }] : []),
     ...((user.app_role === "teen" || user.app_role === "parent") ? [{ key: "payouts", label: "Payouts" }] : []),
     ...((user.app_role === "teen" || user.app_role === "buyer" || (user.app_role === "parent" && user.has_buyer_profile)) ? [{ key: "bookings", label: "Bookings" }] : []),
@@ -120,6 +126,8 @@ export default function Account() {
             </div>
           </>
         )}
+
+        {tab === "account" && <AccountInformation />}
 
         {tab === "reviews" && <AccountReviewsTab user={user} />}
 

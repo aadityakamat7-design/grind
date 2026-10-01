@@ -1,6 +1,7 @@
 import React, { useRef, useEffect } from "react";
 import { Outlet, NavLink, Navigate, Link, useLocation, useNavigate } from "react-router-dom";
-import { Home, List, CalendarDays, MessageCircle, Wallet, LayoutDashboard, ShieldCheck, Search, Briefcase, ArrowLeft, Settings } from "lucide-react";
+import { Home, List, CalendarDays, MessageCircle, Wallet, LayoutDashboard, ShieldCheck, Search, Briefcase, ArrowLeft, Settings, UserRound } from "lucide-react";
+import ProfileMenu from "@/components/grind/ProfileMenu";
 import { useAppUser } from "@/lib/useAppUser";
 import NotificationBell from "@/components/grind/NotificationBell";
 import SiteFooter from "@/components/SiteFooter";
@@ -222,6 +223,9 @@ export default function Layout() {
           <Link to="/account" className="flex items-center gap-3 rounded-xl px-3 py-2 mt-1 text-[13px] font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors">
             <Settings className="w-4 h-4 shrink-0" /> Settings
           </Link>
+          <Link to="/account?tab=account" className="flex items-center gap-3 rounded-xl px-3 py-2 text-[13px] font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors">
+            <UserRound className="w-4 h-4 shrink-0" /> Account information
+          </Link>
         </div>
       </aside>
 
@@ -247,11 +251,7 @@ export default function Layout() {
             <Link to="/account" aria-label="Settings" className="flex items-center justify-center w-9 h-9 rounded-full text-muted-foreground hover:bg-accent hover:text-foreground transition-colors">
               <Settings className="w-[18px] h-[18px]" strokeWidth={2.2} />
             </Link>
-            <Link to="/account" className="text-muted-foreground hover:text-foreground transition-colors">
-              <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-[11px]">
-                {initials}
-              </div>
-            </Link>
+            <ProfileMenu user={user} roleLabel={roleLabel} initials={initials} compact />
           </div>
         </div>
       </header>
@@ -271,11 +271,7 @@ export default function Layout() {
           )}
           <div className="flex items-center gap-3">
             <NotificationBell userId={user.id} />
-            <Link to="/account" className="text-muted-foreground hover:text-foreground transition-colors">
-              <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-[13px]">
-                {initials}
-              </div>
-            </Link>
+            <ProfileMenu user={user} roleLabel={roleLabel} initials={initials} />
           </div>
         </header>
 
