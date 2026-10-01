@@ -26,6 +26,9 @@ import BookDialog from "@/components/grind/BookDialog";
 import BookingReceiptDialog from "@/components/grind/BookingReceiptDialog";
 import ResumePaymentDialog from "@/components/grind/ResumePaymentDialog";
 import CheckInTimeline from "@/components/grind/parent/CheckInTimeline";
+import CheckInPanel from "@/components/grind/CheckInPanel";
+import SOSButton from "@/components/grind/teen/SOSButton";
+import { Image } from "@/components/ui/image";
 import VideoSessionPanel from "@/components/grind/VideoSessionPanel";
 import ErrorRetry from "@/components/grind/ErrorRetry";
 import { useApprovalWithVerification } from "@/hooks/useApprovalWithVerification";
@@ -410,6 +413,15 @@ export default function BookingDetail() {
               </Link>
             </div>
           )}
+          {booking.intro_message && (isParent || isBuyer) && (
+            <div className="mt-3 bg-primary/5 border border-primary/20 rounded-xl p-3">
+              <p className="text-xs font-semibold text-foreground mb-1 flex items-center gap-1.5">
+                <MessageCircle className="w-3.5 h-3.5 text-primary" />
+                {isParent ? `Introduction from ${booking.buyer_name}` : "Your introduction to the parent"}
+              </p>
+              <p className="text-sm text-foreground/90 leading-relaxed">{booking.intro_message}</p>
+            </div>
+          )}
           {booking.tip_amount > 0 && (
             <p className="flex items-center gap-2 font-medium text-foreground">
               💚 {money(booking.tip_amount)} tip from {booking.buyer_name}
@@ -424,6 +436,24 @@ export default function BookingDetail() {
         <CheckInTimeline booking={booking} />
 
       </div>
+
+      <CheckInPanel booking={booking} isTeen={isTeen} onChanged={load} />
+
+      {booking.before_photo && (isBuyer || isParent || isTeen) && (
+        <div className="bg-card rounded-2xl border border-border shadow-soft p-4">
+          <p className="text-xs font-semibold text-muted-foreground mb-2">
+            Before photo — taken at check-in
+          </p>
+          <div className="w-40 aspect-square rounded-xl overflow-hidden border border-border">
+            <Image
+              src={booking.before_photo}
+              alt="The work area before starting"
+              className="w-full h-full"
+              fittingType="fill"
+            />
+          </div>
+        </div>
+      )}
 
       {booking.recurring_series_id && (
         <RecurringSeriesManager booking={booking} user={user} onChanged={load} />
@@ -479,6 +509,7 @@ export default function BookingDetail() {
         )}
         {handshakeError && <p className="text-xs text-destructive font-medium text-center">{handshakeError}</p>}
         {isTeen && booking.status === "in_progress" && <TeenLiveLocationSharing booking={booking} />}
+        {isTeen && booking.status === "in_progress" && <SOSButton booking={booking} onChanged={load} />}
         {isTeen && booking.status === "in_progress" && <AlertParentButton booking={booking} />}
         {(isTeen || isBuyer) && ["pending_parent_approval", "confirmed", "in_progress"].includes(booking.status) && (
           <div className="grid grid-cols-2 gap-3">

@@ -7,6 +7,8 @@ import { notifyParentJobAccepted } from '../../shared/notifyParent.ts';
 import { PARENT_LINK_REQUIRED } from '../../shared/parentGate.ts';
 import { APP_BASE_URL } from '../../shared/safeOrigin.ts';
 import { enforceBookingHours } from '../../shared/workHourEnforcement.ts';
+import { checkParentLimits } from '../../shared/parentLimits.ts';
+import { haversineMiles } from '../../shared/geo.ts';
 import { calculatePlatformFee, calculateNetAmount } from '../../shared/platformFee.ts';
 import { hasMinorTermsCoverage } from '../../shared/termsAcceptance.ts';
 import { getTestModeEnabled } from '../../shared/stripeEnv.ts';
@@ -130,6 +132,43 @@ Deno.serve(async (req) => {
     });
     if (!hourCheck.ok) {
       return Response.json({ error: hourCheck.reason, nextEligible: hourCheck.nextEligible }, { status: 403 });
+    }
+
+    // A parent can set tighter limits than the law allows. The stricter of the
+    // two always applies, and the teen sees exactly which limit they hit so
+    // they can ask their parent rather than guessing.
+    const parentLimits = (link?.limits || null) as {
+      max_hours_per_week?: number | null;
+      allowed_days?: number[] | null;
+      earliest_hour?: number | null;
+      latest_hour?: number | null;
+      no_school_nights?: boolean;
+      max_distance_miles?: number | null;
+    } | null;
+
+    const parentLimitCheck = checkParentLimits({
+      limits: parentLimits,
+      state: job.state,
+      scheduledStart: job.scheduled_start,
+      estimatedHours,
+      weekHoursAlready: (hourCheck as any).weekHours,
+    });
+    if (!parentLimitCheck.ok) {
+      return Response.json({ error: parentLimitCheck.reason, parentLimit: true }, { status: 403 });
+    }
+
+    // Distance from home, capped by the parent.
+    const maxDistance = Number(parentLimits?.max_distance_miles);
+    if (!isOnline && Number.isFinite(maxDistance) && maxDistance > 0 &&
+        teenPrivate?.latitude != null && teenPrivate?.longitude != null &&
+        buyerProfile?.latitude != null && buyerProfile?.longitude != null) {
+      const miles = haversineMiles(teenPrivate.latitude, teenPrivate.longitude, buyerProfile.latitude, buyerProfile.longitude);
+      if (miles > maxDistance) {
+        return Response.json({
+          error: `This job is ${miles.toFixed(1)} miles from home, past the ${maxDistance}-mile limit your parent set.`,
+          parentLimit: true,
+        }, { status: 403 });
+      }
     }
 
     // Atomically claim the job — prevents a race condition where two teens

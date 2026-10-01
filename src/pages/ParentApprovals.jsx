@@ -20,6 +20,7 @@ export default function ParentApprovals() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [profile, setProfile] = useState(null);
+  const [threadByBooking, setThreadByBooking] = useState({});
 
   const load = useCallback(async () => {
     try {
@@ -34,8 +35,22 @@ export default function ParentApprovals() {
       ]);
       // Only show bookings where the neighbor's escrow payment is confirmed —
       // parents cannot approve until payment is held.
-      setPending(data.filter((b) => b.payment_status === "held"));
+      const heldPending = data.filter((b) => b.payment_status === "held");
+      setPending(heldPending);
       setProfile(profiles[0] || null);
+
+      // The parent talks to the neighbor in the booking's own screened
+      // conversation, so the approval card links straight into it.
+      if (heldPending.length) {
+        try {
+          const threads = await base44.entities.MessageThread.filter({
+            booking_id: { $in: heldPending.map((b) => b.id) },
+          });
+          setThreadByBooking(Object.fromEntries(threads.map((t) => [t.booking_id, t.id])));
+        } catch (err) {
+          console.error("approval threads:", err?.message);
+        }
+      }
 
       const teenIds = links.map((l) => l.teen_user_id).filter(Boolean);
       if (teenIds.length === 0) {
@@ -158,6 +173,25 @@ export default function ParentApprovals() {
                           <User className="w-3.5 h-3.5" /> View {b.teen_display_name}'s profile
                         </Link>
                       </div>
+                    )}
+
+                    {b.intro_message && (
+                      <div className="mt-3 bg-primary/5 border border-primary/20 rounded-xl p-3">
+                        <p className="text-[11px] font-semibold text-foreground mb-1 flex items-center gap-1.5">
+                          <MessageSquare className="w-3.5 h-3.5 text-primary" />
+                          Introduction from {b.buyer_name}
+                        </p>
+                        <p className="text-[13px] text-foreground/90 leading-relaxed">{b.intro_message}</p>
+                      </div>
+                    )}
+
+                    {threadByBooking[b.id] && (
+                      <Link
+                        to={`/messages/${threadByBooking[b.id]}`}
+                        className="inline-flex items-center gap-1.5 mt-3 text-[12px] font-semibold text-primary hover:underline"
+                      >
+                        <MessageSquare className="w-3.5 h-3.5" /> Message the neighbor
+                      </Link>
                     )}
 
                     <p className="text-[12px] text-muted-foreground/70 mt-3">

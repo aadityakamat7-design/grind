@@ -58,6 +58,7 @@ import Pricing from '@/pages/Pricing';
 import RefundsDisputes from '@/pages/RefundsDisputes';
 import ReportSafetyConcern from '@/pages/ReportSafetyConcern';
 import Unsubscribe from '@/pages/Unsubscribe';
+import WorkRecordVerify from '@/pages/WorkRecordVerify';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -80,7 +81,12 @@ const AuthenticatedApp = () => {
       // Auth pages and the public landing must always render, otherwise
       // unauthenticated users get a blank screen instead of a login form.
       const publicPaths = ['/', '/login', '/register', '/forgot-password', '/reset-password'];
-      if (!publicPaths.includes(window.location.pathname)) {
+      // A Work Record verification link is opened by schools and employers who
+      // have no Blockwork account, so that page must render without signing in.
+      const isPublicPath =
+        publicPaths.includes(window.location.pathname) ||
+        window.location.pathname.startsWith('/verify/');
+      if (!isPublicPath) {
         navigateToLogin();
         return null;
       }
@@ -121,6 +127,7 @@ const AuthenticatedApp = () => {
       <Route path="/refunds" element={<RefundsDisputes />} />
       <Route path="/report-safety" element={<ReportSafetyConcern />} />
       <Route path="/unsubscribe" element={<Unsubscribe />} />
+      <Route path="/verify/:recordId" element={<WorkRecordVerify />} />
 
       {/* Onboarding — standalone page like auth (no app nav) */}
       <Route path="/onboarding" element={<Onboarding />} />

@@ -5,6 +5,7 @@ import { getVerifiedAge } from '../../shared/teenAge.ts';
 import { getMinAgeForCategory } from '../../shared/categoryAgeRules.ts';
 import { getDeliveryMode, isRemovedCategory, generateSessionLink } from '../../shared/deliveryMode.ts';
 import { enforceBookingHours } from '../../shared/workHourEnforcement.ts';
+import { checkParentLimits, effectiveRadiusMiles, NOT_AVAILABLE_AT_THAT_TIME } from '../../shared/parentLimits.ts';
 import { calculatePlatformFee, calculateNetAmount } from '../../shared/platformFee.ts';
 import { getSafeOrigin, safeOriginFromString } from '../../shared/safeOrigin.ts';
 import { nextOccurrenceDate } from '../../shared/recurringDates.ts';
@@ -38,7 +39,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Booking is temporarily unavailable while we improve our payment system. Please try again shortly.' }, { status: 503 });
     }
 
-    const { listingId, scheduledStart, address, notes, recurrence, hours, endDate, origin: clientOrigin } = await req.json();
+    const { listingId, scheduledStart, address, notes, recurrence, hours, endDate, origin: clientOrigin, intro } = await req.json();
     if (!listingId) {
       return Response.json({ error: 'listingId is required' }, { status: 400 });
     }
@@ -127,6 +128,10 @@ Deno.serve(async (req) => {
     // 18+ teen) — with no linked parent there is nobody to approve the job, so
     // it could never be confirmed. Enforced here, not in the page.
     const teenLink = teenLinks[0] || null;
+    // Parent-set limits for this teen: max hours/week, allowed days and hours,
+    // no school nights, and a cap on how far from home they may work. These sit
+    // on top of the legal limits — the stricter of the two always applies.
+    const parentLimits = (teenLink?.limits || null) as ParentLimits | null;
     const bookingTeenAge = getVerifiedAge(teenPrivateData);
     const teenIsIndependent = bookingTeenAge != null && bookingTeenAge >= 18;
     if (!teenLink && !teenIsIndependent) {
@@ -182,7 +187,7 @@ Deno.serve(async (req) => {
         buyerProfile.latitude, buyerProfile.longitude,
         teenPrivateData.latitude, teenPrivateData.longitude
       );
-      const radius = teenProfile.service_radius_miles || 3;
+      const radius = effectiveRadiusMiles(teenProfile.service_radius_miles, parentLimits);
       if (distance > radius) {
         return Response.json(
           { error: `You're ${distance.toFixed(1)} miles away — outside ${teenProfile.display_name || 'this teen'}'s ${radius}-mile service area.` },
@@ -240,8 +245,43 @@ Deno.serve(async (req) => {
       return Response.json({ error: hourCheck.reason, nextEligible: hourCheck.nextEligible }, { status: 403 });
     }
 
+    // Parent-set limits, on top of the legal ones. The neighbor is only told the
+    // slot doesn't work — the teen and their parent see the real reason in app.
+    const limitCheck = checkParentLimits({
+      limits: parentLimits,
+      state: teenProfile.state,
+      scheduledStart,
+      estimatedHours,
+      weekHoursAlready: (hourCheck as any).weekHours,
+    });
+    if (!limitCheck.ok) {
+      return Response.json({ error: NOT_AVAILABLE_AT_THAT_TIME }, { status: 403 });
+    }
+
     // The parent link resolved above routes approvals, notifications and payouts.
     const parentUserId = teenLink?.parent_user_id || '';
+
+    // The first time a neighbor books this teen, they introduce themselves so
+    // the parent approves with context instead of a stranger's request. Repeat
+    // bookings with the same neighbor skip it.
+    let introMessage = '';
+    if (parentUserId) {
+      const priorBookings = await base44.asServiceRole.entities.Booking.filter({
+        buyer_user_id: user.id,
+        teen_user_id: listing.teen_user_id,
+        status: { $in: ['payment_pending', 'pending_parent_approval', 'confirmed', 'in_progress', 'completed', 'disputed'] },
+      }, '-created_date', 5);
+      if (priorBookings.length === 0) {
+        const introText = String(intro || '').trim();
+        if (introText.length < 20 || introText.length > 300) {
+          return Response.json({
+            error: "Please write a short introduction for the teen's parent (20–300 characters) — this is the first time you're booking this teen.",
+            needsIntro: true,
+          }, { status: 400 });
+        }
+        introMessage = introText;
+      }
+    }
     const buyerName = user.full_name?.split(' ')[0] || 'Neighbor';
     const bookingStatus = 'payment_pending';
 
@@ -260,6 +300,7 @@ Deno.serve(async (req) => {
       address: isOnline ? '' : address,
       is_physical: !isOnline,
       notes: notes || '',
+      intro_message: introMessage || undefined,
       is_recurring: isRecurring,
       recurrence: isRecurring ? recurrence : undefined,
       status: bookingStatus,

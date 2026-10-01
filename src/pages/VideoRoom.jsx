@@ -40,6 +40,21 @@ export default function VideoRoom() {
     })();
   }, [bookingId]);
 
+  // Joining the video room counts as checking in; leaving counts as checking
+  // out. Only the teen on the booking is affected — the function verifies the
+  // caller, so a parent or neighbor joining changes nothing.
+  useEffect(() => {
+    if (!booking?.id) return;
+    base44.functions
+      .invoke("checkIn", { bookingId: booking.id, action: "check_in", source: "video" })
+      .catch(() => {});
+    return () => {
+      base44.functions
+        .invoke("checkIn", { bookingId: booking.id, action: "check_out", source: "video" })
+        .catch(() => {});
+    };
+  }, [booking?.id]);
+
   // Skip Jitsi's prejoin lobby and start with mic/cam ready for a smoother
   // in-app join.
   const embedUrl = booking?.session_link

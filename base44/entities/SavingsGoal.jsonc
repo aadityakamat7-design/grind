@@ -1,0 +1,128 @@
+{
+  "name": "SavingsGoal",
+  "type": "object",
+  "properties": {
+    "teen_user_id": {
+      "type": "string"
+    },
+    "parent_user_id": {
+      "type": "string",
+      "description": "The teen's linked parent \u2014 the only person who can set the match pledge (server-set only)"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 60,
+      "description": "What the teen is saving for, e.g. 'AirPods'"
+    },
+    "target_amount": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 5000
+    },
+    "match_percent": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "default": 0,
+      "description": "The parent's pledge: 'I'll add this percentage of what you save'. Tracking only \u2014 no money moves through Blockwork for the match; the parent pays it themselves.",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "achieved",
+        "archived"
+      ],
+      "default": "active",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "achieved_at": {
+      "type": "string",
+      "format": "date-time",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "celebrated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the teen saw the goal-reached celebration, so it shows once (server-set only)",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    }
+  },
+  "required": [
+    "teen_user_id",
+    "name",
+    "target_amount"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "$or": [
+        {
+          "data.teen_user_id": "{{user.id}}"
+        },
+        {
+          "data.parent_user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.teen_user_id": "{{user.id}}"
+        },
+        {
+          "data.parent_user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

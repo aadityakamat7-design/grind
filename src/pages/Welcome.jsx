@@ -11,6 +11,7 @@ import MarketplacePreview from "@/components/landing/MarketplacePreview";
 import EarningsCalculator from "@/components/landing/EarningsCalculator";
 import FaqSection from "@/components/landing/FaqSection";
 import SafetySummary from "@/components/landing/SafetySummary";
+import WorkRecordSection from "@/components/landing/WorkRecordSection";
 import SiteFooter from "@/components/SiteFooter";
 import Seo from "@/components/Seo";
 import SmoothScroll from "@/components/landing/SmoothScroll";
@@ -148,6 +149,8 @@ export default function Welcome() {
       <Section eyebrow="Earnings" title="See what you could make" subtitle="Teens earn real money at fair rates — neighbors pay a fraction of what pro services charge. Everyone wins.">
         <EarningsCalculator />
       </Section>
+
+      <WorkRecordSection />
 
       <section className="relative z-10 max-w-6xl mx-auto px-6 pb-10 sm:pb-16">
         <SafetySummary />

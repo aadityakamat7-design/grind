@@ -1,0 +1,149 @@
+{
+  "name": "MessageFlag",
+  "type": "object",
+  "properties": {
+    "message_id": {
+      "type": "string",
+      "description": "The message that was screened"
+    },
+    "thread_id": {
+      "type": "string"
+    },
+    "booking_id": {
+      "type": "string"
+    },
+    "sender_id": {
+      "type": "string"
+    },
+    "sender_name": {
+      "type": "string"
+    },
+    "sender_role": {
+      "type": "string",
+      "description": "teen, parent, buyer, or admin at the time of the message"
+    },
+    "recipient_id": {
+      "type": "string",
+      "description": "Who the message was addressed to"
+    },
+    "teen_user_id": {
+      "type": "string",
+      "description": "The teen involved in this conversation, when there is one"
+    },
+    "parent_user_id": {
+      "type": "string",
+      "description": "The teen's linked parent, when there is one"
+    },
+    "categories": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Machine keys for every rule, moderation category, or AI finding that matched \u2014 internal only, never shown to the sender"
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "action_taken": {
+      "type": "string",
+      "enum": [
+        "masked",
+        "held",
+        "blocked",
+        "delivered"
+      ],
+      "description": "masked = contact info hidden and the rest delivered; held = not delivered, awaiting review; blocked = not delivered; delivered = cleared (used for teen self-harm disclosures, which are support, not a violation)"
+    },
+    "reason": {
+      "type": "string",
+      "maxLength": 500,
+      "description": "Internal explanation for admins \u2014 never shown to the sender"
+    },
+    "excerpt": {
+      "type": "string",
+      "maxLength": 400,
+      "description": "The matched part of the message, for admin review"
+    },
+    "self_harm": {
+      "type": "boolean",
+      "default": false,
+      "description": "The sender expressed intent to harm themselves \u2014 handled as a welfare concern, not misconduct"
+    },
+    "urgent": {
+      "type": "boolean",
+      "default": false,
+      "description": "High severity \u2014 surfaced at the top of the admin queue"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "handled"
+      ],
+      "default": "open"
+    },
+    "resolution": {
+      "type": "string",
+      "enum": [
+        "none",
+        "approved",
+        "blocked",
+        "cleared"
+      ],
+      "default": "none",
+      "description": "approved = the held message was released to the recipient; blocked = confirmed and kept blocked; cleared = no real risk"
+    },
+    "resolution_note": {
+      "type": "string",
+      "maxLength": 500
+    },
+    "resolved_by_id": {
+      "type": "string"
+    },
+    "resolved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    }
+  },
+  "required": [
+    "message_id",
+    "thread_id",
+    "sender_id",
+    "severity",
+    "action_taken"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "$or": [
+        {
+          "data.parent_user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": false
+  }
+}

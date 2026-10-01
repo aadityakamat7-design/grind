@@ -12,14 +12,26 @@
       "type": "string"
     },
     "body": {
-      "type": "string"
+      "type": "string",
+      "description": "What the recipient sees. When the safety monitor masks contact info, this is the masked text; held and blocked messages are never shown to the recipient (their id is left out of participant_ids until an admin releases them)."
+    },
+    "raw_body": {
+      "type": "string",
+      "description": "The sender's original text, kept only so admins can review a held or blocked message. Never returned to regular users.",
+      "rls": {
+        "read": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     },
     "participant_ids": {
       "type": "array",
       "items": {
         "type": "string"
       },
-      "description": "Snapshot of thread participants \u2014 copied from MessageThread on creation so read RLS can gate access per message"
+      "description": "Snapshot of thread participants \u2014 copied from MessageThread on creation so read RLS can gate access per message. The recipient is omitted while a message is held or blocked."
     },
     "flagged": {
       "type": "boolean",
@@ -28,6 +40,97 @@
     "pii_masked": {
       "type": "boolean",
       "default": false
+    },
+    "safety_action": {
+      "type": "string",
+      "enum": [
+        "delivered",
+        "masked",
+        "held",
+        "blocked"
+      ],
+      "default": "delivered",
+      "description": "Outcome of the layered safety screen (server-set only)"
+    },
+    "safety_severity": {
+      "type": "string",
+      "enum": [
+        "none",
+        "low",
+        "medium",
+        "high"
+      ],
+      "default": "none"
+    },
+    "safety_categories": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Internal machine keys for what matched \u2014 never shown to the sender",
+      "rls": {
+        "read": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "safety_reason": {
+      "type": "string",
+      "maxLength": 500,
+      "description": "Internal explanation for admins \u2014 never shown to the sender",
+      "rls": {
+        "read": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "self_harm": {
+      "type": "boolean",
+      "default": false,
+      "description": "The sender disclosed self-harm intent (server-set only)"
+    },
+    "review_state": {
+      "type": "string",
+      "enum": [
+        "none",
+        "held",
+        "approved",
+        "blocked"
+      ],
+      "default": "none",
+      "description": "Admin review of a held or blocked message (server-set only)",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "reviewed_by_id": {
+      "type": "string",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "reviewed_at": {
+      "type": "string",
+      "format": "date-time",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     }
   },
   "required": [

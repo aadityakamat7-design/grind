@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { ListChecks, ArrowLeft, UserCheck, ShieldCheck, CreditCard, Wallet, Star } from "lucide-react";
+import { ListChecks, ArrowLeft, UserCheck, ShieldCheck, CreditCard, Wallet, Star, Award } from "lucide-react";
 import SiteFooter from "@/components/SiteFooter";
 import Seo from "@/components/Seo";
 
@@ -31,9 +31,9 @@ const STEPS = [
     body: "The neighbor reviews the photos and confirms the work is done. If something's wrong, they can report it and the payment is held for review. Once confirmed, the funds are released — no chasing invoices, no awkward reminders.",
   },
   {
-    icon: Wallet,
-    title: "6. Teen earns, parent gets paid",
-    body: "The earnings pay out to the parent's connected Stripe Connect account. The teen's share shows up in their in-app Blockwork Wallet with a running balance and history. Both sides can leave a review.",
+    icon: Award,
+    title: "7. The work adds up",
+    body: "Every completed, paid job goes onto the teen's Blockwork Work Record — a verified history with dates, hours, categories, ratings and review quotes, downloadable as a PDF or shareable as a verification link for college applications, résumés, and job applications. Nothing on it is typed in by hand, and it can be turned off at any time.",
   },
 ];
 

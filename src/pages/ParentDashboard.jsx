@@ -23,6 +23,11 @@ import PullToRefresh from "@/components/PullToRefresh";
 import BuyerModeCard from "@/components/grind/parent/BuyerModeCard";
 import WithdrawalLockCard from "@/components/grind/parent/WithdrawalLockCard";
 import PayoutHistorySection from "@/components/grind/parent/PayoutHistorySection";
+import ParentLimitsCard from "@/components/grind/parent/ParentLimitsCard";
+import MatchPledgeCard from "@/components/grind/parent/MatchPledgeCard";
+import FlaggedMessagesCard from "@/components/grind/parent/FlaggedMessagesCard";
+import WeeklySummaryToggle from "@/components/grind/parent/WeeklySummaryToggle";
+import WorkRecordCard from "@/components/grind/WorkRecordCard";
 export default function ParentDashboard() {
   const { user, reload } = useOutletContext();
   const [links, setLinks] = useState([]);
@@ -39,6 +44,7 @@ export default function ParentDashboard() {
   const [verifyOpen, setVerifyOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [goals, setGoals] = useState([]);
 
   // Detect Stripe return params on page load — when the user returns from
   // Stripe Identity or Connect, the URL contains ?identity_return=1 or
@@ -77,6 +83,20 @@ export default function ParentDashboard() {
       setTeenProfiles(tp);
       setTeenPrivates(tpd);
       setJobPosts(jp);
+
+      // Savings goals for the linked teens — the parent sets the match pledge.
+      if (teenIds.length) {
+        try {
+          const goalRows = await base44.entities.SavingsGoal.filter(
+            { teen_user_id: { $in: teenIds } },
+            "-created_date",
+            50,
+          );
+          setGoals(goalRows.filter((g) => g.status !== "archived"));
+        } catch (err) {
+          console.error("savings goals load:", err?.message);
+        }
+      }
     } catch (err) {
       console.error("ParentDashboard load failed:", err);
       setError(true);
@@ -230,12 +250,27 @@ export default function ParentDashboard() {
                 teenAge={teenAge}
                 bookings={teenBookings}
               />
+              <ParentLimitsCard link={l} teenName={l.teen_display_name} onUpdated={load} />
               <WithdrawalLockCard link={l} onUpdated={load} />
+              <WorkRecordCard teenUserId={l.teen_user_id} />
             </div>
           );
         })}
 
+        <MatchPledgeCard
+          goals={goals}
+          teenNames={Object.fromEntries(links.map((l) => [l.teen_user_id, l.teen_display_name]))}
+          onUpdated={load}
+        />
+
         <SafetyPanel activeJobs={activeJobs} alerts={alerts} />
+
+        <FlaggedMessagesCard
+          userId={user.id}
+          teenNames={Object.fromEntries(links.map((l) => [l.teen_user_id, l.teen_display_name]))}
+        />
+
+        <WeeklySummaryToggle user={user} onUpdated={load} />
 
         <PayoutHistorySection bookings={shownBookings} />
 

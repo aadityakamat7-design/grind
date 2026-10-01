@@ -4,12 +4,15 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Camera, X, Loader2 } from "lucide-react";
 import { Image } from "@/components/ui/image";
+import { uploadPhotos } from "@/lib/imageProcessing";
 
 // Teen uploads completion photos and marks the job finished. The photos are
 // shown to the buyer for confirmation and to admins during dispute review.
+// An "after" photo is REQUIRED for an in-person job — it's the proof of work.
 export default function CompletionPhotoUpload({ open, onOpenChange, booking, onDone }) {
   const [photos, setPhotos] = useState([]);
   const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
   const [error, setError] = useState("");
   const fileRef = useRef(null);
 
@@ -21,27 +24,15 @@ export default function CompletionPhotoUpload({ open, onOpenChange, booking, onD
       return;
     }
     setUploading(true);
+    setProgress(0);
     try {
-      const urls = [];
-      for (const file of Array.from(files)) {
-        if (file.size > 10 * 1024 * 1024) {
-          setError("Each photo must be under 10MB.");
-          setUploading(false);
-          return;
-        }
-        if (!file.type.startsWith("image/")) {
-          setError("Only image files are allowed.");
-          setUploading(false);
-          return;
-        }
-        const res = await base44.integrations.Core.UploadFile({ file });
-        urls.push(res.file_url);
-      }
+      const urls = await uploadPhotos(files, { onProgress: setProgress, max: 6 - photos.length });
       setPhotos((prev) => [...prev, ...urls].slice(0, 6));
     } catch (err) {
-      setError("Couldn't upload photos. Please try again.");
+      setError(err.message || "Couldn't upload photos. Please try again.");
     }
     setUploading(false);
+    setProgress(0);
     if (fileRef.current) fileRef.current.value = "";
   };
 
@@ -73,7 +64,11 @@ export default function CompletionPhotoUpload({ open, onOpenChange, booking, onD
         </DialogHeader>
         <div className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            Upload photos showing the completed work. Payment releases to your parent as soon as you finish — your neighbor can report a problem if the work isn't done correctly.
+            Upload photos showing the completed work — an after photo is required. Payment releases to your parent as
+            soon as you finish; your neighbor can report a problem if the work isn't done correctly.
+          </p>
+          <p className="text-xs font-semibold text-foreground bg-secondary rounded-xl p-2.5 border border-border">
+            Take a photo of the work, not people.
           </p>
           {photos.length > 0 && (
             <div className="grid grid-cols-3 gap-2">
@@ -112,10 +107,15 @@ export default function CompletionPhotoUpload({ open, onOpenChange, booking, onD
                 <Camera className="w-6 h-6 text-muted-foreground" />
               )}
               <span className="text-sm text-muted-foreground">
-                {uploading ? "Uploading..." : photos.length >= 6 ? "Max 6 photos" : "Add photos"}
+                {uploading ? `Uploading… ${progress}%` : photos.length >= 6 ? "Max 6 photos" : "Add photos"}
               </span>
             </div>
           </button>
+          {uploading && (
+            <div className="h-1.5 rounded-full bg-border overflow-hidden">
+              <div className="h-full bg-primary transition-all duration-200" style={{ width: `${progress}%` }} />
+            </div>
+          )}
           {error && <p className="text-xs text-destructive font-medium">{error}</p>}
           <Button className="w-full rounded-xl" disabled={uploading || photos.length === 0} onClick={finish}>
             {uploading ? "Finishing..." : "Finish job"}

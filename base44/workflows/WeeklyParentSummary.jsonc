@@ -1,0 +1,44 @@
+{
+  "name": "Weekly Parent Summary",
+  "description": "Every Sunday at 6 PM Pacific, emails each parent a summary of their teens' week: jobs completed, hours, net earnings, upcoming bookings, approvals waiting, safety events and savings-goal progress. Weeks with no activity are skipped.",
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "recurring",
+      "cron_expression": "0 18 * * 0",
+      "one_time_date": null,
+      "timezone": "America/Los_Angeles",
+      "interval_value": null,
+      "interval_unit": null,
+      "interval_anchor": null,
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "weekly_parent_summary",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "send_summaries": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "sendWeeklyParentSummary"
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Email weekly summaries",
+            "description": "One email per active parent"
+          }
+        }
+      }
+    ]
+  }
+}

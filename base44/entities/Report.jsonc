@@ -22,6 +22,10 @@
       "type": "string",
       "description": "Set when this report flags a specific review, so admins can hide it"
     },
+    "message_flag_id": {
+      "type": "string",
+      "description": "Set when this report came from the automatic message safety monitor, linking it to the flagged-message record"
+    },
     "reason": {
       "type": "string",
       "enum": [
@@ -34,6 +38,20 @@
     },
     "details": {
       "type": "string"
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "normal",
+        "urgent"
+      ],
+      "default": "normal",
+      "description": "urgent = a blocked high-risk message, a sexual-content incident, or an SOS. Shown at the top of the admin safety queue with the NCMEC notice (server-set only)."
+    },
+    "auto_flagged": {
+      "type": "boolean",
+      "default": false,
+      "description": "True when the automatic safety monitor created this report rather than a person (server-set only)"
     },
     "status": {
       "type": "string",

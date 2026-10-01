@@ -1,0 +1,44 @@
+{
+  "name": "Check-In Monitor",
+  "description": "Every 15 minutes: reminds a teen who hasn't checked in 15 minutes after their start time and alerts the parent, alerts the parent when a job isn't checked out 30 minutes past its scheduled end, and deletes saved check-in / check-out / SOS locations 90 days after the job.",
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "recurring",
+      "cron_expression": "*/15 * * * *",
+      "one_time_date": null,
+      "timezone": "America/Los_Angeles",
+      "interval_value": null,
+      "interval_unit": null,
+      "interval_anchor": null,
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "check_in_monitor",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "run_monitor": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "checkInMonitor"
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Check check-ins and purge old locations",
+            "description": "Alerts parents, cleans up 90-day-old locations"
+          }
+        }
+      }
+    ]
+  }
+}

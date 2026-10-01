@@ -60,6 +60,18 @@
       "maxLength": 500,
       "description": "The teen's message explaining why they're credible for this job \u2014 shown to the neighbor and parent during approval."
     },
+    "intro_message": {
+      "type": "string",
+      "maxLength": 300,
+      "description": "The neighbor's short introduction to the parent, shown on the parent's approval screen. Required the first time this neighbor books this teen; repeat bookings with the same neighbor skip it (server-set only).",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
     "is_recurring": {
       "type": "boolean",
       "default": false
@@ -137,6 +149,264 @@
         "type": "string"
       },
       "description": "Photos the teen uploaded as proof the work was done \u2014 shown to the buyer for confirmation and to admins during dispute review (server-set only)",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "before_photo": {
+      "type": "string",
+      "description": "Optional 'before' photo the teen takes at check-in, shown next to the after photo to the neighbor, the parent and admins (server-set only)",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "check_in_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the teen tapped 'I'm here' (or joined the video room for an online session) \u2014 drives the parent's arrival alert and the missed check-in monitor (server-set only)",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "check_in_lat": {
+      "type": "number",
+      "description": "Latitude saved once at check-in. Never tracked continuously, and visible only to the parent and admins (server-set only).",
+      "rls": {
+        "read": {
+          "$or": [
+            {
+              "data.parent_user_id": "{{user.id}}"
+            },
+            {
+              "user_condition": {
+                "role": "admin"
+              }
+            }
+          ]
+        },
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "check_in_lng": {
+      "type": "number",
+      "description": "Longitude saved once at check-in \u2014 parent and admins only (server-set only).",
+      "rls": {
+        "read": {
+          "$or": [
+            {
+              "data.parent_user_id": "{{user.id}}"
+            },
+            {
+              "user_condition": {
+                "role": "admin"
+              }
+            }
+          ]
+        },
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "check_in_location_confirmed": {
+      "type": "boolean",
+      "description": "True when the check-in location was within ~250m of the job address. False (or absent) means 'Location not confirmed' on the parent's alert (server-set only)",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "check_in_source": {
+      "type": "string",
+      "enum": [
+        "gps",
+        "video"
+      ],
+      "description": "gps = the teen's phone location; video = joining the online session counts as checking in (server-set only)",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "check_out_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the teen tapped 'Done, heading home' (or left the video room). Separate from the job-completion handshake (server-set only)",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "check_out_lat": {
+      "type": "number",
+      "description": "Latitude saved once at check-out \u2014 parent and admins only (server-set only).",
+      "rls": {
+        "read": {
+          "$or": [
+            {
+              "data.parent_user_id": "{{user.id}}"
+            },
+            {
+              "user_condition": {
+                "role": "admin"
+              }
+            }
+          ]
+        },
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "check_out_lng": {
+      "type": "number",
+      "description": "Longitude saved once at check-out \u2014 parent and admins only (server-set only).",
+      "rls": {
+        "read": {
+          "$or": [
+            {
+              "data.parent_user_id": "{{user.id}}"
+            },
+            {
+              "user_condition": {
+                "role": "admin"
+              }
+            }
+          ]
+        },
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "check_out_location_confirmed": {
+      "type": "boolean",
+      "description": "Whether the check-out location was within range of the job address (server-set only)",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "missed_checkin_alerted_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the missed-check-in reminder fired, so it fires only once per booking (server-set only)",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "overdue_checkout_alerted_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the overdue-check-out alert fired, so it fires only once per booking (server-set only)",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "sos_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the teen held the SOS button (server-set only)",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "sos_lat": {
+      "type": "number",
+      "description": "Latitude saved once at the SOS press \u2014 parent and admins only (server-set only).",
+      "rls": {
+        "read": {
+          "$or": [
+            {
+              "data.parent_user_id": "{{user.id}}"
+            },
+            {
+              "user_condition": {
+                "role": "admin"
+              }
+            }
+          ]
+        },
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "sos_lng": {
+      "type": "number",
+      "description": "Longitude saved once at the SOS press \u2014 parent and admins only (server-set only).",
+      "rls": {
+        "read": {
+          "$or": [
+            {
+              "data.parent_user_id": "{{user.id}}"
+            },
+            {
+              "user_condition": {
+                "role": "admin"
+              }
+            }
+          ]
+        },
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "sos_resolved_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the teen tapped 'I'm safe now' (server-set only)",
       "rls": {
         "write": {
           "user_condition": {

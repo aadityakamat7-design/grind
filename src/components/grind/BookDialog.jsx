@@ -29,6 +29,8 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
   const [safetyOpen, setSafetyOpen] = useState(false);
   const [phase, setPhase] = useState("form"); // form | pay | done
   const [payBooking, setPayBooking] = useState(null); // { id, amount, cardUrl }
+  const [intro, setIntro] = useState("");
+  const [isFirstBooking, setIsFirstBooking] = useState(false);
 
   // Reset to the form phase every time the dialog opens, and re-fill the
   // address from the buyer's saved profile so it's always current.
@@ -40,6 +42,32 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
       setOverrideAddress(false);
     }
   }, [open]);
+
+  // The first time this neighbor books this teen, they introduce themselves to
+  // the parent. The server enforces it too — this only shapes the form.
+  useEffect(() => {
+    if (!open || !listing?.teen_user_id || !buyer?.id) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const prior = await base44.entities.Booking.filter({
+          buyer_user_id: buyer.id,
+          teen_user_id: listing.teen_user_id,
+          status: { $in: ["payment_pending", "pending_parent_approval", "confirmed", "in_progress", "completed", "disputed"] },
+        }, "-created_date", 5);
+        if (cancelled) return;
+        const first = prior.length === 0;
+        setIsFirstBooking(first);
+        if (first) {
+          const firstName = (buyer.full_name || "").split(" ")[0] || "a neighbor";
+          setIntro(`Hi, I'm ${firstName}. We live nearby and need help with ${listing.title}. Happy to answer any questions.`);
+        }
+      } catch {
+        if (!cancelled) setIsFirstBooking(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [open, listing?.teen_user_id, listing?.title, buyer?.id, buyer?.full_name]);
 
   const total = listing.price_model === "HOURLY" ? Number(listing.price) * Number(hours || 1) : Number(listing.price);
   const { platform_fee, net_amount } = computeFees(total);
@@ -54,6 +82,7 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
         scheduledStart: when ? new Date(when).toISOString() : null,
         address: isOnline ? "" : address,
         notes,
+        intro,
         recurrence,
         hours,
         endDate: recurrence !== "none" ? endDate || undefined : undefined,
@@ -173,6 +202,23 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
               </p>
             </div>
           )}
+          {isFirstBooking && (
+            <div>
+              <Label>Introduce yourself to {listing.teen_display_name}'s parent</Label>
+              <Textarea
+                className="rounded-xl mt-1"
+                rows={3}
+                maxLength={300}
+                value={intro}
+                onChange={(e) => setIntro(e.target.value)}
+                placeholder="Hi, I'm… We live nearby and need help with…"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                {intro.trim().length}/300 · This is the first time you're booking {listing.teen_display_name}, so the
+                parent sees who's asking before they approve.
+              </p>
+            </div>
+          )}
           <div>
             <Label>Notes (optional)</Label>
             <Textarea className="rounded-xl mt-1" placeholder="Anything the teen should know?" value={notes} onChange={(e) => setNotes(e.target.value)} />
@@ -197,7 +243,7 @@ export default function BookDialog({ open, onOpenChange, listing, buyer, buyerPr
             label="Slide to book"
             loadingLabel="Booking..."
             loading={saving}
-            disabled={!when || (!isOnline && !address)}
+            disabled={!when || (!isOnline && !address) || (isFirstBooking && intro.trim().length < 20)}
             onConfirm={book}
           />
         </div>

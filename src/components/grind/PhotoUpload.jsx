@@ -1,34 +1,31 @@
 import React, { useRef, useState } from "react";
-import { base44 } from "@/api/base44Client";
 import { Image } from "@/components/ui/image";
 import { Camera, Loader2, X } from "lucide-react";
+import { uploadPhoto } from "@/lib/imageProcessing";
 
-// Reusable profile-photo uploader. Calls the UploadFile integration,
-// then invokes onChange with the resulting URL (or "" to clear).
+// Reusable profile-photo uploader. HEIC iPhone photos are converted to JPEG,
+// resized, compressed, and stripped of location metadata before upload, with
+// progress and one automatic retry — then onChange receives the public URL
+// (or "" to clear).
 export default function PhotoUpload({ photoUrl, displayName, onChange }) {
   const fileRef = useRef(null);
   const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
   const [error, setError] = useState("");
 
   const handleFile = async (file) => {
     if (!file) return;
-    if (!file.type.startsWith("image/")) {
-      setError("Please choose an image file.");
-      return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      setError("Image must be under 5 MB.");
-      return;
-    }
     setUploading(true);
     setError("");
+    setProgress(0);
     try {
-      const res = await base44.integrations.Core.UploadFile({ file });
-      onChange(res.file_url);
+      const url = await uploadPhoto(file, { onProgress: setProgress });
+      onChange(url);
     } catch (err) {
-      setError("Couldn't upload image. Please try again.");
+      setError(err.message || "Couldn't upload that photo. Please try again.");
     } finally {
       setUploading(false);
+      setProgress(0);
       if (fileRef.current) fileRef.current.value = "";
     }
   };
@@ -80,8 +77,13 @@ export default function PhotoUpload({ photoUrl, displayName, onChange }) {
           ) : (
             <Camera className="w-4 h-4" />
           )}
-          {uploading ? "Uploading..." : photoUrl ? "Change photo" : "Add photo"}
+          {uploading ? "Uploading…" : photoUrl ? "Change photo" : "Add photo"}
         </button>
+        {uploading && (
+          <div className="h-1 rounded-full bg-border overflow-hidden mt-1.5 max-w-[160px]">
+            <div className="h-full bg-primary transition-all duration-200" style={{ width: `${progress}%` }} />
+          </div>
+        )}
         {error && <p className="text-xs text-destructive mt-1">{error}</p>}
         <p className="text-xs text-muted-foreground mt-1">
           Visible to neighbors on your profile.

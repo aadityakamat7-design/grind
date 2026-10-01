@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Flag, MessageSquare, Star, Check, X, BadgeCheck, Eye, EyeOff } from "lucide-react";
 import CredentialReviewQueue from "@/components/grind/admin/CredentialReviewQueue";
+import FlaggedMessageQueue from "@/components/grind/admin/FlaggedMessageQueue";
 
 export default function AdminModeration({ reviews, messages, credentials, onReload }) {
   const [tab, setTab] = useState("reviews");
@@ -80,29 +81,7 @@ export default function AdminModeration({ reviews, messages, credentials, onRelo
         </div>
       )}
 
-      {tab === "messages" && (
-        <div className="space-y-3">
-          {messages.length === 0 ? (
-            <div className="bg-card rounded-2xl border border-border p-6 text-center">
-              <Check className="w-8 h-8 text-emerald-500 mx-auto mb-2" />
-              <p className="text-sm text-muted-foreground">No flagged messages.</p>
-            </div>
-          ) : (
-            messages.map((m) => (
-              <div key={m.id} className="bg-card rounded-2xl border border-amber-200 shadow-soft p-4 space-y-2">
-                <div className="flex items-center justify-between">
-                  <p className="text-xs font-semibold text-muted-foreground">{m.sender_name || m.sender_id?.slice(0, 8)}</p>
-                  {m.pii_masked && <span className="text-xs font-bold text-amber-600">PII masked</span>}
-                </div>
-                <p className="text-sm text-foreground">{m.body}</p>
-                <Button size="sm" variant="outline" className="rounded-xl text-xs" onClick={async () => { await base44.entities.Message.update(m.id, { flagged: false }); onReload?.(); }}>
-                  <Check className="w-3.5 h-3.5 mr-1.5" /> Clear flag
-                </Button>
-              </div>
-            ))
-          )}
-        </div>
-      )}
+      {tab === "messages" && <FlaggedMessageQueue onReload={onReload} />}
 
       {tab === "credentials" && <CredentialReviewQueue credentials={credentials} onDone={onReload} />}
     </div>

@@ -12,6 +12,8 @@ import MessagesWidget from "@/components/grind/teen/MessagesWidget";
 import CashOutDialog from "@/components/grind/wallet/CashOutDialog";
 import TeenHoursCard from "@/components/grind/teen/TeenHoursCard";
 import ProfileCompleteness from "@/components/grind/teen/ProfileCompleteness";
+import SavingsGoalCard from "@/components/grind/teen/SavingsGoalCard";
+import WorkRecordCard from "@/components/grind/WorkRecordCard";
 import ErrorRetry from "@/components/grind/ErrorRetry";
 import { getOrCreateWallet } from "@/lib/wallet";
 import { genInviteCode } from "@/lib/grind";
@@ -36,18 +38,22 @@ export default function TeenHome() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [cashOutOpen, setCashOutOpen] = useState(false);
+  const [savingsGoal, setSavingsGoal] = useState(null);
+  const [earnings, setEarnings] = useState([]);
   const { active: tourActive, finish: finishTour } = useTour(user, "teen", !loading && !!profile);
 
   const load = useCallback(async () => {
     try {
       setError(false);
-      const [profiles, myBookings, myListings, w, myThreads, myPrivate] = await Promise.all([
+      const [profiles, myBookings, myListings, w, myThreads, myPrivate, goals, earningRows] = await Promise.all([
         base44.entities.TeenProfile.filter({ user_id: user.id }),
         base44.entities.Booking.filter({ teen_user_id: user.id }, "-created_date", 100),
         base44.entities.Listing.filter({ teen_user_id: user.id }, "-created_date"),
         getOrCreateWallet(user.id),
         base44.entities.MessageThread.filter({ teen_user_id: user.id }, "-last_message_at", 5),
         base44.entities.TeenPrivateData.filter({ user_id: user.id }),
+        base44.entities.SavingsGoal.filter({ teen_user_id: user.id }, "-created_date", 5),
+        base44.entities.EarningsRecord.filter({ teen_user_id: user.id }, "-occurred_at", 200),
       ]);
       let p = profiles[0] || null;
       if (!p) {
@@ -69,6 +75,8 @@ export default function TeenHome() {
       setWallet(w);
       setThreads(myThreads);
       setPrivateData(myPrivate[0] || null);
+      setSavingsGoal(goals.find((g) => g.status !== "archived") || null);
+      setEarnings(earningRows);
     } catch (err) {
       console.error("TeenHome load failed:", err);
       setError(true);
@@ -124,6 +132,10 @@ export default function TeenHome() {
         <TeenHoursCard profile={profile} privateData={privateData} bookings={bookings} />
 
         <ProfileCompleteness profile={profile} />
+
+        <SavingsGoalCard goal={savingsGoal} records={earnings} onChanged={load} />
+
+        <WorkRecordCard teenUserId={user.id} />
 
         <InviteCodeCard profile={profile} onUpdated={load} />
         <ReferralShare user={user} />

@@ -7,6 +7,7 @@ import { getDeliveryMode, isRemovedCategory } from '../../shared/deliveryMode.ts
 import { getHourLimits } from '../../shared/stateHourLimits.ts';
 import { MAX_UNIT_PRICE, MIN_UNIT_PRICE, MAX_ESTIMATED_HOURS } from '../../shared/pricing.ts';
 import { resolveWorkEligibility, PARENT_LINK_REQUIRED } from '../../shared/parentGate.ts';
+import { availabilitySlotBreaches } from '../../shared/parentLimits.ts';
 
 const MIN_TITLE = 3;
 const MAX_TITLE = 80;
@@ -95,6 +96,17 @@ Deno.serve(async (req) => {
       const endH = parseInt(String(slot.end).split(':')[0]);
       if (isNaN(startH) || isNaN(endH) || endH <= startH) {
         return Response.json({ error: 'Availability end time must be after start time.' }, { status: 400 });
+      }
+    }
+
+    // A parent can narrow when their teen is allowed to work. Availability that
+    // breaches those limits is rejected here, not just filtered in the picker.
+    const linkRows = await svc.ParentTeenLink.filter({ teen_user_id: user.id, status: 'confirmed' });
+    const parentLimits = linkRows[0]?.limits || null;
+    for (const slot of availability) {
+      const breach = availabilitySlotBreaches(slot, parentLimits);
+      if (breach) {
+        return Response.json({ error: breach, parentLimit: true }, { status: 403 });
       }
     }
 

@@ -117,6 +117,51 @@
       "default": false,
       "description": "When true, the teen cannot cash out their Blockwork Wallet balance. The parent toggles this from their dashboard. No field-level RLS \u2014 the parent can update it via the entity-level update rule."
     },
+    "limits": {
+      "type": "object",
+      "description": "Parent-set limits for this teen, editable by the parent from their dashboard. Enforced on the server whenever the teen accepts a job, a neighbor books them, or the teen sets availability. The stricter of these and the legal limits always applies.",
+      "properties": {
+        "max_hours_per_week": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 40
+        },
+        "allowed_days": {
+          "type": "array",
+          "items": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 6
+          },
+          "description": "Day-of-week numbers (0=Sun \u2026 6=Sat). Empty means every day."
+        },
+        "earliest_hour": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 23
+        },
+        "latest_hour": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 24
+        },
+        "no_school_nights": {
+          "type": "boolean",
+          "default": false,
+          "description": "No jobs on school nights \u2014 Sunday\u2013Thursday after 6 PM"
+        },
+        "max_distance_miles": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 25
+        }
+      }
+    },
+    "limits_updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the parent last changed the limits (set server-side)"
+    },
     "description": {
       "type": "string",
       "maxLength": 1000
