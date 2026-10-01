@@ -1,0 +1,70 @@
+{
+  "name": "AccountAlert",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "The account a sensitive change was made to"
+    },
+    "change_type": {
+      "type": "string",
+      "enum": [
+        "email",
+        "name",
+        "password",
+        "address",
+        "payout",
+        "teen_control"
+      ]
+    },
+    "detail": {
+      "type": "string",
+      "maxLength": 300,
+      "description": "What changed, in plain words, as it appeared in the notice email"
+    },
+    "token": {
+      "type": "string",
+      "description": "One-time token behind the 'this wasn't me' link in the notice email (server-set only)"
+    },
+    "reported_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the person pressed 'this wasn't me' (server-set only)"
+    },
+    "reported_ip": {
+      "type": "string",
+      "description": "IP the report came from (server-set only)"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    }
+  },
+  "required": [
+    "user_id",
+    "change_type",
+    "token"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -1,5 +1,6 @@
 import { emailFooter } from './emailFooter.ts';
 import { APP_BASE_URL } from './safeOrigin.ts';
+import { notificationAllowed } from './accountPrefs.ts';
 
 // Sends an email notification to a parent when a payout is transferred to
 // their connected bank account.
@@ -9,6 +10,8 @@ export async function notifyParentPayoutSent(base44, opts) {
     const parents = await base44.asServiceRole.entities.User.filter({ id: parentUserId });
     const parent = parents[0];
     if (!parent?.email) return;
+    // Honour the parent's own payout-email switch.
+    if (!(await notificationAllowed(base44.asServiceRole.entities, parentUserId, 'payouts', 'email'))) return;
     const money = (n) => `$${Number(n || 0).toFixed(2)}`;
     await base44.asServiceRole.integrations.Core.SendEmail({
       to: parent.email,
@@ -35,6 +38,8 @@ export async function notifyParentJobAccepted(base44, opts) {
     const parents = await base44.asServiceRole.entities.User.filter({ id: parentUserId });
     const parent = parents[0];
     if (!parent?.email) return;
+    // Honour the parent's own approval-email switch.
+    if (!(await notificationAllowed(base44.asServiceRole.entities, parentUserId, 'approvals', 'email'))) return;
 
     // Opens the exact approval for this job (after sign-in, if needed).
     const deepLink = setupNeeded
@@ -76,6 +81,8 @@ export async function notifyParentApprovalNeeded(base44, opts) {
     const parents = await base44.asServiceRole.entities.User.filter({ id: parentUserId });
     const parent = parents[0];
     if (!parent?.email) return;
+    // Honour the parent's own approval-email switch.
+    if (!(await notificationAllowed(base44.asServiceRole.entities, parentUserId, 'approvals', 'email'))) return;
     const deepLink = `${origin || ''}/parent/approvals${bookingId ? `?item=${bookingId}` : ''}`;
     await base44.asServiceRole.integrations.Core.SendEmail({
       to: parent.email,
@@ -113,6 +120,9 @@ export async function notifyParentPayoutSetupNeeded(base44, opts) {
     });
 
     if (!parent?.email) return;
+    // Honour the parent's own payout-email switch. The in-app notice above is
+    // the anchor the reminder job uses, so it is always created.
+    if (!(await notificationAllowed(base44.asServiceRole.entities, parentUserId, 'payouts', 'email'))) return;
     await base44.asServiceRole.integrations.Core.SendEmail({
       to: parent.email,
       subject: `${teenName} is waiting to cash out — set up payouts`,

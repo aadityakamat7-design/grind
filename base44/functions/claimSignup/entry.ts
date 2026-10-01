@@ -1,6 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.52';
 import { SIGNUP_ROLES, calcAge, checkRoleAge } from '../../shared/signupRules.ts';
 import { cleanCode, cleanDest, cleanMethod } from '../../shared/entryIntent.ts';
+import { markVerifiedNow } from '../../shared/recheck.ts';
 
 // The one call made right after every sign-in (email code, password, Google,
 // Apple or Facebook). It attaches what was saved before the sign-in to the
@@ -29,6 +30,11 @@ Deno.serve(async (req) => {
 
     const body: any = await req.json().catch(() => ({}));
     const svc = base44.asServiceRole.entities;
+
+    // Reaching this call means the person just signed in, so the 15-minute
+    // window for sensitive account changes starts now rather than asking them
+    // for their password again straight after signing in.
+    await markVerifiedNow(svc, user.id);
 
     // What was saved before sign-in.
     let pending: any = null;
