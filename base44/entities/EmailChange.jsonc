@@ -1,0 +1,77 @@
+{
+  "name": "EmailChange",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "The account asking for the change"
+    },
+    "old_email": {
+      "type": "string"
+    },
+    "new_email": {
+      "type": "string",
+      "description": "The address that must click the confirmation link before anything changes"
+    },
+    "token": {
+      "type": "string",
+      "description": "One-time token carried in the confirmation link. Never readable by anyone but the server."
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "24 hours after the request"
+    },
+    "consumed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Set the moment the link is used, so a token can never work twice"
+    },
+    "confirmed_from_ip": {
+      "type": "string"
+    },
+    "applied": {
+      "type": "boolean",
+      "default": false,
+      "description": "True once the new notification address is actually in place"
+    },
+    "applied_to_login_email": {
+      "type": "boolean",
+      "default": false,
+      "description": "True when the account's sign-in address itself was moved, not just the notification address"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    }
+  },
+  "required": [
+    "user_id",
+    "old_email",
+    "new_email",
+    "token",
+    "expires_at"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

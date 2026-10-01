@@ -1,0 +1,125 @@
+{
+  "name": "AccountSettings",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "The account these settings belong to"
+    },
+    "phone": {
+      "type": "string",
+      "maxLength": 20,
+      "description": "Optional US phone number, stored in a normalised (555) 123-4567 form. Private: only the owner and admins can read it."
+    },
+    "notifications": {
+      "type": "object",
+      "description": "Per-type notification preferences, each with an email and an in-app switch. Security and account notices are not listed here because they can never be turned off.",
+      "properties": {
+        "bookings": {
+          "$ref": "#/properties/notifications/properties/channelPair"
+        },
+        "messages": {
+          "$ref": "#/properties/notifications/properties/channelPair"
+        },
+        "approvals": {
+          "$ref": "#/properties/notifications/properties/channelPair"
+        },
+        "payouts": {
+          "$ref": "#/properties/notifications/properties/channelPair"
+        },
+        "reports": {
+          "$ref": "#/properties/notifications/properties/channelPair"
+        },
+        "weekly_summary": {
+          "$ref": "#/properties/notifications/properties/channelPair"
+        },
+        "marketing": {
+          "$ref": "#/properties/notifications/properties/channelPair"
+        },
+        "channelPair": {
+          "type": "object",
+          "properties": {
+            "email": {
+              "type": "boolean"
+            },
+            "in_app": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    "last_verified_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the person last proved it is really them (signed in, or re-entered their password). Sensitive changes require this to be no more than 15 minutes old (server-set only).",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "payout_name_confirmed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When a parent or independent last confirmed their legal name matches their Stripe payout account (server-set only)",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    }
+  },
+  "required": [
+    "user_id"
+  ],
+  "rls": {
+    "create": {
+      "data.user_id": "{{user.id}}"
+    },
+    "read": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}
