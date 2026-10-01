@@ -10,7 +10,7 @@ import LegalModal from "@/components/grind/LegalModal";
 import WaitlistCapture from "@/components/grind/WaitlistCapture";
 import { seededName, isRealName, isCaliforniaZip } from "@/lib/signupState";
 
-const TERMS_VERSION = "2026-07";
+const TERMS_VERSION = "2026-10-01";
 
 export default function BuyerOnboarding({ user }) {
   // Names are only ever seeded from a real name already on the account — never
@@ -97,6 +97,20 @@ export default function BuyerOnboarding({ user }) {
       terms_accepted_at: new Date().toISOString(),
       terms_version: TERMS_VERSION,
     });
+    // Record the acceptance itself, as a ConsentRecord — that record (not the
+    // stamp above) is what the re-acceptance check reads. Signing up means
+    // accepting the current Terms, so nobody leaves onboarding needing the
+    // "Updated Terms" pop-up.
+    try {
+      await base44.functions.invoke("acceptTerms", {
+        accepted: true,
+        userAgent: navigator.userAgent,
+      });
+    } catch (err) {
+      setAgeError(err?.response?.data?.error || "Couldn't save your Terms acceptance. Please try again.");
+      setSaving(false);
+      return;
+    }
     setSaving(false);
     setDone(true);
   };

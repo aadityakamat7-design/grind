@@ -11,7 +11,7 @@ import { CONSENT_ITEMS, CONSENT_VERSION, FULL_TERMS_TEXT } from "@/lib/stateWork
 import StateRulesDisplay from "@/components/grind/parent/StateRulesDisplay";
 import { isRealName } from "@/lib/signupState";
 
-const TERMS_VERSION = "2026-07";
+const TERMS_VERSION = "2026-10-01";
 
 // Two-step parent onboarding:
 //   Step 1: legal first and last name + your own date of birth (18+) + the
@@ -114,6 +114,13 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
         setSaving(false);
         return;
       }
+      // Record the acceptance as a ConsentRecord — for the parent and, since the
+      // link now exists, on behalf of each linked teen. This (not the stamp
+      // below) is what the re-acceptance check reads.
+      await base44.functions.invoke("acceptTerms", {
+        accepted: true,
+        userAgent: navigator.userAgent,
+      });
       await base44.auth.updateMe({
         terms_accepted_at: new Date().toISOString(),
         terms_version: TERMS_VERSION,

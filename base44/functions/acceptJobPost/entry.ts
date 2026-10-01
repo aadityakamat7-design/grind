@@ -8,7 +8,7 @@ import { PARENT_LINK_REQUIRED } from '../../shared/parentGate.ts';
 import { APP_BASE_URL } from '../../shared/safeOrigin.ts';
 import { enforceBookingHours } from '../../shared/workHourEnforcement.ts';
 import { calculatePlatformFee, calculateNetAmount } from '../../shared/platformFee.ts';
-import { hasAcceptedCurrentTerms } from '../../shared/termsAcceptance.ts';
+import { hasMinorTermsCoverage } from '../../shared/termsAcceptance.ts';
 import { getTestModeEnabled } from '../../shared/stripeEnv.ts';
 
 // Runs the teen's "take this job" flow server-side, since JobPost.status is
@@ -22,11 +22,14 @@ Deno.serve(async (req) => {
     if (isAccountSuspended(user)) return suspendedError();
 
     // ── Terms of Service gate ──
-    // The teen (and their parent) must have accepted the current Terms.
-    const termsAccepted = await hasAcceptedCurrentTerms(base44.asServiceRole.entities, user.id);
+    // A teen under 18 never accepts Terms themselves — their parent does, on
+    // their behalf. So while the parent's acceptance is an older version the
+    // teen keeps working: the parent is prompted to re-accept, and the teen
+    // sees a small notice. Only a teen with no coverage at all is blocked.
+    const termsAccepted = await hasMinorTermsCoverage(base44.asServiceRole.entities, user.id);
     if (!termsAccepted) {
       return Response.json({
-        error: 'Please accept the updated Terms of Service before accepting jobs. Open the app to review and accept them.',
+        error: 'Terms of Service acceptance is required before accepting jobs. Ask your parent to review them, or open the app to accept them.',
       }, { status: 403 });
     }
 

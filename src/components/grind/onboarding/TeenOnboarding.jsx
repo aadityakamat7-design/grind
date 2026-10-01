@@ -139,6 +139,19 @@ export default function TeenOnboarding({ user }) {
       try {
         await base44.functions.invoke("activateIndependentTeen", {});
       } catch { /* non-fatal — profile still exists */ }
+      // An independent 18+ teen accepts the Terms for themselves. A minor's
+      // parent accepts on their behalf when they link, so minors record nothing
+      // here.
+      try {
+        await base44.functions.invoke("acceptTerms", {
+          accepted: true,
+          userAgent: navigator.userAgent,
+        });
+      } catch (err) {
+        setGeoError(err?.response?.data?.error || "Couldn't save your Terms acceptance. Please try again.");
+        setSaving(false);
+        return;
+      }
       setSaving(false);
       setDone(true);
       return;

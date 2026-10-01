@@ -8,6 +8,8 @@ import BlockworkLogo from "@/components/BlockworkLogo";
 import HelpWidget from "@/components/grind/HelpWidget";
 import OfflineBanner from "@/components/grind/OfflineBanner";
 import TermsAcceptanceGate from "@/components/TermsAcceptanceGate";
+import TeenTermsNotice from "@/components/grind/TeenTermsNotice";
+import { TermsGateProvider } from "@/lib/TermsGateContext";
 
 // Primary tabs = the 4–5 essential items shown in the main nav.
 // Secondary tabs = less-used items moved into the overflow/profile menu.
@@ -154,6 +156,7 @@ export default function Layout() {
     .toUpperCase();
 
   return (
+    <TermsGateProvider>
     <div className="min-h-screen bg-background">
       {/* Desktop sidebar */}
       <aside className="hidden lg:flex fixed inset-y-0 left-0 w-[260px] flex-col border-r border-border bg-card z-40">
@@ -264,6 +267,10 @@ export default function Layout() {
           </div>
         </header>
 
+        {/* A teen whose parent hasn't re-accepted the updated Terms yet gets a
+            small notice here — never a blocking pop-up. */}
+        <TeenTermsNotice />
+
         <main className="flex-1 max-w-3xl lg:max-w-5xl w-full mx-auto px-4 lg:px-8 pt-5 lg:pt-8 pb-28 lg:pb-12">
           <Outlet context={{ user, reload }} />
         </main>
@@ -302,5 +309,6 @@ export default function Layout() {
       <HelpWidget />
       <TermsAcceptanceGate />
     </div>
+    </TermsGateProvider>
   );
 }
