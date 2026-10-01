@@ -204,7 +204,7 @@ Deno.serve(async (req) => {
         type: 'approval',
         title: 'A new service needs your approval',
         body: `"${title}" from ${teenProfile.display_name || 'your teen'} is hidden from neighbors until you approve it.`,
-        link: '/parent/approvals',
+        link: `/parent/approvals?item=${listing.id}`,
         read: false,
       });
     }

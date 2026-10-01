@@ -40,6 +40,28 @@ const EVENTS = {
       body: `${b.buyer_name}'s payment for "${b.listing_title}" is held safely. Please review and approve this booking so the job can proceed.\n\nReview and approve: ${link}`,
     }),
   },
+  // One reminder when the parent hasn't answered an approval request.
+  approval_reminder: {
+    parent: (b, link) => ({
+      subject: `Reminder: please approve or decline "${b.listing_title}"`,
+      body: `${b.buyer_name} booked "${b.listing_title}" with ${b.teen_display_name} and the payment is held safely. We still need your answer. If there is no response before the job starts, the request is declined automatically and the neighbor is refunded in full.\n\nReview and decide: ${link}`,
+    }),
+  },
+  // The parent didn't answer in time: the request was declined and refunded.
+  expired: {
+    teen: (b, link) => ({
+      subject: `Booking not approved in time: "${b.listing_title}"`,
+      body: `Your parent didn't respond before "${b.listing_title}" was due to start, so the request was declined automatically. ${b.buyer_name} has been refunded in full.\n\nView the booking: ${link}`,
+    }),
+    buyer: (b, link) => ({
+      subject: `Refunded: "${b.listing_title}" wasn't approved in time`,
+      body: `The parent of ${b.teen_display_name} didn't respond before "${b.listing_title}" was due to start, so the booking was declined automatically. Your payment has been refunded in full. You can book another teen anytime.\n\nView the booking: ${link}`,
+    }),
+    parent: (b, link) => ({
+      subject: `Declined automatically: "${b.listing_title}"`,
+      body: `You didn't respond before "${b.listing_title}" was due to start, so the request was declined automatically and ${b.buyer_name} was refunded in full.\n\nView the booking: ${link}`,
+    }),
+  },
   approved: {
     teen: (b, link) => {
       const net = Number(b.net_amount || 0);
@@ -211,7 +233,11 @@ export async function sendBookingEmail(base44, opts) {
     return;
   }
 
-  const link = `${origin || ''}/bookings/${booking.id}`;
+  // The parent's approval emails open the exact approval screen for this
+  // booking (signing in first if needed); every other email opens the booking.
+  const bookingLink = `${origin || ''}/bookings/${booking.id}`;
+  const approvalLink = `${origin || ''}/parent/approvals?item=${booking.id}`;
+  const parentGetsApprovalLink = event === 'payment_confirmed' || event === 'approval_reminder';
   const parties = [
     { role: 'teen', userId: booking.teen_user_id },
     { role: 'buyer', userId: booking.buyer_user_id },
@@ -226,6 +252,7 @@ export async function sendBookingEmail(base44, opts) {
       const users = await base44.asServiceRole.entities.User.filter({ id: userId });
       const user = users[0];
       if (!user?.email) continue;
+      const link = role === 'parent' && parentGetsApprovalLink ? approvalLink : bookingLink;
       const { subject, body } = template(booking, link);
       await base44.asServiceRole.integrations.Core.SendEmail({
         to: user.email,

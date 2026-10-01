@@ -3,6 +3,7 @@ import { notifyAdmins } from '../../shared/notifyAdmins.ts';
 import { CONSENT_ITEMS, CONSENT_VERSION, FULL_TERMS_TEXT } from '../../shared/consentItems.ts';
 import { getVerifiedAge } from '../../shared/teenAge.ts';
 import { emailsAreSameOwner, looksLikeSelfLinkedParent } from '../../shared/parentLinkGuards.ts';
+import { calcAge } from '../../shared/signupRules.ts';
 
 // Parent-teen linking — relationship attestation model:
 //   The parent enters the teen's invite code, explicitly attests the
@@ -37,6 +38,15 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+
+    // Only a finished-profile parent account aged 18+ can link a teen.
+    if (user.app_role !== 'parent') {
+      return Response.json({ error: 'Only a parent account can link a teen. Finish setting up your parent profile first.' }, { status: 403 });
+    }
+    const parentAge = calcAge(user.date_of_birth);
+    if (parentAge === null || parentAge < 18) {
+      return Response.json({ error: 'You must be at least 18 years old to be a parent or guardian on Blockwork.' }, { status: 403 });
+    }
 
     const { inviteCode, attestRelationship, consents, stateRulesAcknowledged, stateRules, userAgent, teenDob } = await req.json();
     if (!inviteCode) return Response.json({ error: 'inviteCode required' }, { status: 400 });

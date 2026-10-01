@@ -1,31 +1,19 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.52';
+import { SIGNUP_ROLES, calcAge } from '../../shared/signupRules.ts';
 
-// Grants an account its role. This is the ONLY place app_role is set: the
-// browser says which role the user picked, and the server re-checks every rule
-// (allowed role, age for that role, California ZIP) before writing it. A client
-// can therefore never assign itself a role it isn't eligible for, and the role
-// can be set once — it is never swapped afterwards.
+// Saves the profile step of sign-up and grants the account its role. This is the
+// ONLY place app_role is set. The role and date of birth come from the age check
+// that claimSignup attached to the account — the browser cannot change them here —
+// and the server re-checks every rule (name, California ZIP) before writing.
+//
+// Order is enforced with onboarding_step:
+//   account_created → profile_complete → parent_link_shown (teens under 18 and
+//   parents) → done. Neighbors and independent 18+ teens go straight to done.
 
-const ALLOWED_ROLES = ['teen', 'parent', 'buyer'];
-
-// California ZIPs run 90001–96162; no other state uses that block.
 function isCaliforniaZip(zip: string): boolean {
   if (!/^\d{5}$/.test(zip)) return false;
   const n = Number(zip);
   return n >= 90001 && n <= 96162;
-}
-
-// Age computed on the server from YYYY-MM-DD — never trusted from the client.
-function calcAge(dob: string): number | null {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(dob)) return null;
-  const d = new Date(`${dob}T00:00:00Z`);
-  if (Number.isNaN(d.getTime())) return null;
-  const now = new Date();
-  if (d.getTime() > now.getTime()) return null;
-  let age = now.getUTCFullYear() - d.getUTCFullYear();
-  const monthDiff = now.getUTCMonth() - d.getUTCMonth();
-  if (monthDiff < 0 || (monthDiff === 0 && now.getUTCDate() < d.getUTCDate())) age -= 1;
-  return age;
 }
 
 function isRealName(value: string, email: string): boolean {
@@ -46,45 +34,50 @@ export default async function (req: Request): Promise<Response> {
 
     const body: any = await req.json().catch(() => ({}));
     const role = String(body?.role || '').toLowerCase().trim();
-    if (!ALLOWED_ROLES.includes(role)) {
+    if (!SIGNUP_ROLES.includes(role)) {
       return Response.json({ error: 'Choose a valid account type.' }, { status: 400 });
+    }
+
+    // The role is set once and never swapped.
+    const existingRole = String(user.app_role || '').toLowerCase();
+    if (existingRole && existingRole !== role) {
+      return Response.json({ error: 'Your account already has a role.' }, { status: 403 });
+    }
+    if (existingRole === role && user.onboarding_step !== 'account_created') {
+      return Response.json({ ok: true, role, alreadySet: true, step: user.onboarding_step || 'done' });
+    }
+
+    // The age check must have been passed and attached to this account.
+    if (!user.signup_claimed_at || !user.signup_role) {
+      return Response.json(
+        { error: 'Please confirm who you are and your date of birth first.', code: 'needs_age_check' },
+        { status: 403 },
+      );
+    }
+    if (user.signup_role !== role) {
+      return Response.json({ error: 'That is not the account type you signed up for.' }, { status: 403 });
+    }
+
+    // Age always comes from the account, never from the request.
+    const age = calcAge(user.date_of_birth);
+    if (age === null) {
+      return Response.json({ error: 'Please confirm your date of birth first.', code: 'needs_age_check' }, { status: 403 });
     }
 
     const firstName = String(body?.firstName || '').trim();
     const lastName = String(body?.lastName || '').trim();
-    const dob = String(body?.dateOfBirth || '').trim();
     const zip = String(body?.zip || '').trim();
-    const state = String(body?.state || '').trim().toUpperCase();
-
-    // --- Re-check everything the browser checked ---
-    const age = calcAge(dob);
-    if (age === null) {
-      return Response.json({ error: 'Enter a valid date of birth.' }, { status: 400 });
-    }
 
     if (role === 'teen') {
-      if (age < 13) {
-        return Response.json({ error: 'Blockwork is for teens 13 and older.' }, { status: 400 });
+      if (age < 13) return Response.json({ error: 'You need to be 13 or older to use Blockwork.' }, { status: 400 });
+      if (!isRealName(firstName, user.email) || !isRealName(lastName, user.email)) {
+        return Response.json({ error: 'Enter your real first and last name — letters only, not your email address.' }, { status: 400 });
       }
-      if (age >= 18) {
-        return Response.json(
-          { error: 'At 18 you join as an independent account instead of a teen account.' },
-          { status: 400 }
-        );
-      }
-      if (state && state !== 'CA') {
-        return Response.json({ error: 'Blockwork is currently only available in California.' }, { status: 400 });
-      }
-      if (zip && !isCaliforniaZip(zip)) {
+      if (!isCaliforniaZip(zip)) {
         return Response.json({ error: 'Enter a 5-digit California ZIP code.' }, { status: 400 });
       }
-      if (firstName && !isRealName(firstName, user.email)) {
-        return Response.json({ error: 'Enter your real first name — letters only, not your email address.' }, { status: 400 });
-      }
     } else {
-      if (age < 18) {
-        return Response.json({ error: 'You must be at least 18 years old for this account type.' }, { status: 400 });
-      }
+      if (age < 18) return Response.json({ error: 'You must be at least 18 years old for this account type.' }, { status: 400 });
       if (role === 'parent' && !isRealName(firstName, user.email)) {
         return Response.json({ error: 'Enter your legal first and last name — letters only.' }, { status: 400 });
       }
@@ -98,35 +91,16 @@ export default async function (req: Request): Promise<Response> {
       }
     }
 
-    // A parent account only exists behind a confirmed link, which confirmParentLink
-    // creates server-side after Stripe verifies the adult.
-    if (role === 'parent') {
-      const links = await base44.asServiceRole.entities.ParentTeenLink.filter({
-        parent_user_id: user.id,
-        status: 'confirmed',
-      });
-      if (!links || !links.length) {
-        return Response.json({ error: 'Link to your teen before finishing parent setup.' }, { status: 403 });
-      }
-    }
-
-    // --- The existing role is authoritative: set once, never swapped ---
-    const existingRole = String(user.app_role || '').toLowerCase();
-    if (existingRole && existingRole !== role) {
-      return Response.json({ error: 'Your account already has a role.' }, { status: 403 });
-    }
-    if (existingRole === role && user.onboarded) {
-      return Response.json({ ok: true, role, alreadySet: true });
-    }
+    const needsParentLinkStep = (role === 'teen' && age < 18) || role === 'parent';
+    const nextStep = needsParentLinkStep ? 'profile_complete' : 'done';
 
     await base44.asServiceRole.entities.User.update(user.id, {
       app_role: role,
-      onboarded: true,
-      date_of_birth: dob,
-      ...(state ? { work_state: state } : {}),
+      onboarding_step: nextStep,
+      onboarded: nextStep === 'done',
     });
 
-    return Response.json({ ok: true, role });
+    return Response.json({ ok: true, role, step: nextStep });
   } catch (error: any) {
     console.error('saveSignupRole failed:', error?.message || error);
     return Response.json({ error: 'Something went wrong saving your account type.' }, { status: 500 });

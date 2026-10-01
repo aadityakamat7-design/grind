@@ -1,0 +1,44 @@
+{
+  "name": "Pending Approvals",
+  "description": "Every 30 minutes: sends one reminder to a parent who hasn't answered an approval request (12 hours before the job starts, or 48 hours after the request, whichever comes first), and auto-declines with a full refund if there's still no answer 2 hours before the start.",
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "recurring",
+      "cron_expression": "*/30 * * * *",
+      "one_time_date": null,
+      "timezone": "America/Los_Angeles",
+      "interval_value": null,
+      "interval_unit": null,
+      "interval_anchor": null,
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "pending_approvals",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "process_approvals": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "processPendingApprovals"
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Remind or auto-decline",
+            "description": "Unanswered parent approvals"
+          }
+        }
+      }
+    ]
+  }
+}

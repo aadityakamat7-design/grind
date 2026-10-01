@@ -30,15 +30,16 @@ export async function notifyParentPayoutSent(base44, opts) {
 // base44: the service-role client (from createClientFromRequest)
 // opts: { teenName, jobTitle, buyerName, parentUserId, origin, setupNeeded }
 export async function notifyParentJobAccepted(base44, opts) {
-  const { teenName, jobTitle, buyerName, parentUserId, origin, setupNeeded } = opts;
+  const { teenName, jobTitle, buyerName, parentUserId, origin, setupNeeded, bookingId } = opts;
   try {
     const parents = await base44.asServiceRole.entities.User.filter({ id: parentUserId });
     const parent = parents[0];
     if (!parent?.email) return;
 
+    // Opens the exact approval for this job (after sign-in, if needed).
     const deepLink = setupNeeded
       ? `${origin}/parent/approvals?setup=1`
-      : `${origin}/parent/approvals`;
+      : `${origin}/parent/approvals${bookingId ? `?item=${bookingId}` : ''}`;
 
     const subject = setupNeeded
       ? `${teenName} accepted a job — complete setup to approve`
@@ -69,13 +70,13 @@ export async function notifyParentJobAccepted(base44, opts) {
 // Notification created in createBooking — email ensures the parent sees it
 // even if they don't have the app open.
 export async function notifyParentApprovalNeeded(base44, opts) {
-  const { teenName, jobTitle, buyerName, parentUserId, origin } = opts;
+  const { teenName, jobTitle, buyerName, parentUserId, origin, bookingId } = opts;
   // origin is used in emailFooter below
   try {
     const parents = await base44.asServiceRole.entities.User.filter({ id: parentUserId });
     const parent = parents[0];
     if (!parent?.email) return;
-    const deepLink = `${origin || ''}/parent/approvals`;
+    const deepLink = `${origin || ''}/parent/approvals${bookingId ? `?item=${bookingId}` : ''}`;
     await base44.asServiceRole.integrations.Core.SendEmail({
       to: parent.email,
       subject: `Approval needed: ${buyerName} booked ${teenName}`,

@@ -432,7 +432,7 @@ Deno.serve(async (req) => {
           type: 'booking',
           title: 'Payment confirmed — please approve',
           body: `${buyerName}'s payment for "${listing.title}" is held safely. Please review and approve this booking.`,
-          link: `/bookings/${booking.id}`,
+          link: `/parent/approvals?item=${booking.id}`,
           read: false,
         });
       }

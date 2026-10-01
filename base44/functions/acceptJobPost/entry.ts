@@ -244,7 +244,7 @@ Deno.serve(async (req) => {
         type: 'approval',
         title: `Approve: ${profile?.display_name || 'your teen'} took a job`,
         body: `They accepted "${job.title}" from ${job.buyer_name}. The neighbor's payment is held safely — the work starts once you approve it.`,
-        link: `/bookings/${booking.id}`,
+        link: `/parent/approvals?item=${booking.id}`,
         read: false,
       });
 
@@ -253,8 +253,10 @@ Deno.serve(async (req) => {
       // the setup flow via a deep link — needed only at withdrawal time.
       const parentProfiles = await svc.ParentProfile.filter({ user_id: parentUserId });
       const pp = parentProfiles[0];
-      const setupNeeded = pp?.connect_status !== 'active';
+      // Payout setup is not needed to approve, so the email always opens the approval itself.
+      const setupNeeded = false;
       await notifyParentJobAccepted(base44.asServiceRole, {
+        bookingId: booking.id,
         teenName: profile?.display_name || 'Your teen',
         jobTitle: job.title,
         buyerName: job.buyer_name,
