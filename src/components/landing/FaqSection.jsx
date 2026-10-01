@@ -12,7 +12,7 @@ const FAQS = [
   },
   {
     q: "Is it safe?",
-    a: "Yes. Parents are verified through Stripe's payout setup, parents approve every booking, contact details stay hidden until a booking is confirmed, and both sides rate each other after every job.",
+    a: "Yes. A teen can't post a service or take a job until a parent links to their account, parents approve every service and every booking, payouts run through Stripe's verified payout setup, contact details stay hidden until a booking is confirmed, and both sides rate each other after every job.",
   },
   {
     q: "How much does Blockwork charge?",

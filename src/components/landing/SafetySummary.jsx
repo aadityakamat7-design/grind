@@ -7,8 +7,8 @@ import { Check, X, ShieldCheck, ArrowRight } from "lucide-react";
 // core protections plus a "what we don't do" anti-scam list, with a link to
 // the full Payments & Compliance page.
 const DO = [
-  "Parent approval on every job",
-  "Parents verified through Stripe",
+  "Parent approval on every service and job",
+  "A linked parent for every teen",
   "Payments held until the job is done",
   "No home entry — outdoor work and online tutoring only",
   "Card and bank details handled entirely by Stripe",

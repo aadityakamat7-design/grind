@@ -5,8 +5,8 @@ import ScrambleText from "@/components/landing/ScrambleText";
 import DecodeBackdrop from "@/components/landing/DecodeBackdrop";
 
 const TRUST_POINTS = [
-  "Every job parent-approved",
-  "Every parent verified through Stripe",
+  "Every service and job parent-approved",
+  "A linked parent for every teen",
   "Payments held until the job is done",
 ];
 

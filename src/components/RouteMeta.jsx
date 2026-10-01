@@ -8,7 +8,7 @@ import { useLocation } from "react-router-dom";
 // persisting when a page has no Seo component.
 const DEFAULT_TITLE = "Blockwork — Parent-Approved Local Jobs for Teens in California";
 const DEFAULT_DESCRIPTION =
-  "Blockwork is a parent-approved local marketplace where California teens (13+) earn real paychecks doing lawn care, car washing, pet sitting, and online tutoring. Every job is parent-approved, every parent is verified through Stripe, and every payment is held until the job is done. Available in California only.";
+  "Blockwork is a parent-approved local marketplace where California teens (13+) earn real paychecks doing lawn care, car washing, pet sitting, and online tutoring. Teens can't post a service or take a job until a parent is linked to their account, every service and every job is parent-approved, and every payment is held until the job is done. Available in California only.";
 
 const ROUTE_META = {
   "/": { title: DEFAULT_TITLE, description: DEFAULT_DESCRIPTION },

@@ -9,7 +9,7 @@ const PHRASES = [
   "Neighborhood teens.",
   "The neighborhood marketplace where teens find safe local work — with a parent approving every step.",
   "Every job parent-approved",
-  "Every parent verified through Stripe",
+  "A linked parent for every teen",
   "Payments held until the job is done",
 ];
 

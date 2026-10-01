@@ -18,7 +18,7 @@ export default function PrivacyPolicy() {
 
         <div className="prose prose-sm max-w-none text-muted-foreground [&_h2]:text-foreground [&_h2]:font-heading [&_h2]:font-semibold [&_h2]:mt-8 [&_h2]:mb-3 [&_p]:leading-relaxed [&_li]:leading-relaxed [&_strong]:text-foreground">
           <p className="text-base text-foreground bg-muted rounded-xl p-4 border border-border">
-            <strong>Plain-language summary:</strong> We collect the information needed to run a safe marketplace for outdoor tasks and online tutoring — names, dates of birth, emails, listings, messages, and limited location data during active jobs. Parents are verified through Stripe's payout setup (legal name, date of birth, SSN, bank account, 18+). We do not store SSNs or ID images. We hold payments through Stripe until the job is done. We do not sell your data. This policy explains what we collect, why, and your rights.
+            <strong>Plain-language summary:</strong> We collect the information needed to run a safe marketplace for outdoor tasks and online tutoring — names, dates of birth, emails, listings, messages, and limited location data during active jobs. A teen can't post a service or take a job until a parent links to their account, and parents complete Stripe's payout setup (legal name, date of birth, SSN, bank account, 18+) before any earnings are paid out. We do not store SSNs or ID images. We hold payments through Stripe until the job is done. We do not sell your data. This policy explains what we collect, why, and your rights.
           </p>
 
           <p className="text-base text-foreground bg-muted rounded-xl p-4 border border-border">

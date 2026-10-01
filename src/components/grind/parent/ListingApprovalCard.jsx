@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { CheckCircle2, Tag } from "lucide-react";
+import { Tag } from "lucide-react";
 import { CATEGORY_LABELS, money } from "@/lib/grind";
 
 // One service a teen posted that is hidden from neighbors until their linked
