@@ -1,0 +1,66 @@
+{
+  "name": "PendingSignup",
+  "type": "object",
+  "properties": {
+    "token": {
+      "type": "string",
+      "description": "One-time random token carried through the sign-in redirect (Google, Apple, Facebook) so the age check survives it"
+    },
+    "role": {
+      "type": "string",
+      "enum": [
+        "teen",
+        "parent",
+        "buyer"
+      ],
+      "description": "The role the person picked at the age check"
+    },
+    "date_of_birth": {
+      "type": "string",
+      "format": "date",
+      "description": "The date of birth entered at the age check (already validated for this role)"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "15 minutes after the age check passed"
+    },
+    "consumed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Set when the token was attached to an account, so it can never be used twice"
+    },
+    "ip": {
+      "type": "string",
+      "description": "Client IP, used only to rate-limit the age check"
+    }
+  },
+  "required": [
+    "token",
+    "role",
+    "date_of_birth",
+    "expires_at"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

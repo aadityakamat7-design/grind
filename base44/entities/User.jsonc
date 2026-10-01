@@ -10,7 +10,14 @@
         "buyer",
         "admin"
       ],
-      "description": "The Blockwork role selected during onboarding"
+      "description": "The Blockwork role selected during onboarding (server-set only)",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     },
     "onboarding_complete": {
       "type": "boolean",
@@ -19,16 +26,86 @@
     "onboarded": {
       "type": "boolean",
       "default": false,
-      "description": "Set true after onboarding completes"
+      "description": "Set true once onboarding_step reaches done (server-set only)",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "onboarding_step": {
+      "type": "string",
+      "enum": [
+        "account_created",
+        "profile_complete",
+        "parent_link_shown",
+        "done"
+      ],
+      "description": "Where this account is in sign-up. Every page load sends an unfinished account to its next step. Accounts created before this field existed have no step and are treated as done when onboarded (server-set only).",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "signup_role": {
+      "type": "string",
+      "enum": [
+        "teen",
+        "parent",
+        "buyer"
+      ],
+      "description": "The role the person picked at the age check, re-validated on the server before it is saved here (server-set only)",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "signup_claimed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the age check result was attached to this account (server-set only)",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "contact_email": {
+      "type": "string",
+      "description": "An email the person typed and confirmed themselves, saved when their sign-in provider (for example Facebook) did not return one"
     },
     "date_of_birth": {
       "type": "string",
       "format": "date",
-      "description": "Collected at onboarding for age verification"
+      "description": "Collected at the age check for age verification (server-set only)",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     },
     "work_state": {
       "type": "string",
-      "description": "US state code for work eligibility (teens)"
+      "description": "US state code for work eligibility (teens) (server-set only)",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     },
     "has_seen_tour": {
       "type": "boolean",
@@ -70,22 +147,50 @@
         "suspended"
       ],
       "default": "active",
-      "description": "Set to suspended by Blockwork support when an account must stop acting on the marketplace (admin-set only). A suspended account can still sign in and see its own records, and work already agreed stays in place \u2014 it just cannot start anything new."
+      "description": "Set to suspended by Blockwork support when an account must stop acting on the marketplace (admin-set only). A suspended account can still sign in and see its own records, and work already agreed stays in place \u2014 it just cannot start anything new.",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     },
     "account_status_reason": {
       "type": "string",
       "maxLength": 500,
-      "description": "Why the account is on hold \u2014 shown to the account holder and recorded in the admin audit log (admin-set only)"
+      "description": "Why the account is on hold \u2014 shown to the account holder and recorded in the admin audit log (admin-set only)",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     },
     "messaging_suspended": {
       "type": "boolean",
       "default": false,
-      "description": "Set by the safety monitor when a user sends sexual content directed at a minor \u2014 they cannot send messages until an admin reviews and lifts it (server-set only)"
+      "description": "Set by the safety monitor when a user sends sexual content directed at a minor \u2014 they cannot send messages until an admin reviews and lifts it (server-set only)",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     },
     "messaging_suspended_reason": {
       "type": "string",
       "maxLength": 500,
-      "description": "Why messaging is suspended (server-set only)"
+      "description": "Why messaging is suspended (server-set only)",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     }
   }
 }
