@@ -117,7 +117,14 @@ export default function Layout() {
         </div>
       );
     }
-    return <Navigate to="/" replace />;
+    // Not signed in — go to the login page and come straight back here, so a
+    // link from an email (an approval, a receipt) lands on the right screen.
+    return (
+      <Navigate
+        to={`/login?returnTo=${encodeURIComponent(location.pathname + location.search)}`}
+        replace
+      />
+    );
   }
   if (!user.app_role || !user.onboarded) {
     if (location.pathname !== "/onboarding") return <Navigate to="/onboarding" replace />;

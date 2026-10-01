@@ -1,64 +1,51 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Navigate } from "react-router-dom";
-import { useAppUser } from "@/lib/useAppUser";
 import { base44 } from "@/api/base44Client";
+import { useAppUser } from "@/lib/useAppUser";
 import AuthLayout from "@/components/AuthLayout";
-import RolePicker from "@/components/grind/onboarding/RolePicker";
+import AgeGateStep from "@/components/auth/AgeGateStep";
+import ContactEmailStep from "@/components/auth/ContactEmailStep";
 import TeenOnboarding from "@/components/grind/onboarding/TeenOnboarding";
-import ParentOnboarding from "@/components/grind/onboarding/ParentOnboarding";
+import TeenParentLinkScreen from "@/components/grind/onboarding/TeenParentLinkScreen";
+import ParentProfileStep from "@/components/grind/onboarding/ParentProfileStep";
+import ParentLinkStep from "@/components/grind/onboarding/ParentLinkStep";
 import BuyerOnboarding from "@/components/grind/onboarding/BuyerOnboarding";
-import { readRoleFromUrl, clearStoredRole, clearSignupProgress } from "@/lib/signupState";
+import FinishOnboarding from "@/components/grind/onboarding/FinishOnboarding";
 
 const ROLE_HOME = { teen: "/teen", parent: "/parent", buyer: "/buyer", admin: "/admin" };
 
+// Sign-up steps, in order. Every step is decided by the SERVER — the role, the
+// date of birth and how far along the account is live on the account record, so
+// this page can only ever show the next step, never skip one:
+//
+//   (no age check)    → age check (role + date of birth)
+//   account_created   → profile (teen / parent / neighbor)
+//   profile_complete  → parent link (teens under 18 and parents; can be skipped)
+//   parent_link_shown → done, then the right dashboard
 export default function Onboarding() {
-  const { user, loading } = useAppUser();
+  const { user, loading, reload } = useAppUser();
   const urlParams = new URLSearchParams(window.location.search);
+  const st = urlParams.get("st") || "";
   const inviteCode = urlParams.get("code") || "";
   const refCode = urlParams.get("ref") || "";
-  // Persist the invite code so it survives the register/login redirect — an
-  // unauthenticated parent clicking the shared link would otherwise lose it
-  // when bounced to auth, and arrive at onboarding with an empty code box.
-  // Captured once so a later storage clear can't empty the box mid-flow.
-  const [pendingCode] = useState(() => inviteCode || localStorage.getItem("grind_invite_code") || "");
-  // The role comes ONLY from the picker's explicit choice, which travels in the
-  // URL (?role=). It is never inferred from an invite code, a stored value, a
-  // previous sign-up on this device, or a default — with no choice made, the
-  // picker is shown again.
-  const [role, setRole] = useState(() => readRoleFromUrl());
 
-  // Persist the code + referral for the auth redirect, and drop any role residue
-  // left by an earlier sign-up on this device.
+  // Captured once so a later storage clear can't empty the code box mid-flow.
+  const [pendingCode] = useState(() => inviteCode || localStorage.getItem("grind_invite_code") || "");
+  const [notice, setNotice] = useState("");
+  const [needsAge, setNeedsAge] = useState(!st);
+  // Set the moment the server accepts the age check, so the age screen can't
+  // flash again while the account is being re-read.
+  const [claimed, setClaimed] = useState(false);
+  const claimStarted = useRef(false);
+
+  // Carry the invite + referral codes across the auth redirects the person may
+  // still be bounced through.
   useEffect(() => {
     if (inviteCode) localStorage.setItem("grind_invite_code", inviteCode);
     if (refCode) localStorage.setItem("grind_referral", refCode);
-    clearStoredRole();
   }, [inviteCode, refCode]);
 
-  // The explicit choice is written into the URL so a refresh keeps it, and any
-  // progress belonging to a different role is dropped.
-  const chooseRole = (next) => {
-    clearSignupProgress();
-    setRole(next);
-    const params = new URLSearchParams(window.location.search);
-    params.set("role", next);
-    window.history.replaceState({}, "", `${window.location.pathname}?${params.toString()}`);
-  };
-
-  // Changing role clears the previous choice and its progress, so nothing can
-  // carry over into the new one.
-  const changeRole = () => {
-    clearSignupProgress();
-    setRole(null);
-    const params = new URLSearchParams(window.location.search);
-    params.delete("role");
-    const qs = params.toString();
-    window.history.replaceState({}, "", `${window.location.pathname}${qs ? `?${qs}` : ""}`);
-  };
-
-  // Record a referral when the user completes onboarding after signing up
-  // via someone's invite link. Fire-and-forget — the backend processes it
-  // even after the redirect navigates away.
+  // Record a referral once onboarding is finished. Fire-and-forget.
   useEffect(() => {
     const ref = localStorage.getItem("grind_referral");
     if (user?.onboarded && ref && user?.id !== ref) {
@@ -68,48 +55,151 @@ export default function Onboarding() {
     }
   }, [user?.onboarded, user?.id, user?.email]);
 
+  // Attach the age check that was done before sign-in. The token rides in the URL
+  // (?st=…) through Google / Apple / Facebook; if it expired or is missing, the
+  // person confirms their role and date of birth again on the age screen.
+  useEffect(() => {
+    if (loading || !user || claimStarted.current) return;
+    if (user.signup_claimed_at) {
+      claimStarted.current = true;
+      return;
+    }
+    if (!st) {
+      setNeedsAge(true);
+      return;
+    }
+    claimStarted.current = true;
+    (async () => {
+      try {
+        const res = await base44.functions.invoke("claimSignup", { token: st });
+        if (res.data?.error) {
+          setNotice(res.data.error);
+          setNeedsAge(true);
+        } else {
+          setNeedsAge(false);
+          setClaimed(true);
+        }
+      } catch (err) {
+        const data = err?.response?.data || err?.data || {};
+        setNotice(data.error || "We couldn't finish setting up your account. Please confirm your details.");
+        setNeedsAge(true);
+      }
+      // Drop the used token from the address bar so a refresh can't retry it.
+      const params = new URLSearchParams(window.location.search);
+      params.delete("st");
+      const qs = params.toString();
+      window.history.replaceState({}, "", `${window.location.pathname}${qs ? `?${qs}` : ""}`);
+      await reload();
+    })();
+  }, [loading, user?.id, user?.signup_claimed_at, st, reload]);
+
+  // Role + date of birth typed here (no token) — the server re-checks the rules.
+  const claim = async (role, dob) => {
+    try {
+      const res = await base44.functions.invoke("claimSignup", { role, dateOfBirth: dob });
+      if (res.data?.error) return { error: res.data.error };
+      setNotice("");
+      setNeedsAge(false);
+      setClaimed(true);
+      await reload();
+      return {};
+    } catch (err) {
+      const data = err?.response?.data || err?.data || {};
+      return { error: data.error || "Something went wrong. Please try again." };
+    }
+  };
+
   if (loading)
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-background">
         <div className="w-8 h-8 border-4 border-muted border-t-foreground rounded-full animate-spin" />
       </div>
     );
+
   if (!user) {
-    // Carry the invite code + referral code forward through sign-up.
+    // Carry the invite + referral codes forward through sign-up.
     const params = new URLSearchParams();
     if (pendingCode) params.set("code", pendingCode);
     if (refCode) params.set("ref", refCode);
-    if (params.toString()) {
-      const returnTo = `/onboarding?${params.toString()}`;
-      return <Navigate to={`/register?returnTo=${encodeURIComponent(returnTo)}`} replace />;
-    }
-    return <Navigate to="/" replace />;
+    const qs = params.toString();
+    const returnTo = qs ? `/onboarding?${qs}` : "/onboarding";
+    return <Navigate to={`/register?returnTo=${encodeURIComponent(returnTo)}`} replace />;
   }
-  if (user.app_role && user.onboarded)
-    return <Navigate to={ROLE_HOME[user.app_role] || "/browse"} replace />;
 
-  const title = !role ? "Who are you?" : "Set up your account";
-  const subtitle = !role
-    ? "Pick your role to get started."
-    : "Tell us a bit about yourself to get started.";
+  // Finished account → its dashboard.
+  if (user.app_role && user.onboarded) return <Navigate to={ROLE_HOME[user.app_role] || "/browse"} replace />;
 
-  return (
-    <AuthLayout title={title} subtitle={subtitle}>
-      {!role ? (
-        <RolePicker onSelect={chooseRole} />
-      ) : (
-        <div>
-          <button
-            onClick={changeRole}
-            className="text-xs font-medium text-muted-foreground mb-4 hover:text-foreground"
-          >
-            ← Change role
-          </button>
-          {role === "teen" && <TeenOnboarding user={user} />}
-          {role === "parent" && <ParentOnboarding user={user} initialCode={pendingCode} />}
-          {role === "buyer" && <BuyerOnboarding user={user} />}
-        </div>
-      )}
-    </AuthLayout>
-  );
+  // A social sign-up that came back without an email address (Facebook) can't
+  // receive approvals, receipts or payout notices — ask for one first.
+  if (!user.email && !user.contact_email) {
+    return (
+      <AuthLayout title="One more thing" subtitle="We need an email address to keep you posted.">
+        <ContactEmailStep onSaved={reload} />
+      </AuthLayout>
+    );
+  }
+
+  // Step 1 — the age check.
+  const awaitingClaim = !!st && !user.signup_claimed_at && !needsAge && !claimed;
+  if (needsAge || (!user.signup_claimed_at && !claimed)) {
+    return (
+      <AuthLayout
+        title="Set up your account"
+        subtitle="Your role and age set up the right account."
+        showBackdrop={false}
+      >
+        {awaitingClaim ? (
+          <div className="flex flex-col items-center gap-3 py-10">
+            <div className="w-8 h-8 border-4 border-muted border-t-foreground rounded-full animate-spin" />
+            <p className="text-sm text-muted-foreground">Setting up your account…</p>
+          </div>
+        ) : (
+          <AgeGateStep onSubmit={claim} notice={notice} />
+        )}
+      </AuthLayout>
+    );
+  }
+
+  const role = String(user.signup_role || user.app_role || "").toLowerCase();
+  const step = user.onboarding_step || "";
+
+  // Step 2 — the profile.
+  if (step === "account_created") {
+    return (
+      <AuthLayout title="Set up your account" subtitle="Tell us a bit about yourself to get started." showBackdrop={false}>
+        {role === "teen" && <TeenOnboarding user={user} onProfileSaved={reload} />}
+        {role === "parent" && <ParentProfileStep user={user} onSaved={reload} />}
+        {role === "buyer" && <BuyerOnboarding user={user} onProfileSaved={reload} />}
+      </AuthLayout>
+    );
+  }
+
+  // Step 3 — the parent link (teens under 18 and parents). It can be skipped;
+  // the teen keeps their code on the dashboard and the parent can add a teen
+  // later from theirs.
+  if (step === "profile_complete") {
+    return (
+      <AuthLayout
+        title={role === "parent" ? "Link your teen" : "Link your parent"}
+        subtitle={role === "parent" ? "Approve what your teen does — you can also do this later." : "Nothing goes live until your parent links."}
+        showBackdrop={false}
+      >
+        {role === "parent" ? (
+          <ParentLinkStep user={user} initialCode={pendingCode} onDone={() => ROLE_HOME.parent} />
+        ) : (
+          <TeenParentLinkScreen user={user} />
+        )}
+      </AuthLayout>
+    );
+  }
+
+  if (step === "parent_link_shown" || step === "done") {
+    return (
+      <AuthLayout title="Almost there" subtitle="Finishing your account…" showBackdrop={false}>
+        <FinishOnboarding home={ROLE_HOME[role] || "/"} />
+      </AuthLayout>
+    );
+  }
+
+  return <Navigate to={ROLE_HOME[role] || "/"} replace />;
 }

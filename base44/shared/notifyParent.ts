@@ -103,7 +103,9 @@ export async function notifyParentPayoutSetupNeeded(base44, opts) {
 
     await base44.asServiceRole.entities.Notification.create({
       user_id: parentUserId,
-      type: 'payment',
+      // 'payout_setup_needed' is the anchor the daily reminder job (3 / 7 / 14
+      // days) looks for — one per cash-out attempt that needs payout setup.
+      type: 'payout_setup_needed',
       title: `${teenName} wants to cash out`,
       body: `${money} is waiting in ${teenName}'s wallet. Set up your payout account so they can get paid.`,
       link: '/parent/payouts',

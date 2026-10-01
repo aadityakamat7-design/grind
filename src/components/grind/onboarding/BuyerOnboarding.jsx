@@ -12,7 +12,9 @@ import { seededName, isRealName, isCaliforniaZip } from "@/lib/signupState";
 
 const TERMS_VERSION = "2026-10-01";
 
-export default function BuyerOnboarding({ user }) {
+export default function BuyerOnboarding({ user, onProfileSaved }) {
+  // The date of birth was checked and saved on the account by the age screen.
+  const dob = user.date_of_birth || "";
   // Names are only ever seeded from a real name already on the account — never
   // from the email username the platform writes at sign-up.
   const seeded = seededName(user);
@@ -21,14 +23,12 @@ export default function BuyerOnboarding({ user }) {
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
   const [zip, setZip] = useState("");
-  const [dob, setDob] = useState("");
   const [tosAccepted, setTosAccepted] = useState(false);
   const [saving, setSaving] = useState(false);
   const [geoError, setGeoError] = useState("");
   const [caBlocked, setCaBlocked] = useState(false);
   const [ageError, setAgeError] = useState("");
   const [legalModal, setLegalModal] = useState(null);
-  const [done, setDone] = useState(false);
 
   const finish = async () => {
     setSaving(true);
@@ -46,14 +46,8 @@ export default function BuyerOnboarding({ user }) {
       return;
     }
 
-    // Buyers must be 18+ — they're hiring and paying
-    const age = calcAge(dob);
-    if (age === null || age < 18) {
-      setAgeError("You must be at least 18 years old to hire on Blockwork.");
-      setSaving(false);
-      return;
-    }
-
+    // Age is checked by the age screen (and again server-side) before an account
+    // can be created, so buyers reach here already 18+.
     const existing = await base44.entities.BuyerProfile.filter({ user_id: user.id });
     if (!existing[0]) {
       let geo;
@@ -84,7 +78,6 @@ export default function BuyerOnboarding({ user }) {
       role: "buyer",
       firstName: firstName.trim(),
       lastName: lastName.trim(),
-      dateOfBirth: dob,
       zip: zip.trim(),
     });
     if (roleRes.data?.error) {
@@ -112,24 +105,10 @@ export default function BuyerOnboarding({ user }) {
       return;
     }
     setSaving(false);
-    setDone(true);
+    // The server now knows this account is finished; Onboarding reloads it and
+    // sends the person to their dashboard.
+    onProfileSaved();
   };
-
-  if (done)
-    return (
-      <div className="space-y-4 text-center">
-        <div className="w-16 h-16 rounded-2xl bg-emerald-50 flex items-center justify-center mx-auto">
-          <ShieldCheck className="w-8 h-8 text-emerald-600" />
-        </div>
-        <h2 className="text-xl font-bold text-foreground">You're all set!</h2>
-        <p className="text-sm text-muted-foreground">
-          Your account is ready. Browse trusted local teens and post your first job whenever you need help.
-        </p>
-        <Button className="w-full rounded-xl" onClick={() => { window.location.href = "/buyer"; }}>
-          Go to dashboard
-        </Button>
-      </div>
-    );
 
   return (
     <div className="space-y-4">
@@ -165,18 +144,7 @@ export default function BuyerOnboarding({ user }) {
         <Label>Phone (optional)</Label>
         <Input className="rounded-xl mt-1" type="tel" inputMode="tel" autoComplete="tel" placeholder="(555) 123-4567" value={phone} onChange={(e) => setPhone(e.target.value)} />
       </div>
-      <div>
-        <Label>Date of birth</Label>
-        <Input
-          type="date"
-          className="rounded-xl mt-1"
-          max={new Date().toISOString().split("T")[0]}
-          value={dob}
-          onChange={(e) => setDob(e.target.value)}
-        />
-        <p className="text-xs text-muted-foreground mt-1">You must be 18 or older to hire on Blockwork.</p>
-      </div>
-      {ageError && <p className="text-xs text-destructive font-medium">{ageError}</p>}
+      {ageError && <p className="text-xs text-destructive font-medium" role="alert">{ageError}</p>}
       {geoError && <p className="text-xs text-destructive font-medium">{geoError}</p>}
       {caBlocked && <WaitlistCapture state="" role="buyer" />}
       <label className="flex items-start gap-2.5 text-sm text-muted-foreground cursor-pointer">
@@ -187,7 +155,7 @@ export default function BuyerOnboarding({ user }) {
           <button type="button" onClick={() => setLegalModal("privacy")} className="text-foreground font-medium hover:underline">Privacy Policy</button>.
         </span>
       </label>
-      <Button className="w-full rounded-xl" disabled={!firstName || !lastName || !address || zip.length !== 5 || !dob || !tosAccepted || saving} onClick={finish}>
+      <Button className="w-full h-12 font-medium" disabled={!firstName || !lastName || !address || zip.length !== 5 || !tosAccepted || saving} onClick={finish}>
         {saving ? "Saving..." : "Get started"}
       </Button>
       <LegalModal type={legalModal} open={!!legalModal} onOpenChange={(v) => !v && setLegalModal(null)} />

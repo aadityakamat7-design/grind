@@ -59,6 +59,7 @@ import RefundsDisputes from '@/pages/RefundsDisputes';
 import ReportSafetyConcern from '@/pages/ReportSafetyConcern';
 import Unsubscribe from '@/pages/Unsubscribe';
 import WorkRecordVerify from '@/pages/WorkRecordVerify';
+import ParentLink from '@/pages/ParentLink';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -156,6 +157,7 @@ const AuthenticatedApp = () => {
 
         {/* Parent */}
         <Route path="/parent" element={<ParentDashboard />} />
+        <Route path="/parent/link" element={<ParentLink />} />
         <Route path="/parent/approvals" element={<ParentApprovals />} />
         <Route path="/parent/payouts" element={<ParentPayouts />} />
 

@@ -148,7 +148,7 @@ export default function ParentDashboard() {
             <div key={l.id} className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4">
               <p className="font-bold text-emerald-700 text-sm">Linked with {l.teen_display_name}</p>
               <p className="text-xs text-emerald-600 mt-1">
-                Your teen can post services and take jobs now — you approve each one from your Approvals tab. Connect your bank account below so they can cash out their earnings.
+                You'll approve each service and job from your Approvals tab before it goes ahead. Connect your bank account whenever you like — it's only needed when your teen cashes out.
               </p>
             </div>
           ))}

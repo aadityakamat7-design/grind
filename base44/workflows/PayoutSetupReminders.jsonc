@@ -1,0 +1,44 @@
+{
+  "name": "Payout Setup Reminders",
+  "description": "Once a day: if a teen asked to cash out and their parent still has no payout account, remind the parent after 3, 7 and 14 days (in-app + email), then stop. The parent is told immediately when the teen taps Cash out.",
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "recurring",
+      "cron_expression": "0 9 * * *",
+      "one_time_date": null,
+      "timezone": "America/Los_Angeles",
+      "interval_value": null,
+      "interval_unit": null,
+      "interval_anchor": null,
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "payout_setup_reminders",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "remind_parents": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "payoutSetupReminders"
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Send payout setup reminders",
+            "description": "3 / 7 / 14 day nudges to the parent"
+          }
+        }
+      }
+    ]
+  }
+}

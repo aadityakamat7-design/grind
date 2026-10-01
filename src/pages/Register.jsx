@@ -9,41 +9,69 @@ import { UserPlus, Mail, Lock, Loader2 } from "lucide-react";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { Checkbox } from "@/components/ui/checkbox";
 import AuthLayout from "@/components/AuthLayout";
-import GoogleIcon from "@/components/GoogleIcon";
-import AppleIcon from "@/components/AppleIcon";
-import FacebookIcon from "@/components/FacebookIcon";
-import RolePicker from "@/components/grind/onboarding/RolePicker";
+import AgeGateStep from "@/components/auth/AgeGateStep";
+import SocialButtons from "@/components/auth/SocialButtons";
 import LegalModal from "@/components/grind/LegalModal";
-import TeenEligibilityStep from "@/components/grind/onboarding/TeenEligibilityStep";
 import { toast } from "@/components/ui/use-toast";
-import { safeReturnTo } from "@/lib/authReturnTo";
 import { readRoleFromUrl, clearSignupProgress } from "@/lib/signupState";
 
 const ROLE_TITLES = { teen: "teen", parent: "parent", buyer: "neighbor" };
 
+// Sign-up, in three steps:
+//   1. age — who you are (role) + date of birth. Checked on the server, before
+//      any account exists; it is held for 15 minutes under a one-time token.
+//   2. account — Google / Apple / Facebook / email. The token rides along, so the
+//      age check survives the trip out to the provider and back.
+//   3. OTP — the emailed code (email sign-up only).
+// The role and date of birth are never kept on the device: they live on the
+// server, and Onboarding re-reads them from the account.
 export default function Register() {
-  // The role comes only from the picker's explicit choice (?role=) — never from
-  // device storage, an invite code, or a default.
+  const [stage, setStage] = useState("age"); // age | account | otp
   const [role, setRole] = useState(() => readRoleFromUrl());
-  const [teenInfo, setTeenInfo] = useState(null);
+  const [token, setToken] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [showOtp, setShowOtp] = useState(false);
-  const [legalModal, setLegalModal] = useState(null);
   const [otpCode, setOtpCode] = useState("");
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [legalModal, setLegalModal] = useState(null);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  // The picker's choice rides to onboarding in the URL (?role=), never in
-  // device storage. Onboarding shows the picker again when it's absent.
-  const withRole = (dest) => {
-    const target = dest === "/" ? "/onboarding" : dest;
-    if (role && target.startsWith("/onboarding")) {
-      return `${target}${target.includes("?") ? "&" : "?"}role=${role}`;
+  useEffect(() => {
+    clearSignupProgress();
+  }, []);
+
+  // Step 1 → the server checks the age for this role and returns the one-time
+  // token. Nothing is saved when the check fails.
+  const startAgeCheck = async (pickedRole, dob) => {
+    try {
+      const res = await base44.functions.invoke("startSignup", { role: pickedRole, dateOfBirth: dob });
+      if (res.data?.error) {
+        clearSignupProgress();
+        return { error: res.data.error };
+      }
+      setToken(res.data.token);
+      setRole(pickedRole);
+      setStage("account");
+      return {};
+    } catch (err) {
+      const data = err?.response?.data || err?.data || {};
+      return { error: data.error || "Something went wrong. Please try again." };
     }
-    return target;
+  };
+
+  // Where every sign-up lands: the onboarding steps, carrying the age-check token
+  // and any invite / referral code that came in on the link.
+  const onboardingDest = () => {
+    const params = new URLSearchParams();
+    if (token) params.set("st", token);
+    const here = new URLSearchParams(window.location.search);
+    const code = here.get("code") || localStorage.getItem("grind_invite_code");
+    const ref = here.get("ref") || localStorage.getItem("grind_referral");
+    if (code) params.set("code", code);
+    if (ref) params.set("ref", ref);
+    return `/onboarding?${params.toString()}`;
   };
 
   const handleSubmit = async (e) => {
@@ -65,13 +93,13 @@ export default function Register() {
     setLoading(true);
     try {
       await secureAuth("register", { email, password });
-      setShowOtp(true);
+      setStage("otp");
     } catch (err) {
       const msg = err?.message || "";
       if (/too many attempts/i.test(msg)) {
         setError(msg);
       } else if (/exist|already|taken|registered/i.test(msg)) {
-        setError("An account with this email already exists — try logging in instead.");
+        setError("An account with this email already exists — log in instead.");
       } else {
         setError(msg || "Registration failed");
       }
@@ -88,15 +116,11 @@ export default function Register() {
       if (result?.access_token) {
         base44.auth.setToken(result.access_token);
       } else {
-        // Verification succeeded but no session returned — log in with the credentials we have
         await base44.auth.loginViaEmailPassword(email, password);
       }
-      // New users must complete onboarding (birthday, profile, etc.) before
-      // reaching the app. If a returnTo was set (e.g. from the onboarding
-      // redirect), honor it; otherwise default to /onboarding, not "/".
-      // Carry the explicit role choice through the verification redirect in the
-      // URL, so nothing needs to be kept on the device.
-      window.location.href = withRole(safeReturnTo());
+      // Hard redirect so the new session and the server-side sign-up step are
+      // picked up together.
+      window.location.href = onboardingDest();
     } catch (err) {
       setError(err.message || "Invalid verification code");
     } finally {
@@ -108,114 +132,41 @@ export default function Register() {
     setError("");
     try {
       await secureAuth("resend-otp", { email });
-      toast({
-        title: "Code sent",
-        description: "Check your email for the new code.",
-      });
+      toast({ title: "Code sent", description: "Check your email for the new code." });
     } catch (err) {
       setError(err.message || "Failed to resend code");
     }
   };
 
-  // New users must complete onboarding after social sign-up too. Default to
-  // /onboarding when there's no explicit returnTo.
-  const registerReturnTo = () => withRole(safeReturnTo());
+  const footer = (
+    <>
+      Already have an account?{" "}
+      <Link to="/login" className="text-primary font-medium hover:underline">
+        Log in
+      </Link>
+    </>
+  );
 
-  const handleGoogle = () => {
-    base44.auth.loginWithProvider("google", registerReturnTo());
-  };
-
-  const handleProvider = (provider) => {
-    base44.auth.loginWithProvider(provider, registerReturnTo());
-  };
-
-  // A new sign-up never inherits onboarding progress from an earlier one on
-  // this device.
-  useEffect(() => {
-    clearSignupProgress();
-  }, []);
-
-  const pickRole = (r) => {
-    clearSignupProgress();
-    setRole(r);
-  };
-
-  if (!role) {
+  if (stage === "age") {
     return (
       <AuthLayout
         icon={UserPlus}
-        title="Join Blockwork"
-        subtitle="First, tell us who you are"
-        footer={
-          <>
-            Already have an account?{" "}
-            <Link to="/login" className="text-primary font-medium hover:underline">
-              Log in
-            </Link>
-          </>
-        }
+        title={role ? "Your date of birth" : "Join Blockwork"}
+        subtitle={role ? "Last check before we set up your account" : "First, tell us who you are"}
+        showBackdrop={false}
+        footer={footer}
       >
-        <RolePicker onSelect={pickRole} />
+        <AgeGateStep initialRole={role} onSubmit={startAgeCheck} />
       </AuthLayout>
     );
   }
 
-  // Teens must pass the state + age legal eligibility check before creating an account
-  if (role === "teen" && !teenInfo) {
+  if (stage === "otp") {
     return (
-      <AuthLayout
-        icon={UserPlus}
-        title="Quick eligibility check"
-        subtitle="Teen work rules vary by state — let's make sure you can join"
-        showBackdrop={false}
-        footer={
-          <>
-            Already have an account?{" "}
-            <Link to="/login" className="text-primary font-medium hover:underline">
-              Log in
-            </Link>
-          </>
-        }
-      >
-        <button
-          onClick={() => { clearSignupProgress(); setRole(null); }}
-          className="text-xs font-semibold text-slate-500 mb-4 hover:text-slate-900"
-        >
-          ← Change role
-        </button>
-        <TeenEligibilityStep
-          onEligible={({ dob, state, result }) => {
-            localStorage.setItem("kickstart_teen_dob", dob);
-            localStorage.setItem("kickstart_teen_state", state);
-            localStorage.setItem("kickstart_teen_min_age", String(result.minAge));
-            setTeenInfo({ dob, state });
-          }}
-        />
-      </AuthLayout>
-    );
-  }
-
-  if (showOtp) {
-    return (
-      <AuthLayout
-        icon={Mail}
-        title="Verify your email"
-        subtitle={`We sent a code to ${email}`}
-        showBackdrop={false}
-      >
-        {error && (
-          <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
-            {error}
-          </div>
-        )}
+      <AuthLayout icon={Mail} title="Verify your email" subtitle={`We sent a code to ${email}`} showBackdrop={false}>
+        {error && <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">{error}</div>}
         <div className="flex justify-center mb-6">
-          <InputOTP
-            maxLength={6}
-            value={otpCode}
-            onChange={setOtpCode}
-            autoFocus
-            autoComplete="one-time-code"
-          >
+          <InputOTP maxLength={6} value={otpCode} onChange={setOtpCode} autoFocus autoComplete="one-time-code">
             <InputOTPGroup>
               <InputOTPSlot index={0} />
               <InputOTPSlot index={1} />
@@ -226,11 +177,7 @@ export default function Register() {
             </InputOTPGroup>
           </InputOTP>
         </div>
-        <Button
-          className="w-full h-12 font-medium"
-          onClick={handleVerify}
-          disabled={loading || otpCode.length < 6}
-        >
+        <Button className="w-full h-12 font-medium" onClick={handleVerify} disabled={loading || otpCode.length < 6}>
           {loading ? (
             <>
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -254,65 +201,28 @@ export default function Register() {
     <AuthLayout
       icon={UserPlus}
       title="Create your account"
-      subtitle={`Signing up as a ${ROLE_TITLES[role]}`}
+      subtitle={`Signing up as a ${ROLE_TITLES[role] || "new member"}`}
       showBackdrop={false}
-      footer={
-        <>
-          Already have an account?{" "}
-          <Link to="/login" className="text-primary font-medium hover:underline">
-            Log in
-          </Link>
-        </>
-      }
+      footer={footer}
     >
       <button
-        onClick={() => setRole(null)}
+        onClick={() => {
+          setStage("age");
+          setRole(null);
+          setToken("");
+          setError("");
+        }}
         className="text-xs font-semibold text-muted-foreground mb-4 hover:text-foreground"
       >
         ← Change role
       </button>
-      <Button
-        variant="outline"
-        className="w-full h-12 text-sm font-medium mb-3"
-        onClick={handleGoogle}
-      >
-        <GoogleIcon className="w-5 h-5 mr-2" />
-        Continue with Google
-      </Button>
 
-      <div className="grid grid-cols-2 gap-3 mb-6">
-        <Button
-          variant="outline"
-          className="h-12 text-sm font-medium"
-          onClick={() => handleProvider("apple")}
-        >
-          <AppleIcon className="w-5 h-5 mr-2" />
-          Apple
-        </Button>
-        <Button
-          variant="outline"
-          className="h-12 text-sm font-medium"
-          onClick={() => handleProvider("facebook")}
-        >
-          <FacebookIcon className="w-5 h-5 mr-2" />
-          Facebook
-        </Button>
-      </div>
+      <SocialButtons
+        onProvider={(provider) => base44.auth.loginWithProvider(provider, onboardingDest())}
+        browserUrl={window.location.href}
+      />
 
-      <div className="relative mb-6">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-border" />
-        </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-card px-3 text-muted-foreground">or</span>
-        </div>
-      </div>
-
-      {error && (
-        <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
-          {error}
-        </div>
-      )}
+      {error && <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">{error}</div>}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
@@ -323,7 +233,6 @@ export default function Register() {
               id="email"
               type="email"
               autoComplete="email"
-              autoFocus
               placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -366,12 +275,7 @@ export default function Register() {
           </div>
         </div>
         <div className="flex items-start gap-2">
-          <Checkbox
-            id="agree"
-            checked={agreedToTerms}
-            onCheckedChange={(v) => setAgreedToTerms(!!v)}
-            className="mt-0.5"
-          />
+          <Checkbox id="agree" checked={agreedToTerms} onCheckedChange={(v) => setAgreedToTerms(!!v)} className="mt-0.5" />
           <Label htmlFor="agree" className="text-xs font-normal text-muted-foreground cursor-pointer leading-relaxed">
             I agree to the{" "}
             <button type="button" onClick={() => setLegalModal("terms")} className="text-foreground font-medium hover:underline">Terms of Service</button>

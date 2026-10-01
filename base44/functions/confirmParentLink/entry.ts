@@ -8,13 +8,15 @@ import { calcAge } from '../../shared/signupRules.ts';
 // Parent-teen linking — relationship attestation model:
 //   The parent enters the teen's invite code, explicitly attests the
 //   relationship, enters the teen's date of birth, and confirms it's accurate.
-//   The link becomes 'confirmed' and the teen goes 'active' ONLY when the
-//   parent's Stripe Connect Express account is fully verified (details_submitted,
-//   payouts_enabled, no currently_due) — checked on the server every time.
+//   The link becomes 'confirmed' and the teen goes 'active' immediately.
 //
-//   Stripe confirms the person is a real adult (legal name, DOB, SSN, bank, 18+);
-//   it does NOT confirm they're the teen's parent. The "I am this teen's parent
-//   or legal guardian" attestation + the full ConsentRecord handle that.
+//   NO Stripe step is needed to link. The parent's payout account is set up later,
+//   when the teen first taps Cash out. Requiring it here blocked families from
+//   linking at all and left teens unable to post services or take jobs.
+//
+//   The "I am this teen's parent or legal guardian" attestation + the full
+//   itemized ConsentRecord are what establish guardianship; a government-ID check
+//   is separate and only affects the teen profile's "parent ID verified" flag.
 //
 //   The teen's date of birth is entered by the verified parent and stored in
 //   TeenPrivateData.verified_dob — it becomes the source of truth for every
@@ -194,10 +196,17 @@ Deno.serve(async (req) => {
       svc, parentUser: user, teenUser, parentIp: ip, userAgent: userAgent || '',
     });
 
+    // Linking does NOT require an ID check or a payout account. These flags only
+    // say a real government ID was verified — a parent who attested the
+    // relationship without verifying one must never show up as ID-verified.
+    const parentProfiles = await svc.ParentProfile.filter({ user_id: user.id });
+    const parentIdVerified =
+      parentProfiles[0]?.identity_status === 'verified' || parentProfiles[0]?.is_identity_verified === true;
+
     const data = {
       teen_profile_id: teen.id,
       teen_display_name: teen.display_name,
-      identity_verified: true, // means the parent attested the relationship
+      identity_verified: parentIdVerified,
       relationship_confirmed: true,
       relationship_attested_at: nowIso,
       status: 'confirmed',
@@ -218,7 +227,7 @@ Deno.serve(async (req) => {
     }
 
     await svc.TeenProfile.update(teen.id, {
-      parent_identity_verified: true, // now means "parent Connect-verified"
+      parent_identity_verified: parentIdVerified, // true only after a real ID check
       status: 'active',
     });
 
