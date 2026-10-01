@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,7 @@ import LegalModal from "@/components/grind/LegalModal";
 import { CONSENT_ITEMS, CONSENT_VERSION, FULL_TERMS_TEXT } from "@/lib/stateWorkRules";
 import StateRulesDisplay from "@/components/grind/parent/StateRulesDisplay";
 import StripeBadge from "@/components/StripeBadge";
+import { isRealName } from "@/lib/signupState";
 
 const TERMS_VERSION = "2026-07";
 
@@ -26,7 +27,9 @@ const TERMS_VERSION = "2026-07";
 export default function ParentOnboarding({ user, initialCode = "" }) {
   const [step, setStep] = useState(1);
   const [code, setCode] = useState(initialCode);
-  const [name, setName] = useState(user.full_name && !user.full_name.includes("@") ? user.full_name : "");
+  // Always empty to start. The platform sets full_name to the email username at
+  // sign-up, which is never a legal name and must never be pre-filled here.
+  const [name, setName] = useState("");
   const [dob, setDob] = useState("");
   const [error, setError] = useState("");
   const [lookingUp, setLookingUp] = useState(false);
@@ -42,17 +45,13 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
   const [legalModal, setLegalModal] = useState(null);
   const [done, setDone] = useState(false);
 
-  useEffect(() => {
-    (async () => {
-      const profiles = await base44.entities.ParentProfile.filter({ user_id: user.id });
-      if (!profiles[0]) {
-        await base44.entities.ParentProfile.create({ user_id: user.id, full_name: name.trim() });
-      }
-    })();
-  }, [user.id]);
-
   const lookup = async () => {
     setError("");
+    // Legal name: a real name — never the email username, digits or symbols.
+    if (!isRealName(name, user.email)) {
+      setError("Enter your legal first and last name — letters only, and not your email address.");
+      return;
+    }
     const age = calcAge(dob);
     if (age === null || age < 18) {
       setError("You must be at least 18 years old to be a parent or guardian on Blockwork.");
@@ -65,10 +64,12 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
     setLookingUp(true);
     try {
       const profiles = await base44.entities.ParentProfile.filter({ user_id: user.id });
-      if (profiles[0] && profiles[0].full_name !== name.trim()) {
+      // Created here, once the legal name is entered, so the profile never holds
+      // an empty or email-derived name.
+      if (profiles[0]) {
         await base44.entities.ParentProfile.update(profiles[0].id, { full_name: name.trim(), dob });
-      } else if (profiles[0]) {
-        await base44.entities.ParentProfile.update(profiles[0].id, { dob });
+      } else {
+        await base44.entities.ParentProfile.create({ user_id: user.id, full_name: name.trim(), dob });
       }
       const res = await base44.functions.invoke("lookupTeenByCode", { code: code.trim().toUpperCase() });
       const data = res.data;
@@ -167,10 +168,19 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
         setSaving(false);
         return;
       }
+      // The server grants the parent role — it re-checks the parent's age and the
+      // link that confirmParentLink just created before setting app_role.
+      const roleRes = await base44.functions.invoke("saveSignupRole", {
+        role: "parent",
+        firstName: name.trim(),
+        dateOfBirth: dob,
+      });
+      if (roleRes.data?.error) {
+        setError(roleRes.data.error);
+        setSaving(false);
+        return;
+      }
       await base44.auth.updateMe({
-        app_role: "parent",
-        onboarded: true,
-        date_of_birth: dob,
         terms_accepted_at: new Date().toISOString(),
         terms_version: TERMS_VERSION,
         payment_auth_acknowledged_at: new Date().toISOString(),
@@ -216,8 +226,17 @@ export default function ParentOnboarding({ user, initialCode = "" }) {
           Enter your teen's connection code to confirm your relationship and become their approved parent or guardian.
         </p>
         <div>
-          <Label className="text-foreground">Your name</Label>
-          <Input className="rounded-xl mt-1" placeholder="e.g. Alex Rivera" value={name} onChange={(e) => setName(e.target.value)} />
+          <Label className="text-foreground">Legal first and last name</Label>
+          <Input
+            className="rounded-xl mt-1"
+            placeholder="e.g. Alex Rivera"
+            autoComplete="name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+          <p className="text-xs text-muted-foreground mt-1">
+            Use your legal name. It must match your bank account.
+          </p>
         </div>
         <div>
           <Label className="text-foreground">Enter your teen's connection code</Label>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { secureAuth } from "@/lib/secureAuth";
@@ -17,11 +17,14 @@ import LegalModal from "@/components/grind/LegalModal";
 import TeenEligibilityStep from "@/components/grind/onboarding/TeenEligibilityStep";
 import { toast } from "@/components/ui/use-toast";
 import { safeReturnTo } from "@/lib/authReturnTo";
+import { readRoleFromUrl, clearSignupProgress } from "@/lib/signupState";
 
 const ROLE_TITLES = { teen: "teen", parent: "parent", buyer: "neighbor" };
 
 export default function Register() {
-  const [role, setRole] = useState(null);
+  // The role comes only from the picker's explicit choice (?role=) — never from
+  // device storage, an invite code, or a default.
+  const [role, setRole] = useState(() => readRoleFromUrl());
   const [teenInfo, setTeenInfo] = useState(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -32,6 +35,16 @@ export default function Register() {
   const [legalModal, setLegalModal] = useState(null);
   const [otpCode, setOtpCode] = useState("");
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+
+  // The picker's choice rides to onboarding in the URL (?role=), never in
+  // device storage. Onboarding shows the picker again when it's absent.
+  const withRole = (dest) => {
+    const target = dest === "/" ? "/onboarding" : dest;
+    if (role && target.startsWith("/onboarding")) {
+      return `${target}${target.includes("?") ? "&" : "?"}role=${role}`;
+    }
+    return target;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -81,8 +94,9 @@ export default function Register() {
       // New users must complete onboarding (birthday, profile, etc.) before
       // reaching the app. If a returnTo was set (e.g. from the onboarding
       // redirect), honor it; otherwise default to /onboarding, not "/".
-      const dest = safeReturnTo();
-      window.location.href = dest === "/" ? "/onboarding" : dest;
+      // Carry the explicit role choice through the verification redirect in the
+      // URL, so nothing needs to be kept on the device.
+      window.location.href = withRole(safeReturnTo());
     } catch (err) {
       setError(err.message || "Invalid verification code");
     } finally {
@@ -105,10 +119,7 @@ export default function Register() {
 
   // New users must complete onboarding after social sign-up too. Default to
   // /onboarding when there's no explicit returnTo.
-  const registerReturnTo = () => {
-    const dest = safeReturnTo();
-    return dest === "/" ? "/onboarding" : dest;
-  };
+  const registerReturnTo = () => withRole(safeReturnTo());
 
   const handleGoogle = () => {
     base44.auth.loginWithProvider("google", registerReturnTo());
@@ -118,8 +129,14 @@ export default function Register() {
     base44.auth.loginWithProvider(provider, registerReturnTo());
   };
 
+  // A new sign-up never inherits onboarding progress from an earlier one on
+  // this device.
+  useEffect(() => {
+    clearSignupProgress();
+  }, []);
+
   const pickRole = (r) => {
-    localStorage.setItem("grind_signup_role", r);
+    clearSignupProgress();
     setRole(r);
   };
 
@@ -161,7 +178,7 @@ export default function Register() {
         }
       >
         <button
-          onClick={() => setRole(null)}
+          onClick={() => { clearSignupProgress(); setRole(null); }}
           className="text-xs font-semibold text-slate-500 mb-4 hover:text-slate-900"
         >
           ← Change role

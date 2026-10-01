@@ -7,6 +7,7 @@ import RolePicker from "@/components/grind/onboarding/RolePicker";
 import TeenOnboarding from "@/components/grind/onboarding/TeenOnboarding";
 import ParentOnboarding from "@/components/grind/onboarding/ParentOnboarding";
 import BuyerOnboarding from "@/components/grind/onboarding/BuyerOnboarding";
+import { readRoleFromUrl, clearStoredRole, clearSignupProgress } from "@/lib/signupState";
 
 const ROLE_HOME = { teen: "/teen", parent: "/parent", buyer: "/buyer", admin: "/admin" };
 
@@ -14,24 +15,46 @@ export default function Onboarding() {
   const { user, loading } = useAppUser();
   const urlParams = new URLSearchParams(window.location.search);
   const inviteCode = urlParams.get("code") || "";
-  const identityReturn = urlParams.get("identity_return") === "1";
   const refCode = urlParams.get("ref") || "";
   // Persist the invite code so it survives the register/login redirect — an
   // unauthenticated parent clicking the shared link would otherwise lose it
   // when bounced to auth, and arrive at onboarding with an empty code box.
-  const pendingCode = inviteCode || localStorage.getItem("grind_invite_code") || "";
-  const [role, setRole] = useState(() => {
-    if (pendingCode || identityReturn) return "parent";
-    const stored = localStorage.getItem("grind_signup_role");
-    return ["teen", "parent", "buyer"].includes(stored) ? stored : null;
-  });
+  // Captured once so a later storage clear can't empty the box mid-flow.
+  const [pendingCode] = useState(() => inviteCode || localStorage.getItem("grind_invite_code") || "");
+  // The role comes ONLY from the picker's explicit choice, which travels in the
+  // URL (?role=). It is never inferred from an invite code, a stored value, a
+  // previous sign-up on this device, or a default — with no choice made, the
+  // picker is shown again.
+  const [role, setRole] = useState(() => readRoleFromUrl());
 
-  // Persist the code for the auth redirect, then clear the stored signup role.
+  // Persist the code + referral for the auth redirect, and drop any role residue
+  // left by an earlier sign-up on this device.
   useEffect(() => {
     if (inviteCode) localStorage.setItem("grind_invite_code", inviteCode);
     if (refCode) localStorage.setItem("grind_referral", refCode);
-    localStorage.removeItem("grind_signup_role");
+    clearStoredRole();
   }, [inviteCode, refCode]);
+
+  // The explicit choice is written into the URL so a refresh keeps it, and any
+  // progress belonging to a different role is dropped.
+  const chooseRole = (next) => {
+    clearSignupProgress();
+    setRole(next);
+    const params = new URLSearchParams(window.location.search);
+    params.set("role", next);
+    window.history.replaceState({}, "", `${window.location.pathname}?${params.toString()}`);
+  };
+
+  // Changing role clears the previous choice and its progress, so nothing can
+  // carry over into the new one.
+  const changeRole = () => {
+    clearSignupProgress();
+    setRole(null);
+    const params = new URLSearchParams(window.location.search);
+    params.delete("role");
+    const qs = params.toString();
+    window.history.replaceState({}, "", `${window.location.pathname}${qs ? `?${qs}` : ""}`);
+  };
 
   // Record a referral when the user completes onboarding after signing up
   // via someone's invite link. Fire-and-forget — the backend processes it
@@ -73,11 +96,11 @@ export default function Onboarding() {
   return (
     <AuthLayout title={title} subtitle={subtitle}>
       {!role ? (
-        <RolePicker onSelect={setRole} />
+        <RolePicker onSelect={chooseRole} />
       ) : (
         <div>
           <button
-            onClick={() => setRole(null)}
+            onClick={changeRole}
             className="text-xs font-medium text-muted-foreground mb-4 hover:text-foreground"
           >
             ← Change role

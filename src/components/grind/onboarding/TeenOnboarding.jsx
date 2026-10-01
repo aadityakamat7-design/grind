@@ -11,6 +11,7 @@ import SkillPicker from "@/components/grind/SkillPicker";
 import { checkEligibility, stateName } from "@/lib/stateWorkRules";
 import { setCachedUser } from "@/lib/useAppUser";
 import TeenEligibilityStep from "@/components/grind/onboarding/TeenEligibilityStep";
+import { seededName, isRealName, isCaliforniaZip } from "@/lib/signupState";
 
 export default function TeenOnboarding({ user }) {
   const storedDob = user.date_of_birth || localStorage.getItem("kickstart_teen_dob") || "";
@@ -18,9 +19,11 @@ export default function TeenOnboarding({ user }) {
   const [dob, setDob] = useState(storedDob);
   const [usState, setUsState] = useState(storedState);
   const [step, setStep] = useState(storedDob && storedState ? 2 : 1);
-  const safeFullName = user.full_name && !user.full_name.includes("@") ? user.full_name : "";
-  const [firstName, setFirstName] = useState(safeFullName.split(" ")[0] || "");
-  const [lastInitial, setLastInitial] = useState((safeFullName.split(" ")[1] || "").charAt(0));
+  // Names are only ever seeded from a real name already on the account — never
+  // from the email username the platform writes at sign-up.
+  const seeded = seededName(user);
+  const [firstName, setFirstName] = useState(seeded.split(" ")[0] || "");
+  const [lastName, setLastName] = useState(seeded.split(" ").slice(1).join(" "));
   const [bio, setBio] = useState("");
   const [zip, setZip] = useState("");
   const [skills, setSkills] = useState([]);
@@ -32,6 +35,18 @@ export default function TeenOnboarding({ user }) {
   const createProfile = async () => {
     setSaving(true);
     setGeoError("");
+
+    // Names must be real names — never the email username, digits or symbols.
+    if (!isRealName(firstName, user.email) || !isRealName(lastName, user.email)) {
+      setGeoError("Enter your first and last name — letters only, and not your email address.");
+      setSaving(false);
+      return;
+    }
+    if (!isCaliforniaZip(zip)) {
+      setGeoError("Enter a 5-digit California ZIP code.");
+      setSaving(false);
+      return;
+    }
 
     // Idempotent: if a profile already exists (e.g. from a previous partial
     // onboarding), reuse it instead of creating a duplicate.
@@ -53,7 +68,7 @@ export default function TeenOnboarding({ user }) {
       // Public profile — no sensitive data (DOB, exact coordinates, ZIP)
       profile = await base44.entities.TeenProfile.create({
         user_id: user.id,
-        display_name: `${firstName} ${lastInitial ? lastInitial.toUpperCase() + "." : ""}`.trim(),
+        display_name: `${firstName.trim()} ${lastName.trim() ? lastName.trim()[0].toUpperCase() + "." : ""}`.trim(),
         bio,
         state: usState,
         eligibility_min_age: result.minAge,
@@ -66,6 +81,8 @@ export default function TeenOnboarding({ user }) {
       await base44.entities.TeenPrivateData.create({
         user_id: user.id,
         date_of_birth: dob,
+        // Private: the real name never appears on the public profile.
+        legal_name: `${firstName.trim()} ${lastName.trim()}`.trim(),
         age: calcAge(dob),
         zip,
         latitude: geo.lat,
@@ -86,6 +103,21 @@ export default function TeenOnboarding({ user }) {
     // the Terms. If legal counsel determines teens need their own ToS acceptance,
     // add a ToS checkbox here and record terms_accepted_at + terms_version.
     // Persist state + eligibility on the user record so it isn't re-checked incorrectly later
+    // The server re-checks the role, age, state and California ZIP, and sets
+    // app_role — the browser can't grant itself a role.
+    const roleRes = await base44.functions.invoke("saveSignupRole", {
+      role: "teen",
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
+      dateOfBirth: dob,
+      zip: zip.trim(),
+      state: usState,
+    });
+    if (roleRes.data?.error) {
+      setGeoError(roleRes.data.error);
+      setSaving(false);
+      return;
+    }
     const updatedUser = {
       ...user,
       app_role: "teen",
@@ -93,7 +125,6 @@ export default function TeenOnboarding({ user }) {
       date_of_birth: dob,
       work_state: usState,
     };
-    await base44.auth.updateMe(updatedUser);
     setCachedUser(updatedUser);
     base44.analytics.track({
       eventName: "teen_onboarding_complete",
@@ -159,18 +190,27 @@ export default function TeenOnboarding({ user }) {
         </div>
         <p className="text-sm text-muted-foreground">Neighbors will only ever see your first name and last initial.</p>
         <div className="grid grid-cols-2 gap-3">
-          <div>
+          <div className="min-w-0">
             <Label className="text-foreground">First name</Label>
-            <Input className="rounded-xl mt-1" maxLength={48} value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+            <Input className="rounded-xl mt-1" maxLength={48} autoComplete="given-name" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
           </div>
-          <div>
-            <Label className="text-foreground">Last initial</Label>
-            <Input className="rounded-xl mt-1" maxLength={1} value={lastInitial} onChange={(e) => setLastInitial(e.target.value)} />
+          <div className="min-w-0">
+            <Label className="text-foreground">Last name</Label>
+            <Input className="rounded-xl mt-1" maxLength={48} autoComplete="family-name" value={lastName} onChange={(e) => setLastName(e.target.value)} />
           </div>
         </div>
         <div>
-          <Label className="text-foreground">ZIP code</Label>
-          <Input className="rounded-xl mt-1" placeholder="Your neighborhood ZIP" value={zip} onChange={(e) => setZip(e.target.value)} />
+          <Label className="text-foreground">California ZIP code</Label>
+          <Input
+            className="rounded-xl mt-1"
+            inputMode="numeric"
+            autoComplete="postal-code"
+            maxLength={5}
+            placeholder="5-digit ZIP"
+            value={zip}
+            onChange={(e) => setZip(e.target.value.replace(/\D/g, ""))}
+          />
+          <p className="text-xs text-muted-foreground mt-1">Blockwork is available in California only.</p>
         </div>
         <div>
           <Label className="text-foreground">Bio</Label>
@@ -184,7 +224,7 @@ export default function TeenOnboarding({ user }) {
           <SkillPicker value={skills} onChange={setSkills} />
         </div>
         {geoError && <p className="text-xs text-destructive font-medium">{geoError}</p>}
-        <Button className="w-full rounded-xl" disabled={!firstName || !zip || saving} onClick={createProfile}>
+        <Button className="w-full rounded-xl" disabled={!firstName || !lastName || zip.length !== 5 || saving} onClick={createProfile}>
           {saving ? "Creating..." : "Create profile"}
         </Button>
       </div>

@@ -10,6 +10,11 @@
       "type": "string",
       "description": "Linked parent user id \u2014 set when the ParentTeenLink is confirmed, so the parent can read this record via RLS"
     },
+    "legal_name": {
+      "type": "string",
+      "maxLength": 120,
+      "description": "The teen's real first and last name, as entered at sign-up. Never shown publicly \u2014 the public profile uses first name plus last initial only."
+    },
     "date_of_birth": {
       "type": "string",
       "format": "date",

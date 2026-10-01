@@ -52,8 +52,8 @@ export default function Welcome() {
   if (user) return <Navigate to="/onboarding" replace />;
 
   const startSignup = (role) => {
-    localStorage.setItem("grind_signup_role", role);
-    navigate("/register");
+    // The role travels in the URL — nothing is written to the device.
+    navigate(`/register?role=${role}`);
   };
 
   return (

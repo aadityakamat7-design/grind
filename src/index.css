@@ -428,6 +428,25 @@
     0%, 100% { opacity: 1; }
     50% { opacity: 0; }
   }
+
+  /* Typing cursor for the landing headline. Color is set directly on the bar so
+     it can never inherit a transparent or gradient text color. */
+  .type-text { white-space: normal; }
+  .type-cursor {
+    display: inline-block;
+    width: 3px;
+    height: 0.9em;
+    background: #000000;
+    margin-left: 4px;
+    vertical-align: baseline;
+  }
+  /* After the last letter it blinks with a hard on/off, and keeps blinking. */
+  .type-cursor.is-done {
+    animation: blink 1s steps(1) infinite;
+  }
+  @keyframes blink {
+    50% { opacity: 0; }
+  }
 }
 
 /* ---- Lenis smooth scroll (landing page only) ---- */
@@ -547,6 +566,27 @@ button, a, [role="button"] {
 .text-red-600, .text-red-700, .text-rose-600, .text-rose-700 { color: hsl(4 72% 48%); }
 .border-red-100, .border-red-200, .border-rose-200 { border-color: hsl(4 40% 85%); }
 .bg-red-500, .bg-red-600 { background-color: hsl(4 72% 56%); }
+
+/* ============================================================
+   Form controls never exceed their container, so a narrow phone
+   column (375px) can never scroll sideways. iOS Safari gives
+   <input type="date"> an intrinsic width that overflows without
+   an explicit min-width:0.
+   ============================================================ */
+input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+select,
+textarea {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+input[type="date"] {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
 
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }

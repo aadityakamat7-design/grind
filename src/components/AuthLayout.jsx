@@ -12,11 +12,17 @@ const TRUST_POINTS = [
 
 export default function AuthLayout({ title, subtitle, footer, children, showBackdrop = true }) {
   return (
-    <div className="min-h-[100dvh] flex bg-background">
+    <div className="min-h-[100dvh] w-full flex bg-background overflow-x-hidden">
       {/* Left column — form */}
-      <div className="relative w-full md:w-[45%] flex flex-col min-h-[100dvh] px-6 sm:px-10 lg:px-16 pt-[max(2rem,env(safe-area-inset-top))] pb-[max(2rem,env(safe-area-inset-bottom))] overflow-y-auto">
-        {/* Decode-text decorative backdrop — aria-hidden, behind form content */}
-        {showBackdrop && <DecodeBackdrop />}
+      <div className="relative w-full min-w-0 md:w-[45%] flex flex-col min-h-[100dvh] px-6 sm:px-10 lg:px-16 pt-[max(2rem,env(safe-area-inset-top))] pb-[max(2rem,env(safe-area-inset-bottom))] overflow-y-auto overflow-x-hidden">
+        {/* Decode-text decorative backdrop — only ever around the card. Hidden
+            below md so no decode text can sit behind or show through the form
+            on a phone. */}
+        {showBackdrop && (
+          <div className="hidden md:block absolute inset-0 pointer-events-none" aria-hidden="true">
+            <DecodeBackdrop />
+          </div>
+        )}
         {/* Wordmark */}
         <Link to="/" className="relative z-10 flex items-center gap-2.5 self-start">
           <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-soft">
@@ -27,11 +33,13 @@ export default function AuthLayout({ title, subtitle, footer, children, showBack
 
         {/* Vertically centered form block */}
         <div className="relative z-10 flex-1 flex items-center justify-center py-10">
-          <div className="w-full max-w-[400px]">
+          {/* Solid, fully opaque card — the form always sits on an opaque surface,
+              never on the decorative backdrop. */}
+          <div className="w-full min-w-0 max-w-[400px] bg-card border border-border rounded-2xl shadow-card p-5 sm:p-6">
             <h1 className="text-[28px] font-bold tracking-tight text-foreground leading-tight">{title}</h1>
             {subtitle && <p className="text-muted-foreground mt-2 text-[15px] leading-relaxed">{subtitle}</p>}
-            <div className="mt-8">{children}</div>
-            {footer && <p className="text-sm text-muted-foreground mt-8">{footer}</p>}
+            <div className="mt-6">{children}</div>
+            {footer && <p className="text-sm text-muted-foreground mt-6">{footer}</p>}
           </div>
         </div>
 
