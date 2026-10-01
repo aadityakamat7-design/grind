@@ -27,18 +27,18 @@
   </head>
   <body style="margin:0;font-family:system-ui,-apple-system,sans-serif;background:#f9f9f9;color:#1a1a1a">
     <noscript>
-      <p style="padding:24px">Blockwork needs JavaScript to open the app. Continue to <a href="https://blockwork.online/onboarding">blockwork.online</a> and enter your teen's code.</p>
+      <p style="padding:24px">Blockwork needs JavaScript to open the app. Continue to <a href="https://blockwork.online/start">blockwork.online</a> and enter your teen's code.</p>
     </noscript>
     <p style="padding:24px;font-size:14px;color:#666">
-      Taking you to Blockwork… <a id="continue" href="/onboarding" style="color:#2563eb">Continue</a>
+      Taking you to Blockwork… <a id="continue" href="/start" style="color:#2563eb">Continue</a>
     </p>
     <script>
-      // Carry the invite code into the app. Only the code in the query string is
-      // read — nothing personal is ever written into this page.
+      // Carry the invite code into the app's invite page (/link/CODE). Only the
+      // code in the query string is read — nothing personal is written here.
       (function () {
         var params = new URLSearchParams(window.location.search);
-        var code = params.get("code") || params.get("c") || "";
-        var url = "/onboarding" + (code ? "?code=" + encodeURIComponent(code) : "");
+        var code = (params.get("code") || params.get("c") || "").replace(/[^A-Za-z0-9]/g, "");
+        var url = code ? "/link/" + encodeURIComponent(code) : "/start";
         var link = document.getElementById("continue");
         if (link) link.setAttribute("href", url);
         window.location.replace(url);

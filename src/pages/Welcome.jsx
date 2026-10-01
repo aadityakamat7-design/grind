@@ -50,11 +50,13 @@ export default function Welcome() {
 
   if (user && user.app_role && user.onboarded)
     return <Navigate to={ROLE_HOME[user.app_role] || "/browse"} replace />;
-  if (user) return <Navigate to="/onboarding" replace />;
+  // Signed in but sign-up isn't finished: the home page still opens (the logo on
+  // every sign-up screen leads here); a button picks the sign-up back up.
+  const unfinished = !!user;
 
   const startSignup = (role) => {
     // The role travels in the URL — nothing is written to the device.
-    navigate(`/register?role=${role}`);
+    navigate(`/start?role=${role}`);
   };
 
   return (
@@ -119,12 +121,20 @@ export default function Welcome() {
             <span className="font-bold text-xl tracking-tight">Blockwork</span>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" className="text-muted-foreground hover:text-foreground hover:bg-accent font-medium" onClick={() => navigate("/login")}>
-              Log in
-            </Button>
-            <Button className="font-medium" onClick={() => navigate("/register")}>
-              Get started
-            </Button>
+            {unfinished ? (
+              <Button className="font-medium" onClick={() => navigate("/start")}>
+                Finish setting up
+              </Button>
+            ) : (
+              <>
+                <Button variant="ghost" className="text-muted-foreground hover:text-foreground hover:bg-accent font-medium" onClick={() => navigate("/start")}>
+                  Log in
+                </Button>
+                <Button className="font-medium" onClick={() => navigate("/start")}>
+                  Get started
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </header>

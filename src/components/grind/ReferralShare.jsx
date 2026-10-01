@@ -11,7 +11,7 @@ export default function ReferralShare({ user }) {
   const [copied, setCopied] = useState(false);
   const [sharing, setSharing] = useState(false);
   const sharingRef = useRef(false);
-  const link = `${BASE_URL}/onboarding?ref=${user.id}`;
+  const link = `${BASE_URL}/start?ref=${user.id}`;
 
   const copy = async () => {
     if (sharingRef.current) return;

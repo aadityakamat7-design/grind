@@ -2,7 +2,6 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Boxes } from "lucide-react";
 import ScrambleText from "@/components/landing/ScrambleText";
-import DecodeBackdrop from "@/components/landing/DecodeBackdrop";
 
 const TRUST_POINTS = [
   "Every service and job parent-approved",
@@ -10,21 +9,16 @@ const TRUST_POINTS = [
   "Payments held until the job is done",
 ];
 
-export default function AuthLayout({ title, subtitle, footer, children, showBackdrop = true }) {
+// The shell every sign-in, sign-up, invite and password-reset screen sits in.
+// The Blockwork logo always links to the home page. The form is always on a solid
+// card — no text or pattern ever sits behind it.
+export default function AuthLayout({ title, subtitle, footer, children }) {
   return (
     <div className="min-h-[100dvh] w-full flex bg-background overflow-x-hidden">
       {/* Left column — form */}
-      <div className="relative w-full min-w-0 md:w-[45%] flex flex-col min-h-[100dvh] px-6 sm:px-10 lg:px-16 pt-[max(2rem,env(safe-area-inset-top))] pb-[max(2rem,env(safe-area-inset-bottom))] overflow-y-auto overflow-x-hidden">
-        {/* Decode-text decorative backdrop — only ever around the card. Hidden
-            below md so no decode text can sit behind or show through the form
-            on a phone. */}
-        {showBackdrop && (
-          <div className="hidden md:block absolute inset-0 pointer-events-none" aria-hidden="true">
-            <DecodeBackdrop />
-          </div>
-        )}
+      <div className="relative w-full min-w-0 md:w-[45%] flex flex-col min-h-[100dvh] px-4 sm:px-10 lg:px-16 pt-[max(2rem,env(safe-area-inset-top))] pb-[max(2rem,env(safe-area-inset-bottom))] overflow-y-auto overflow-x-hidden">
         {/* Wordmark */}
-        <Link to="/" className="relative z-10 flex items-center gap-2.5 self-start">
+        <Link to="/" aria-label="Blockwork home" className="flex items-center gap-2.5 self-start">
           <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-soft">
             <Boxes className="w-5 h-5 text-primary-foreground" />
           </div>
@@ -32,11 +26,9 @@ export default function AuthLayout({ title, subtitle, footer, children, showBack
         </Link>
 
         {/* Vertically centered form block */}
-        <div className="relative z-10 flex-1 flex items-center justify-center py-10">
-          {/* Solid, fully opaque card — the form always sits on an opaque surface,
-              never on the decorative backdrop. */}
+        <div className="flex-1 flex items-center justify-center py-8">
           <div className="w-full min-w-0 max-w-[400px] bg-card border border-border rounded-2xl shadow-card p-5 sm:p-6">
-            <h1 className="text-[28px] font-bold tracking-tight text-foreground leading-tight">{title}</h1>
+            <h1 className="text-[24px] sm:text-[28px] font-bold tracking-tight text-foreground leading-tight break-words">{title}</h1>
             {subtitle && <p className="text-muted-foreground mt-2 text-[15px] leading-relaxed">{subtitle}</p>}
             <div className="mt-6">{children}</div>
             {footer && <p className="text-sm text-muted-foreground mt-6">{footer}</p>}
@@ -44,7 +36,7 @@ export default function AuthLayout({ title, subtitle, footer, children, showBack
         </div>
 
         {/* Legal links */}
-        <div className="relative z-10 flex items-center gap-5 text-xs text-muted-foreground">
+        <div className="flex items-center gap-5 text-xs text-muted-foreground">
           <Link to="/terms" className="hover:text-foreground hover:underline">Terms</Link>
           <Link to="/privacy" className="hover:text-foreground hover:underline">Privacy</Link>
           <span>© {new Date().getFullYear()} Blockwork</span>
@@ -56,7 +48,6 @@ export default function AuthLayout({ title, subtitle, footer, children, showBack
         className="hidden md:flex md:w-[55%] min-h-screen relative overflow-hidden"
         style={{ backgroundColor: "hsl(213 66% 17%)" }}
       >
-        {/* Soft radial glow for depth */}
         <div
           className="absolute inset-0"
           style={{
@@ -64,8 +55,6 @@ export default function AuthLayout({ title, subtitle, footer, children, showBack
               "radial-gradient(circle at 30% 20%, hsl(219 74% 53% / 0.28), transparent 55%), radial-gradient(circle at 75% 85%, hsl(219 80% 40% / 0.22), transparent 50%)",
           }}
         />
-
-        {/* Brand message + trust points */}
         <div className="relative z-10 flex flex-col justify-center px-12 lg:px-20 py-16 max-w-2xl">
           <h2 className="text-4xl lg:text-[2.75rem] font-bold text-white tracking-tight leading-[1.1] font-heading">
             Neighborhood work. Neighborhood teens.

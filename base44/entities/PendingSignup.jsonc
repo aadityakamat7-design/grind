@@ -4,7 +4,7 @@
   "properties": {
     "token": {
       "type": "string",
-      "description": "One-time random token carried through the sign-in redirect (Google, Apple, Facebook) so the age check survives it"
+      "description": "One-time random token carried through the sign-in redirect (Google, Apple, Facebook) so the age check, invite code and destination survive it"
     },
     "role": {
       "type": "string",
@@ -13,17 +13,25 @@
         "parent",
         "buyer"
       ],
-      "description": "The role the person picked at the age check"
+      "description": "The role the person picked at the age check. Empty when the token only carries an invite code or destination."
     },
     "date_of_birth": {
       "type": "string",
       "format": "date",
-      "description": "The date of birth entered at the age check (already validated for this role)"
+      "description": "The date of birth entered at the age check (already validated for this role). Empty when the token only carries an invite code or destination."
+    },
+    "invite_code": {
+      "type": "string",
+      "description": "A parent invite code that came in on the link, kept here so it survives the sign-in redirect"
+    },
+    "destination": {
+      "type": "string",
+      "description": "The in-app page the person was heading to (an approval link, for example) \u2014 a same-site path only"
     },
     "expires_at": {
       "type": "string",
       "format": "date-time",
-      "description": "15 minutes after the age check passed"
+      "description": "15 minutes after the token was created"
     },
     "consumed_at": {
       "type": "string",
@@ -37,8 +45,6 @@
   },
   "required": [
     "token",
-    "role",
-    "date_of_birth",
     "expires_at"
   ],
   "rls": {

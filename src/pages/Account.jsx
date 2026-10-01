@@ -12,7 +12,7 @@ import ThemeToggle from "@/components/grind/ThemeToggle";
 import { replayTour } from "@/hooks/useTour";
 import { Image } from "@/components/ui/image";
 import PullToRefresh from "@/components/PullToRefresh";
-import { clearSignupState } from "@/lib/signupState";
+import { signOut } from "@/lib/signOut";
 
 const ROLE_LABELS = { teen: "Teen", parent: "Parent / Guardian", buyer: "Neighbor", admin: "Admin" };
 const ROLE_HOME = { teen: "/teen", parent: "/parent", buyer: "/buyer", admin: "/admin" };
@@ -112,7 +112,7 @@ export default function Account() {
               <Button
                 variant="outline"
                 className="w-full rounded-xl h-11 text-destructive border-destructive/20 hover:bg-destructive/10 hover:text-destructive"
-                onClick={() => { clearSignupState(); base44.auth.logout("/"); }}
+                onClick={() => signOut("/")}
               >
                 <LogOut className="w-4 h-4 mr-2" /> Log out
               </Button>
@@ -202,7 +202,7 @@ export default function Account() {
               <Button
                 variant="outline"
                 className="w-full rounded-xl h-11 text-destructive border-destructive/20 hover:bg-destructive/10 hover:text-destructive"
-                onClick={() => { clearSignupState(); base44.auth.logout("/"); }}
+                onClick={() => signOut("/")}
               >
                 <LogOut className="w-4 h-4 mr-2" /> Log out
               </Button>

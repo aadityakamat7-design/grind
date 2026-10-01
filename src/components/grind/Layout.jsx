@@ -121,14 +121,19 @@ export default function Layout() {
     // link from an email (an approval, a receipt) lands on the right screen.
     return (
       <Navigate
-        to={`/login?returnTo=${encodeURIComponent(location.pathname + location.search)}`}
+        to={`/start?returnTo=${encodeURIComponent(location.pathname + location.search)}`}
         replace
       />
     );
   }
+  // Sign-up not finished: /start resumes it, then returns here.
   if (!user.app_role || !user.onboarded) {
-    if (location.pathname !== "/onboarding") return <Navigate to="/onboarding" replace />;
-    // Already on /onboarding — let the Onboarding page render instead of looping.
+    return (
+      <Navigate
+        to={`/start?returnTo=${encodeURIComponent(location.pathname + location.search)}`}
+        replace
+      />
+    );
   }
 
   // Block cross-role access — but allow parents with buyer mode to access
@@ -168,7 +173,7 @@ export default function Layout() {
       {/* Desktop sidebar */}
       <aside className="hidden lg:flex fixed inset-y-0 left-0 w-[260px] flex-col border-r border-border bg-card z-40">
         <div className="h-[68px] flex items-center px-6 border-b border-border">
-          <Link to="/" className="flex items-center gap-2.5">
+          <Link to={ROLE_HOME[user.app_role] || "/"} className="flex items-center gap-2.5">
             <BlockworkLogo size={32} />
             <span className="font-extrabold text-[19px] tracking-tight text-foreground">Blockwork</span>
           </Link>
@@ -232,7 +237,7 @@ export default function Layout() {
               Back
             </button>
           ) : (
-            <Link to="/" className="flex items-center gap-2">
+            <Link to={ROLE_HOME[user.app_role] || "/"} className="flex items-center gap-2">
               <BlockworkLogo size={28} />
               <span className="font-extrabold text-[17px] tracking-tight text-foreground">Blockwork</span>
             </Link>

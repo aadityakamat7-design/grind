@@ -46,7 +46,7 @@ export default function SplitHero() {
             transition={{ duration: 0.4, delay: 0.24, ease: "easeOut" }}
             className="flex flex-col sm:flex-row gap-3 justify-center mt-8"
           >
-            <Button size="lg" onClick={() => navigate("/register")}>
+            <Button size="lg" onClick={() => navigate("/start")}>
               Get Started <ArrowRight className="w-4 h-4" />
             </Button>
             <Button

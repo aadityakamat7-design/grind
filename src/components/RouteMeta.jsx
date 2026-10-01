@@ -12,8 +12,8 @@ const DEFAULT_DESCRIPTION =
 
 const ROUTE_META = {
   "/": { title: DEFAULT_TITLE, description: DEFAULT_DESCRIPTION },
-  "/login": { title: "Log in — Blockwork", description: "Log in to your Blockwork account." },
-  "/register": { title: "Sign up — Blockwork", description: "Create a Blockwork account as a teen, parent, or neighbor." },
+  "/start": { title: "Continue — Blockwork", description: "Sign in or create your Blockwork account as a teen, parent, or neighbor." },
+  "/link": { title: "Parent invite — Blockwork", description: "Link to your teen on Blockwork." },
   "/forgot-password": { title: "Reset password — Blockwork", description: "Reset your Blockwork password." },
   "/reset-password": { title: "Reset password — Blockwork", description: "Set a new password for your Blockwork account." },
   "/terms": { title: "Terms of Service — Blockwork", description: "The rules for using Blockwork: eligibility, parental consent, no-home-entry policy, held payments, minor work-hour limits, and dispute resolution." },
@@ -53,7 +53,7 @@ const ROUTE_META = {
 // Routes that must never be indexed by search engines or AI crawlers.
 // Teen/neighbor profiles, logged-in pages, auth pages, and admin.
 const NOINDEX_ROUTES = new Set([
-  "/login", "/register", "/forgot-password", "/reset-password",
+  "/start", "/link", "/login", "/signup", "/register", "/forgot-password", "/reset-password",
   "/account", "/onboarding", "/oauth-consent", "/admin",
   "/teen", "/parent", "/buyer", "/browse", "/jobs",
   "/messages", "/notifications", "/withdrawal-assistant",
@@ -62,7 +62,7 @@ const NOINDEX_ROUTES = new Set([
 // Dynamic route prefixes that must never be indexed (child safety: teen
 // profiles, neighbor profiles, bookings, and message threads).
 const NOINDEX_PREFIXES = [
-  "/teens/", "/neighbors/", "/bookings/", "/messages/",
+  "/teens/", "/neighbors/", "/bookings/", "/messages/", "/link/",
 ];
 
 // Dynamic routes matched by pattern (checked after static lookup).

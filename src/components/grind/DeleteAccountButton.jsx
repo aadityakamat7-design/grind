@@ -6,6 +6,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Trash2, Loader2 } from "lucide-react";
+import { signOut } from "@/lib/signOut";
 
 export default function DeleteAccountButton({ user }) {
   const [deleting, setDeleting] = useState(false);
@@ -17,7 +18,7 @@ export default function DeleteAccountButton({ user }) {
     setDeleting(true);
     try {
       await base44.entities.User.delete(user.id);
-      base44.auth.logout("/");
+      signOut("/");
     } catch {
       setError("We couldn't delete your account right now. Please try again or contact support.");
       setDeleting(false);

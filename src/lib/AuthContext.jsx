@@ -133,9 +133,11 @@ export const AuthProvider = ({ children }) => {
   };
 
   const navigateToLogin = () => {
-    // Send users to the in-app login page (avoid external redirects that can fail in WebViews)
-    if (window.location.pathname !== '/login') {
-      window.location.href = '/login';
+    // Send users to the in-app entry page (avoid external redirects that can fail in WebViews),
+    // remembering the page they wanted so sign-in returns them to it.
+    if (window.location.pathname !== '/start') {
+      const here = window.location.pathname + window.location.search;
+      window.location.href = `/start?returnTo=${encodeURIComponent(here)}`;
     }
   };
 

@@ -31,6 +31,9 @@ Disallow: /bookings/
 Disallow: /teens/
 Disallow: /neighbors/
 Disallow: /onboarding
+Disallow: /start
+Disallow: /signup
+Disallow: /link
 Disallow: /oauth
 Disallow: /oauth-consent
 Disallow: /login

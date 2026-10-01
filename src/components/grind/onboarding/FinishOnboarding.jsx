@@ -11,13 +11,16 @@ export default function FinishOnboarding({ home = "/" }) {
     if (started.current) return;
     started.current = true;
     (async () => {
+      let dest = "";
       try {
         await base44.functions.invoke("advanceOnboarding", { to: "parent_link_shown" });
-        await base44.functions.invoke("advanceOnboarding", { to: "done" });
+        const res = await base44.functions.invoke("advanceOnboarding", { to: "done" });
+        dest = res.data?.dest || "";
       } catch {
         /* the dashboard's own guard re-checks the step server-side */
       }
-      window.location.href = home;
+      // The page they were heading to before sign-up (saved on the server), else home.
+      window.location.href = dest || home;
     })();
   }, [home]);
 

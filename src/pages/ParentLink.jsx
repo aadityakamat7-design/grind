@@ -3,12 +3,15 @@ import { Link } from "react-router-dom";
 import { useAppUser } from "@/lib/useAppUser";
 import PageHeader from "@/components/grind/PageHeader";
 import ParentLinkFlow from "@/components/grind/onboarding/ParentLinkFlow";
+import { cleanCode } from "@/lib/entryRoute";
 
 // /parent/link — a parent adding another teen, long after sign-up. Same flow the
-// parent saw during onboarding; a parent can have more than one teen.
+// parent saw during onboarding; a parent can have more than one teen. An invite
+// link opens here with ?code= already filled in.
 export default function ParentLink() {
   const { user, loading } = useAppUser();
   const [linkedName, setLinkedName] = useState("");
+  const [code] = useState(() => cleanCode(new URLSearchParams(window.location.search).get("code")));
 
   if (loading)
     return (
@@ -32,7 +35,7 @@ export default function ParentLink() {
         </div>
       ) : (
         <div className="rounded-2xl border border-border bg-card p-5 shadow-soft">
-          <ParentLinkFlow user={user} onLinked={(teen) => setLinkedName(teen?.teenName || "Your teen")} />
+          <ParentLinkFlow user={user} initialCode={code} onLinked={(teen) => setLinkedName(teen?.teenName || "Your teen")} />
         </div>
       )}
     </div>

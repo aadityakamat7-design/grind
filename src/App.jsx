@@ -1,7 +1,7 @@
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
-import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
@@ -12,13 +12,13 @@ import TestModeBanner from "@/components/TestModeBanner";
 import RouteMeta from "@/components/RouteMeta";
 import CanonicalDomainRedirect from "@/components/CanonicalDomainRedirect";
 // Add page imports here
-import Login from '@/pages/Login';
-import Register from '@/pages/Register';
+import Start from '@/pages/Start';
+import LinkInvite from '@/pages/LinkInvite';
+import RedirectLoopGuard from '@/components/RedirectLoopGuard';
 import ForgotPassword from '@/pages/ForgotPassword';
 import ResetPassword from '@/pages/ResetPassword';
 import Layout from '@/components/grind/Layout';
 import Welcome from '@/pages/Welcome';
-import Onboarding from '@/pages/Onboarding';
 import Account from '@/pages/Account';
 import TeenHome from '@/pages/TeenHome';
 import TeenListings from '@/pages/TeenListings';
@@ -61,6 +61,13 @@ import Unsubscribe from '@/pages/Unsubscribe';
 import WorkRecordVerify from '@/pages/WorkRecordVerify';
 import ParentLink from '@/pages/ParentLink';
 
+// Old sign-in / sign-up addresses go straight to /start with everything in the URL
+// (invite codes, returnTo, role) intact, so old links and emails keep working.
+const ToStart = () => {
+  const { search, hash } = useLocation();
+  return <Navigate to={{ pathname: '/start', search, hash }} replace />;
+};
+
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
   const location = useLocation();
@@ -81,12 +88,13 @@ const AuthenticatedApp = () => {
     } else if (authError.type === 'auth_required') {
       // Auth pages and the public landing must always render, otherwise
       // unauthenticated users get a blank screen instead of a login form.
-      const publicPaths = ['/', '/login', '/register', '/forgot-password', '/reset-password'];
+      const publicPaths = ['/', '/start', '/login', '/signup', '/register', '/onboarding', '/link', '/forgot-password', '/reset-password'];
       // A Work Record verification link is opened by schools and employers who
       // have no Blockwork account, so that page must render without signing in.
       const isPublicPath =
         publicPaths.includes(window.location.pathname) ||
-        window.location.pathname.startsWith('/verify/');
+        window.location.pathname.startsWith('/verify/') ||
+        window.location.pathname.startsWith('/link/');
       if (!isPublicPath) {
         navigateToLogin();
         return null;
@@ -107,8 +115,13 @@ const AuthenticatedApp = () => {
         <Routes location={location}>
       {/* Public landing + auth */}
       <Route path="/" element={<Welcome />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
+      <Route path="/start" element={<Start />} />
+      <Route path="/link/:code" element={<LinkInvite />} />
+      <Route path="/link" element={<LinkInvite />} />
+      <Route path="/login" element={<ToStart />} />
+      <Route path="/signup" element={<ToStart />} />
+      <Route path="/register" element={<ToStart />} />
+      <Route path="/onboarding" element={<ToStart />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
 
@@ -130,8 +143,6 @@ const AuthenticatedApp = () => {
       <Route path="/unsubscribe" element={<Unsubscribe />} />
       <Route path="/verify/:recordId" element={<WorkRecordVerify />} />
 
-      {/* Onboarding — standalone page like auth (no app nav) */}
-      <Route path="/onboarding" element={<Onboarding />} />
 
       {/* Authenticated app — Layout provides nav + footer */}
       <Route element={<Layout />}>
@@ -189,6 +200,7 @@ function App() {
           <CanonicalDomainRedirect />
           <TestModeBanner />
           <RouteMeta />
+          <RedirectLoopGuard />
           <ErrorBoundary>
             <AuthenticatedApp />
           </ErrorBoundary>

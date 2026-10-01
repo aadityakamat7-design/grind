@@ -18,7 +18,7 @@ export default function LinkTeenCard() {
       setError("Enter the connection code your teen generated in their app.");
       return;
     }
-    window.location.href = `/onboarding?role=parent&code=${encodeURIComponent(trimmed)}`;
+    window.location.href = `/parent/link?code=${encodeURIComponent(trimmed)}`;
   };
 
   return (

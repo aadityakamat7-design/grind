@@ -4,8 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { calcAge } from "@/lib/grind";
-import { ShieldCheck } from "lucide-react";
 import LegalModal from "@/components/grind/LegalModal";
 import WaitlistCapture from "@/components/grind/WaitlistCapture";
 import { seededName, isRealName, isCaliforniaZip } from "@/lib/signupState";
@@ -13,8 +11,6 @@ import { seededName, isRealName, isCaliforniaZip } from "@/lib/signupState";
 const TERMS_VERSION = "2026-10-01";
 
 export default function BuyerOnboarding({ user, onProfileSaved }) {
-  // The date of birth was checked and saved on the account by the age screen.
-  const dob = user.date_of_birth || "";
   // Names are only ever seeded from a real name already on the account — never
   // from the email username the platform writes at sign-up.
   const seeded = seededName(user);

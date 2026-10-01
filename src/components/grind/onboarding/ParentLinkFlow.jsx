@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -90,6 +90,16 @@ export default function ParentLinkFlow({ user, initialCode = "", onLinked }) {
       setSaving(false);
     }
   };
+
+  // A code that arrived on an invite link opens straight on the confirmation
+  // screen, with the code filled in.
+  const autoLookedUp = useRef(false);
+  useEffect(() => {
+    if (initialCode && !autoLookedUp.current) {
+      autoLookedUp.current = true;
+      lookup();
+    }
+  }, []);
 
   if (step === 1) {
     return (

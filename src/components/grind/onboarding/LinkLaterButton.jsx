@@ -12,15 +12,18 @@ export default function LinkLaterButton({ label = "Go to my dashboard", onDone }
 
   const finish = async () => {
     setSaving(true);
+    let dest = "";
     try {
       await base44.functions.invoke("advanceOnboarding", { to: "parent_link_shown" });
-      await base44.functions.invoke("advanceOnboarding", { to: "done" });
+      const res = await base44.functions.invoke("advanceOnboarding", { to: "done" });
+      dest = res.data?.dest || "";
       setCachedUser(null);
     } catch {
       /* the page reload below re-checks the step on the server */
     }
-    // Hard redirect so the freshly-set step is picked up.
-    window.location.href = onDone ? onDone() : "/";
+    // Hard redirect so the freshly-set step is picked up. A page they were
+    // heading to before sign-up (saved on the server) wins over the dashboard.
+    window.location.href = dest || (onDone ? onDone() : "/");
   };
 
   return (

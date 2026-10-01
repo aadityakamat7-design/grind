@@ -13,7 +13,9 @@
         "register",
         "reset-request",
         "resend-otp",
-        "reset-password"
+        "reset-password",
+        "check-email",
+        "invite-lookup"
       ],
       "description": "Auth action being rate-limited"
     },

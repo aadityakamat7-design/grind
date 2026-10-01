@@ -80,6 +80,45 @@
         }
       }
     },
+    "auth_method": {
+      "type": "string",
+      "enum": [
+        "password",
+        "google",
+        "apple",
+        "facebook"
+      ],
+      "description": "How this account was first created, so entering the same email later can say 'this email uses Google sign-in' instead of making a duplicate. Empty on older accounts (server-set only).",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "saved_destination": {
+      "type": "string",
+      "description": "The in-app page the person was heading to before sign-in (an approval link, for example). Used once, when sign-up finishes, then cleared (server-set only).",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "pending_invite_code": {
+      "type": "string",
+      "description": "A parent invite code saved at sign-up so the link confirmation screen opens with it filled in. Cleared when sign-up finishes (server-set only).",
+      "rls": {
+        "write": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
     "contact_email": {
       "type": "string",
       "description": "An email the person typed and confirmed themselves, saved when their sign-in provider (for example Facebook) did not return one"
